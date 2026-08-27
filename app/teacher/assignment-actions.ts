@@ -25,6 +25,7 @@ const safeDraftError = (error: { code: string; message: string } | null) => {
   if (error.code === "P0001" && knownValidationMessages.has(error.message)) return error.message;
   return "The draft could not be saved. Review the selected class and validated questions, then try again.";
 };
+export type DraftActionState = { error: string } | null;
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"));
@@ -32,15 +33,20 @@ function settings(formData: FormData) {
   return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), shuffle_questions: checked(formData.get("shuffle_questions")), class_ids: classIds(formData) };
 }
 
-export async function createAssignment(formData: FormData) {
-  await requireTeacher(); const values = settings(formData); const rawQuestions = text(formData.get("questions_json"));
-  if (!values || values.class_ids.length === 0) redirect(message("/teacher/assignments/new", "error", "Complete the assignment settings and select at least one class."));
-  let parsed: unknown; try { parsed = JSON.parse(rawQuestions); } catch { redirect(message("/teacher/assignments/new", "error", "Validate the question import before saving.")); }
+export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
+  const teacher = await requireTeacher(); const values = settings(formData); const rawQuestions = text(formData.get("questions_json"));
+  console.info("createAssignment invoked", { teacherId: teacher.id, hasSettings: Boolean(values), classCount: values?.class_ids.length ?? 0, questionPayloadLength: rawQuestions.length });
+  if (!values || values.class_ids.length === 0) return { error: "Complete the assignment settings and select at least one class." };
+  let parsed: unknown; try { parsed = JSON.parse(rawQuestions); } catch { return { error: "Validate the question import before saving." }; }
   const validated = validateAssignmentImport({ questions: parsed });
-  if (!validated.data) redirect(message("/teacher/assignments/new", "error", validated.errors[0] ?? "The questions are invalid."));
+  if (!validated.data) return { error: validated.errors[0] ?? "The questions are invalid." };
+  // PostgreSQL distinguishes an absent JSON property from a JSON `null`. The RPC
+  // accepts omitted options for non-multiple-choice questions, so preserve that
+  // distinction when serializing the normalized import for Supabase.
+  const rpcQuestions = validated.data.questions.map(({ options, ...question }) => options === null ? question : { ...question, options });
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_assignment_draft", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_questions: validated.data.questions });
-  if (error || !data) { if (error) console.error("create_assignment_draft failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); redirect(message("/teacher/assignments/new", "error", safeDraftError(error))); }
+  const { data, error } = await supabase.rpc("create_assignment_draft", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_questions: rpcQuestions });
+  if (error || !data) { if (error) console.error(`create_assignment_draft failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); redirect(`/teacher/assignments/${data}`);
 }
 
