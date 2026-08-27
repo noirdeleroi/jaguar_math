@@ -16,6 +16,15 @@ const classIds = (formData: FormData) => formData.getAll("class_ids").filter((va
 const dueAt = (value: FormDataEntryValue | null) => {
   const raw = text(value); if (!raw) return null; const parsed = new Date(raw); return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 };
+const safeDraftError = (error: { code: string; message: string } | null) => {
+  if (!error) return "The draft save did not return an assignment ID. Please try again.";
+  if (error.code === "PGRST202" || error.code === "42883") return "The assessment database function is unavailable. Please contact an administrator.";
+  if (error.code === "42501") return "You are not authorized to save an assignment for the selected class.";
+  if (error.code === "23503") return "One of the selected classes or skills is no longer available.";
+  const knownValidationMessages = new Set(["At least one class is required", "Classes must be unique", "A selected class is not managed by this teacher", "At least one question is required", "Duration must be positive", "Maximum attempts must be at least one"]);
+  if (error.code === "P0001" && knownValidationMessages.has(error.message)) return error.message;
+  return "The draft could not be saved. Review the selected class and validated questions, then try again.";
+};
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"));
@@ -31,7 +40,7 @@ export async function createAssignment(formData: FormData) {
   if (!validated.data) redirect(message("/teacher/assignments/new", "error", validated.errors[0] ?? "The questions are invalid."));
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_assignment_draft", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_questions: validated.data.questions });
-  if (error || !data) redirect(message("/teacher/assignments/new", "error", "The draft could not be saved. Check the selected classes and questions."));
+  if (error || !data) { if (error) console.error("create_assignment_draft failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); redirect(message("/teacher/assignments/new", "error", safeDraftError(error))); }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); redirect(`/teacher/assignments/${data}`);
 }
 
