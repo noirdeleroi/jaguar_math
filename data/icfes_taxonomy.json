@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "framework": "ICFES Saber 11 Matemáticas",
+  "content_categories": [
+    {
+      "code": "ESTADISTICA",
+      "name": "Estadística"
+    },
+    {
+      "code": "GEOMETRIA",
+      "name": "Geometría"
+    },
+    {
+      "code": "ALGEBRA_CALCULO",
+      "name": "Álgebra y cálculo"
+    }
+  ],
+  "content_types": [
+    {
+      "code": "GENERICO",
+      "name": "Genérico"
+    },
+    {
+      "code": "NO_GENERICO",
+      "name": "No genérico"
+    },
+    {
+      "code": "MIXTO",
+      "name": "Mixto"
+    }
+  ],
+  "competencies": [
+    {
+      "code": "INTERPRETACION_REPRESENTACION",
+      "name": "Interpretación y representación",
+      "scope": "question"
+    },
+    {
+      "code": "FORMULACION_EJECUCION",
+      "name": "Formulación y ejecución",
+      "scope": "question"
+    },
+    {
+      "code": "ARGUMENTACION",
+      "name": "Argumentación",
+      "scope": "question"
+    }
+  ],
+  "mapping_statuses": [
+    "direct",
+    "supporting",
+    "not_explicit"
+  ],
+  "rule": "ICFES competency belongs to each question, not permanently to a Jaguar Math skill."
+}

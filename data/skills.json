@@ -1,0 +1,3201 @@
+{
+  "$schema": "./skills.schema.json",
+  "version": "1.0.0",
+  "taxonomy": "Jaguar Math",
+  "description": "Canonical G11/G12 Jaguar Math skill taxonomy. AERO is the curriculum alignment; SAT and ICFES are assessment overlays.",
+  "skill_count": 125,
+  "skills": [
+    {
+      "code": "NUM.ORDER_OPS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Arithmetic",
+      "name": "Use order of operations accurately",
+      "sort_order": 1,
+      "active": true,
+      "aero": {
+        "status": "prerequisite",
+        "standards": []
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      },
+      "notes": "Foundational prerequisite; ICFES includes basic arithmetic operations."
+    },
+    {
+      "code": "NUM.INTEGER_OPS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Arithmetic",
+      "name": "Perform operations with integers and signed numbers",
+      "sort_order": 2,
+      "active": true,
+      "aero": {
+        "status": "prerequisite",
+        "standards": []
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.FRACTIONS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Arithmetic",
+      "name": "Perform operations with fractions and mixed numbers",
+      "sort_order": 3,
+      "active": true,
+      "aero": {
+        "status": "prerequisite",
+        "standards": []
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Ratios, rates, proportional relationships, and units"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.DECIMALS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Arithmetic",
+      "name": "Perform operations with decimals",
+      "sort_order": 4,
+      "active": true,
+      "aero": {
+        "status": "prerequisite",
+        "standards": []
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Percentages"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.RATIOS_RATES",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Proportional Reasoning",
+      "name": "Work with ratios, rates, and unit rates",
+      "sort_order": 5,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.Q.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Ratios, rates, proportional relationships, and units"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.PROPORTIONS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Proportional Reasoning",
+      "name": "Solve proportional relationships",
+      "sort_order": 6,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.Q.1",
+          "AERO.HSF.LE.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Ratios, rates, proportional relationships, and units"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.PERCENT",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Proportional Reasoning",
+      "name": "Solve percent problems and percent change",
+      "sort_order": 7,
+      "active": true,
+      "aero": {
+        "status": "partial",
+        "standards": [
+          "AERO.HSN.Q.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Percentages"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.UNITS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Measurement",
+      "name": "Convert units and use dimensional analysis",
+      "sort_order": 8,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.Q.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Ratios, rates, proportional relationships, and units"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.SCI_NOTATION",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Number Systems",
+      "name": "Use scientific notation and orders of magnitude",
+      "sort_order": 9,
+      "active": true,
+      "aero": {
+        "status": "partial",
+        "standards": [
+          "AERO.HSN.Q.3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.ESTIMATION",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Quantitative Reasoning",
+      "name": "Estimate, approximate, and judge reasonableness",
+      "sort_order": 10,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.Q.3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Ratios, rates, proportional relationships, and units"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "NUM.REAL_NUMBERS",
+      "domain": "Number & Quantitative Reasoning",
+      "subdomain": "Number Systems",
+      "name": "Classify and compare rational, irrational, and real numbers",
+      "sort_order": 11,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.RN.3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.EXPRESSIONS",
+      "domain": "Algebra",
+      "subdomain": "Expressions",
+      "name": "Simplify and evaluate algebraic expressions",
+      "sort_order": 12,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.SSE.1-2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.EQUIVALENT_EXPRESSIONS",
+      "domain": "Algebra",
+      "subdomain": "Expressions",
+      "name": "Rewrite expressions in equivalent forms to reveal structure",
+      "sort_order": 13,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.SSE.2-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.REARRANGE_FORMULAS",
+      "domain": "Algebra",
+      "subdomain": "Expressions",
+      "name": "Rearrange formulas and literal equations",
+      "sort_order": 14,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.CED.4"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Algebra",
+        "skills": [
+          "Linear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.ABSOLUTE_VALUE",
+      "domain": "Algebra",
+      "subdomain": "Equations & Inequalities",
+      "name": "Solve and interpret absolute-value equations and inequalities",
+      "sort_order": 15,
+      "active": true,
+      "aero": {
+        "status": "partial",
+        "standards": [
+          "AERO.HSA.REI.3",
+          "AERO.HSF.IF.7"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.LINEAR_EQ_1VAR",
+      "domain": "Algebra",
+      "subdomain": "Linear Equations",
+      "name": "Solve linear equations in one variable",
+      "sort_order": 16,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.1",
+          "AERO.HSA.REI.3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.LINEAR_EQ_2VAR",
+      "domain": "Algebra",
+      "subdomain": "Linear Equations",
+      "name": "Interpret and work with linear equations in two variables",
+      "sort_order": 17,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.CED.2",
+          "AERO.HSA.REI.10"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear equations in two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.LINEAR_EQ_CONTEXT",
+      "domain": "Algebra",
+      "subdomain": "Linear Equations",
+      "name": "Model and solve contextual problems with linear equations",
+      "sort_order": 18,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.CED.1-2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear equations in one variable",
+          "Linear equations in two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.LINEAR_INEQUALITIES",
+      "domain": "Algebra",
+      "subdomain": "Inequalities",
+      "name": "Solve and graph linear inequalities in one or two variables",
+      "sort_order": 19,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.3",
+          "AERO.HSA.REI.12"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear inequalities in one or two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.COMPOUND_INEQUALITIES",
+      "domain": "Algebra",
+      "subdomain": "Inequalities",
+      "name": "Solve compound inequalities and interval constraints",
+      "sort_order": 20,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.CED.3",
+          "AERO.HSA.REI.3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Algebra",
+        "skills": [
+          "Linear inequalities in one or two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.SYSTEMS_LINEAR",
+      "domain": "Algebra",
+      "subdomain": "Systems",
+      "name": "Solve systems of two linear equations",
+      "sort_order": 21,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.5-6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Systems of two linear equations in two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.SYSTEMS_CONTEXT",
+      "domain": "Algebra",
+      "subdomain": "Systems",
+      "name": "Model and interpret contextual situations with systems",
+      "sort_order": 22,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.CED.2-3",
+          "AERO.HSA.REI.6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Systems of two linear equations in two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.NONLINEAR_SYSTEMS",
+      "domain": "Algebra",
+      "subdomain": "Systems",
+      "name": "Solve systems containing nonlinear equations",
+      "sort_order": 23,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.7",
+          "AERO.HSA.REI.11"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Systems of equations in two variables"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.EXPONENT_RULES",
+      "domain": "Algebra",
+      "subdomain": "Exponents & Radicals",
+      "name": "Apply laws of exponents",
+      "sort_order": 24,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.RN.1-2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "ALG.RADICALS",
+      "domain": "Algebra",
+      "subdomain": "Exponents & Radicals",
+      "name": "Simplify and operate with radical expressions",
+      "sort_order": 25,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.RN.2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions",
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.RATIONAL_EXPONENTS",
+      "domain": "Algebra",
+      "subdomain": "Exponents & Radicals",
+      "name": "Work with rational exponents and connect them to radicals",
+      "sort_order": 26,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.RN.1-2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.RADICAL_EQUATIONS",
+      "domain": "Algebra",
+      "subdomain": "Exponents & Radicals",
+      "name": "Solve radical equations and check extraneous solutions",
+      "sort_order": 27,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.POLYNOMIAL_OPS",
+      "domain": "Algebra",
+      "subdomain": "Polynomials",
+      "name": "Add, subtract, and multiply polynomials",
+      "sort_order": 28,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.APR.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.FACTORING",
+      "domain": "Algebra",
+      "subdomain": "Polynomials",
+      "name": "Factor polynomial expressions",
+      "sort_order": 29,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.SSE.2-3",
+          "AERO.HSA.APR.3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.POLYNOMIAL_DIVISION",
+      "domain": "Algebra",
+      "subdomain": "Polynomials",
+      "name": "Divide polynomials and rational polynomial expressions",
+      "sort_order": 30,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.APR.6"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.POLYNOMIAL_ZEROS",
+      "domain": "Algebra",
+      "subdomain": "Polynomials",
+      "name": "Use zeros, factors, and the remainder/factor theorems",
+      "sort_order": 31,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.APR.2-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable",
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.BINOMIAL_THEOREM",
+      "domain": "Algebra",
+      "subdomain": "Polynomials",
+      "name": "Use the binomial theorem and polynomial identities",
+      "sort_order": 32,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.APR.4-5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.QUADRATIC_SOLVE",
+      "domain": "Algebra",
+      "subdomain": "Quadratics",
+      "name": "Solve quadratic equations using appropriate methods",
+      "sort_order": 33,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.4"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.QUADRATIC_DISCRIMINANT",
+      "domain": "Algebra",
+      "subdomain": "Quadratics",
+      "name": "Use the discriminant to determine the number and type of solutions",
+      "sort_order": 34,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.4"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.RATIONAL_EXPRESSIONS",
+      "domain": "Algebra",
+      "subdomain": "Rational Algebra",
+      "name": "Simplify and operate with rational expressions",
+      "sort_order": 35,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.APR.6-7"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "ALG.RATIONAL_EQUATIONS",
+      "domain": "Algebra",
+      "subdomain": "Rational Algebra",
+      "name": "Solve rational equations and identify excluded values",
+      "sort_order": 36,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.REI.2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.CONCEPT",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Understand functions, inputs, outputs, and function notation",
+      "sort_order": 37,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.1-2"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Algebra",
+        "skills": [
+          "Linear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.DOMAIN_RANGE",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Determine and interpret domain and range",
+      "sort_order": 38,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Connect equations, tables, graphs, and verbal descriptions",
+      "sort_order": 39,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.4",
+          "AERO.HSF.IF.9"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.GRAPH_FEATURES",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Interpret intercepts, extrema, intervals, symmetry, and end behavior from graphs",
+      "sort_order": 40,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.4",
+          "AERO.HSF.IF.7"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.RATE_CHANGE",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Calculate and interpret average rate of change",
+      "sort_order": 41,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "FUNC.COMPARE",
+      "domain": "Functions",
+      "subdomain": "Foundations",
+      "name": "Compare functions represented in different forms",
+      "sort_order": 42,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.9",
+          "AERO.HSF.LE.1"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.TRANSFORMATIONS",
+      "domain": "Functions",
+      "subdomain": "Transformations",
+      "name": "Analyze translations, reflections, stretches, and compressions",
+      "sort_order": 43,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.COMPOSITION",
+      "domain": "Functions",
+      "subdomain": "Operations on Functions",
+      "name": "Compose functions and interpret compositions",
+      "sort_order": 44,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.1"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.INVERSE",
+      "domain": "Functions",
+      "subdomain": "Operations on Functions",
+      "name": "Find, verify, and interpret inverse functions",
+      "sort_order": 45,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.4-5"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.PIECEWISE",
+      "domain": "Functions",
+      "subdomain": "Special Functions",
+      "name": "Interpret, graph, and evaluate piecewise-defined functions",
+      "sort_order": 46,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.LINEAR",
+      "domain": "Functions",
+      "subdomain": "Linear Functions",
+      "name": "Analyze and represent linear functions",
+      "sort_order": 47,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7",
+          "AERO.HSF.LE.1-2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "FUNC.LINEAR_MODELING",
+      "domain": "Functions",
+      "subdomain": "Linear Functions",
+      "name": "Build and interpret linear models from context or data",
+      "sort_order": 48,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.LE.2",
+          "AERO.HSF.LE.5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Algebra",
+        "skills": [
+          "Linear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "FUNC.QUADRATIC",
+      "domain": "Functions",
+      "subdomain": "Quadratic Functions",
+      "name": "Analyze quadratic functions and their key features",
+      "sort_order": 49,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7-8"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.QUADRATIC_FORMS",
+      "domain": "Functions",
+      "subdomain": "Quadratic Functions",
+      "name": "Connect standard, vertex, and factored forms of quadratics",
+      "sort_order": 50,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.8",
+          "AERO.HSA.SSE.3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Equivalent expressions",
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.QUADRATIC_MODELING",
+      "domain": "Functions",
+      "subdomain": "Quadratic Functions",
+      "name": "Model contextual situations using quadratic functions",
+      "sort_order": 51,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.1",
+          "AERO.HSF.IF.4"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.POLYNOMIAL",
+      "domain": "Functions",
+      "subdomain": "Polynomial & Rational Functions",
+      "name": "Analyze polynomial functions, zeros, and end behavior",
+      "sort_order": 52,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7",
+          "AERO.HSA.APR.3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.RATIONAL",
+      "domain": "Functions",
+      "subdomain": "Polynomial & Rational Functions",
+      "name": "Analyze rational functions, asymptotes, holes, and domain restrictions",
+      "sort_order": 53,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.EXPONENTIAL",
+      "domain": "Functions",
+      "subdomain": "Exponential & Logarithmic Functions",
+      "name": "Analyze exponential functions and compare exponential versus linear growth",
+      "sort_order": 54,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.LE.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.EXPONENTIAL_MODELING",
+      "domain": "Functions",
+      "subdomain": "Exponential & Logarithmic Functions",
+      "name": "Model growth and decay with exponential functions",
+      "sort_order": 55,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.LE.2",
+          "AERO.HSF.LE.5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "FUNC.LOGARITHMIC",
+      "domain": "Functions",
+      "subdomain": "Exponential & Logarithmic Functions",
+      "name": "Analyze logarithmic functions and solve exponential/logarithmic equations",
+      "sort_order": 56,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.LE.4",
+          "AERO.HSF.IF.7"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable",
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.ANGLES_LINES",
+      "domain": "Geometry",
+      "subdomain": "Lines & Angles",
+      "name": "Use angle relationships and properties of parallel/perpendicular lines",
+      "sort_order": 57,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.9",
+          "AERO.HSG.GPE.5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.TRIANGLES",
+      "domain": "Geometry",
+      "subdomain": "Triangles",
+      "name": "Apply triangle properties, angle sums, and triangle inequality",
+      "sort_order": 58,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.10"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.CONGRUENCE",
+      "domain": "Geometry",
+      "subdomain": "Triangles",
+      "name": "Use triangle congruence criteria and rigid-motion reasoning",
+      "sort_order": 59,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.6-8"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.SIMILARITY",
+      "domain": "Geometry",
+      "subdomain": "Triangles",
+      "name": "Use similarity, scale factors, and proportional relationships in figures",
+      "sort_order": 60,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.SRT.1-5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.PYTHAGOREAN",
+      "domain": "Geometry",
+      "subdomain": "Triangles",
+      "name": "Apply the Pythagorean theorem and related distance relationships",
+      "sort_order": 61,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.SRT.8"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.POLYGONS",
+      "domain": "Geometry",
+      "subdomain": "Polygons",
+      "name": "Analyze polygons, angle sums, and properties of quadrilaterals",
+      "sort_order": 62,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.11"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Mixto"
+      }
+    },
+    {
+      "code": "GEO.CIRCLES",
+      "domain": "Geometry",
+      "subdomain": "Circles",
+      "name": "Apply circle properties involving chords, tangents, arcs, and angles",
+      "sort_order": 63,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.C.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Circles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.CIRCLE_EQUATIONS",
+      "domain": "Geometry",
+      "subdomain": "Circles",
+      "name": "Use the equation of a circle in the coordinate plane",
+      "sort_order": 64,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GPE.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Circles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.CIRCLE_MEASURE",
+      "domain": "Geometry",
+      "subdomain": "Circles",
+      "name": "Work with circumference, arc length, sector area, and radian-based circle measure",
+      "sort_order": 65,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.C.5",
+          "AERO.HSG.GMD.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Circles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.AREA",
+      "domain": "Geometry",
+      "subdomain": "Measurement",
+      "name": "Calculate and reason with area of two-dimensional figures",
+      "sort_order": 66,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GMD.1",
+          "AERO.HSG.MG.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Area and volume"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.SURFACE_AREA",
+      "domain": "Geometry",
+      "subdomain": "Measurement",
+      "name": "Calculate surface area of three-dimensional solids",
+      "sort_order": 67,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GMD.1",
+          "AERO.HSG.MG.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Area and volume"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Mixto"
+      }
+    },
+    {
+      "code": "GEO.VOLUME",
+      "domain": "Geometry",
+      "subdomain": "Measurement",
+      "name": "Calculate and reason with volume of three-dimensional solids",
+      "sort_order": 68,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GMD.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Area and volume"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.COORDINATE",
+      "domain": "Geometry",
+      "subdomain": "Coordinate Geometry",
+      "name": "Use slope, distance, midpoint, partition, and coordinates to solve geometry problems",
+      "sort_order": 69,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GPE.4-7"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Lines, angles, and triangles"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "GEO.TRANSFORMATIONS",
+      "domain": "Geometry",
+      "subdomain": "Transformations",
+      "name": "Use translations, rotations, reflections, and dilations",
+      "sort_order": 70,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.2-5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.GEOMETRIC_REASONING",
+      "domain": "Geometry",
+      "subdomain": "Reasoning & Proof",
+      "name": "Construct and justify geometric arguments and proofs",
+      "sort_order": 71,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.CO.9-11",
+          "AERO.HSG.SRT.4"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "GEO.MODELING",
+      "domain": "Geometry",
+      "subdomain": "Modeling",
+      "name": "Model real objects and constraints using geometric shapes, measures, and density",
+      "sort_order": 72,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.MG.1-3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Area and volume"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "TRIG.RIGHT_TRIANGLE",
+      "domain": "Trigonometry",
+      "subdomain": "Right-Triangle Trigonometry",
+      "name": "Solve right triangles using sine, cosine, and tangent",
+      "sort_order": 73,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.SRT.6-8"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Right triangles and trigonometry"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.SPECIAL_TRIANGLES",
+      "domain": "Trigonometry",
+      "subdomain": "Right-Triangle Trigonometry",
+      "name": "Use 30-60-90 and 45-45-90 triangles and exact values",
+      "sort_order": 74,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.3",
+          "AERO.HSG.SRT.8"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Right triangles and trigonometry"
+        ]
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.RADIANS",
+      "domain": "Trigonometry",
+      "subdomain": "Unit Circle",
+      "name": "Convert between degrees and radians and use radian measure",
+      "sort_order": 75,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.1"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Circles",
+          "Right triangles and trigonometry"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.UNIT_CIRCLE",
+      "domain": "Trigonometry",
+      "subdomain": "Unit Circle",
+      "name": "Use the unit circle to determine exact trigonometric values",
+      "sort_order": 76,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.2-4"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Right triangles and trigonometry"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.GRAPHS",
+      "domain": "Trigonometry",
+      "subdomain": "Trig Functions",
+      "name": "Analyze graphs of sine, cosine, and tangent",
+      "sort_order": 77,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.IF.7",
+          "AERO.HSF.TF.5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.TRANSFORMATIONS",
+      "domain": "Trigonometry",
+      "subdomain": "Trig Functions",
+      "name": "Analyze amplitude, period, phase shift, and vertical shift",
+      "sort_order": 78,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.3",
+          "AERO.HSF.TF.5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.INVERSE",
+      "domain": "Trigonometry",
+      "subdomain": "Trig Functions",
+      "name": "Use inverse trigonometric functions to determine angles and solve problems",
+      "sort_order": 79,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.6-7"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Geometry and Trigonometry",
+        "skills": [
+          "Right triangles and trigonometry"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.IDENTITIES",
+      "domain": "Trigonometry",
+      "subdomain": "Identities & Equations",
+      "name": "Simplify and verify trigonometric identities",
+      "sort_order": 80,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.8-9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.EQUATIONS",
+      "domain": "Trigonometry",
+      "subdomain": "Identities & Equations",
+      "name": "Solve trigonometric equations",
+      "sort_order": 81,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.7-9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.LAW_SINES_COSINES",
+      "domain": "Trigonometry",
+      "subdomain": "Oblique Triangles",
+      "name": "Solve non-right triangles using the Laws of Sines and Cosines",
+      "sort_order": 82,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.SRT.9-11"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "TRIG.MODELING",
+      "domain": "Trigonometry",
+      "subdomain": "Modeling",
+      "name": "Model periodic phenomena with trigonometric functions",
+      "sort_order": 83,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.TF.5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.DATA_DISPLAYS",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Read, construct, and interpret tables, charts, plots, and graphs",
+      "sort_order": 84,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "One-variable data: Distributions and measures of center and spread"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "STAT.CENTER",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Calculate and interpret mean, median, and other measures of center",
+      "sort_order": 85,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "One-variable data: Distributions and measures of center and spread"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Mixto"
+      }
+    },
+    {
+      "code": "STAT.VARIABILITY",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Calculate and interpret range, IQR, variance, and standard deviation",
+      "sort_order": 86,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.2"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "One-variable data: Distributions and measures of center and spread"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Mixto"
+      }
+    },
+    {
+      "code": "STAT.PERCENTILES",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Interpret percentiles, quartiles, and relative position in a distribution",
+      "sort_order": 87,
+      "active": true,
+      "aero": {
+        "status": "partial",
+        "standards": [
+          "AERO.HSS.ID.1-2"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "One-variable data: Distributions and measures of center and spread"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.DISTRIBUTIONS",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Describe and compare distributions using shape, center, spread, and outliers",
+      "sort_order": 88,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "One-variable data: Distributions and measures of center and spread"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Mixto"
+      }
+    },
+    {
+      "code": "STAT.NORMAL_DISTRIBUTION",
+      "domain": "Statistics & Probability",
+      "subdomain": "Descriptive Statistics",
+      "name": "Use normal distributions, z-scores, and standard deviation to estimate proportions",
+      "sort_order": 89,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.4"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.SCATTERPLOTS",
+      "domain": "Statistics & Probability",
+      "subdomain": "Bivariate Data",
+      "name": "Analyze scatterplots, association, trends, and outliers",
+      "sort_order": 90,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Two-variable data: Models and scatterplots"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.REGRESSION",
+      "domain": "Statistics & Probability",
+      "subdomain": "Bivariate Data",
+      "name": "Interpret linear/nonlinear models, residuals, slope, intercept, and correlation",
+      "sort_order": 91,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.6-9"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Two-variable data: Models and scatterplots"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.TWO_WAY_TABLES",
+      "domain": "Statistics & Probability",
+      "subdomain": "Categorical Data",
+      "name": "Analyze two-way tables, joint frequencies, and conditional frequencies",
+      "sort_order": 92,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.ID.5",
+          "AERO.HSS.CP.4"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "STAT.SET_OPERATIONS",
+      "domain": "Statistics & Probability",
+      "subdomain": "Sets",
+      "name": "Use intersection, union, complement, and containment of sets",
+      "sort_order": 93,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.1"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.BASIC",
+      "domain": "Statistics & Probability",
+      "subdomain": "Probability",
+      "name": "Calculate and interpret basic probabilities",
+      "sort_order": 94,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.1"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.COMPOUND",
+      "domain": "Statistics & Probability",
+      "subdomain": "Probability",
+      "name": "Calculate probabilities of compound events using addition and multiplication rules",
+      "sort_order": 95,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.7-8"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.CONDITIONAL",
+      "domain": "Statistics & Probability",
+      "subdomain": "Probability",
+      "name": "Calculate and interpret conditional probability",
+      "sort_order": 96,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.3-6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.INDEPENDENCE",
+      "domain": "Statistics & Probability",
+      "subdomain": "Probability",
+      "name": "Determine whether events are independent and use independence appropriately",
+      "sort_order": 97,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.2-5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Probability and conditional probability"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.COUNTING_PRINCIPLES",
+      "domain": "Statistics & Probability",
+      "subdomain": "Counting",
+      "name": "Use fundamental counting principles and organized counting methods",
+      "sort_order": 98,
+      "active": true,
+      "aero": {
+        "status": "partial",
+        "standards": [
+          "AERO.HSS.CP.9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PROB.PERM_COMB",
+      "domain": "Statistics & Probability",
+      "subdomain": "Counting",
+      "name": "Use permutations and combinations in counting and probability",
+      "sort_order": 99,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.CP.9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PROB.EXPECTED_VALUE",
+      "domain": "Statistics & Probability",
+      "subdomain": "Probability Models",
+      "name": "Calculate and interpret expected value of a random variable",
+      "sort_order": 100,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.MD.1-3"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.SAMPLING",
+      "domain": "Statistics & Probability",
+      "subdomain": "Inference",
+      "name": "Understand populations, samples, sampling methods, and sampling bias",
+      "sort_order": 101,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.IC.1-3"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Inference from sample statistics and margin of error"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "STAT.MARGIN_ERROR",
+      "domain": "Statistics & Probability",
+      "subdomain": "Inference",
+      "name": "Interpret sampling variability, estimation error, and margin of error",
+      "sort_order": 102,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.IC.4"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Inference from sample statistics and margin of error"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "STAT.INFERENCE",
+      "domain": "Statistics & Probability",
+      "subdomain": "Inference",
+      "name": "Use sample statistics to make and evaluate inferences about populations",
+      "sort_order": 103,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.IC.1",
+          "AERO.HSS.IC.4-5"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Inference from sample statistics and margin of error"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "STAT.STUDY_DESIGN",
+      "domain": "Statistics & Probability",
+      "subdomain": "Inference",
+      "name": "Distinguish surveys, observational studies, and experiments; evaluate statistical claims",
+      "sort_order": 104,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSS.IC.3",
+          "AERO.HSS.IC.5-6"
+        ]
+      },
+      "sat": {
+        "status": "direct",
+        "domain": "Problem-Solving and Data Analysis",
+        "skills": [
+          "Evaluating statistical claims: Observational studies and experiments"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Estadística",
+        "content_type": "Genérico"
+      }
+    },
+    {
+      "code": "PRE.SEQUENCES",
+      "domain": "Precalculus",
+      "subdomain": "Sequences & Series",
+      "name": "Analyze arithmetic and geometric sequences explicitly and recursively",
+      "sort_order": 105,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.2",
+          "AERO.HSA.SSE.4"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.SERIES",
+      "domain": "Precalculus",
+      "subdomain": "Sequences & Series",
+      "name": "Work with finite and infinite geometric series",
+      "sort_order": 106,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSA.SSE.4"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.RECURSIVE",
+      "domain": "Precalculus",
+      "subdomain": "Sequences & Series",
+      "name": "Use recursive definitions and convert between recursive and explicit forms",
+      "sort_order": 107,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSF.BF.2"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.COMPLEX_ARITHMETIC",
+      "domain": "Precalculus",
+      "subdomain": "Complex Numbers",
+      "name": "Perform arithmetic with complex numbers and use conjugates",
+      "sort_order": 108,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.CN.1-3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear equations in one variable"
+        ]
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.COMPLEX_PLANE_ROOTS",
+      "domain": "Precalculus",
+      "subdomain": "Complex Numbers",
+      "name": "Represent complex numbers geometrically and solve polynomial equations with complex roots",
+      "sort_order": 109,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.CN.4-9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.POLAR",
+      "domain": "Precalculus",
+      "subdomain": "Coordinate Systems",
+      "name": "Work with polar coordinates and polar representations",
+      "sort_order": 110,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      },
+      "notes": "Explicitly named in ICFES non-generic geometry content; no direct core AERO high-school code."
+    },
+    {
+      "code": "PRE.VECTORS",
+      "domain": "Precalculus",
+      "subdomain": "Vectors & Matrices",
+      "name": "Represent and operate with vectors and apply them to problems",
+      "sort_order": 111,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.VM.1-5"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.MATRICES",
+      "domain": "Precalculus",
+      "subdomain": "Vectors & Matrices",
+      "name": "Perform matrix operations and use matrices to represent transformations/systems",
+      "sort_order": 112,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSN.VM.6-12",
+          "AERO.HSA.REI.8-9"
+        ]
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.PARAMETRIC",
+      "domain": "Precalculus",
+      "subdomain": "Advanced Functions",
+      "name": "Analyze parametric equations and their graphs",
+      "sort_order": 113,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.CONICS",
+      "domain": "Precalculus",
+      "subdomain": "Conic Sections",
+      "name": "Analyze parabolas, ellipses, and hyperbolas algebraically and geometrically",
+      "sort_order": 114,
+      "active": true,
+      "aero": {
+        "status": "direct",
+        "standards": [
+          "AERO.HSG.GPE.2-3"
+        ]
+      },
+      "sat": {
+        "status": "supporting",
+        "domain": "Advanced Math",
+        "skills": [
+          "Nonlinear functions"
+        ]
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Geometría",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "PRE.LIMIT_INTUITION",
+      "domain": "Precalculus",
+      "subdomain": "Limits",
+      "name": "Understand limits conceptually using tables, graphs, sequences, and behavior near a point",
+      "sort_order": 115,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "direct",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      },
+      "notes": "ICFES explicitly includes sequences and their limits; calculus-style formal limits go beyond SAT."
+    },
+    {
+      "code": "CALC.LIMITS",
+      "domain": "Calculus",
+      "subdomain": "Limits & Continuity",
+      "name": "Evaluate and interpret limits algebraically and graphically",
+      "sort_order": 116,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "supporting",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      },
+      "notes": "Beyond AERO core/SAT; related to ICFES 'sucesiones y sus límites' but broader."
+    },
+    {
+      "code": "CALC.CONTINUITY",
+      "domain": "Calculus",
+      "subdomain": "Limits & Continuity",
+      "name": "Determine and interpret continuity",
+      "sort_order": 117,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.DERIVATIVE_CONCEPT",
+      "domain": "Calculus",
+      "subdomain": "Derivatives",
+      "name": "Understand derivative as instantaneous rate of change and tangent slope",
+      "sort_order": 118,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.DERIVATIVE_RULES",
+      "domain": "Calculus",
+      "subdomain": "Derivatives",
+      "name": "Apply basic derivative rules, including product, quotient, and chain rules",
+      "sort_order": 119,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.DERIVATIVE_FUNCTIONS",
+      "domain": "Calculus",
+      "subdomain": "Derivatives",
+      "name": "Differentiate polynomial, exponential, logarithmic, and trigonometric functions",
+      "sort_order": 120,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.DERIVATIVE_APPLICATIONS",
+      "domain": "Calculus",
+      "subdomain": "Applications of Derivatives",
+      "name": "Apply derivatives to motion, related rates, extrema, and optimization",
+      "sort_order": 121,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.GRAPH_ANALYSIS",
+      "domain": "Calculus",
+      "subdomain": "Applications of Derivatives",
+      "name": "Use derivatives to analyze increasing/decreasing behavior, concavity, and extrema",
+      "sort_order": 122,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.INTEGRAL_CONCEPT",
+      "domain": "Calculus",
+      "subdomain": "Integrals",
+      "name": "Understand accumulation, signed area, and antiderivatives",
+      "sort_order": 123,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.INTEGRATION",
+      "domain": "Calculus",
+      "subdomain": "Integrals",
+      "name": "Evaluate basic indefinite and definite integrals",
+      "sort_order": 124,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    },
+    {
+      "code": "CALC.FTC",
+      "domain": "Calculus",
+      "subdomain": "Integrals",
+      "name": "Apply the Fundamental Theorem of Calculus",
+      "sort_order": 125,
+      "active": true,
+      "aero": {
+        "status": "extension",
+        "standards": []
+      },
+      "sat": {
+        "status": "not_assessed",
+        "domain": null,
+        "skills": []
+      },
+      "icfes": {
+        "status": "not_explicit",
+        "category": "Álgebra y cálculo",
+        "content_type": "No genérico"
+      }
+    }
+  ]
+}

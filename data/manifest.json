@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "canonical_source": "skills.json",
+  "files": {
+    "skills.json": "Canonical 125-skill Jaguar Math taxonomy. Change skills and framework mappings here.",
+    "skills.schema.json": "JSON Schema for validating skills.json.",
+    "sat_taxonomy.json": "SAT domains and reporting skill names.",
+    "icfes_taxonomy.json": "ICFES categories, content types, and question-level competencies.",
+    "aero_skill_index.json": "Generated reverse lookup from AERO standards to Jaguar skill codes.",
+    "question_metadata.json": "Shared question/assessment metadata constants for future imports."
+  },
+  "maintenance": [
+    "Treat skills.json as the single source of truth.",
+    "Regenerate aero_skill_index.json after changing AERO mappings.",
+    "Do not create duplicate skill definitions in application code or SQL."
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skills.schema.json",
+  "title": "Jaguar Math Skills Taxonomy",
+  "type": "object",
+  "required": [
+    "version",
+    "taxonomy",
+    "skill_count",
+    "skills"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "taxonomy": {
+      "const": "Jaguar Math"
+    },
+    "description": {
+      "type": "string"
+    },
+    "skill_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "domain",
+          "subdomain",
+          "name",
+          "sort_order",
+          "active",
+          "aero",
+          "sat",
+          "icfes"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z]+\\.[A-Z0-9_]+$"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "subdomain": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "aero": {
+            "type": "object",
+            "required": [
+              "status",
+              "standards"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "direct",
+                  "partial",
+                  "prerequisite",
+                  "extension"
+                ]
+              },
+              "standards": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "sat": {
+            "type": "object",
+            "required": [
+              "status",
+              "domain",
+              "skills"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "direct",
+                  "supporting",
+                  "not_assessed"
+                ]
+              },
+              "domain": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "skills": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "icfes": {
+            "type": "object",
+            "required": [
+              "status",
+              "category",
+              "content_type"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "direct",
+                  "supporting",
+                  "not_explicit"
+                ]
+              },
+              "category": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "content_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "question_types": [
+    "multiple_choice",
+    "numeric",
+    "short_text"
+  ],
+  "difficulty": {
+    "minimum": 1,
+    "maximum": 5,
+    "labels": {
+      "1": "very_easy",
+      "2": "easy",
+      "3": "medium",
+      "4": "hard",
+      "5": "very_hard"
+    }
+  },
+  "assessment_kinds": [
+    "homework",
+    "quiz",
+    "test"
+  ],
+  "icfes_competency_codes": [
+    "INTERPRETACION_REPRESENTACION",
+    "FORMULACION_EJECUCION",
+    "ARGUMENTACION"
+  ],
+  "tagging_rules": [
+    "Every assessment question should have at least one Jaguar Math skill code.",
+    "Prefer one primary skill. Add secondary skills only when they are genuinely assessed.",
+    "ICFES competency is question-level metadata and should only be populated when relevant.",
+    "Correct answers must remain server-side and must never be exposed in student-readable payloads."
+  ]
+}

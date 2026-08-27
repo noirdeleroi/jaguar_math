@@ -1,0 +1,662 @@
+{
+  "version": "1.0.0",
+  "framework": "AERO High School Mathematics",
+  "description": "Reverse lookup generated from skills.json. AERO ranges are preserved where the master mapping used ranges.",
+  "standards": [
+    {
+      "aero_code": "AERO.HSA.APR.1",
+      "jaguar_skills": [
+        "ALG.POLYNOMIAL_OPS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.APR.2-3",
+      "jaguar_skills": [
+        "ALG.POLYNOMIAL_ZEROS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.APR.3",
+      "jaguar_skills": [
+        "ALG.FACTORING",
+        "FUNC.POLYNOMIAL"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.APR.4-5",
+      "jaguar_skills": [
+        "ALG.BINOMIAL_THEOREM"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.APR.6",
+      "jaguar_skills": [
+        "ALG.POLYNOMIAL_DIVISION"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.APR.6-7",
+      "jaguar_skills": [
+        "ALG.RATIONAL_EXPRESSIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.CED.1-2",
+      "jaguar_skills": [
+        "ALG.LINEAR_EQ_CONTEXT"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.CED.2",
+      "jaguar_skills": [
+        "ALG.LINEAR_EQ_2VAR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.CED.2-3",
+      "jaguar_skills": [
+        "ALG.SYSTEMS_CONTEXT"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.CED.3",
+      "jaguar_skills": [
+        "ALG.COMPOUND_INEQUALITIES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.CED.4",
+      "jaguar_skills": [
+        "ALG.REARRANGE_FORMULAS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.1",
+      "jaguar_skills": [
+        "ALG.LINEAR_EQ_1VAR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.10",
+      "jaguar_skills": [
+        "ALG.LINEAR_EQ_2VAR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.11",
+      "jaguar_skills": [
+        "ALG.NONLINEAR_SYSTEMS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.12",
+      "jaguar_skills": [
+        "ALG.LINEAR_INEQUALITIES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.2",
+      "jaguar_skills": [
+        "ALG.RADICAL_EQUATIONS",
+        "ALG.RATIONAL_EQUATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.3",
+      "jaguar_skills": [
+        "ALG.ABSOLUTE_VALUE",
+        "ALG.COMPOUND_INEQUALITIES",
+        "ALG.LINEAR_EQ_1VAR",
+        "ALG.LINEAR_INEQUALITIES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.4",
+      "jaguar_skills": [
+        "ALG.QUADRATIC_DISCRIMINANT",
+        "ALG.QUADRATIC_SOLVE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.5-6",
+      "jaguar_skills": [
+        "ALG.SYSTEMS_LINEAR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.6",
+      "jaguar_skills": [
+        "ALG.SYSTEMS_CONTEXT"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.7",
+      "jaguar_skills": [
+        "ALG.NONLINEAR_SYSTEMS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.REI.8-9",
+      "jaguar_skills": [
+        "PRE.MATRICES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.SSE.1-2",
+      "jaguar_skills": [
+        "ALG.EXPRESSIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.SSE.2-3",
+      "jaguar_skills": [
+        "ALG.EQUIVALENT_EXPRESSIONS",
+        "ALG.FACTORING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.SSE.3",
+      "jaguar_skills": [
+        "FUNC.QUADRATIC_FORMS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSA.SSE.4",
+      "jaguar_skills": [
+        "PRE.SEQUENCES",
+        "PRE.SERIES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.BF.1",
+      "jaguar_skills": [
+        "FUNC.COMPOSITION",
+        "FUNC.QUADRATIC_MODELING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.BF.2",
+      "jaguar_skills": [
+        "PRE.RECURSIVE",
+        "PRE.SEQUENCES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.BF.3",
+      "jaguar_skills": [
+        "FUNC.TRANSFORMATIONS",
+        "TRIG.TRANSFORMATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.BF.4-5",
+      "jaguar_skills": [
+        "FUNC.INVERSE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.1-2",
+      "jaguar_skills": [
+        "FUNC.CONCEPT"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.4",
+      "jaguar_skills": [
+        "FUNC.GRAPH_FEATURES",
+        "FUNC.MULTIPLE_REPRESENTATIONS",
+        "FUNC.QUADRATIC_MODELING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.5",
+      "jaguar_skills": [
+        "FUNC.DOMAIN_RANGE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.6",
+      "jaguar_skills": [
+        "FUNC.RATE_CHANGE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.7",
+      "jaguar_skills": [
+        "ALG.ABSOLUTE_VALUE",
+        "FUNC.GRAPH_FEATURES",
+        "FUNC.LINEAR",
+        "FUNC.LOGARITHMIC",
+        "FUNC.PIECEWISE",
+        "FUNC.POLYNOMIAL",
+        "FUNC.RATIONAL",
+        "TRIG.GRAPHS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.7-8",
+      "jaguar_skills": [
+        "FUNC.QUADRATIC"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.8",
+      "jaguar_skills": [
+        "FUNC.QUADRATIC_FORMS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.IF.9",
+      "jaguar_skills": [
+        "FUNC.COMPARE",
+        "FUNC.MULTIPLE_REPRESENTATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.1",
+      "jaguar_skills": [
+        "FUNC.COMPARE",
+        "NUM.PROPORTIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.1-2",
+      "jaguar_skills": [
+        "FUNC.LINEAR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.1-3",
+      "jaguar_skills": [
+        "FUNC.EXPONENTIAL"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.2",
+      "jaguar_skills": [
+        "FUNC.EXPONENTIAL_MODELING",
+        "FUNC.LINEAR_MODELING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.4",
+      "jaguar_skills": [
+        "FUNC.LOGARITHMIC"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.LE.5",
+      "jaguar_skills": [
+        "FUNC.EXPONENTIAL_MODELING",
+        "FUNC.LINEAR_MODELING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.1",
+      "jaguar_skills": [
+        "TRIG.RADIANS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.2-4",
+      "jaguar_skills": [
+        "TRIG.UNIT_CIRCLE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.3",
+      "jaguar_skills": [
+        "TRIG.SPECIAL_TRIANGLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.5",
+      "jaguar_skills": [
+        "TRIG.GRAPHS",
+        "TRIG.MODELING",
+        "TRIG.TRANSFORMATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.6-7",
+      "jaguar_skills": [
+        "TRIG.INVERSE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.7-9",
+      "jaguar_skills": [
+        "TRIG.EQUATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSF.TF.8-9",
+      "jaguar_skills": [
+        "TRIG.IDENTITIES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.C.1-3",
+      "jaguar_skills": [
+        "GEO.CIRCLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.C.5",
+      "jaguar_skills": [
+        "GEO.CIRCLE_MEASURE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.10",
+      "jaguar_skills": [
+        "GEO.TRIANGLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.11",
+      "jaguar_skills": [
+        "GEO.POLYGONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.2-5",
+      "jaguar_skills": [
+        "GEO.TRANSFORMATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.6-8",
+      "jaguar_skills": [
+        "GEO.CONGRUENCE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.9",
+      "jaguar_skills": [
+        "GEO.ANGLES_LINES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.CO.9-11",
+      "jaguar_skills": [
+        "GEO.GEOMETRIC_REASONING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GMD.1",
+      "jaguar_skills": [
+        "GEO.AREA",
+        "GEO.CIRCLE_MEASURE",
+        "GEO.SURFACE_AREA"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GMD.1-3",
+      "jaguar_skills": [
+        "GEO.VOLUME"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GPE.1",
+      "jaguar_skills": [
+        "GEO.CIRCLE_EQUATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GPE.2-3",
+      "jaguar_skills": [
+        "PRE.CONICS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GPE.4-7",
+      "jaguar_skills": [
+        "GEO.COORDINATE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.GPE.5",
+      "jaguar_skills": [
+        "GEO.ANGLES_LINES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.MG.1",
+      "jaguar_skills": [
+        "GEO.AREA",
+        "GEO.SURFACE_AREA"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.MG.1-3",
+      "jaguar_skills": [
+        "GEO.MODELING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.SRT.1-5",
+      "jaguar_skills": [
+        "GEO.SIMILARITY"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.SRT.4",
+      "jaguar_skills": [
+        "GEO.GEOMETRIC_REASONING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.SRT.6-8",
+      "jaguar_skills": [
+        "TRIG.RIGHT_TRIANGLE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.SRT.8",
+      "jaguar_skills": [
+        "GEO.PYTHAGOREAN",
+        "TRIG.SPECIAL_TRIANGLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSG.SRT.9-11",
+      "jaguar_skills": [
+        "TRIG.LAW_SINES_COSINES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.CN.1-3",
+      "jaguar_skills": [
+        "PRE.COMPLEX_ARITHMETIC"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.CN.4-9",
+      "jaguar_skills": [
+        "PRE.COMPLEX_PLANE_ROOTS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.Q.1",
+      "jaguar_skills": [
+        "NUM.PERCENT",
+        "NUM.PROPORTIONS",
+        "NUM.RATIOS_RATES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.Q.1-3",
+      "jaguar_skills": [
+        "NUM.UNITS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.Q.3",
+      "jaguar_skills": [
+        "NUM.ESTIMATION",
+        "NUM.SCI_NOTATION"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.RN.1-2",
+      "jaguar_skills": [
+        "ALG.EXPONENT_RULES",
+        "ALG.RATIONAL_EXPONENTS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.RN.2",
+      "jaguar_skills": [
+        "ALG.RADICALS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.RN.3",
+      "jaguar_skills": [
+        "NUM.REAL_NUMBERS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.VM.1-5",
+      "jaguar_skills": [
+        "PRE.VECTORS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSN.VM.6-12",
+      "jaguar_skills": [
+        "PRE.MATRICES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.1",
+      "jaguar_skills": [
+        "PROB.BASIC",
+        "STAT.SET_OPERATIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.2-5",
+      "jaguar_skills": [
+        "PROB.INDEPENDENCE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.3-6",
+      "jaguar_skills": [
+        "PROB.CONDITIONAL"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.4",
+      "jaguar_skills": [
+        "STAT.TWO_WAY_TABLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.7-8",
+      "jaguar_skills": [
+        "PROB.COMPOUND"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.CP.9",
+      "jaguar_skills": [
+        "PROB.COUNTING_PRINCIPLES",
+        "PROB.PERM_COMB"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.1",
+      "jaguar_skills": [
+        "STAT.INFERENCE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.1-3",
+      "jaguar_skills": [
+        "STAT.SAMPLING"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.3",
+      "jaguar_skills": [
+        "STAT.STUDY_DESIGN"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.4",
+      "jaguar_skills": [
+        "STAT.MARGIN_ERROR"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.4-5",
+      "jaguar_skills": [
+        "STAT.INFERENCE"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.IC.5-6",
+      "jaguar_skills": [
+        "STAT.STUDY_DESIGN"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.1",
+      "jaguar_skills": [
+        "STAT.DATA_DISPLAYS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.1-2",
+      "jaguar_skills": [
+        "STAT.PERCENTILES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.1-3",
+      "jaguar_skills": [
+        "STAT.DISTRIBUTIONS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.2",
+      "jaguar_skills": [
+        "STAT.CENTER",
+        "STAT.VARIABILITY"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.4",
+      "jaguar_skills": [
+        "STAT.NORMAL_DISTRIBUTION"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.5",
+      "jaguar_skills": [
+        "STAT.TWO_WAY_TABLES"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.6",
+      "jaguar_skills": [
+        "STAT.SCATTERPLOTS"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.ID.6-9",
+      "jaguar_skills": [
+        "STAT.REGRESSION"
+      ]
+    },
+    {
+      "aero_code": "AERO.HSS.MD.1-3",
+      "jaguar_skills": [
+        "PROB.EXPECTED_VALUE"
+      ]
+    }
+  ]
+}
