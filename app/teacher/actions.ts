@@ -20,13 +20,14 @@ export async function createClass(formData: FormData) {
 export async function updateClass(formData: FormData) {
   const teacher = await requireTeacher(); const id = textFrom(formData.get("class_id")); const name = textFrom(formData.get("name")); const academicYear = textFrom(formData.get("academic_year")); const gradeLevel = gradeFrom(formData.get("grade_level")); const path = `/teacher/classes/${id}`;
   if (!id || !name || !academicYear || !gradeLevel) redirect(message(path, "error", "Enter a class name, grade, and academic year."));
-  const supabase = await createClient(); const { data, error } = await supabase.from("classes").update({ name, grade_level: gradeLevel, academic_year: academicYear }).eq("id", id).eq("teacher_id", teacher.id).select("id").maybeSingle();
-  if (error || !data) redirect(message(path, "error", error?.code === "23505" ? "A class with that name already exists for this academic year." : "We couldn’t update that class."));
+  if (!(await teacherOwnsClass(id, teacher.id))) redirect(message("/teacher/classes", "error", "That class is not available."));
+  const supabase = await createClient(); const { error } = await supabase.from("classes").update({ name, grade_level: gradeLevel, academic_year: academicYear }).eq("id", id);
+  if (error) redirect(message(path, "error", error.code === "23505" ? "A class with that name already exists for this academic year." : "We couldn’t update that class."));
   revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(path); redirect(message(path, "success", "Class updated."));
 }
 
 async function teacherOwnsClass(classId: string, teacherId: string) {
-  const supabase = await createClient(); const { data } = await supabase.from("classes").select("id").eq("id", classId).eq("teacher_id", teacherId).maybeSingle(); return Boolean(data);
+  const supabase = await createClient(); const { data, error } = await supabase.from("classes").select("id, teacher_id").eq("id", classId).maybeSingle(); return !error && data?.teacher_id === teacherId;
 }
 
 export async function addStudentToClass(formData: FormData) {
