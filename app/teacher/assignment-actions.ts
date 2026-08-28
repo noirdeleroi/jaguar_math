@@ -13,8 +13,14 @@ const integer = (value: FormDataEntryValue | null, fallback: number | null) => {
   const parsed = Number(text(value)); return Number.isInteger(parsed) ? parsed : fallback;
 };
 const classIds = (formData: FormData) => formData.getAll("class_ids").filter((value): value is string => typeof value === "string" && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value));
-const dueAt = (value: FormDataEntryValue | null) => {
-  const raw = text(value); if (!raw) return null; const parsed = new Date(raw); return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+const dueAt = (value: FormDataEntryValue | null, timezoneOffset: FormDataEntryValue | null) => {
+  const raw = text(value); if (!raw) return null;
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/); const offset = Number(text(timezoneOffset));
+  if (!match || !Number.isInteger(offset) || Math.abs(offset) > 840) return undefined;
+  const [, year, month, day, hour, minute] = match; const localTimestamp = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)); const localDate = new Date(localTimestamp);
+  if (localDate.getUTCFullYear() !== Number(year) || localDate.getUTCMonth() !== Number(month) - 1 || localDate.getUTCDate() !== Number(day) || localDate.getUTCHours() !== Number(hour) || localDate.getUTCMinutes() !== Number(minute)) return undefined;
+  const timestamp = localTimestamp + offset * 60_000;
+  return Number.isNaN(timestamp) ? undefined : new Date(timestamp).toISOString();
 };
 const safeDraftError = (error: { code: string; message: string } | null) => {
   if (!error) return "The draft save did not return an assignment ID. Please try again.";
@@ -30,7 +36,7 @@ export type QuestionBankActionState = { error: string } | null;
 export type DraftQuestionActionState = { error?: string; success?: boolean } | null;
 
 function settings(formData: FormData) {
-  const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"));
+  const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
   if (!title || !["homework", "quiz", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
   return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), shuffle_questions: checked(formData.get("shuffle_questions")), class_ids: classIds(formData) };
 }
@@ -66,6 +72,28 @@ export async function publishAssignment(formData: FormData) {
   const supabase = await createClient(); const { error } = await supabase.rpc("publish_owned_assignment", { p_assignment_id: id });
   if (error) redirect(message(path, "error", "This assignment needs at least one class and one valid question before publishing."));
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment published."));
+}
+
+const safeLifecycleError = (error: { code: string; message: string } | null, action: "close" | "reopen") => {
+  if (error?.code === "42501") return "You are not authorized to change this assignment.";
+  if (error?.code === "P0001" && ["Assignment is not managed by this teacher", "Only published assignments can be closed", "Only closed assignments can be reopened"].includes(error.message)) return "This assignment is no longer available for that change.";
+  return `The assignment could not be ${action === "close" ? "closed" : "reopened"}. Please try again.`;
+};
+
+export async function closeAssignment(formData: FormData) {
+  await requireTeacher(); const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient(); const { error } = await supabase.rpc("close_owned_assignment", { p_assignment_id: id });
+  if (error) { console.error(`close_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(path, "error", safeLifecycleError(error, "close"))); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment closed. Students can no longer change or submit attempts."));
+}
+
+export async function reopenAssignment(formData: FormData) {
+  await requireTeacher(); const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient(); const { error } = await supabase.rpc("reopen_owned_assignment", { p_assignment_id: id });
+  if (error) { console.error(`reopen_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(path, "error", safeLifecycleError(error, "reopen"))); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment reopened."));
 }
 
 const safeDuplicateError = (error: { code: string; message: string } | null) => {
