@@ -27,6 +27,7 @@ const safeDraftError = (error: { code: string; message: string } | null) => {
 };
 export type DraftActionState = { error: string } | null;
 export type QuestionBankActionState = { error: string } | null;
+export type DraftQuestionActionState = { error?: string; success?: boolean } | null;
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"));
@@ -108,4 +109,53 @@ export async function addQuestionsToDraft(_: QuestionBankActionState, formData: 
   }
   revalidatePath("/teacher/questions"); revalidatePath(`/teacher/assignments/${assignmentId}`); revalidatePath("/teacher/assignments");
   redirect(message(`/teacher/assignments/${assignmentId}`, "success", `${data} question${data === 1 ? "" : "s"} added as independent copies.`));
+}
+
+const uuid = (value: string) => /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value);
+const safeDraftQuestionError = (error: { code: string; message: string } | null) => {
+  if (error?.code === "42501") return "You are not authorized to change this draft question.";
+  const known = new Set(["Only draft questions managed by this teacher can be edited", "Only draft questions managed by this teacher can be removed", "Only drafts managed by this teacher can be reordered", "Question is not part of this draft", "Question cannot be moved further"]);
+  if (error?.code === "P0001" && known.has(error.message)) return "This question is no longer available to change in this draft.";
+  return "The draft question could not be updated. Please review the fields and try again.";
+};
+
+function draftQuestionPayload(formData: FormData) {
+  const questionId = text(formData.get("question_id")); const assignmentId = text(formData.get("assignment_id")); const type = text(formData.get("type"));
+  if (!uuid(questionId) || !uuid(assignmentId)) return { error: "This draft question is not available." };
+  const numericTolerance = Number(text(formData.get("numeric_tolerance"))); const difficulty = Number(text(formData.get("difficulty"))); const points = Number(text(formData.get("points")));
+  if (![numericTolerance, difficulty, points].every(Number.isFinite)) return { error: "Tolerance, difficulty, and points must be valid numbers." };
+  let options: unknown; let skills: unknown;
+  try { options = type === "multiple_choice" ? JSON.parse(text(formData.get("options_json"))) : null; skills = JSON.parse(text(formData.get("skills_json"))); } catch { return { error: "Question options or skills are not valid." }; }
+  const validation = validateAssignmentImport({ questions: [{ prompt: text(formData.get("prompt")), type, options, correct_answer: text(formData.get("correct_answer")), numeric_tolerance: numericTolerance, explanation: text(formData.get("explanation")) || null, difficulty, points, skills, icfes_competency: text(formData.get("icfes_competency")) || null }] });
+  if (!validation.data) return { error: validation.errors[0] ?? "This question is invalid." };
+  return { assignmentId, questionId, question: validation.data.questions[0] };
+}
+
+export async function updateDraftQuestion(_: DraftQuestionActionState, formData: FormData): Promise<DraftQuestionActionState> {
+  await requireTeacher();
+  const payload = draftQuestionPayload(formData);
+  if ("error" in payload) return { error: payload.error };
+  const supabase = await createClient(); const question = payload.question;
+  const { error } = await supabase.rpc("update_owned_draft_question", { p_assignment_id: payload.assignmentId, p_question_id: payload.questionId, p_prompt: question.prompt, p_type: question.type, p_options: question.options, p_correct_answer: question.correct_answer, p_numeric_tolerance: question.numeric_tolerance, p_difficulty: question.difficulty, p_points: question.points, p_explanation: question.explanation, p_icfes_competency: question.icfes_competency, p_skills: question.skills });
+  if (error) { console.error(`update_owned_draft_question failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftQuestionError(error) }; }
+  revalidatePath(`/teacher/assignments/${payload.assignmentId}`); revalidatePath("/teacher/questions");
+  return { success: true };
+}
+
+export async function removeDraftQuestion(_: DraftQuestionActionState, formData: FormData): Promise<DraftQuestionActionState> {
+  await requireTeacher(); const assignmentId = text(formData.get("assignment_id")); const questionId = text(formData.get("question_id"));
+  if (!uuid(assignmentId) || !uuid(questionId)) return { error: "This draft question is not available." };
+  const supabase = await createClient(); const { error } = await supabase.rpc("remove_owned_draft_question", { p_assignment_id: assignmentId, p_question_id: questionId });
+  if (error) { console.error(`remove_owned_draft_question failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftQuestionError(error) }; }
+  revalidatePath(`/teacher/assignments/${assignmentId}`); revalidatePath("/teacher/questions");
+  return { success: true };
+}
+
+export async function moveDraftQuestion(_: DraftQuestionActionState, formData: FormData): Promise<DraftQuestionActionState> {
+  await requireTeacher(); const assignmentId = text(formData.get("assignment_id")); const questionId = text(formData.get("question_id")); const direction = Number(text(formData.get("direction")));
+  if (!uuid(assignmentId) || !uuid(questionId) || ![-1, 1].includes(direction)) return { error: "This question cannot be moved." };
+  const supabase = await createClient(); const { error } = await supabase.rpc("move_owned_draft_question", { p_assignment_id: assignmentId, p_question_id: questionId, p_direction: direction });
+  if (error) { console.error(`move_owned_draft_question failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftQuestionError(error) }; }
+  revalidatePath(`/teacher/assignments/${assignmentId}`);
+  return { success: true };
 }
