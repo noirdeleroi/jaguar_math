@@ -26,6 +26,7 @@ const safeDraftError = (error: { code: string; message: string } | null) => {
   return "The draft could not be saved. Review the selected class and validated questions, then try again.";
 };
 export type DraftActionState = { error: string } | null;
+export type QuestionBankActionState = { error: string } | null;
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"));
@@ -64,4 +65,47 @@ export async function publishAssignment(formData: FormData) {
   const supabase = await createClient(); const { error } = await supabase.rpc("publish_owned_assignment", { p_assignment_id: id });
   if (error) redirect(message(path, "error", "This assignment needs at least one class and one valid question before publishing."));
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment published."));
+}
+
+const safeDuplicateError = (error: { code: string; message: string } | null) => {
+  if (error?.code === "42501") return "You are not authorized to duplicate this assignment.";
+  if (error?.code === "P0001" && error.message === "Assignment is not managed by this teacher") return "This assignment is not available to duplicate.";
+  return "The assignment could not be duplicated. Please try again.";
+};
+
+export async function duplicateAssignment(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id"));
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("duplicate_owned_assignment", { p_assignment_id: id });
+  if (error || !data) {
+    if (error) console.error(`duplicate_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    redirect(message(`/teacher/assignments/${id}`, "error", safeDuplicateError(error)));
+  }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(`/teacher/assignments/${data}`);
+  redirect(message(`/teacher/assignments/${data}`, "success", "Assignment duplicated as a private draft."));
+}
+
+const safeQuestionBankError = (error: { code: string; message: string } | null) => {
+  if (error?.code === "42501") return "You are not authorized to add questions to this draft.";
+  if (error?.code === "P0001" && error.message === "Select at least one question") return "Select at least one question to add.";
+  if (error?.code === "P0001" && error.message === "Only drafts managed by this teacher can receive questions") return "Choose one of your private drafts.";
+  return "The selected questions could not be added. Please try again.";
+};
+
+export async function addQuestionsToDraft(_: QuestionBankActionState, formData: FormData): Promise<QuestionBankActionState> {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id"));
+  const questionIds = formData.getAll("question_ids").filter((value): value is string => typeof value === "string" && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value));
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(assignmentId)) return { error: "Choose a private draft before adding questions." };
+  if (!questionIds.length) return { error: "Select at least one question to add." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("copy_owned_questions_to_draft", { p_assignment_id: assignmentId, p_question_ids: questionIds });
+  if (error || !data) {
+    if (error) console.error(`copy_owned_questions_to_draft failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    return { error: safeQuestionBankError(error) };
+  }
+  revalidatePath("/teacher/questions"); revalidatePath(`/teacher/assignments/${assignmentId}`); revalidatePath("/teacher/assignments");
+  redirect(message(`/teacher/assignments/${assignmentId}`, "success", `${data} question${data === 1 ? "" : "s"} added as independent copies.`));
 }
