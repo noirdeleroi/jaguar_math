@@ -6,13 +6,14 @@ import { requireTeacher } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { createTemporaryPassword } from "@/lib/temporary-password";
+import { GoogleClassroomError, getGoogleAccessToken, hasGoogleGmailSendPermission, sendGoogleCredentialEmail } from "@/lib/google-classroom";
 
 const message = (path: string, key: "error" | "success", text: string) => `${path}?${key}=${encodeURIComponent(text)}`;
 const gradeFrom = (value: FormDataEntryValue | null) => value === "11" || value === "12" ? Number(value) as 11 | 12 : null;
 const textFrom = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
 
 export type ResetPasswordState = { error?: string; credential?: { fullName: string; emailAddress: string; temporaryPassword: string } };
-export type BulkResetPasswordState = { error?: string; credentials?: Array<{ fullName: string; emailAddress: string; temporaryPassword: string }> };
+export type BulkResetPasswordState = { error?: string; credentials?: Array<{ fullName: string; emailAddress: string; temporaryPassword: string; emailDelivery?: "sent" | "failed" }> };
 
 export async function resetStudentPassword(_previous: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
   try {
@@ -34,6 +35,7 @@ export async function resetClassStudentPasswords(_previous: BulkResetPasswordSta
   try {
     const classId = textFrom(formData.get("class_id"));
     const studentIds = [...new Set(formData.getAll("student_id").filter((value): value is string => typeof value === "string" && value.length > 0))];
+    const emailCredentials = textFrom(formData.get("delivery")) === "email";
     if (!classId || !studentIds.length) return { error: "Select at least one student." };
 
     const supabase = await createClient();
@@ -44,18 +46,33 @@ export async function resetClassStudentPasswords(_previous: BulkResetPasswordSta
     const { data: students, error: studentError } = await supabase.from("profiles").select("id, full_name, email, must_change_password").in("id", studentIds).eq("role", "student");
     if (studentError || students?.length !== studentIds.length || students.some((student) => !student.email)) return { error: "One or more selected student accounts are unavailable." };
 
+    let googleAccessToken: string | null = null;
+    if (emailCredentials) {
+      if (!(await hasGoogleGmailSendPermission(teacher.id))) return { error: "Reconnect Google to enable email sending." };
+      const connection = await getGoogleAccessToken(teacher.id);
+      if (connection.status !== "connected" || !connection.token) return { error: "Reconnect Google to enable email sending." };
+      googleAccessToken = connection.token;
+    }
+
     const admin = createAdminClient();
     const { error: flagError } = await admin.from("profiles").update({ must_change_password: true }).in("id", studentIds).eq("role", "student");
     if (flagError) { console.error("[teacher] bulk password-reset flag update failed", flagError.code); return { error: "We couldn’t prepare these password resets. Please try again." }; }
 
-    const usedPasswords = new Set<string>(); const credentials: NonNullable<BulkResetPasswordState["credentials"]> = []; let failed = 0;
+    const usedPasswords = new Set<string>(); const credentials: NonNullable<BulkResetPasswordState["credentials"]> = []; let failed = 0; let emailFailed = 0;
     for (const student of students) {
       const temporaryPassword = createTemporaryPassword(usedPasswords); const { error: authError } = await admin.auth.admin.updateUserById(student.id, { password: temporaryPassword });
       if (authError) { failed += 1; await admin.from("profiles").update({ must_change_password: student.must_change_password }).eq("id", student.id).eq("role", "student"); console.error("[teacher] bulk student password reset failed", authError.code); continue; }
-      credentials.push({ fullName: student.full_name || "Student", emailAddress: student.email!, temporaryPassword });
+      const credential = { fullName: student.full_name || "Student", emailAddress: student.email!, temporaryPassword };
+      if (googleAccessToken) {
+        try { await sendGoogleCredentialEmail(googleAccessToken, credential); credentials.push({ ...credential, emailDelivery: "sent" }); }
+        catch (cause) { emailFailed += 1; credentials.push({ ...credential, emailDelivery: "failed" }); console.error("[teacher] credential email failed", cause instanceof GoogleClassroomError ? cause.code : "server_error"); }
+      } else credentials.push(credential);
     }
     revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
-    if (failed) return { credentials, error: `${failed} ${failed === 1 ? "student password could" : "student passwords could"} not be reset. Credentials below apply only to the students that were reset.` };
+    const errors = [];
+    if (failed) errors.push(`${failed} ${failed === 1 ? "student password could" : "student passwords could"} not be reset`);
+    if (emailFailed) errors.push(`${emailFailed} ${emailFailed === 1 ? "email was" : "emails were"} not delivered; use the one-time credentials below to share them manually`);
+    if (errors.length) return { credentials, error: `${errors.join(". ")}.` };
     return { credentials };
   } catch (error) { console.error("[teacher] bulk password reset failed", error instanceof Error ? error.name : "unknown"); return { error: "We couldn’t reset these passwords. Please try again." }; }
 }

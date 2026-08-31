@@ -8,7 +8,9 @@ export const GOOGLE_CLASSROOM_SCOPES = [
   "https://www.googleapis.com/auth/classroom.rosters.readonly",
   "https://www.googleapis.com/auth/classroom.profile.emails",
   "https://www.googleapis.com/auth/classroom.profile.photos",
+  "https://www.googleapis.com/auth/gmail.send",
 ] as const;
+export const GOOGLE_GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
 
 export const GOOGLE_OAUTH_STATE_COOKIE = "jaguar_google_oauth_state";
 export const GOOGLE_TOKEN_COOKIE = "jaguar_google_access";
@@ -20,7 +22,7 @@ export type GoogleSyncTarget = { kind: "create"; name: string; gradeLevel: 11 | 
 type GoogleSyncPreviewSession = { teacherId: string; courseId: string; target: GoogleSyncTarget; rosterFingerprint: string };
 export type GoogleCourse = { id: string; name: string; section?: string; courseState?: string };
 export type GoogleRosterStudent = { userId: string; fullName: string; emailAddress: string; photoUrl?: string };
-export type GoogleClassroomErrorCode = "token_expired" | "missing_scopes" | "admin_restricted" | "classroom_error" | "refresh_token_missing";
+export type GoogleClassroomErrorCode = "token_expired" | "missing_scopes" | "admin_restricted" | "classroom_error" | "refresh_token_missing" | "gmail_error";
 
 export class GoogleClassroomError extends Error {
   constructor(public readonly code: GoogleClassroomErrorCode) { super(code); }
@@ -117,6 +119,15 @@ export async function persistGoogleRefreshToken(teacherId: string, refreshToken:
   const { data, error } = await admin.from("google_classroom_connections").select("teacher_id").eq("teacher_id", teacherId).maybeSingle();
   if (error) throw new GoogleClassroomError("classroom_error");
   if (!data) throw new GoogleClassroomError("refresh_token_missing");
+  const { error: updateError } = await admin.from("google_classroom_connections").update({ scopes }).eq("teacher_id", teacherId);
+  if (updateError) throw new GoogleClassroomError("classroom_error");
+}
+
+export async function hasGoogleGmailSendPermission(teacherId: string) {
+  try {
+    const admin = createAdminClient(); const { data, error } = await admin.from("google_classroom_connections").select("scopes").eq("teacher_id", teacherId).maybeSingle();
+    return !error && Boolean(data?.scopes?.includes(GOOGLE_GMAIL_SEND_SCOPE));
+  } catch { return false; }
 }
 
 export async function getGoogleAccessToken(teacherId: string) {
@@ -152,6 +163,25 @@ async function classroomJson<T>(path: string, token: string): Promise<T> {
   const body = await response.json().catch(() => null);
   if (!response.ok) throw classroomError(response, body);
   return body as T;
+}
+
+function gmailError(response: Response, body: unknown) {
+  if (response.status === 401) return new GoogleClassroomError("token_expired");
+  const message = typeof body === "object" && body && "error" in body ? JSON.stringify(body).toLowerCase() : "";
+  if (response.status === 403 && (message.includes("scope") || message.includes("permission") || message.includes("authentication"))) return new GoogleClassroomError("missing_scopes");
+  if (response.status === 403 && (message.includes("admin") || message.includes("workspace") || message.includes("domain"))) return new GoogleClassroomError("admin_restricted");
+  return new GoogleClassroomError("gmail_error");
+}
+
+export async function sendGoogleCredentialEmail(token: string, recipient: { fullName: string; emailAddress: string; temporaryPassword: string }) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient.emailAddress) || /[\r\n]/.test(recipient.emailAddress)) throw new GoogleClassroomError("gmail_error");
+  const firstName = recipient.fullName.trim().split(/\s+/)[0] || "there";
+  const body = `Hi ${firstName},\n\nYour Jaguar Math account is ready.\n\nEmail:\n${recipient.emailAddress}\n\nTemporary password:\n${recipient.temporaryPassword}\n\nSign in to Jaguar Math using the credentials above.\nYou will be asked to create your own password after signing in.\n`;
+  const message = `To: ${recipient.emailAddress}\r\nSubject: Jaguar Math — Your Login Credentials\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n${body}`;
+  let response: Response;
+  try { response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw: Buffer.from(message).toString("base64url") }), cache: "no-store" }); } catch { throw new GoogleClassroomError("gmail_error"); }
+  const result = await response.json().catch(() => null);
+  if (!response.ok) throw gmailError(response, result);
 }
 
 export async function listTeacherCourses(token: string) {
