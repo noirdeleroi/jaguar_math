@@ -3,11 +3,30 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { createTemporaryPassword } from "@/lib/temporary-password";
 
 const message = (path: string, key: "error" | "success", text: string) => `${path}?${key}=${encodeURIComponent(text)}`;
 const gradeFrom = (value: FormDataEntryValue | null) => value === "11" || value === "12" ? Number(value) as 11 | 12 : null;
 const textFrom = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
+
+export type ResetPasswordState = { error?: string; credential?: { fullName: string; emailAddress: string; temporaryPassword: string } };
+
+export async function resetStudentPassword(_previous: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
+  try {
+    const teacher = await requireTeacher(); const studentId = textFrom(formData.get("student_id")); if (!studentId) return { error: "Choose a student account." };
+    const supabase = await createClient(); const { data: membership, error: membershipError } = await supabase.from("class_members").select("class_id, classes!inner(teacher_id)").eq("student_id", studentId).eq("classes.teacher_id", teacher.id).limit(1);
+    if (membershipError || !membership?.length) return { error: "That student is not available in your classes." };
+    const { data: student, error: studentError } = await supabase.from("profiles").select("id, full_name, email, must_change_password").eq("id", studentId).eq("role", "student").maybeSingle();
+    if (studentError || !student?.email) return { error: "That student account is not available." };
+    const temporaryPassword = createTemporaryPassword(); const admin = createAdminClient(); const { error: flagError } = await admin.from("profiles").update({ must_change_password: true }).eq("id", studentId).eq("role", "student");
+    if (flagError) { console.error("[teacher] password-reset flag update failed", flagError.code); return { error: "We couldn’t prepare this password reset. Please try again." }; }
+    const { error: authError } = await admin.auth.admin.updateUserById(studentId, { password: temporaryPassword });
+    if (authError) { await admin.from("profiles").update({ must_change_password: student.must_change_password }).eq("id", studentId); console.error("[teacher] student password reset failed", authError.code); return { error: "We couldn’t reset this password. Please try again." }; }
+    revalidatePath("/teacher/students"); revalidatePath(`/teacher/students/${studentId}`); return { credential: { fullName: student.full_name || "Student", emailAddress: student.email, temporaryPassword } };
+  } catch { return { error: "We couldn’t reset this password. Please try again." }; }
+}
 
 export async function createClass(formData: FormData) {
   const teacher = await requireTeacher(); const name = textFrom(formData.get("name")); const academicYear = textFrom(formData.get("academic_year")); const gradeLevel = gradeFrom(formData.get("grade_level"));

@@ -8,10 +8,11 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (!user && (path.startsWith("/student") || path.startsWith("/teacher"))) { const url = request.nextUrl.clone(); url.pathname = "/login"; return NextResponse.redirect(url); }
   if (user && (path.startsWith("/student") || path.startsWith("/teacher"))) {
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabase.from("profiles").select("role, must_change_password").eq("id", user.id).maybeSingle();
     if (!profile) { const url = request.nextUrl.clone(); url.pathname = "/login"; return NextResponse.redirect(url); }
     if (path.startsWith("/teacher") && profile.role !== "teacher") { const url = request.nextUrl.clone(); url.pathname = "/student"; return NextResponse.redirect(url); }
     if (path.startsWith("/student") && profile.role === "teacher") { const url = request.nextUrl.clone(); url.pathname = "/teacher"; return NextResponse.redirect(url); }
+    if (path.startsWith("/student") && profile.role === "student" && profile.must_change_password) { const url = request.nextUrl.clone(); url.pathname = "/change-password"; return NextResponse.redirect(url); }
   }
   return response;
 }
