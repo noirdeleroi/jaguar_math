@@ -1,5 +1,5 @@
 import "server-only";
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -173,11 +173,28 @@ function gmailError(response: Response, body: unknown) {
   return new GoogleClassroomError("gmail_error");
 }
 
+function escapeHtml(value: string) {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+
+function mimeBase64(value: string) {
+  return Buffer.from(value, "utf8").toString("base64").match(/.{1,76}/g)?.join("\r\n") ?? "";
+}
+
+function credentialEmailText(firstName: string, emailAddress: string, temporaryPassword: string) {
+  return `Hi ${firstName},\n\nYour Jaguar Math account is ready.\n\nLogin email:\n${emailAddress}\n\nTemporary password:\n${temporaryPassword}\n\nUse these credentials to sign in to Jaguar Math.\n\nOn your first login, you will be asked to create your own password.\n\nPlease do not share your password with anyone.\n\n— Mr. Korshunov\n`;
+}
+
+function credentialEmailHtml(firstName: string, emailAddress: string, temporaryPassword: string) {
+  const name = escapeHtml(firstName); const email = escapeHtml(emailAddress); const password = escapeHtml(temporaryPassword);
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Jaguar Math credentials</title></head><body style="margin:0;padding:24px 12px;background:#f5f0e7;color:#17342e;font-family:Arial,Helvetica,sans-serif;"><div style="max-width:560px;margin:0 auto;background:#fffdf7;border:1px solid #d8d0c1;border-radius:10px;overflow:hidden;"><div style="padding:28px 28px 22px;border-bottom:1px solid #e5ddd1;"><h1 style="margin:0;color:#1c5b4d;font-family:Georgia,serif;font-size:30px;font-weight:500;letter-spacing:-0.5px;">Jaguar Math</h1></div><div style="padding:28px;"><p style="margin:0 0 20px;font-size:16px;line-height:1.55;">Hi ${name},</p><p style="margin:0 0 22px;font-size:16px;line-height:1.55;">Your Jaguar Math account is ready.</p><p style="margin:0 0 6px;color:#557168;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Login email</p><div style="margin:0 0 20px;padding:12px 14px;border:1px solid #d8d0c1;border-radius:6px;background:#fffaf0;color:#17342e;font-size:16px;line-height:1.45;word-break:break-word;">${email}</div><p style="margin:0 0 6px;color:#557168;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Temporary password</p><div style="margin:0 0 22px;padding:14px;border:2px solid #e2b94e;border-radius:6px;background:#fff8de;color:#17342e;font-family:Consolas,Monaco,monospace;font-size:18px;font-weight:700;letter-spacing:0.2px;line-height:1.45;word-break:break-word;">${password}</div><p style="margin:0 0 12px;font-size:16px;line-height:1.55;">Use these credentials to sign in to Jaguar Math.</p><p style="margin:0 0 12px;font-size:16px;line-height:1.55;">On your first login, you will be asked to create your own password.</p><p style="margin:0 0 24px;font-size:15px;font-weight:700;line-height:1.55;">Please do not share your password with anyone.</p><p style="margin:0;font-size:16px;line-height:1.55;">— Mr. Korshunov</p></div></div></body></html>`;
+}
+
 export async function sendGoogleCredentialEmail(token: string, recipient: { fullName: string; emailAddress: string; temporaryPassword: string }) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient.emailAddress) || /[\r\n]/.test(recipient.emailAddress)) throw new GoogleClassroomError("gmail_error");
-  const firstName = recipient.fullName.trim().split(/\s+/)[0] || "there";
-  const body = `Hi ${firstName},\n\nYour Jaguar Math account is ready.\n\nEmail:\n${recipient.emailAddress}\n\nTemporary password:\n${recipient.temporaryPassword}\n\nSign in to Jaguar Math using the credentials above.\nYou will be asked to create your own password after signing in.\n`;
-  const message = `To: ${recipient.emailAddress}\r\nSubject: Jaguar Math — Your Login Credentials\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n${body}`;
+  const firstName = recipient.fullName.trim().split(/\s+/)[0] || "there"; const subject = "Jaguar Math — Your Login Credentials"; const boundary = `jaguar_math_${randomBytes(12).toString("hex")}`;
+  const text = credentialEmailText(firstName, recipient.emailAddress, recipient.temporaryPassword); const html = credentialEmailHtml(firstName, recipient.emailAddress, recipient.temporaryPassword);
+  const message = `To: ${recipient.emailAddress}\r\nSubject: =?UTF-8?B?${Buffer.from(subject, "utf8").toString("base64")}?=\r\nMIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary="${boundary}"\r\n\r\n--${boundary}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${mimeBase64(text)}\r\n--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${mimeBase64(html)}\r\n--${boundary}--\r\n`;
   let response: Response;
   try { response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw: Buffer.from(message).toString("base64url") }), cache: "no-store" }); } catch { throw new GoogleClassroomError("gmail_error"); }
   const result = await response.json().catch(() => null);
