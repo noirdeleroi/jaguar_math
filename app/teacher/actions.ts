@@ -12,6 +12,7 @@ const gradeFrom = (value: FormDataEntryValue | null) => value === "11" || value 
 const textFrom = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
 
 export type ResetPasswordState = { error?: string; credential?: { fullName: string; emailAddress: string; temporaryPassword: string } };
+export type BulkResetPasswordState = { error?: string; credentials?: Array<{ fullName: string; emailAddress: string; temporaryPassword: string }> };
 
 export async function resetStudentPassword(_previous: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
   try {
@@ -26,6 +27,37 @@ export async function resetStudentPassword(_previous: ResetPasswordState, formDa
     if (authError) { await admin.from("profiles").update({ must_change_password: student.must_change_password }).eq("id", studentId); console.error("[teacher] student password reset failed", authError.code); return { error: "We couldn’t reset this password. Please try again." }; }
     revalidatePath("/teacher/students"); revalidatePath(`/teacher/students/${studentId}`); return { credential: { fullName: student.full_name || "Student", emailAddress: student.email, temporaryPassword } };
   } catch { return { error: "We couldn’t reset this password. Please try again." }; }
+}
+
+export async function resetClassStudentPasswords(_previous: BulkResetPasswordState, formData: FormData): Promise<BulkResetPasswordState> {
+  const teacher = await requireTeacher();
+  try {
+    const classId = textFrom(formData.get("class_id"));
+    const studentIds = [...new Set(formData.getAll("student_id").filter((value): value is string => typeof value === "string" && value.length > 0))];
+    if (!classId || !studentIds.length) return { error: "Select at least one student." };
+
+    const supabase = await createClient();
+    const { data: classroom, error: classroomError } = await supabase.from("classes").select("id").eq("id", classId).eq("teacher_id", teacher.id).maybeSingle();
+    if (classroomError || !classroom) return { error: "That class is not available." };
+    const { data: memberships, error: membershipError } = await supabase.from("class_members").select("student_id").eq("class_id", classId).in("student_id", studentIds);
+    if (membershipError || memberships?.length !== studentIds.length) return { error: "One or more selected students are not in this class." };
+    const { data: students, error: studentError } = await supabase.from("profiles").select("id, full_name, email, must_change_password").in("id", studentIds).eq("role", "student");
+    if (studentError || students?.length !== studentIds.length || students.some((student) => !student.email)) return { error: "One or more selected student accounts are unavailable." };
+
+    const admin = createAdminClient();
+    const { error: flagError } = await admin.from("profiles").update({ must_change_password: true }).in("id", studentIds).eq("role", "student");
+    if (flagError) { console.error("[teacher] bulk password-reset flag update failed", flagError.code); return { error: "We couldn’t prepare these password resets. Please try again." }; }
+
+    const usedPasswords = new Set<string>(); const credentials: NonNullable<BulkResetPasswordState["credentials"]> = []; let failed = 0;
+    for (const student of students) {
+      const temporaryPassword = createTemporaryPassword(usedPasswords); const { error: authError } = await admin.auth.admin.updateUserById(student.id, { password: temporaryPassword });
+      if (authError) { failed += 1; await admin.from("profiles").update({ must_change_password: student.must_change_password }).eq("id", student.id).eq("role", "student"); console.error("[teacher] bulk student password reset failed", authError.code); continue; }
+      credentials.push({ fullName: student.full_name || "Student", emailAddress: student.email!, temporaryPassword });
+    }
+    revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
+    if (failed) return { credentials, error: `${failed} ${failed === 1 ? "student password could" : "student passwords could"} not be reset. Credentials below apply only to the students that were reset.` };
+    return { credentials };
+  } catch (error) { console.error("[teacher] bulk password reset failed", error instanceof Error ? error.name : "unknown"); return { error: "We couldn’t reset these passwords. Please try again." }; }
 }
 
 export async function createClass(formData: FormData) {
