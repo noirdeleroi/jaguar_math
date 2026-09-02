@@ -1,5 +1,6 @@
 import { requireStudent } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getStudentSatProgress } from "@/lib/student-sat-progress";
 import StudentDashboard, { type DashboardAssignment } from "./student-dashboard";
 
 type Assignment = { id: string; title: string; description: string | null; kind: string; status: "published" | "closed"; due_at: string | null; max_attempts: number; show_score_after_submit: boolean };
@@ -20,7 +21,7 @@ function currentTime() {
 }
 
 export default async function StudentPage() {
-  const student = await requireStudent(); const supabase = await createClient();
+  const student = await requireStudent(); const supabase = await createClient(); const satProgressPromise = getStudentSatProgress(student.id);
   const [{ data: classes }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year").order("grade_level").order("name"),
     supabase.from("assignments").select("id, title, description, kind, status, due_at, max_attempts, show_score_after_submit").in("status", ["published", "closed"]),
@@ -56,5 +57,6 @@ export default async function StudentPage() {
     if (left.completed !== right.completed) return left.completed ? -1 : 1;
     return new Date(right.submittedAt ?? 0).getTime() - new Date(left.submittedAt ?? 0).getTime();
   });
-  return <StudentDashboard assignments={dashboardAssignments} classes={classNames} email={student.email} firstName={student.full_name?.trim().split(/\s+/)[0] || "student"} />;
+  const satProgress = await satProgressPromise;
+  return <StudentDashboard assignments={dashboardAssignments} classes={classNames} email={student.email} firstName={student.full_name?.trim().split(/\s+/)[0] || "student"} satSummary={{ readiness: satProgress.readiness, assessedSkills: satProgress.assessedSkills, totalSkills: satProgress.totalSkills }} />;
 }
