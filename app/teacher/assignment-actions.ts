@@ -27,7 +27,7 @@ const safeDraftError = (error: { code: string; message: string } | null) => {
   if (error.code === "PGRST202" || error.code === "42883") return "The assessment database function is unavailable. Please contact an administrator.";
   if (error.code === "42501") return "You are not authorized to save an assignment for the selected class.";
   if (error.code === "23503") return "One of the selected classes or skills is no longer available.";
-  const knownValidationMessages = new Set(["At least one class is required", "Classes must be unique", "A selected class is not managed by this teacher", "At least one question is required", "Duration must be positive", "Maximum attempts must be at least one"]);
+  const knownValidationMessages = new Set(["Title is required", "At least one class is required", "Classes must be unique", "A selected class is not managed by this teacher", "At least one question is required", "Duration must be positive", "Maximum attempts must be at least one", "Exam Mode settings are invalid"]);
   if (error.code === "P0001" && knownValidationMessages.has(error.message)) return error.message;
   return "The draft could not be saved. Review the selected class and validated questions, then try again.";
 };
