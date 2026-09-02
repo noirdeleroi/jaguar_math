@@ -38,7 +38,9 @@ export type DraftQuestionActionState = { error?: string; success?: boolean } | n
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
   if (!title || !["homework", "quiz", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
-  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), shuffle_questions: checked(formData.get("shuffle_questions")), class_ids: classIds(formData) };
+  const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), null) : 2; const exam_violation_action = exam_mode ? text(formData.get("exam_violation_action")) : "warn";
+  if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0 || !["warn", "auto_submit"].includes(exam_violation_action)) return null;
+  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), shuffle_questions: checked(formData.get("shuffle_questions")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : true, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : true, exam_allowed_focus_exits, exam_violation_action };
 }
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
@@ -53,15 +55,15 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   // distinction when serializing the normalized import for Supabase.
   const rpcQuestions = validated.data.questions.map(({ options, ...question }) => options === null ? question : { ...question, options });
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_assignment_draft", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_questions: rpcQuestions });
-  if (error || !data) { if (error) console.error(`create_assignment_draft failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
+  const { data, error } = await supabase.rpc("create_assignment_draft_with_exam", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_questions: rpcQuestions, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action });
+  if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); redirect(`/teacher/assignments/${data}`);
 }
 
 export async function updateAssignment(formData: FormData) {
   const teacher = await requireTeacher(); const id = text(formData.get("assignment_id")); const values = settings(formData); const path = `/teacher/assignments/${id}`;
   if (!id || !values || values.class_ids.length === 0) redirect(message(path, "error", "Complete the assignment settings and select at least one class."));
-  const supabase = await createClient(); const { error } = await supabase.rpc("update_owned_assignment", { p_assignment_id: id, p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids });
+  const supabase = await createClient(); const { error } = await supabase.rpc("update_owned_assignment_with_exam", { p_assignment_id: id, p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_class_ids: values.class_ids, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action });
   if (error) redirect(message(path, "error", "The assignment could not be updated."));
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); redirect(message(path, "success", `Assignment saved by ${teacher.full_name || "teacher"}.`));
 }
@@ -107,7 +109,7 @@ export async function duplicateAssignment(formData: FormData) {
   const id = text(formData.get("assignment_id"));
   if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) redirect("/teacher/assignments");
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("duplicate_owned_assignment", { p_assignment_id: id });
+  const { data, error } = await supabase.rpc("duplicate_owned_assignment_with_exam", { p_assignment_id: id });
   if (error || !data) {
     if (error) console.error(`duplicate_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
     redirect(message(`/teacher/assignments/${id}`, "error", safeDuplicateError(error)));
