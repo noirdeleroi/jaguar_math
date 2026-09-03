@@ -94,6 +94,14 @@ export async function updateClass(formData: FormData) {
   revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(path); redirect(message(path, "success", "Class updated."));
 }
 
+export async function deleteClass(formData: FormData) {
+  const teacher = await requireTeacher(); const id = textFrom(formData.get("class_id"));
+  if (!id || !(await teacherOwnsClass(id, teacher.id))) redirect(message("/teacher/classes", "error", "That class is not available."));
+  const supabase = await createClient(); const { error } = await supabase.from("classes").delete().eq("id", id).eq("teacher_id", teacher.id);
+  if (error) redirect(message(`/teacher/classes/${id}`, "error", "We couldn’t delete that class."));
+  revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${id}`); revalidatePath(`/teacher/classes/${id}/progress`); revalidatePath("/teacher/students"); redirect(message("/teacher/classes", "success", "Class deleted."));
+}
+
 async function teacherOwnsClass(classId: string, teacherId: string) {
   const supabase = await createClient(); const { data, error } = await supabase.from("classes").select("id, teacher_id").eq("id", classId).maybeSingle(); return !error && data?.teacher_id === teacherId;
 }

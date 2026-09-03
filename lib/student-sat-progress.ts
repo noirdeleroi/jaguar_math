@@ -10,7 +10,7 @@ type PrimarySkill = { question_id: string; skill_id: string; weight: number };
 
 const chunk = <T,>(items: T[], size = 150) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, index * size + size));
 
-export async function getStudentSatProgress(studentId: string): Promise<SatProgress> {
+export async function getStudentSatProgress(studentId: string, options?: { assignmentCreatedBy?: string }): Promise<SatProgress> {
   const supabase = await createClient();
   const [{ data: skills, error: skillsError }, { data: mappings, error: mappingsError }, { data: attempts, error: attemptsError }] = await Promise.all([
     supabase.from("skills").select("id, code, name, sort_order").eq("active", true),
@@ -21,7 +21,7 @@ export async function getStudentSatProgress(studentId: string): Promise<SatProgr
   const submittedAttempts = (attempts ?? []) as SubmittedAttempt[];
   if (!submittedAttempts.length) return buildSatProgress((skills ?? []) as SatSkillSource[], (mappings ?? []) as SatMappingSource[], []);
 
-  const submittedAssignmentIds = [...new Set(submittedAttempts.map((attempt) => attempt.assignment_id))]; const assignmentResults = await Promise.all(chunk(submittedAssignmentIds).map((ids) => supabase.from("assignments").select("id, show_score_after_submit").in("id", ids)));
+  const submittedAssignmentIds = [...new Set(submittedAttempts.map((attempt) => attempt.assignment_id))]; const assignmentResults = await Promise.all(chunk(submittedAssignmentIds).map((ids) => { let query = supabase.from("assignments").select("id, show_score_after_submit").in("id", ids); if (options?.assignmentCreatedBy) query = query.eq("created_by", options.assignmentCreatedBy); return query; }));
   const assignmentError = assignmentResults.find((result) => result.error)?.error; if (assignmentError) throw assignmentError;
   const scoreVisibleAssignmentIds = new Set((assignmentResults.flatMap((result) => result.data ?? []) as ScoreVisibleAssignment[]).filter((assignment) => assignment.show_score_after_submit).map((assignment) => assignment.id)); const attemptRows = submittedAttempts.filter((attempt) => scoreVisibleAssignmentIds.has(attempt.assignment_id));
   if (!attemptRows.length) return buildSatProgress((skills ?? []) as SatSkillSource[], (mappings ?? []) as SatMappingSource[], []);
