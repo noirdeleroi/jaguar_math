@@ -24,6 +24,12 @@ export async function saveStudentResponse(attemptId: string, questionId: string,
   return error ? { error: "Your response could not be saved. The time window may have closed." } : { ok: true };
 }
 
+export async function saveStudentResponseWithFeedback(attemptId: string, questionId: string, answer: string): Promise<{ error: string } | { ok: true; isCorrect: boolean; pointsAwarded: number }> {
+  await requireStudent(); const supabase = await createClient(); const { data, error } = await supabase.rpc("save_response_with_feedback", { p_attempt_id: attemptId, p_question_id: questionId, p_student_answer: answer });
+  const row = Array.isArray(data) ? data[0] : data;
+  return error || !row ? { error: "Your response could not be saved. The time window may have closed." } : { ok: true, isCorrect: Boolean(row.is_correct), pointsAwarded: Number(row.points_awarded ?? 0) };
+}
+
 export async function submitStudentAttempt(attemptId: string) {
   await requireStudent(); const supabase = await createClient(); const { error } = await supabase.rpc("submit_attempt", { p_attempt_id: attemptId });
   return error ? { error: "Your attempt could not be submitted." } : { ok: true };
