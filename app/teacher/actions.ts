@@ -14,6 +14,7 @@ const textFrom = (value: FormDataEntryValue | null) => typeof value === "string"
 
 export type ResetPasswordState = { error?: string; credential?: { fullName: string; emailAddress: string; temporaryPassword: string } };
 export type BulkResetPasswordState = { error?: string; credentials?: Array<{ fullName: string; emailAddress: string; temporaryPassword: string; emailDelivery?: "sent" | "failed" }> };
+export type AddStudentState = { error?: string; completed?: boolean; credential?: { fullName: string; emailAddress: string; temporaryPassword: string }; emailDelivery?: "sent" | "failed" };
 
 export async function resetStudentPassword(_previous: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
   try {
@@ -75,6 +76,54 @@ export async function resetClassStudentPasswords(_previous: BulkResetPasswordSta
     if (errors.length) return { credentials, error: `${errors.join(". ")}.` };
     return { credentials };
   } catch (error) { console.error("[teacher] bulk password reset failed", error instanceof Error ? error.name : "unknown"); return { error: "We couldn’t reset these passwords. Please try again." }; }
+}
+
+function nameFromEmail(email: string) {
+  const localPart = email.split("@")[0] ?? "Student";
+  return localPart.split(/[._-]+/).filter(Boolean).map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`).join(" ") || "Student";
+}
+
+export async function createAndEmailStudent(_previous: AddStudentState, formData: FormData): Promise<AddStudentState> {
+  void _previous;
+  let createdUserId: string | null = null;
+  try {
+    const teacher = await requireTeacher(); const classId = textFrom(formData.get("class_id")); const emailAddress = textFrom(formData.get("email")).toLowerCase(); const fullName = textFrom(formData.get("full_name")) || nameFromEmail(emailAddress);
+    if (!classId || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress) || /[\r\n]/.test(emailAddress)) return { error: "Enter a valid student email address." };
+    const supabase = await createClient(); const { data: classroom, error: classError } = await supabase.from("classes").select("id, grade_level").eq("id", classId).eq("teacher_id", teacher.id).maybeSingle();
+    if (classError || !classroom) return { error: "Choose one of your classes." };
+    if (!(await hasGoogleGmailSendPermission(teacher.id))) return { error: "Reconnect Google to enable credential email delivery." };
+    const connection = await getGoogleAccessToken(teacher.id);
+    if (connection.status !== "connected" || !connection.token) return { error: "Reconnect Google to enable credential email delivery." };
+
+    const admin = createAdminClient(); const { data: existingProfile, error: profileLookupError } = await admin.from("profiles").select("id").eq("email", emailAddress).maybeSingle();
+    if (profileLookupError) throw profileLookupError;
+    if (existingProfile) return { error: "A Jaguar Math account already uses that email. Add the existing student from the class page instead." };
+
+    const temporaryPassword = createTemporaryPassword(); const { data: authData, error: authError } = await admin.auth.admin.createUser({ email: emailAddress, password: temporaryPassword, email_confirm: true, user_metadata: { full_name: fullName } });
+    if (authError || !authData.user) { console.error("[teacher] dashboard student creation failed", authError?.code ?? "server_error"); return { error: "We couldn’t create that student account. It may already exist." }; }
+    createdUserId = authData.user.id;
+    const { error: profileError } = await admin.from("profiles").update({ full_name: fullName, grade_level: classroom.grade_level, must_change_password: true }).eq("id", createdUserId).eq("role", "student");
+    if (profileError) throw profileError;
+    const { error: membershipError } = await admin.from("class_members").insert({ class_id: classId, student_id: createdUserId });
+    if (membershipError) throw membershipError;
+
+    const credential = { fullName, emailAddress, temporaryPassword };
+    try {
+      await sendGoogleCredentialEmail(connection.token, credential);
+      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
+      return { completed: true, credential, emailDelivery: "sent" };
+    } catch (cause) {
+      console.error("[teacher] dashboard credential email failed", cause instanceof GoogleClassroomError ? cause.code : "server_error");
+      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
+      return { completed: true, credential, emailDelivery: "failed", error: "The account and class enrollment were created, but email delivery failed. Share the one-time password below manually." };
+    }
+  } catch (cause) {
+    if (createdUserId) {
+      try { await createAdminClient().auth.admin.deleteUser(createdUserId); } catch { console.error("[teacher] dashboard student cleanup failed"); }
+    }
+    console.error("[teacher] dashboard student creation failed", cause instanceof Error ? cause.name : "unknown");
+    return { error: "We couldn’t create and enroll that student. Please try again." };
+  }
 }
 
 export async function createClass(formData: FormData) {
