@@ -39,8 +39,8 @@ export type DraftQuestionActionState = { error?: string; success?: boolean } | n
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
   if (!title || !["homework", "quiz", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
-  const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), 2) : 2; const exam_violation_action = exam_mode ? text(formData.get("exam_violation_action")) || "warn" : "warn";
-  if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0 || !["warn", "auto_submit"].includes(exam_violation_action)) return null;
+  const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), 2) : 2; const exam_violation_action = "auto_submit";
+  if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0) return null;
   return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), shuffle_questions: checked(formData.get("shuffle_questions")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : true, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : true, exam_allowed_focus_exits, exam_violation_action };
 }
 
