@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import MathText from "@/app/components/math-text";
-import { recordExamActivity, saveStudentResponse, submitExamAttempt, submitStudentAttempt, type ExamActivityEvent } from "../actions";
+import { saveStudentResponse, submitExamAttempt, submitStudentAttempt } from "../actions";
+import { sendExamActivity, type ExamActivityEvent } from "./exam-activity-client";
 import styles from "./exam-mode.module.css";
 
 type Question = { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null; points: number; answer: string };
 type ExamMode = { requireFullscreen: boolean; trackFocusExits: boolean; allowedFocusExits: number; violationAction: "warn" | "auto_submit"; focusViolations: number };
-const eventId = () => crypto.randomUUID();
 
 export default function AssessmentRunner({ attemptId, startedAt, durationMinutes, questions, responsesClosed = false, examMode }: { attemptId: string; startedAt: string; durationMinutes: number | null; questions: Question[]; responsesClosed?: boolean; examMode?: ExamMode }) {
   const router = useRouter(); const [answers, setAnswers] = useState(() => Object.fromEntries(questions.map((question) => [question.id, question.answer ?? ""]))); const [notice, setNotice] = useState(""); const [pending, startTransition] = useTransition(); const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null); const [focusViolations, setFocusViolations] = useState(examMode?.focusViolations ?? 0); const [examWarning, setExamWarning] = useState("");
@@ -16,19 +16,20 @@ export default function AssessmentRunner({ attemptId, startedAt, durationMinutes
   const expiresAt = useMemo(() => durationMinutes ? new Date(startedAt).getTime() + durationMinutes * 60_000 : null, [durationMinutes, startedAt]); const [remaining, setRemaining] = useState(() => expiresAt ? Math.max(0, expiresAt - Date.now()) : 0);
   useEffect(() => { if (!expiresAt) return; const timer = window.setInterval(() => setRemaining(Math.max(0, expiresAt - Date.now())), 1000); return () => window.clearInterval(timer); }, [expiresAt]);
   useEffect(() => () => { activeRef.current = false; }, []);
-  const logActivity = useCallback(async (eventType: ExamActivityEvent, awayDurationSeconds?: number, violation = false) => {
+  const logActivity = useCallback(async (eventType: ExamActivityEvent, awayDurationSeconds?: number, violation = false, keepalive = false) => {
     if (!examMode || !activeRef.current || (violation && Date.now() - lastViolationAt.current < 1200)) return;
     if (violation) lastViolationAt.current = Date.now();
-    const result = await recordExamActivity(attemptId, eventId(), eventType, awayDurationSeconds);
+    const result = await sendExamActivity(attemptId, eventType, awayDurationSeconds, keepalive);
     if ("error" in result) { setExamWarning(result.error ?? "Exam activity could not be recorded. Your saved answers are unaffected."); return; }
     setFocusViolations(result.focusViolations);
+    if (violation) setExamWarning(`You left the assessment or exited fullscreen. Focus violations: ${result.focusViolations} of ${examMode.allowedFocusExits}.`);
     if (result.autoSubmitted) { setExamWarning("Your attempt was submitted after exceeding the configured focus-exit limit."); router.refresh(); }
   }, [attemptId, examMode, router]);
   useEffect(() => {
     if (!examMode || responsesClosed) return;
     const visibility = () => {
-      if (document.visibilityState === "hidden") { awayAt.current = Date.now(); if (examMode.trackFocusExits) void logActivity("page_hidden", undefined, true); }
-      else { const duration = awayAt.current ? Math.round((Date.now() - awayAt.current) / 1000) : undefined; awayAt.current = null; void logActivity("page_visible", duration); }
+      if (document.visibilityState === "hidden") { awayAt.current = Date.now(); if (examMode.trackFocusExits) void logActivity("page_hidden", undefined, true, true); }
+      else { const duration = awayAt.current ? Math.round((Date.now() - awayAt.current) / 1000) : undefined; awayAt.current = null; window.setTimeout(() => void logActivity("page_visible", duration), 150); }
     };
     const blur = () => { if (document.visibilityState === "visible") void logActivity("window_blur"); };
     const focus = () => { if (document.visibilityState === "visible") void logActivity("window_focus"); };
