@@ -181,15 +181,21 @@ function mimeBase64(value: string) {
   return Buffer.from(value, "utf8").toString("base64").match(/.{1,76}/g)?.join("\r\n") ?? "";
 }
 
-function appUrl() {
-  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (!configured) return "http://localhost:3000";
+function normalizedAppUrl(value: string | undefined, defaultProtocol = "https:") {
+  const configured = value?.trim(); if (!configured) return null;
   try {
-    const url = new URL(configured);
-    if (url.protocol !== "https:" && url.protocol !== "http:") return "http://localhost:3000";
+    const url = new URL(/^https?:\/\//.test(configured) ? configured : `${defaultProtocol}//${configured}`);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
     url.username = ""; url.password = ""; url.hash = "";
     return url.toString().replace(/\/$/, "");
-  } catch { return "http://localhost:3000"; }
+  } catch { return null; }
+}
+
+function appUrl() {
+  const configured = normalizedAppUrl(process.env.NEXT_PUBLIC_APP_URL); const isLocalConfiguredUrl = configured ? new URL(configured).hostname === "localhost" : false;
+  if (configured && !(process.env.VERCEL && isLocalConfiguredUrl)) return configured;
+  const vercelProductionUrl = normalizedAppUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  return vercelProductionUrl ?? configured ?? "http://localhost:3000";
 }
 
 function credentialEmailText(firstName: string, emailAddress: string, temporaryPassword: string, loginUrl: string) {
