@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { addStudentToClass, removeStudentFromClass, updateClass } from "../../actions";
 import { requireTeacher } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import ManageStudentCredentials from "./manage-student-credentials";
@@ -13,13 +14,13 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const teacher = await requireTeacher(); const { id } = await params; const messages = await searchParams; const supabase = await createClient();
   const { data: classroom, error: classroomError } = await supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").eq("id", id).maybeSingle();
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
-  const [{ data: members }, { data: allStudents }, gmailSendEnabled] = await Promise.all([supabase.from("class_members").select("student_id").eq("class_id", id), supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student").order("full_name"), hasGoogleGmailSendPermission(teacher.id)]);
+  const admin = createAdminClient(); const [{ data: members }, { data: allStudents }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([supabase.from("class_members").select("student_id").eq("class_id", id), supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student").order("full_name"), hasGoogleGmailSendPermission(teacher.id), admin.from("google_classroom_courses").select("google_course_id, last_synced_at").eq("class_id", id).eq("teacher_id", teacher.id).maybeSingle()]);
   const studentsById = new Map((allStudents as Student[] | null ?? []).map((student) => [student.id, student])); const memberIds = new Set(members?.map(({ student_id }) => student_id) ?? []);
   const enrolled = [...memberIds].map((studentId) => studentsById.get(studentId)).filter((student): student is Student => Boolean(student)); const available = (allStudents as Student[] | null ?? []).filter((student) => !memberIds.has(student.id));
 
   return <main className="teacher-main">
     <Link className="back-link" href="/teacher/classes">← All classes</Link>
-    <section className="page-heading class-heading"><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} currently assigned.</p></div></section>
+    <section className="page-heading class-heading"><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} currently assigned.</p>{googleCourse && <Link className="class-google-sync-link" href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Sync Google Classroom <span>→</span></Link>}</div></section>
     {messages.error && <p className="notice notice-error" role="alert">{messages.error}</p>}{messages.success && <p className="notice notice-success">{messages.success}</p>}
     <div className="teacher-two-column class-detail-grid">
       <section className="teacher-section">
