@@ -13,10 +13,10 @@ export async function startOrContinueAssignment(assignmentId: string) {
 
 export async function startOrContinueExamAssignment(assignmentId: string) {
   const student = await requireStudent(); const supabase = await createClient();
-  const { data: active } = await supabase.from("attempts").select("id").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
-  if (active) return { attemptId: active.id };
+  const { data: active } = await supabase.from("attempts").select("id, started_at").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
+  if (active) return { attemptId: active.id, startedAt: active.started_at };
   const { data, error } = await supabase.rpc("start_exam_attempt", { p_assignment_id: assignmentId });
-  return error || !data ? { error: "This Exam Mode assignment is no longer available to start." } : { attemptId: data.id as string };
+  return error || !data ? { error: "This Exam Mode assignment is no longer available to start." } : { attemptId: data.id as string, startedAt: data.started_at as string };
 }
 
 export async function saveStudentResponse(attemptId: string, questionId: string, answer: string) {
