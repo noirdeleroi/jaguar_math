@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireTeacher } from "@/lib/auth";
-import { GoogleBulkSyncCourse, GoogleClassroomError, GoogleCourse, GoogleRosterStudent, GoogleSyncTarget, clearGoogleBulkSyncPreview, clearGoogleSyncPreview, getGoogleAccessToken, listCourseStudents, listTeacherCourses, readGoogleBulkSyncPreview, readGoogleSyncPreview, setGoogleBulkSyncPreview, setGoogleSyncPreview } from "@/lib/google-classroom";
+import { GoogleBulkSyncCourse, GoogleClassroomError, GoogleCourse, GoogleRosterStudent, GoogleSyncTarget, clearGoogleBulkSyncPreview, clearGoogleSyncPreview, createGoogleBulkSyncConfirmation, getGoogleAccessToken, listCourseStudents, listTeacherCourses, readGoogleBulkSyncConfirmation, readGoogleBulkSyncPreview, readGoogleSyncPreview, setGoogleBulkSyncPreview, setGoogleSyncPreview } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createTemporaryPassword } from "@/lib/temporary-password";
 
@@ -14,7 +14,7 @@ export type RemovedStudent = { studentId: string; fullName: string; emailAddress
 export type SyncPreview = { course: GoogleCourse; target: GoogleSyncTarget; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
 export type SyncActionState = { error?: string; preview?: SyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
 export type BulkSyncCoursePreview = { course: GoogleCourse; classId: string; className: string; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
-export type BulkSyncPreview = { courses: BulkSyncCoursePreview[]; existingCount: number; newCount: number; removedCount: number; canApply: boolean; issue?: string };
+export type BulkSyncPreview = { courses: BulkSyncCoursePreview[]; existingCount: number; newCount: number; removedCount: number; canApply: boolean; issue?: string; confirmationToken?: string };
 export type BulkSyncActionState = { error?: string; preview?: BulkSyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
 
 const text = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
@@ -245,8 +245,9 @@ export async function previewAllLinkedGoogleClassrooms(_previous: BulkSyncAction
     const teacher = await requireTeacher(); const linkedCourses = await loadLinkedGoogleCourses(teacher.id);
     if (!linkedCourses.length) return { error: "Link a Google Classroom course to a Jaguar Math class before syncing all classes." };
     const preview = await buildBulkPreview(teacher.id, linkedCourses);
-    await setGoogleBulkSyncPreview({ teacherId: teacher.id, courses: linkedCourses.map((item) => ({ courseId: item.course.id, classId: item.classId })), rosterFingerprint: bulkRosterFingerprint(linkedCourses) });
-    return { preview };
+    const confirmation = { teacherId: teacher.id, courses: linkedCourses.map((item) => ({ courseId: item.course.id, classId: item.classId })), rosterFingerprint: bulkRosterFingerprint(linkedCourses), expiresAt: Date.now() + 10 * 60 * 1000 };
+    await setGoogleBulkSyncPreview(confirmation);
+    return { preview: { ...preview, confirmationToken: createGoogleBulkSyncConfirmation(confirmation) ?? undefined } };
   } catch (cause) {
     console.error("[google-classroom] bulk sync preview failed", cause instanceof GoogleClassroomError ? cause.code : "server_error");
     return { error: actionError(cause) };
@@ -256,7 +257,7 @@ export async function previewAllLinkedGoogleClassrooms(_previous: BulkSyncAction
 export async function applyAllLinkedGoogleClassrooms(_previous: BulkSyncActionState, formData: FormData): Promise<BulkSyncActionState> {
   const createdUserIds: string[] = [];
   try {
-    const teacher = await requireTeacher(); const confirmation = await readGoogleBulkSyncPreview();
+    const teacher = await requireTeacher(); const confirmation = readGoogleBulkSyncConfirmation(text(formData.get("confirmation"))) ?? await readGoogleBulkSyncPreview();
     if (!confirmation || confirmation.teacherId !== teacher.id) return { error: "Preview all linked classes again before confirming." };
     const linkedCourses = await loadLinkedGoogleCourses(teacher.id);
     const currentCourses = linkedCourses.map((item) => ({ courseId: item.course.id, classId: item.classId }));

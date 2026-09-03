@@ -22,7 +22,7 @@ type GoogleStateSession = { state: string; teacherId: string };
 export type GoogleSyncTarget = { kind: "create"; name: string; gradeLevel: 11 | 12; academicYear: string } | { kind: "existing"; classId: string };
 type GoogleSyncPreviewSession = { teacherId: string; courseId: string; target: GoogleSyncTarget; rosterFingerprint: string };
 export type GoogleBulkSyncCourse = { courseId: string; classId: string };
-type GoogleBulkSyncPreviewSession = { teacherId: string; courses: GoogleBulkSyncCourse[]; rosterFingerprint: string };
+export type GoogleBulkSyncPreviewSession = { teacherId: string; courses: GoogleBulkSyncCourse[]; rosterFingerprint: string; expiresAt: number };
 export type GoogleCourse = { id: string; name: string; section?: string; courseState?: string };
 export type GoogleRosterStudent = { userId: string; fullName: string; emailAddress: string; photoUrl?: string };
 export type GoogleClassroomErrorCode = "token_expired" | "missing_scopes" | "admin_restricted" | "classroom_error" | "refresh_token_missing" | "gmail_error";
@@ -107,7 +107,19 @@ export async function setGoogleBulkSyncPreview(value: GoogleBulkSyncPreviewSessi
 
 export async function readGoogleBulkSyncPreview() {
   const config = googleOAuthConfig(); if (!config) return null;
-  const cookieStore = await cookies(); return decode<GoogleBulkSyncPreviewSession>(cookieStore.get(GOOGLE_BULK_SYNC_PREVIEW_COOKIE)?.value, config.clientSecret);
+  const cookieStore = await cookies(); const session = decode<GoogleBulkSyncPreviewSession>(cookieStore.get(GOOGLE_BULK_SYNC_PREVIEW_COOKIE)?.value, config.clientSecret);
+  return session && Number.isFinite(session.expiresAt) && session.expiresAt > Date.now() ? session : null;
+}
+
+export function createGoogleBulkSyncConfirmation(value: GoogleBulkSyncPreviewSession) {
+  const config = googleOAuthConfig();
+  return config ? encode(value, config.clientSecret) : null;
+}
+
+export function readGoogleBulkSyncConfirmation(value: string) {
+  const config = googleOAuthConfig();
+  const session = config ? decode<GoogleBulkSyncPreviewSession>(value, config.clientSecret) : null;
+  return session && Number.isFinite(session.expiresAt) && session.expiresAt > Date.now() ? session : null;
 }
 
 export async function clearGoogleBulkSyncPreview() {
