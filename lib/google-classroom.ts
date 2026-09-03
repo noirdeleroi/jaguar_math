@@ -15,11 +15,14 @@ export const GOOGLE_GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.se
 export const GOOGLE_OAUTH_STATE_COOKIE = "jaguar_google_oauth_state";
 export const GOOGLE_TOKEN_COOKIE = "jaguar_google_access";
 export const GOOGLE_SYNC_PREVIEW_COOKIE = "jaguar_google_sync_preview";
+export const GOOGLE_BULK_SYNC_PREVIEW_COOKIE = "jaguar_google_bulk_sync_preview";
 
 type GoogleTokenSession = { accessToken: string; expiresAt: number; scopes: string[]; teacherId: string };
 type GoogleStateSession = { state: string; teacherId: string };
 export type GoogleSyncTarget = { kind: "create"; name: string; gradeLevel: 11 | 12; academicYear: string } | { kind: "existing"; classId: string };
 type GoogleSyncPreviewSession = { teacherId: string; courseId: string; target: GoogleSyncTarget; rosterFingerprint: string };
+export type GoogleBulkSyncCourse = { courseId: string; classId: string };
+type GoogleBulkSyncPreviewSession = { teacherId: string; courses: GoogleBulkSyncCourse[]; rosterFingerprint: string };
 export type GoogleCourse = { id: string; name: string; section?: string; courseState?: string };
 export type GoogleRosterStudent = { userId: string; fullName: string; emailAddress: string; photoUrl?: string };
 export type GoogleClassroomErrorCode = "token_expired" | "missing_scopes" | "admin_restricted" | "classroom_error" | "refresh_token_missing" | "gmail_error";
@@ -44,7 +47,7 @@ function sign(value: string, secret: string) {
   return createHmac("sha256", secret).update(value).digest("base64url");
 }
 
-function encode(value: GoogleTokenSession | GoogleStateSession | GoogleSyncPreviewSession, secret: string) {
+function encode(value: GoogleTokenSession | GoogleStateSession | GoogleSyncPreviewSession | GoogleBulkSyncPreviewSession, secret: string) {
   const payload = Buffer.from(JSON.stringify(value)).toString("base64url");
   return `${payload}.${sign(payload, secret)}`;
 }
@@ -95,6 +98,20 @@ export async function readGoogleSyncPreview() {
 
 export async function clearGoogleSyncPreview() {
   const cookieStore = await cookies(); cookieStore.set(GOOGLE_SYNC_PREVIEW_COOKIE, "", cookieOptions(0));
+}
+
+export async function setGoogleBulkSyncPreview(value: GoogleBulkSyncPreviewSession) {
+  const config = googleOAuthConfig(); if (!config) return;
+  const cookieStore = await cookies(); cookieStore.set(GOOGLE_BULK_SYNC_PREVIEW_COOKIE, encode(value, config.clientSecret), cookieOptions(10 * 60));
+}
+
+export async function readGoogleBulkSyncPreview() {
+  const config = googleOAuthConfig(); if (!config) return null;
+  const cookieStore = await cookies(); return decode<GoogleBulkSyncPreviewSession>(cookieStore.get(GOOGLE_BULK_SYNC_PREVIEW_COOKIE)?.value, config.clientSecret);
+}
+
+export async function clearGoogleBulkSyncPreview() {
+  const cookieStore = await cookies(); cookieStore.set(GOOGLE_BULK_SYNC_PREVIEW_COOKIE, "", cookieOptions(0));
 }
 
 export function clearGoogleState(response: Response) {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireTeacher } from "@/lib/auth";
-import { GoogleClassroomError, GoogleCourse, GoogleRosterStudent, GoogleSyncTarget, clearGoogleSyncPreview, getGoogleAccessToken, listCourseStudents, listTeacherCourses, readGoogleSyncPreview, setGoogleSyncPreview } from "@/lib/google-classroom";
+import { GoogleBulkSyncCourse, GoogleClassroomError, GoogleCourse, GoogleRosterStudent, GoogleSyncTarget, clearGoogleBulkSyncPreview, clearGoogleSyncPreview, getGoogleAccessToken, listCourseStudents, listTeacherCourses, readGoogleBulkSyncPreview, readGoogleSyncPreview, setGoogleBulkSyncPreview, setGoogleSyncPreview } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createTemporaryPassword } from "@/lib/temporary-password";
 
@@ -13,6 +13,9 @@ export type SyncStudent = { userId: string; fullName: string; emailAddress: stri
 export type RemovedStudent = { studentId: string; fullName: string; emailAddress: string };
 export type SyncPreview = { course: GoogleCourse; target: GoogleSyncTarget; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
 export type SyncActionState = { error?: string; preview?: SyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
+export type BulkSyncCoursePreview = { course: GoogleCourse; classId: string; className: string; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
+export type BulkSyncPreview = { courses: BulkSyncCoursePreview[]; existingCount: number; newCount: number; removedCount: number; canApply: boolean; issue?: string };
+export type BulkSyncActionState = { error?: string; preview?: BulkSyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
 
 const text = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
 const normalizedEmail = (email: string) => email.trim().toLowerCase();
@@ -168,5 +171,143 @@ export async function applyGoogleClassroomSync(_previous: SyncActionState, formD
     return { completed: true, credentials, removedCount: removeMissing ? preview.removed.length : 0 };
   } catch (cause) {
     await cleanupCreatedUsers(createdUserIds); console.error("[google-classroom] sync failed", cause instanceof GoogleClassroomError ? cause.code : "server_error"); return { error: actionError(cause) };
+  }
+}
+
+type LinkedCourse = { course: GoogleCourse; roster: GoogleRosterStudent[]; classId: string; className: string };
+
+function bulkRosterFingerprint(courses: LinkedCourse[]) {
+  return courses.map((item) => `${item.course.id}\u0000${rosterFingerprint(item.roster)}`).sort().join("\n\n");
+}
+
+function sameCourseLinks(first: GoogleBulkSyncCourse[], second: GoogleBulkSyncCourse[]) {
+  const serialize = (items: GoogleBulkSyncCourse[]) => items.map((item) => `${item.courseId}\u0000${item.classId}`).sort().join("\n");
+  return serialize(first) === serialize(second);
+}
+
+async function loadLinkedGoogleCourses(teacherId: string): Promise<LinkedCourse[]> {
+  const connection = await getGoogleAccessToken(teacherId);
+  if (connection.status !== "connected" || !connection.token) throw new GoogleClassroomError(connection.status === "expired" ? "token_expired" : "refresh_token_missing");
+  const admin = createAdminClient();
+  const [{ data: links, error: linksError }, teachingCourses] = await Promise.all([
+    admin.from("google_classroom_courses").select("google_course_id, class_id, teacher_id").eq("teacher_id", teacherId),
+    listTeacherCourses(connection.token),
+  ]);
+  if (linksError) throw linksError;
+  const mapped = (links ?? []) as CourseMapping[];
+  if (!mapped.length) return [];
+  const courseById = new Map(teachingCourses.map((course) => [course.id, course]));
+  const missingCourse = mapped.find((link) => !courseById.has(link.google_course_id));
+  if (missingCourse) throw new Error("A linked Google course is no longer available to this teacher.");
+  const { data: classes, error: classesError } = await admin.from("classes").select("id, name").eq("teacher_id", teacherId).in("id", mapped.map((link) => link.class_id));
+  if (classesError) throw classesError;
+  const classNameById = new Map((classes ?? []).map((classroom) => [classroom.id, classroom.name]));
+  if (mapped.some((link) => !classNameById.has(link.class_id))) throw new Error("A linked Jaguar Math class is no longer available to this teacher.");
+  return Promise.all(mapped.map(async (link) => {
+    const course = courseById.get(link.google_course_id)!;
+    return { course, roster: await listCourseStudents(course.id, connection.token!), classId: link.class_id, className: classNameById.get(link.class_id)! };
+  }));
+}
+
+async function buildBulkPreview(teacherId: string, linkedCourses: LinkedCourse[]): Promise<BulkSyncPreview> {
+  const courses = await Promise.all(linkedCourses.map(async ({ course, roster, classId, className }) => {
+    const preview = await buildPreview(teacherId, course, roster, { kind: "existing", classId });
+    return { course, classId, className, students: preview.students, removed: preview.removed, existingCount: preview.existingCount, newCount: preview.newCount, canApply: preview.canApply };
+  }));
+  const newGoogleIds = new Set<string>(); const newUsersByEmail = new Map<string, Set<string>>(); const emailsByGoogleId = new Map<string, Set<string>>(); const googleIdsByStudentId = new Map<string, Set<string>>();
+  for (const course of courses) for (const student of course.students) {
+    if (student.studentId) {
+      const googleIds = googleIdsByStudentId.get(student.studentId) ?? new Set<string>(); googleIds.add(student.userId); googleIdsByStudentId.set(student.studentId, googleIds);
+    }
+    if (student.status !== "New account") continue;
+    newGoogleIds.add(student.userId);
+    const email = normalizedEmail(student.emailAddress);
+    const googleIds = newUsersByEmail.get(email) ?? new Set<string>(); googleIds.add(student.userId); newUsersByEmail.set(email, googleIds);
+    const emails = emailsByGoogleId.get(student.userId) ?? new Set<string>(); emails.add(email); emailsByGoogleId.set(student.userId, emails);
+  }
+  const conflictingEmail = [...newUsersByEmail.values()].some((ids) => ids.size > 1);
+  const conflictingGoogleIdentity = [...emailsByGoogleId.values()].some((emails) => emails.size > 1);
+  const conflictingStudentIdentity = [...googleIdsByStudentId.values()].some((ids) => ids.size > 1);
+  const issue = conflictingEmail ? "Two different Google users share an email address across the linked rosters." : conflictingGoogleIdentity ? "A Google user has different email addresses across the linked rosters." : conflictingStudentIdentity ? "Two different Google users resolve to the same Jaguar Math student across the linked rosters." : undefined;
+  return {
+    courses,
+    existingCount: courses.reduce((total, course) => total + course.existingCount, 0),
+    newCount: newGoogleIds.size,
+    removedCount: courses.reduce((total, course) => total + course.removed.length, 0),
+    canApply: !issue && courses.every((course) => course.canApply),
+    issue,
+  };
+}
+
+export async function previewAllLinkedGoogleClassrooms(_previous: BulkSyncActionState): Promise<BulkSyncActionState> {
+  void _previous;
+  try {
+    const teacher = await requireTeacher(); const linkedCourses = await loadLinkedGoogleCourses(teacher.id);
+    if (!linkedCourses.length) return { error: "Link a Google Classroom course to a Jaguar Math class before syncing all classes." };
+    const preview = await buildBulkPreview(teacher.id, linkedCourses);
+    await setGoogleBulkSyncPreview({ teacherId: teacher.id, courses: linkedCourses.map((item) => ({ courseId: item.course.id, classId: item.classId })), rosterFingerprint: bulkRosterFingerprint(linkedCourses) });
+    return { preview };
+  } catch (cause) {
+    console.error("[google-classroom] bulk sync preview failed", cause instanceof GoogleClassroomError ? cause.code : "server_error");
+    return { error: actionError(cause) };
+  }
+}
+
+export async function applyAllLinkedGoogleClassrooms(_previous: BulkSyncActionState, formData: FormData): Promise<BulkSyncActionState> {
+  const createdUserIds: string[] = [];
+  try {
+    const teacher = await requireTeacher(); const confirmation = await readGoogleBulkSyncPreview();
+    if (!confirmation || confirmation.teacherId !== teacher.id) return { error: "Preview all linked classes again before confirming." };
+    const linkedCourses = await loadLinkedGoogleCourses(teacher.id);
+    const currentCourses = linkedCourses.map((item) => ({ courseId: item.course.id, classId: item.classId }));
+    if (!sameCourseLinks(confirmation.courses, currentCourses) || confirmation.rosterFingerprint !== bulkRosterFingerprint(linkedCourses)) {
+      await clearGoogleBulkSyncPreview();
+      return { error: "A linked class or Google Classroom roster changed. Review the updated preview before syncing." };
+    }
+    const preview = await buildBulkPreview(teacher.id, linkedCourses);
+    if (!preview.canApply) return { error: preview.issue ?? "Resolve the roster entries marked Needs review before syncing.", preview };
+    const admin = createAdminClient(); const credentials: { fullName: string; emailAddress: string; temporaryPassword: string }[] = []; const usedPasswords = new Set<string>(); const studentIdByGoogleId = new Map<string, string>();
+    for (const course of preview.courses) for (const student of course.students) if (student.studentId) studentIdByGoogleId.set(student.userId, student.studentId);
+    const newStudents = new Map<string, SyncStudent>();
+    for (const course of preview.courses) for (const student of course.students) if (student.status === "New account") newStudents.set(student.userId, student);
+    for (const student of newStudents.values()) {
+      const temporaryPassword = createTemporaryPassword(usedPasswords); const { data, error } = await admin.auth.admin.createUser({ email: student.emailAddress, password: temporaryPassword, email_confirm: true, user_metadata: { full_name: student.fullName } });
+      if (error || !data.user) throw error ?? new Error("Student account creation failed.");
+      const { error: flagError } = await admin.from("profiles").update({ must_change_password: true }).eq("id", data.user.id).eq("role", "student");
+      if (flagError) throw flagError;
+      createdUserIds.push(data.user.id); studentIdByGoogleId.set(student.userId, data.user.id); credentials.push({ fullName: student.fullName, emailAddress: student.emailAddress, temporaryPassword });
+    }
+    const removeMissing = formData.get("remove_missing") === "on"; let removedCount = 0;
+    for (const coursePreview of preview.courses) {
+      const linkedCourse = linkedCourses.find((item) => item.course.id === coursePreview.course.id)!;
+      const { error: courseError } = await admin.from("google_classroom_courses").upsert({ google_course_id: linkedCourse.course.id, class_id: linkedCourse.classId, teacher_id: teacher.id, google_course_name: linkedCourse.course.name || "Untitled course", google_course_section: linkedCourse.course.section || null, google_course_state: linkedCourse.course.courseState || null, last_synced_at: new Date().toISOString() }, { onConflict: "google_course_id" });
+      if (courseError) throw courseError;
+      const rosterById = new Map(linkedCourse.roster.map((student) => [student.userId, student]));
+      for (const student of coursePreview.students) {
+        const studentId = studentIdByGoogleId.get(student.userId); if (!studentId) throw new Error("Student profile was unavailable after account creation.");
+        const { data: currentProfile, error: profileError } = await admin.from("profiles").select("full_name").eq("id", studentId).maybeSingle();
+        if (profileError) throw profileError;
+        if (!currentProfile?.full_name) {
+          const { error } = await admin.from("profiles").update({ full_name: student.fullName }).eq("id", studentId); if (error) throw error;
+        }
+        const rosterStudent = rosterById.get(student.userId);
+        const { error: mappingError } = await admin.from("google_classroom_students").upsert({ google_user_id: student.userId, student_id: studentId, normalized_email: normalizedEmail(student.emailAddress), google_full_name: student.fullName, google_photo_url: rosterStudent?.photoUrl || null, last_seen_at: new Date().toISOString() }, { onConflict: "google_user_id" });
+        if (mappingError) throw mappingError;
+        const { error: membershipError } = await admin.from("class_members").upsert({ class_id: linkedCourse.classId, student_id: studentId }, { onConflict: "class_id,student_id", ignoreDuplicates: true });
+        if (membershipError) throw membershipError;
+      }
+      if (removeMissing && coursePreview.removed.length) {
+        const { error } = await admin.from("class_members").delete().eq("class_id", linkedCourse.classId).in("student_id", coursePreview.removed.map((student) => student.studentId));
+        if (error) throw error;
+        removedCount += coursePreview.removed.length;
+      }
+      revalidatePath(`/teacher/classes/${linkedCourse.classId}`);
+    }
+    await clearGoogleBulkSyncPreview(); revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
+    return { completed: true, credentials, removedCount };
+  } catch (cause) {
+    await cleanupCreatedUsers(createdUserIds);
+    console.error("[google-classroom] bulk sync failed", cause instanceof GoogleClassroomError ? cause.code : "server_error");
+    return { error: actionError(cause) };
   }
 }
