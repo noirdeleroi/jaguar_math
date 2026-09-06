@@ -1,0 +1,24 @@
+.teacher-main.question-bank-page {
+  width: 100%;
+  max-width: none;
+  padding-right: clamp(22px, 3vw, 56px);
+  padding-left: clamp(22px, 3vw, 56px);
+}
+
+@media (min-width: 851px) {
+  .question-bank-page .question-bank-layout {
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    gap: clamp(18px, 2vw, 28px);
+  }
+
+  .question-bank-page .question-bank-sidebar {
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #9bb9ad transparent;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    padding-right: 4px;
+  }
+}

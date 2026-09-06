@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jaguar Math
 
-## Getting Started
+Jaguar Math is a Grade 11–12 assessment platform for teachers and students. It supports assignment authoring, automatic grading, progress analytics, Exam Mode, CSV result exports, student credential management, and Google Classroom roster sync.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 App Router, React 19, and TypeScript
+- Supabase Auth and PostgreSQL with row-level security
+- KaTeX for mathematical notation
+- Google Classroom and Gmail APIs for roster sync and credential delivery
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js 20.9 or newer
+- npm
+- A Supabase project, or the Supabase CLI for local development
+- Optional: a Google Cloud OAuth client for Classroom sync
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local setup
 
-## Learn More
+1. Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Create `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```dotenv
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+   SUPABASE_SECRET_KEY=
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-## Deploy on Vercel
+   # Optional Google Classroom integration
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   GOOGLE_REDIRECT_URI=http://localhost:3000/api/google/callback
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Keep `SUPABASE_SECRET_KEY` and `GOOGLE_CLIENT_SECRET` server-only. For a local Supabase instance, the corresponding local anon and service-role keys can be used.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Apply the database migrations and seed data. With a local Supabase instance:
+
+   ```bash
+   npx supabase start
+   npx supabase db reset
+   ```
+
+   For a linked hosted project, use `npx supabase db push --include-seed` instead.
+
+4. Create an Auth user for the teacher, then promote the matching profile in the Supabase SQL editor:
+
+   ```sql
+   update public.profiles
+   set role = 'teacher'
+   where email = 'teacher@example.com';
+   ```
+
+5. Start the app:
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000).
+
+## Google Classroom setup
+
+Create a Google OAuth web client and enable the Google Classroom and Gmail APIs. Add the value of `GOOGLE_REDIRECT_URI` as an authorized redirect URI. The app requests read-only course, roster, email, and photo access plus `gmail.send`; teachers must reconnect if those scopes change.
+
+In production, set `NEXT_PUBLIC_APP_URL` and `GOOGLE_REDIRECT_URI` to the deployed HTTPS origin.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Run the development server |
+| `npm run lint` | Run ESLint |
+| `npm run build` | Type-check and create a production build |
+| `npm run start` | Serve the production build |
+| `npm run validate:skills` | Validate taxonomy data and regenerate `supabase/seed.sql` |
+
+## Project structure
+
+- `app/` — routes, Server Actions, and UI
+- `lib/` — authentication, Supabase clients, taxonomy analytics, and Google integrations
+- `data/` — skill and framework taxonomy sources
+- `supabase/migrations/` — schema, RLS policies, and transactional database functions
+- `supabase/seed.sql` — generated skill and framework seed data
+- `scripts/generate-skill-seed.mjs` — taxonomy validator and seed generator
+
+## Deployment
+
+Deploy the Next.js app to Vercel or another Node.js host, configure every required environment variable, and apply Supabase migrations before releasing application code that depends on them. Never expose the Supabase secret key or Google client secret as public environment variables.

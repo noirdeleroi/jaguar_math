@@ -3,6 +3,7 @@ import { requireTeacher } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import QuestionBankAddForm from "./question-bank-add-form";
 import QuestionBankWorkspace, { type BankQuestionDetail } from "./question-bank-workspace";
+import "./question-bank-layout.css";
 
 type PageProps = { searchParams: Promise<{ assignment_id?: string; q?: string; domain?: string; skill?: string; type?: string; difficulty?: string }> };
 type BankQuestion = { id: string; prompt: string; type: string; difficulty: number; options: { id: string; text: string }[] | null; created_at: string };

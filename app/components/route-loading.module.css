@@ -1,0 +1,160 @@
+.loading {
+  min-height: 420px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: #607970;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.status::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--coral);
+  content: "";
+  animation: loading-pulse 1.1s ease-in-out infinite;
+}
+
+.bar,
+.card {
+  position: relative;
+  overflow: hidden;
+  background: #e5ddd1;
+}
+
+.bar::after,
+.card::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #fffaf099, transparent);
+  content: "";
+  transform: translateX(-100%);
+  animation: loading-shimmer 1.25s ease-in-out infinite;
+}
+
+.bar {
+  height: 14px;
+  border-radius: 999px;
+}
+
+.eyebrow {
+  width: 116px;
+  height: 10px;
+}
+
+.title {
+  width: min(510px, 76%);
+  height: clamp(44px, 6vw, 68px);
+  margin-top: 17px;
+  border-radius: 7px;
+}
+
+.description {
+  width: min(590px, 88%);
+  margin-top: 19px;
+}
+
+.shortDescription {
+  width: min(390px, 65%);
+  margin-top: 9px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 42px 0 26px;
+}
+
+.card {
+  min-height: 112px;
+  border: 1px solid #d6cec1;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.panel {
+  min-height: 250px;
+  margin-top: 16px;
+}
+
+.studentLoading {
+  min-height: 100vh;
+  padding: 28px;
+  background: var(--cream);
+}
+
+.studentContainer {
+  max-width: 980px;
+  margin: 50px auto;
+}
+
+.studentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brandPlaceholder {
+  width: 170px;
+  height: 34px;
+}
+
+.accountPlaceholder {
+  width: 108px;
+  height: 34px;
+}
+
+.studentHeading {
+  margin-top: 52px;
+}
+
+.studentHero {
+  min-height: 190px;
+  margin-top: 26px;
+  border-color: #1c5b4d;
+  background: #1c5b4d;
+}
+
+@keyframes loading-shimmer {
+  to { transform: translateX(100%); }
+}
+
+@keyframes loading-pulse {
+  50% { opacity: .35; }
+}
+
+@media (max-width: 700px) {
+  .stats {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
+  }
+
+  .card {
+    min-height: 84px;
+  }
+
+  .studentContainer {
+    margin: 28px auto;
+  }
+
+  .studentHeading {
+    margin-top: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status::before,
+  .bar::after,
+  .card::after {
+    animation: none;
+  }
+}

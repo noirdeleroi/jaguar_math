@@ -1,0 +1,416 @@
+.page {
+  background: #f5f0e7;
+}
+
+.container {
+  max-width: 1120px;
+}
+
+.hero {
+  margin-top: 54px;
+  padding: clamp(30px, 5vw, 62px);
+  overflow: hidden;
+  border-radius: 14px;
+  background: #1c5b4d;
+  color: #fffaf0;
+  box-shadow: 0 18px 45px #17342e1f;
+}
+
+.hero .eyebrow,
+.formatSection .eyebrow,
+.strategy .eyebrow {
+  color: #f1c567;
+}
+
+.hero h1,
+.sectionHeading h2,
+.formatSection h2,
+.strategy h2,
+.testDay h2,
+.resources h2 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -.065em;
+}
+
+.hero h1 {
+  max-width: 680px;
+  font-size: clamp(48px, 7vw, 82px);
+  line-height: .91;
+}
+
+.hero h1 em {
+  color: #f1c567;
+}
+
+.hero > p:not(.eyebrow) {
+  max-width: 590px;
+  margin: 23px 0 0;
+  color: #e0ece5;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-radius: 5px;
+  padding: 13px 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.primaryAction {
+  background: var(--coral);
+  color: #fffaf0;
+}
+
+.secondaryAction {
+  border: 1px solid #ffffff66;
+  color: #fffaf0;
+}
+
+.metrics,
+.domainGrid,
+.formatGrid,
+.checklists {
+  display: grid;
+  gap: 14px;
+}
+
+.metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 16px 0 76px;
+}
+
+.metrics article {
+  padding: 20px;
+  border: 1px solid #d6cec1;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.metrics strong,
+.domain header > strong {
+  display: block;
+  color: var(--green);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -.06em;
+}
+
+.metrics span {
+  display: block;
+  margin-top: 6px;
+  color: #607970;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sectionHeading {
+  max-width: 675px;
+}
+
+.sectionHeading h2,
+.formatSection h2,
+.strategy h2,
+.testDay h2,
+.resources h2 {
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: .98;
+}
+
+.sectionHeading > p:last-child,
+.formatSection .sectionHeading > p:last-child,
+.strategy > div > p:last-child,
+.testDay > div > p:last-child,
+.resources > div > p:last-child {
+  margin: 15px 0 0;
+  color: #58736a;
+  line-height: 1.55;
+}
+
+.domainGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 28px;
+}
+
+.domain,
+.highPriorityDomain {
+  padding: 25px;
+  border: 1px solid #d6cec1;
+  border-radius: 9px;
+  background: #fffaf0;
+}
+
+.highPriorityDomain {
+  border-color: #9ebaae;
+  background: #eef5ef;
+}
+
+.domain header,
+.highPriorityDomain header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.domain header span,
+.highPriorityDomain header span {
+  color: var(--coral);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.domain h3,
+.highPriorityDomain h3,
+.formatGrid h3,
+.checklists h3 {
+  margin: 7px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -.055em;
+}
+
+.domain header > strong,
+.highPriorityDomain header > strong {
+  flex: 0 0 auto;
+  font-size: 27px;
+}
+
+.domain > p,
+.highPriorityDomain > p {
+  margin: 16px 0 13px;
+  color: #31554b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.domain ul,
+.highPriorityDomain ul,
+.checklists ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.domain li,
+.highPriorityDomain li,
+.checklists li {
+  position: relative;
+  padding-left: 18px;
+  color: #58736a;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.domain li::before,
+.highPriorityDomain li::before,
+.checklists li::before {
+  position: absolute;
+  left: 0;
+  color: var(--coral);
+  content: "•";
+}
+
+.formatSection {
+  margin-top: 84px;
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: 12px;
+  background: #173f36;
+  color: #fffaf0;
+}
+
+.formatSection .sectionHeading > p:last-child,
+.formatGrid p {
+  color: #d9e9e0;
+}
+
+.formatGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 32px;
+}
+
+.formatGrid article {
+  padding: 20px 0 0;
+  border-top: 1px solid #ffffff38;
+}
+
+.formatGrid b {
+  color: #f1c567;
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+
+.formatGrid h3 {
+  margin-top: 12px;
+  font-size: 25px;
+}
+
+.formatGrid p {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.strategy,
+.testDay,
+.resources {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 6vw, 86px);
+  align-items: start;
+  margin-top: 84px;
+}
+
+.strategy ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #d6cec1;
+}
+
+.strategy li {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid #d6cec1;
+}
+
+.strategy li strong {
+  color: var(--green);
+  font-size: 14px;
+}
+
+.strategy li span {
+  color: #58736a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.testDay {
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: 12px;
+  background: #fffaf0;
+}
+
+.checklists {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.checklists article {
+  padding: 22px;
+  border-radius: 7px;
+  background: #f4efe5;
+}
+
+.checklists article:last-child {
+  background: #fff0ec;
+}
+
+.checklists h3 {
+  margin: 0 0 17px;
+  font-size: 25px;
+}
+
+.resources {
+  padding-bottom: 38px;
+  border-bottom: 1px solid #d6cec1;
+}
+
+.resources > div:last-child {
+  display: grid;
+  border-top: 1px solid #d6cec1;
+}
+
+.resources a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 17px 0;
+  border-bottom: 1px solid #d6cec1;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.resources a span {
+  color: var(--coral);
+}
+
+.sourceNote {
+  margin: 26px 0 0;
+  color: #607970;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sourceNote a {
+  color: var(--green);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+@media (max-width: 850px) {
+  .metrics,
+  .formatGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strategy,
+  .testDay,
+  .resources {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    margin-top: 34px;
+  }
+
+  .metrics,
+  .domainGrid,
+  .formatGrid,
+  .checklists {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics {
+    margin-bottom: 56px;
+  }
+
+  .formatSection,
+  .strategy,
+  .testDay,
+  .resources {
+    margin-top: 58px;
+  }
+
+  .strategy li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
