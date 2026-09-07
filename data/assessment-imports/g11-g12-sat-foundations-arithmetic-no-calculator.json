@@ -1,0 +1,830 @@
+{
+  "questions": [
+    {
+      "prompt": "Evaluate $18-3(4)+2$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$4$" },
+        { "id": "B", "text": "$8$" },
+        { "id": "C", "text": "$14$" },
+        { "id": "D", "text": "$62$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply before adding or subtracting: $3(4)=12$. Then $18-12+2=8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $72\\div[3(2+2)]$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$6$" },
+        { "id": "B", "text": "$12$" },
+        { "id": "C", "text": "$24$" },
+        { "id": "D", "text": "$48$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "First, $2+2=4$. The denominator is $3\\cdot4=12$, so $72\\div12=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is the value of $(5-8)^2-4$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$-13$" },
+        { "id": "B", "text": "$-5$" },
+        { "id": "C", "text": "$5$" },
+        { "id": "D", "text": "$13$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$5-8=-3$, and $(-3)^2=9$. Therefore, $9-4=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.INTEGER_OPS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which value is equal to $\\frac{3}{4}+\\frac{5}{8}$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$\\frac{8}{12}$" },
+        { "id": "B", "text": "$1\\frac{1}{8}$" },
+        { "id": "C", "text": "$1\\frac{3}{8}$" },
+        { "id": "D", "text": "$1\\frac{5}{8}$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Rewrite $\\frac{3}{4}$ as $\\frac{6}{8}$. Then $\\frac{6}{8}+\\frac{5}{8}=\\frac{11}{8}=1\\frac{3}{8}$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $2\\frac{1}{3}-\\frac{5}{6}$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$1\\frac{1}{6}$" },
+        { "id": "B", "text": "$1\\frac{1}{2}$" },
+        { "id": "C", "text": "$1\\frac{2}{3}$" },
+        { "id": "D", "text": "$2\\frac{1}{6}$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$2\\frac{1}{3}=\\frac{14}{6}$. Thus $\\frac{14}{6}-\\frac{5}{6}=\\frac{9}{6}=\\frac{3}{2}=1\\frac{1}{2}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $\\frac{7}{9}\\cdot\\frac{27}{14}$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$\\frac{1}{2}$" },
+        { "id": "B", "text": "$\\frac{2}{3}$" },
+        { "id": "C", "text": "$\\frac{3}{2}$" },
+        { "id": "D", "text": "$\\frac{7}{2}$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Cancel common factors before multiplying: $\\frac{7}{14}=\\frac{1}{2}$ and $\\frac{27}{9}=3$. The product is $\\frac{3}{2}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $\\frac{5}{6}\\div\\frac{10}{9}$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$\\frac{3}{4}$" },
+        { "id": "B", "text": "$\\frac{4}{3}$" },
+        { "id": "C", "text": "$\\frac{25}{27}$" },
+        { "id": "D", "text": "$\\frac{50}{54}$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by the reciprocal: $\\frac{5}{6}\\cdot\\frac{9}{10}=\\frac{45}{60}=\\frac{3}{4}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A school club uses $\\frac{3}{8}$ of a package of 64 sheets of paper. How many sheets does the club use?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$8$" },
+        { "id": "B", "text": "$16$" },
+        { "id": "C", "text": "$24$" },
+        { "id": "D", "text": "$40$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{8}$ of 64 is $\\frac{3}{8}\\cdot64=3\\cdot8=24$ sheets.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $4.8+0.75-1.3$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$3.45$" },
+        { "id": "B", "text": "$4.25$" },
+        { "id": "C", "text": "$5.42$" },
+        { "id": "D", "text": "$6.85$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Align decimal places: $4.80+0.75=5.55$, and $5.55-1.30=4.25$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is the product of $3.6$ and $0.25$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$0.09$" },
+        { "id": "B", "text": "$0.9$" },
+        { "id": "C", "text": "$9$" },
+        { "id": "D", "text": "$90$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Since $0.25=\\frac14$, the product is one-fourth of $3.6$, which is $0.9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $7.2\\div0.06$.",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$1.2$" },
+        { "id": "B", "text": "$12$" },
+        { "id": "C", "text": "$120$" },
+        { "id": "D", "text": "$1{,}200$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply both numbers by 100: $7.2\\div0.06=720\\div6=120$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which fraction is equivalent to $0.375$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$\\frac{3}{5}$" },
+        { "id": "B", "text": "$\\frac{3}{8}$" },
+        { "id": "C", "text": "$\\frac{5}{8}$" },
+        { "id": "D", "text": "$\\frac{7}{20}$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$0.375=\\frac{375}{1000}$. Dividing numerator and denominator by 125 gives $\\frac{3}{8}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The ratio of red markers to blue markers in a box is $3:5$. If there are 40 markers altogether, how many are red?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$12$" },
+        { "id": "B", "text": "$15$" },
+        { "id": "C", "text": "$24$" },
+        { "id": "D", "text": "$25$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "There are $3+5=8$ equal parts. Each part is $40\\div8=5$, so the red markers number $3\\cdot5=15$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A bus travels 180 miles in 3 hours at a constant rate. At this rate, how far does it travel in $2.5$ hours?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$120$ miles" },
+        { "id": "B", "text": "$135$ miles" },
+        { "id": "C", "text": "$150$ miles" },
+        { "id": "D", "text": "$225$ miles" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The unit rate is $180\\div3=60$ miles per hour. In $2.5$ hours, the bus travels $60\\cdot2.5=150$ miles.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Six identical notebooks cost 10.50 dollars. At the same price per notebook, what is the cost of 4 notebooks?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$5.25$ dollars" },
+        { "id": "B", "text": "$7.00$ dollars" },
+        { "id": "C", "text": "$7.50$ dollars" },
+        { "id": "D", "text": "$8.75$ dollars" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Each notebook costs $10.50\\div6=1.75$ dollars. Four cost $4\\cdot1.75=7.00$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A recipe uses $2.5$ cups of flour for 20 rolls. How many cups are needed for 32 rolls at the same rate?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$3.2$ cups" },
+        { "id": "B", "text": "$4$ cups" },
+        { "id": "C", "text": "$4.5$ cups" },
+        { "id": "D", "text": "$5$ cups" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$32$ is $\\frac{32}{20}=1.6$ times 20, so multiply the flour by $1.6$: $2.5\\cdot1.6=4$ cups.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which decimal is equivalent to $35\\%$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$0.035$" },
+        { "id": "B", "text": "$0.35$" },
+        { "id": "C", "text": "$3.5$" },
+        { "id": "D", "text": "$35$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Percent means per hundred, so $35\\%=\\frac{35}{100}=0.35$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $15\\%$ of 240?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$24$" },
+        { "id": "B", "text": "$30$" },
+        { "id": "C", "text": "$36$" },
+        { "id": "D", "text": "$40$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$10\\%$ of 240 is 24 and $5\\%$ is 12. Their sum is $24+12=36$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A quantity increases from 80 to 92. What is the percent increase?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$12\\%$" },
+        { "id": "B", "text": "$13\\%$" },
+        { "id": "C", "text": "$15\\%$" },
+        { "id": "D", "text": "$20\\%$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The increase is $92-80=12$. Relative to the original value, $\\frac{12}{80}=0.15=15\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A population of 250 decreases by $18\\%$. What is the new population?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$195$" },
+        { "id": "B", "text": "$205$" },
+        { "id": "C", "text": "$218$" },
+        { "id": "D", "text": "$232$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$18\\%$ of 250 is $0.18\\cdot250=45$. The new population is $250-45=205$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "An item priced at 50 dollars is discounted by $20\\%$. A $10\\%$ sales tax is then applied to the discounted price. What is the final price?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$35$ dollars" },
+        { "id": "B", "text": "$40$ dollars" },
+        { "id": "C", "text": "$44$ dollars" },
+        { "id": "D", "text": "$45$ dollars" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "After the discount, the price is $50(0.80)=40$ dollars. Adding $10\\%$ tax gives $40(1.10)=44$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "After a $25\\%$ discount, a jacket costs 60 dollars. What was its original price?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$75$ dollars" },
+        { "id": "B", "text": "$80$ dollars" },
+        { "id": "C", "text": "$85$ dollars" },
+        { "id": "D", "text": "$90$ dollars" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "A $25\\%$ discount leaves $75\\%$ of the original price. Since $60\\div0.75=80$, the original price was 80 dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A meal costs 45 dollars before a $7\\%$ sales tax. What is the total cost?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$45.07$ dollars" },
+        { "id": "B", "text": "$47.15$ dollars" },
+        { "id": "C", "text": "$48.15$ dollars" },
+        { "id": "D", "text": "$52.00$ dollars" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The tax is $0.07\\cdot45=3.15$ dollars. The total is $45+3.15=48.15$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which is the best estimate of $198\\cdot51$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$1{,}000$" },
+        { "id": "B", "text": "$5{,}000$" },
+        { "id": "C", "text": "$10{,}000$" },
+        { "id": "D", "text": "$20{,}000$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Round $198$ to 200 and 51 to 50. Then $200\\cdot50=10{,}000$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which is the best estimate of $29.8\\div0.49$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$6$" },
+        { "id": "B", "text": "$15$" },
+        { "id": "C", "text": "$30$" },
+        { "id": "D", "text": "$60$" }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Use compatible numbers: $29.8\\approx30$ and $0.49\\approx0.5$. Then $30\\div0.5=60$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "How many minutes are in $3.5$ hours?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$180$" },
+        { "id": "B", "text": "$200$" },
+        { "id": "C", "text": "$210$" },
+        { "id": "D", "text": "$350$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "There are 60 minutes in an hour, so $3.5\\cdot60=210$ minutes.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.UNITS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A package has a mass of $2.4$ kilograms. What is its mass in grams?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$24$ grams" },
+        { "id": "B", "text": "$240$ grams" },
+        { "id": "C", "text": "$2{,}400$ grams" },
+        { "id": "D", "text": "$24{,}000$ grams" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "One kilogram is 1,000 grams, so $2.4\\cdot1{,}000=2{,}400$ grams.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.UNITS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A board is 5 feet 8 inches long. What is its length in inches?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$60$ inches" },
+        { "id": "B", "text": "$64$ inches" },
+        { "id": "C", "text": "$68$ inches" },
+        { "id": "D", "text": "$72$ inches" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Five feet is $5\\cdot12=60$ inches. Adding 8 inches gives $60+8=68$ inches.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.UNITS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $(3\\times10^4)(2\\times10^{-3})$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$6\\times10^{-7}$" },
+        { "id": "B", "text": "$6\\times10^1$" },
+        { "id": "C", "text": "$6\\times10^7$" },
+        { "id": "D", "text": "$60\\times10^1$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply the coefficients and add exponents: $3\\cdot2=6$ and $4+(-3)=1$. The result is $6\\times10^1=60$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.SCI_NOTATION", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which of the following values is greatest?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$\\frac{5}{8}$" },
+        { "id": "B", "text": "$0.62$" },
+        { "id": "C", "text": "$61\\%$" },
+        { "id": "D", "text": "$0.605$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Convert all values to decimals: $\\frac58=0.625$, $0.62$, $61\\%=0.61$, and $0.605$. The greatest is $0.625$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.REAL_NUMBERS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A tank holds 250 liters when full. It is $\\frac{3}{5}$ full, and then 40 liters are used. How many liters remain?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$90$" },
+        { "id": "B", "text": "$100$" },
+        { "id": "C", "text": "$110$" },
+        { "id": "D", "text": "$150$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac35$ of 250 is 150 liters. After 40 liters are used, $150-40=110$ liters remain.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A student answers 36 of 45 questions correctly. What percent of the questions did the student answer correctly?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$72\\%$" },
+        { "id": "B", "text": "$75\\%$" },
+        { "id": "C", "text": "$80\\%$" },
+        { "id": "D", "text": "$90\\%$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{36}{45}=\\frac45=0.8=80\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A 12-ounce container costs 3.60 dollars, and an 18-ounce container costs 5.04 dollars. Which statement is true?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The 12-ounce container costs 0.02 dollars less per ounce." },
+        { "id": "B", "text": "The 18-ounce container costs 0.02 dollars less per ounce." },
+        { "id": "C", "text": "Both containers have the same cost per ounce." },
+        { "id": "D", "text": "The 18-ounce container costs 0.20 dollars less per ounce." }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The smaller container costs $3.60\\div12=0.30$ dollars per ounce. The larger costs $5.04\\div18=0.28$ dollars per ounce, which is 0.02 dollars less.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A store increases a 40-dollar price by $25\\%$ and later decreases the new price by $20\\%$. What is the final price?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$36$ dollars" },
+        { "id": "B", "text": "$38$ dollars" },
+        { "id": "C", "text": "$40$ dollars" },
+        { "id": "D", "text": "$42$ dollars" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The increase gives $40(1.25)=50$ dollars. The decrease then gives $50(0.80)=40$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A class collected 84 cans on Monday and $\\frac{5}{7}$ as many cans on Tuesday. How many cans were collected over the two days?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$60$" },
+        { "id": "B", "text": "$120$" },
+        { "id": "C", "text": "$144$" },
+        { "id": "D", "text": "$204$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Tuesday's collection was $\\frac57\\cdot84=60$ cans. The two-day total was $84+60=144$ cans.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Enter the value of $6+24\\div(3\\cdot2)-5$.",
+      "type": "numeric",
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Inside the parentheses, $3\\cdot2=6$. Then $24\\div6=4$, and $6+4-5=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Enter the value of $-18+7-(-9)$.",
+      "type": "numeric",
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "Subtracting a negative is addition: $-18+7+9=-11+9=-2$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.INTEGER_OPS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $\\frac{5}{12}+\\frac{1}{3}$. Enter your answer as a decimal.",
+      "type": "numeric",
+      "correct_answer": "0.75",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac13=\\frac4{12}$, so the sum is $\\frac9{12}=\\frac34=0.75$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $1.5\\cdot2\\frac{2}{3}$. Enter your answer as a decimal or integer.",
+      "type": "numeric",
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "$1.5=\\frac32$ and $2\\frac23=\\frac83$. Their product is $\\frac32\\cdot\\frac83=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $12.5-3.78$.",
+      "type": "numeric",
+      "correct_answer": "8.72",
+      "numeric_tolerance": 0,
+      "explanation": "Write $12.5$ as $12.50$ and subtract: $12.50-3.78=8.72$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $0.84\\div0.07$.",
+      "type": "numeric",
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply both numbers by 100: $0.84\\div0.07=84\\div7=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The ratio of juniors to seniors at an event is $7:3$. If 42 juniors attend, how many seniors attend?",
+      "type": "numeric",
+      "correct_answer": "18",
+      "numeric_tolerance": 0,
+      "explanation": "Seven ratio parts equal 42, so each part equals $42\\div7=6$. Seniors make up 3 parts, or $3\\cdot6=18$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A student walks $\\frac{5}{8}$ mile in 10 minutes at a constant rate. At this rate, how many miles does the student walk in 1 hour?",
+      "type": "numeric",
+      "correct_answer": "3.75",
+      "numeric_tolerance": 0,
+      "explanation": "One hour contains six 10-minute intervals. The distance is $6\\cdot\\frac58=\\frac{30}{8}=3.75$ miles.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $12.5\\%$ of 96?",
+      "type": "numeric",
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "$12.5\\%=\\frac18$. One-eighth of 96 is $96\\div8=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The number 54 is $30\\%$ of what number?",
+      "type": "numeric",
+      "correct_answer": "180",
+      "numeric_tolerance": 0,
+      "explanation": "Divide the part by the decimal percent: $54\\div0.30=180$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A quantity decreases from 160 to 136. What is the percent decrease? Enter the number only, without the percent sign.",
+      "type": "numeric",
+      "correct_answer": "15",
+      "numeric_tolerance": 0,
+      "explanation": "The decrease is $160-136=24$. Since $24\\div160=0.15$, the percent decrease is $15\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "An 80-dollar item is discounted by $15\\%$, and then a 5-dollar coupon is applied. What is the final price in dollars?",
+      "type": "numeric",
+      "correct_answer": "63",
+      "numeric_tolerance": 0,
+      "explanation": "The discount is $0.15\\cdot80=12$ dollars. The final price is $80-12-5=63$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Round $4{,}876$ to the nearest hundred.",
+      "type": "numeric",
+      "correct_answer": "4900",
+      "numeric_tolerance": 0,
+      "explanation": "The tens digit is 7, so round the hundreds digit up. The result is $4{,}900$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A ribbon is $2.75$ yards long. How many feet long is the ribbon?",
+      "type": "numeric",
+      "correct_answer": "8.25",
+      "numeric_tolerance": 0,
+      "explanation": "One yard equals 3 feet, so $2.75\\cdot3=8.25$ feet.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [{ "code": "NUM.UNITS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $\\frac{6.4\\times10^5}{8\\times10^2}$. Enter the result as an ordinary number.",
+      "type": "numeric",
+      "correct_answer": "800",
+      "numeric_tolerance": 0,
+      "explanation": "$6.4\\div8=0.8$ and $10^5\\div10^2=10^3$. Thus $0.8\\times10^3=800$.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.SCI_NOTATION", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A book has 240 pages. A student reads $35\\%$ of the book on Monday and 48 pages on Tuesday. How many pages remain unread?",
+      "type": "numeric",
+      "correct_answer": "108",
+      "numeric_tolerance": 0,
+      "explanation": "$35\\%$ of 240 is $0.35\\cdot240=84$. After two days, $84+48=132$ pages are read, leaving $240-132=108$ pages.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "On a map, $\\frac{3}{4}$ inch represents 12 miles. How many miles are represented by $2.5$ inches?",
+      "type": "numeric",
+      "correct_answer": "40",
+      "numeric_tolerance": 0,
+      "explanation": "The scale is $12\\div\\frac34=16$ miles per inch. Therefore, $2.5\\cdot16=40$ miles.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A club has 75 members. Two-fifths are Grade 11 students, and the rest are Grade 12 students. If one-third of the Grade 12 students are absent, how many club members are present?",
+      "type": "numeric",
+      "correct_answer": "60",
+      "numeric_tolerance": 0,
+      "explanation": "Grade 11 has $\\frac25\\cdot75=30$ members, so Grade 12 has 45. One-third of 45 is 15 absent students. Therefore, $75-15=60$ members are present.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A water container is $\\frac{7}{10}$ full. After 18 liters are added, it is full. What is the container's total capacity in liters?",
+      "type": "numeric",
+      "correct_answer": "60",
+      "numeric_tolerance": 0,
+      "explanation": "The missing part is $1-\\frac7{10}=\\frac3{10}$ of the capacity. If $\\frac3{10}$ equals 18 liters, the full capacity is $18\\div\\frac3{10}=60$ liters.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A worker earns 18 dollars per hour for the first 8 hours and $1.5$ times that rate for 2 additional hours. How many dollars does the worker earn altogether?",
+      "type": "numeric",
+      "correct_answer": "198",
+      "numeric_tolerance": 0,
+      "explanation": "Regular pay is $18\\cdot8=144$ dollars. The additional rate is $1.5\\cdot18=27$ dollars per hour, so additional pay is $27\\cdot2=54$ dollars. Total pay is $144+54=198$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A bag contains 120 grams of a snack mixture. Nuts make up $45\\%$ of the mixture. After 6 grams of nuts are eaten, how many grams of nuts remain?",
+      "type": "numeric",
+      "correct_answer": "48",
+      "numeric_tolerance": 0,
+      "explanation": "$45\\%$ of 120 is $0.45\\cdot120=54$ grams. After 6 grams are eaten, $54-6=48$ grams remain.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+      "icfes_competency": null
+    }
+  ]
+}
