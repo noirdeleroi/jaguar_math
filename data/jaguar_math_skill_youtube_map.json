@@ -1,0 +1,502 @@
+{
+  "NUM.ORDER_OPS": {
+    "youtube_video_title": "Order of Operations - Made Easy!",
+    "youtube_link": "https://www.youtube.com/watch?v=saTBf8AO4Ok"
+  },
+  "NUM.INTEGER_OPS": {
+    "youtube_video_title": "Adding and Subtracting Integers Made Easy!",
+    "youtube_link": "https://www.youtube.com/watch?v=_M-Z09nd4CE"
+  },
+  "NUM.FRACTIONS": {
+    "youtube_video_title": "Fractions, Mixed Numbers, Decimals, & Percents - Review",
+    "youtube_link": "https://www.youtube.com/watch?v=Vb5c7ay0ziU"
+  },
+  "NUM.DECIMALS": {
+    "youtube_video_title": "Math - Decimal Arithmetic",
+    "youtube_link": "https://www.youtube.com/watch?v=hy8CF6Y24xw"
+  },
+  "NUM.RATIOS_RATES": {
+    "youtube_video_title": "Unit Rates, Ratios & Proportions - Word Problems",
+    "youtube_link": "https://www.youtube.com/watch?v=s0RBRkehzwo"
+  },
+  "NUM.PROPORTIONS": {
+    "youtube_video_title": "Ratio and Proportion Word Problems - Math",
+    "youtube_link": "https://www.youtube.com/watch?v=JOZSFwuyqok"
+  },
+  "NUM.PERCENT": {
+    "youtube_video_title": "Percentage Word Problems",
+    "youtube_link": "https://www.youtube.com/watch?v=kjpwBu6DmkM"
+  },
+  "NUM.UNITS": {
+    "youtube_video_title": "Dimensional Analysis",
+    "youtube_link": "https://www.youtube.com/watch?v=vWovdihteqs"
+  },
+  "NUM.SCI_NOTATION": {
+    "youtube_video_title": "Scientific Notation - Fast Review!",
+    "youtube_link": "https://www.youtube.com/watch?v=ZtB0vJMGve4"
+  },
+  "NUM.ESTIMATION": {
+    "youtube_video_title": "Estimating Sums and Products by Rounding",
+    "youtube_link": "https://www.youtube.com/watch?v=FNSeKw1Yh-s"
+  },
+  "NUM.REAL_NUMBERS": {
+    "youtube_video_title": "Natural, Whole, Integers, Rational, Irrational, Real, Imaginary Numbers",
+    "youtube_link": "https://www.youtube.com/watch?v=WxXZaP8Y8pI"
+  },
+  "ALG.EXPRESSIONS": {
+    "youtube_video_title": "Evaluating and Simplifying Algebraic Expressions",
+    "youtube_link": "https://www.youtube.com/watch?v=tJHFdZAuizg"
+  },
+  "ALG.EQUIVALENT_EXPRESSIONS": {
+    "youtube_video_title": "Evaluating and Simplifying Algebraic Expressions",
+    "youtube_link": "https://www.youtube.com/watch?v=tJHFdZAuizg"
+  },
+  "ALG.REARRANGE_FORMULAS": {
+    "youtube_video_title": "Algebra 1 - Literal Equations and Rearranging Equations",
+    "youtube_link": "https://www.youtube.com/watch?v=kvfIYWmxIGo"
+  },
+  "ALG.ABSOLUTE_VALUE": {
+    "youtube_video_title": "Solving Absolute Value Equations and Inequalities",
+    "youtube_link": "https://www.youtube.com/watch?v=3LN0IDooaIE"
+  },
+  "ALG.LINEAR_EQ_1VAR": {
+    "youtube_video_title": "Solving Linear Equations",
+    "youtube_link": "https://www.youtube.com/watch?v=0BsoWvWXOMM"
+  },
+  "ALG.LINEAR_EQ_2VAR": {
+    "youtube_video_title": "Linear Equations in 2 Variables – Graphs 01",
+    "youtube_link": "https://www.youtube.com/watch?v=nN9XCLVFgQE"
+  },
+  "ALG.LINEAR_EQ_CONTEXT": {
+    "youtube_video_title": "Linear Equation Word Problems - Algebra 1",
+    "youtube_link": "https://www.youtube.com/watch?v=04LMpJ4umIE"
+  },
+  "ALG.LINEAR_INEQUALITIES": {
+    "youtube_video_title": "How to Solve Linear Inequalities",
+    "youtube_link": "https://www.youtube.com/watch?v=DrZJKdXlZ3I"
+  },
+  "ALG.COMPOUND_INEQUALITIES": {
+    "youtube_video_title": "Compound Inequalities | Graphing, Writing, and Solving",
+    "youtube_link": "https://www.youtube.com/watch?v=AKSnaGHiFMc"
+  },
+  "ALG.SYSTEMS_LINEAR": {
+    "youtube_video_title": "Solving Systems of Linear Equations Using Substitution",
+    "youtube_link": "https://www.youtube.com/watch?v=9itGIP8gns4"
+  },
+  "ALG.SYSTEMS_CONTEXT": {
+    "youtube_video_title": "Systems of Linear Equations (Word Problems)",
+    "youtube_link": "https://www.youtube.com/watch?v=zS6iXOZFkG4"
+  },
+  "ALG.NONLINEAR_SYSTEMS": {
+    "youtube_video_title": "Solving Nonlinear Systems with Substitution",
+    "youtube_link": "https://www.youtube.com/watch?v=hrhQCsCR6_U"
+  },
+  "ALG.EXPONENT_RULES": {
+    "youtube_video_title": "Learn All EXPONENT RULES in only 36 minutes!",
+    "youtube_link": "https://www.youtube.com/watch?v=fYI4uDrbEW0"
+  },
+  "ALG.RADICALS": {
+    "youtube_video_title": "Radicals Complete Review - Simplifying, Rationalizing, Adding, Subtracting, Multiplying",
+    "youtube_link": "https://www.youtube.com/watch?v=4bO9lnhehCc"
+  },
+  "ALG.RATIONAL_EXPONENTS": {
+    "youtube_video_title": "College Algebra - Rational Exponents And Radicals",
+    "youtube_link": "https://www.youtube.com/watch?v=L5HUNxlnGKc"
+  },
+  "ALG.RADICAL_EQUATIONS": {
+    "youtube_video_title": "Solving Radical Equations With Square Roots, Cube Roots, Two Radicals, Fractions, Rational Exponents",
+    "youtube_link": "https://www.youtube.com/watch?v=g3rzuggIgIw"
+  },
+  "ALG.POLYNOMIAL_OPS": {
+    "youtube_video_title": "Polynomials - Adding, Subtracting, Multiplying and Dividing Algebraic Expressions",
+    "youtube_link": "https://www.youtube.com/watch?v=ZvL9aDGNHqA"
+  },
+  "ALG.FACTORING": {
+    "youtube_video_title": "Factoring Trinomials & Polynomials, Basic Introduction - Algebra",
+    "youtube_link": "https://www.youtube.com/watch?v=9MUDAr1PnlE"
+  },
+  "ALG.POLYNOMIAL_DIVISION": {
+    "youtube_video_title": "How to Divide Polynomials Using Long Division",
+    "youtube_link": "https://www.youtube.com/watch?v=_FSXJmESFmQ"
+  },
+  "ALG.POLYNOMIAL_ZEROS": {
+    "youtube_video_title": "How To Graph Polynomial Functions Using End Behavior, Multiplicity & Zeros",
+    "youtube_link": "https://www.youtube.com/watch?v=a5x4lwnvHM0"
+  },
+  "ALG.BINOMIAL_THEOREM": {
+    "youtube_video_title": "How to use the BINOMIAL THEOREM - A lot of practice EXAMPLES",
+    "youtube_link": "https://www.youtube.com/watch?v=aF13GejYWZQ"
+  },
+  "ALG.QUADRATIC_SOLVE": {
+    "youtube_video_title": "Completing The Square Method and Solving Quadratic Equations - Algebra 2",
+    "youtube_link": "https://www.youtube.com/watch?v=C206SNAXDGE"
+  },
+  "ALG.QUADRATIC_DISCRIMINANT": {
+    "youtube_video_title": "Quadratic Formula Discriminant",
+    "youtube_link": "https://www.youtube.com/watch?v=6fU9ZgwbU74"
+  },
+  "ALG.RATIONAL_EXPRESSIONS": {
+    "youtube_video_title": "Rational Expressions - Adding, Subtracting, Multiplying, Dividing, Simplifying Complex Fractions",
+    "youtube_link": "https://www.youtube.com/watch?v=p-JyTt0L-Tk"
+  },
+  "ALG.RATIONAL_EQUATIONS": {
+    "youtube_video_title": "How To Solve Rational Equations",
+    "youtube_link": "https://www.youtube.com/watch?v=iI5WPrd8uc0"
+  },
+  "FUNC.CONCEPT": {
+    "youtube_video_title": "Functions - Vertical Line Test, Ordered Pairs, Tables, Domain and Range",
+    "youtube_link": "https://www.youtube.com/watch?v=DrEXTC6mIO8"
+  },
+  "FUNC.DOMAIN_RANGE": {
+    "youtube_video_title": "Functions - Vertical Line Test, Ordered Pairs, Tables, Domain and Range",
+    "youtube_link": "https://www.youtube.com/watch?v=DrEXTC6mIO8"
+  },
+  "FUNC.MULTIPLE_REPRESENTATIONS": {
+    "youtube_video_title": "Multiple Representations of Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=ACZDnF8-9Ks"
+  },
+  "FUNC.GRAPH_FEATURES": {
+    "youtube_video_title": "Graphing Algebraic Functions: Domain and Range, Maxima and Minima",
+    "youtube_link": "https://www.youtube.com/watch?v=EjsQWKq-dGQ"
+  },
+  "FUNC.RATE_CHANGE": {
+    "youtube_video_title": "Average Rate of Change of Functions & Data Tables - SAT Math",
+    "youtube_link": "https://www.youtube.com/watch?v=nH9CZwc2w_Q"
+  },
+  "FUNC.COMPARE": {
+    "youtube_video_title": "Multiple Representations of Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=ACZDnF8-9Ks"
+  },
+  "FUNC.TRANSFORMATIONS": {
+    "youtube_video_title": "Transformations of Functions | Precalculus",
+    "youtube_link": "https://www.youtube.com/watch?v=Tmdrjs9xufc"
+  },
+  "FUNC.COMPOSITION": {
+    "youtube_video_title": "Composite Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=ZFPkQkURSxk"
+  },
+  "FUNC.INVERSE": {
+    "youtube_video_title": "Introduction to Inverse Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=TN4ybFiuV3k"
+  },
+  "FUNC.PIECEWISE": {
+    "youtube_video_title": "Graphing Piecewise Functions - Precalculus",
+    "youtube_link": "https://www.youtube.com/watch?v=Uzw9tsGq2Pw"
+  },
+  "FUNC.LINEAR": {
+    "youtube_video_title": "Linear Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=BtcKotD6Ni8"
+  },
+  "FUNC.LINEAR_MODELING": {
+    "youtube_video_title": "Linear Equation Word Problems - Algebra 1",
+    "youtube_link": "https://www.youtube.com/watch?v=04LMpJ4umIE"
+  },
+  "FUNC.QUADRATIC": {
+    "youtube_video_title": "How to Graph Quadratic Functions in Vertex and Standard Forms",
+    "youtube_link": "https://www.youtube.com/watch?v=UKkOAbz0UPE"
+  },
+  "FUNC.QUADRATIC_FORMS": {
+    "youtube_video_title": "Quadratic Functions Explained: Standard, Vertex & Factored Form",
+    "youtube_link": "https://www.youtube.com/watch?v=urfa5sDKAd4"
+  },
+  "FUNC.QUADRATIC_MODELING": {
+    "youtube_video_title": "Projectile Motion Quadratic Modeling",
+    "youtube_link": "https://www.youtube.com/watch?v=vG4h6Bb2Sm0"
+  },
+  "FUNC.POLYNOMIAL": {
+    "youtube_video_title": "How To Graph Polynomial Functions Using End Behavior, Multiplicity & Zeros",
+    "youtube_link": "https://www.youtube.com/watch?v=a5x4lwnvHM0"
+  },
+  "FUNC.RATIONAL": {
+    "youtube_video_title": "Graphing Rational Functions With Vertical, Horizontal & Slant Asymptotes, Holes, Domain & Range",
+    "youtube_link": "https://www.youtube.com/watch?v=XE-Z2-F3oWw"
+  },
+  "FUNC.EXPONENTIAL": {
+    "youtube_video_title": "How To Graph Exponential Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=DASfP8KAyvs"
+  },
+  "FUNC.EXPONENTIAL_MODELING": {
+    "youtube_video_title": "Exponential Growth and Decay Word Problems & Functions - Algebra & Precalculus",
+    "youtube_link": "https://www.youtube.com/watch?v=e5nwJKUc3bA"
+  },
+  "FUNC.LOGARITHMIC": {
+    "youtube_video_title": "Logarithms - Explained: Rules, Properties, Graphing & Solving Equations",
+    "youtube_link": "https://www.youtube.com/watch?v=oqHJ5xQYTEI"
+  },
+  "GEO.ANGLES_LINES": {
+    "youtube_video_title": "Parallel and Perpendicular Lines, Transversals, Alternate Interior Angles, Alternate Exterior Angles",
+    "youtube_link": "https://www.youtube.com/watch?v=e4o7X6LyX-I"
+  },
+  "GEO.TRIANGLES": {
+    "youtube_video_title": "Geometry Introduction - Basic Overview - Review For SAT, ACT, EOC, Midterm Final Exam",
+    "youtube_link": "https://www.youtube.com/watch?v=KtZai86htng"
+  },
+  "GEO.CONGRUENCE": {
+    "youtube_video_title": "Triangle Congruence Theorems, Two Column Proofs, SSS, SAS, ASA, AAS Postulates, Geometry Problems",
+    "youtube_link": "https://www.youtube.com/watch?v=jWHOF6cFbpw"
+  },
+  "GEO.SIMILARITY": {
+    "youtube_video_title": "AA SSS SAS & AAA Postulates, Proving Similar Triangles",
+    "youtube_link": "https://www.youtube.com/watch?v=VXlFEilh-cw"
+  },
+  "GEO.PYTHAGOREAN": {
+    "youtube_video_title": "Pythagorean Theorem - Basic Introduction",
+    "youtube_link": "https://www.youtube.com/watch?v=pbf4lcJhIfI"
+  },
+  "GEO.POLYGONS": {
+    "youtube_video_title": "Polygons",
+    "youtube_link": "https://www.youtube.com/watch?v=E_-3ulbtcLk"
+  },
+  "GEO.CIRCLES": {
+    "youtube_video_title": "Circles, Angle Measures, Arcs, Central & Inscribed Angles, Tangents, Secants & Chords - Geometry",
+    "youtube_link": "https://www.youtube.com/watch?v=nd46bA9DKE0"
+  },
+  "GEO.CIRCLE_EQUATIONS": {
+    "youtube_video_title": "Graphing Circles and Writing Equations of Circles In Standard Form - Conic Sections",
+    "youtube_link": "https://www.youtube.com/watch?v=u_39J-syjB0"
+  },
+  "GEO.CIRCLE_MEASURE": {
+    "youtube_video_title": "Arc Length and Area of a Sector in a Circle - SAT Math",
+    "youtube_link": "https://www.youtube.com/watch?v=aEObQtzcido"
+  },
+  "GEO.AREA": {
+    "youtube_video_title": "How to Solve Geometry Problems: Area and Volume Tricks",
+    "youtube_link": "https://www.youtube.com/watch?v=7PVdE6Efqgg"
+  },
+  "GEO.SURFACE_AREA": {
+    "youtube_video_title": "Geometry Introduction - Basic Overview - Review For SAT, ACT, EOC, Midterm Final Exam",
+    "youtube_link": "https://www.youtube.com/watch?v=KtZai86htng"
+  },
+  "GEO.VOLUME": {
+    "youtube_video_title": "Volume - Rectangular Prisms, Cylinders, Cones, Pyramids, and Spheres",
+    "youtube_link": "https://www.youtube.com/watch?v=VYGrZZEPq5Y"
+  },
+  "GEO.COORDINATE": {
+    "youtube_video_title": "Distance, Midpoint, Slope, Line Division & More | Coordinate Geometry",
+    "youtube_link": "https://www.youtube.com/watch?v=u1GG-8iGTfU"
+  },
+  "GEO.TRANSFORMATIONS": {
+    "youtube_video_title": "Translations Reflections and Rotations - Geometric Transformations!",
+    "youtube_link": "https://www.youtube.com/watch?v=GqHWdTLL8Qw"
+  },
+  "GEO.GEOMETRIC_REASONING": {
+    "youtube_video_title": "Geometry Proofs - Two Column Proofs - MathHelp.com",
+    "youtube_link": "https://www.youtube.com/watch?v=zQ6Y0fismDg"
+  },
+  "GEO.MODELING": {
+    "youtube_video_title": "How to Solve Geometry Problems: Area and Volume Tricks",
+    "youtube_link": "https://www.youtube.com/watch?v=7PVdE6Efqgg"
+  },
+  "TRIG.RIGHT_TRIANGLE": {
+    "youtube_video_title": "Trigonometry For Beginners!",
+    "youtube_link": "https://www.youtube.com/watch?v=PUB0TaZ7bhA"
+  },
+  "TRIG.SPECIAL_TRIANGLES": {
+    "youtube_video_title": "Special Right Triangles - 30 60 90 - Geometry & Trigonometry | SAT Math",
+    "youtube_link": "https://www.youtube.com/watch?v=p70UBGCHZrQ"
+  },
+  "TRIG.RADIANS": {
+    "youtube_video_title": "Radians and Degrees",
+    "youtube_link": "https://www.youtube.com/watch?v=JmLN3QxshlE"
+  },
+  "TRIG.UNIT_CIRCLE": {
+    "youtube_video_title": "The Unit Circle, Basic Introduction, Trigonometry",
+    "youtube_link": "https://www.youtube.com/watch?v=57VrEiEPD1I"
+  },
+  "TRIG.GRAPHS": {
+    "youtube_video_title": "Graphing Trigonometric Functions, Phase Shift, Period, Transformations, Tangent, Cosecant, Cosine",
+    "youtube_link": "https://www.youtube.com/watch?v=fo_q9mEAFp4"
+  },
+  "TRIG.TRANSFORMATIONS": {
+    "youtube_video_title": "Graphing Trigonometric Functions, Phase Shift, Period, Transformations, Tangent, Cosecant, Cosine",
+    "youtube_link": "https://www.youtube.com/watch?v=fo_q9mEAFp4"
+  },
+  "TRIG.INVERSE": {
+    "youtube_video_title": "How to Evaluate Inverse Trigonometric Functions",
+    "youtube_link": "https://www.youtube.com/watch?v=jt7p-mCC0ng"
+  },
+  "TRIG.IDENTITIES": {
+    "youtube_video_title": "Verifying Trigonometric Identities",
+    "youtube_link": "https://www.youtube.com/watch?v=Rf05H8ogHLg"
+  },
+  "TRIG.EQUATIONS": {
+    "youtube_video_title": "Solving Trigonometric Equations By Finding All Solutions",
+    "youtube_link": "https://www.youtube.com/watch?v=kEcbxiLeGTc"
+  },
+  "TRIG.LAW_SINES_COSINES": {
+    "youtube_video_title": "Law of Sines and Cosines | Trigonometry Made EASY (Introduction Lesson)",
+    "youtube_link": "https://www.youtube.com/watch?v=lYcUBn5JzXU"
+  },
+  "TRIG.MODELING": {
+    "youtube_video_title": "Graphing Trigonometric Functions, Phase Shift, Period, Transformations, Tangent, Cosecant, Cosine",
+    "youtube_link": "https://www.youtube.com/watch?v=fo_q9mEAFp4"
+  },
+  "STAT.DATA_DISPLAYS": {
+    "youtube_video_title": "Introduction to Statistics",
+    "youtube_link": "https://www.youtube.com/watch?v=XZo4xyJXCak"
+  },
+  "STAT.CENTER": {
+    "youtube_video_title": "Mean, Median, Mode, and Range - How To Find It!",
+    "youtube_link": "https://www.youtube.com/watch?v=A1mQ9kD-i9I"
+  },
+  "STAT.VARIABILITY": {
+    "youtube_video_title": "How To Calculate The Standard Deviation",
+    "youtube_link": "https://www.youtube.com/watch?v=IaTFpp-uzp0"
+  },
+  "STAT.PERCENTILES": {
+    "youtube_video_title": "Introduction to Statistics",
+    "youtube_link": "https://www.youtube.com/watch?v=XZo4xyJXCak"
+  },
+  "STAT.DISTRIBUTIONS": {
+    "youtube_video_title": "Introduction to Statistics",
+    "youtube_link": "https://www.youtube.com/watch?v=XZo4xyJXCak"
+  },
+  "STAT.NORMAL_DISTRIBUTION": {
+    "youtube_video_title": "Standard Normal Distribution Tables, Z Scores, Probability & Empirical Rule - Stats",
+    "youtube_link": "https://www.youtube.com/watch?v=CjF_yQ2N638"
+  },
+  "STAT.SCATTERPLOTS": {
+    "youtube_video_title": "Constructing a Scatter Plot | Regression | Probability and Statistics | Khan Academy",
+    "youtube_link": "https://www.youtube.com/watch?v=sHbX58y5D4U"
+  },
+  "STAT.REGRESSION": {
+    "youtube_video_title": "Introduction to Residuals and Least-Squares Regression | AP Statistics | Khan Academy",
+    "youtube_link": "https://www.youtube.com/watch?v=VqD-nf1YUks"
+  },
+  "STAT.TWO_WAY_TABLES": {
+    "youtube_video_title": "Two-way Relative Frequency Tables | Data and Modeling | Khan Academy",
+    "youtube_link": "https://www.youtube.com/watch?v=_ETPMszULXc"
+  },
+  "STAT.SET_OPERATIONS": {
+    "youtube_video_title": "Venn Diagrams: Shading Regions",
+    "youtube_link": "https://www.youtube.com/watch?v=b6t0994ZZDA"
+  },
+  "PROB.BASIC": {
+    "youtube_video_title": "Probability Explained!",
+    "youtube_link": "https://www.youtube.com/watch?v=UORztmWGY6Q"
+  },
+  "PROB.COMPOUND": {
+    "youtube_video_title": "Probability Explained!",
+    "youtube_link": "https://www.youtube.com/watch?v=UORztmWGY6Q"
+  },
+  "PROB.CONDITIONAL": {
+    "youtube_video_title": "Conditional Probability, General Multiplication Rule & Bayes' Theorem",
+    "youtube_link": "https://www.youtube.com/watch?v=sqDVrXq_eh0"
+  },
+  "PROB.INDEPENDENCE": {
+    "youtube_video_title": "Probability - Independent and Dependent Events",
+    "youtube_link": "https://www.youtube.com/watch?v=lWAdPyvm400"
+  },
+  "PROB.COUNTING_PRINCIPLES": {
+    "youtube_video_title": "Permutations and Combinations Tutorial",
+    "youtube_link": "https://www.youtube.com/watch?v=XJnIdRXUi7A"
+  },
+  "PROB.PERM_COMB": {
+    "youtube_video_title": "Permutations and Combinations Tutorial",
+    "youtube_link": "https://www.youtube.com/watch?v=XJnIdRXUi7A"
+  },
+  "PROB.EXPECTED_VALUE": {
+    "youtube_video_title": "How To Calculate Expected Value",
+    "youtube_link": "https://www.youtube.com/watch?v=b6VK2VPMXNI"
+  },
+  "STAT.SAMPLING": {
+    "youtube_video_title": "Techniques for Random Sampling and Avoiding Bias | Study Design | AP Statistics | Khan Academy",
+    "youtube_link": "https://www.youtube.com/watch?v=PdXDLNNXPik"
+  },
+  "STAT.MARGIN_ERROR": {
+    "youtube_video_title": "Student's T Distribution - Confidence Intervals & Margin of Error",
+    "youtube_link": "https://www.youtube.com/watch?v=MUD390jtgQs"
+  },
+  "STAT.INFERENCE": {
+    "youtube_video_title": "Hypothesis Testing - Null and Alternative Hypotheses",
+    "youtube_link": "https://www.youtube.com/watch?v=wiYJWyfdGg4"
+  },
+  "STAT.STUDY_DESIGN": {
+    "youtube_video_title": "Types of Statistical Studies | Study Design | AP Statistics | Khan Academy",
+    "youtube_link": "https://www.youtube.com/watch?v=SaP1O0i1bdc"
+  },
+  "PRE.SEQUENCES": {
+    "youtube_video_title": "Arithmetic Sequences and Arithmetic Series - Basic Introduction",
+    "youtube_link": "https://www.youtube.com/watch?v=XZJdyPkCxuE"
+  },
+  "PRE.SERIES": {
+    "youtube_video_title": "Geometric Series and Geometric Sequences - Basic Introduction",
+    "youtube_link": "https://www.youtube.com/watch?v=zRKZ0-kOUZM"
+  },
+  "PRE.RECURSIVE": {
+    "youtube_video_title": "Algebra 1 - Writing Recursive Sequences",
+    "youtube_link": "https://www.youtube.com/watch?v=-an7xtofw2Y"
+  },
+  "PRE.COMPLEX_ARITHMETIC": {
+    "youtube_video_title": "How to Perform Basic Operations on Complex Numbers",
+    "youtube_link": "https://www.youtube.com/watch?v=OQz1ydBcQSA"
+  },
+  "PRE.COMPLEX_PLANE_ROOTS": {
+    "youtube_video_title": "Complex Numbers In Polar - De Moivre's Theorem",
+    "youtube_link": "https://www.youtube.com/watch?v=J6TnZxUUzqU"
+  },
+  "PRE.POLAR": {
+    "youtube_video_title": "Polar Coordinates Basic Introduction, Conversion to Rectangular, How to Plot Points",
+    "youtube_link": "https://www.youtube.com/watch?v=aSdaT62ndYE"
+  },
+  "PRE.VECTORS": {
+    "youtube_video_title": "Vectors - Precalculus",
+    "youtube_link": "https://www.youtube.com/watch?v=iXdMpXMuEGI"
+  },
+  "PRE.MATRICES": {
+    "youtube_video_title": "Gaussian Elimination & Row Echelon Form",
+    "youtube_link": "https://www.youtube.com/watch?v=eDb6iugi6Uk"
+  },
+  "PRE.PARAMETRIC": {
+    "youtube_video_title": "Parametric Equations Introduction, Eliminating The Parameter t, Graphing Plane Curves, Precalculus",
+    "youtube_link": "https://www.youtube.com/watch?v=97pe-QlSGqA"
+  },
+  "PRE.CONICS": {
+    "youtube_video_title": "Conic Sections - Circles, Semicircles, Ellipses, Hyperbolas, and Parabolas",
+    "youtube_link": "https://www.youtube.com/watch?v=Q8BbZxkZSSA"
+  },
+  "PRE.LIMIT_INTUITION": {
+    "youtube_video_title": "Calculus 1 - Introduction to Limits",
+    "youtube_link": "https://www.youtube.com/watch?v=YNstP0ESndU"
+  },
+  "CALC.LIMITS": {
+    "youtube_video_title": "Calculus 1 - Introduction to Limits",
+    "youtube_link": "https://www.youtube.com/watch?v=YNstP0ESndU"
+  },
+  "CALC.CONTINUITY": {
+    "youtube_video_title": "Continuity and Differentiability",
+    "youtube_link": "https://www.youtube.com/watch?v=fml0-ELYLaE"
+  },
+  "CALC.DERIVATIVE_CONCEPT": {
+    "youtube_video_title": "Calculus 1 - Derivatives",
+    "youtube_link": "https://www.youtube.com/watch?v=5yfh5cf4-0w"
+  },
+  "CALC.DERIVATIVE_RULES": {
+    "youtube_video_title": "Calculus 1 - Derivatives",
+    "youtube_link": "https://www.youtube.com/watch?v=5yfh5cf4-0w"
+  },
+  "CALC.DERIVATIVE_FUNCTIONS": {
+    "youtube_video_title": "Differentiation Formulas - Calculus",
+    "youtube_link": "https://www.youtube.com/watch?v=AdLAkD-r9Rs"
+  },
+  "CALC.DERIVATIVE_APPLICATIONS": {
+    "youtube_video_title": "Applications of Derivatives - Rolle's & Mean Value Theorem, Concavity, Critical & Inflection Points",
+    "youtube_link": "https://www.youtube.com/watch?v=Y7e7UDVoGRo"
+  },
+  "CALC.GRAPH_ANALYSIS": {
+    "youtube_video_title": "Applications of Derivatives - Rolle's & Mean Value Theorem, Concavity, Critical & Inflection Points",
+    "youtube_link": "https://www.youtube.com/watch?v=Y7e7UDVoGRo"
+  },
+  "CALC.INTEGRAL_CONCEPT": {
+    "youtube_video_title": "Riemann Sums - Left Endpoints, Right Endpoints, Midpoints, Trapezoids, Definite Integrals",
+    "youtube_link": "https://www.youtube.com/watch?v=AkUa9Fkz2rw"
+  },
+  "CALC.INTEGRATION": {
+    "youtube_video_title": "Basic Integration Problems",
+    "youtube_link": "https://www.youtube.com/watch?v=zOxaUlRkFG0"
+  },
+  "CALC.FTC": {
+    "youtube_video_title": "Fundamental Theorem of Calculus Part 1",
+    "youtube_link": "https://www.youtube.com/watch?v=aeB5BWY0RlE"
+  }
+}

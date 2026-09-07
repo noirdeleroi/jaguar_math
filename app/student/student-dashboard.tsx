@@ -38,7 +38,7 @@ export function AssignmentCard({ assignment }: { assignment: DashboardAssignment
 
 function SatPreparation({ summary }: { summary: SatSummary }) {
   const readiness = Math.round(summary.readiness);
-  return <Link className="dashboard-sat-preparation" href="/student/progress"><div><p className="eyebrow">SAT Math</p><h2>SAT Math Preparation</h2><span>{summary.assessedSkills} / {summary.totalSkills} skills assessed</span></div><div><strong>{readiness}%</strong><i><em style={{ width: `${Math.max(0, Math.min(100, summary.readiness))}%` }} /></i><b>View progress <span>→</span></b></div></Link>;
+  return <div className="dashboard-sat-links"><Link className="dashboard-sat-preparation" href="/student/progress"><div><p className="eyebrow">SAT Math</p><h2>SAT Math Preparation</h2><span>{summary.assessedSkills} / {summary.totalSkills} skills assessed</span></div><div><strong>{readiness}%</strong><i><em style={{ width: `${Math.max(0, Math.min(100, summary.readiness))}%` }} /></i><b>View progress <span>→</span></b></div></Link><Link className="dashboard-video-library-link" href="/student/videos"><span>Study videos</span><strong>Browse every SAT Math skill <b>→</b></strong><small>125 YouTube lessons, organized by topic</small></Link></div>;
 }
 
 export default function StudentDashboard({ firstName, email, classes, assignments, satSummary }: Props) {
