@@ -16,7 +16,7 @@ export type SyncStudent = { userId: string; fullName: string; emailAddress: stri
 export type RemovedStudent = { studentId: string; fullName: string; emailAddress: string };
 export type SyncPreview = { course: GoogleCourse; target: GoogleSyncTarget; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
 export type SyncActionState = { error?: string; preview?: SyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
-export type BulkSyncCoursePreview = { course: GoogleCourse; classId?: string; className: string; mode: "existing" | "create"; gradeLevel?: 11 | 12; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
+export type BulkSyncCoursePreview = { course: GoogleCourse; classId?: string; className: string; mode: "existing" | "create"; gradeLevel?: 11 | 12; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; hasChanges: boolean; canApply: boolean };
 export type BulkSyncPreview = { courses: BulkSyncCoursePreview[]; existingCount: number; newCount: number; removedCount: number; createCount: number; canApply: boolean; issue?: string; confirmationToken?: string };
 export type BulkSyncActionState = { error?: string; preview?: BulkSyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number; createdClassCount?: number };
 
@@ -77,6 +77,7 @@ function actionError(cause: unknown) {
     if (cause.code === "missing_scopes") return "Google did not grant all required Classroom permissions. Reconnect and approve the requested scopes.";
     if (cause.code === "admin_restricted") return "Google Workspace has restricted this Classroom request. Ask your Workspace administrator to allow it.";
   }
+  if (typeof cause === "object" && cause && "code" in cause && (cause as { code?: string }).code === "PGRST202") return "The Google Classroom sync database setup is missing. Apply the latest Jaguar Math database migration, then try again.";
   return "The Google Classroom sync could not be completed. Please try again.";
 }
 
@@ -263,7 +264,7 @@ async function buildBulkPreview(teacherId: string, googleCourses: BulkCourse[]):
   const courses = await Promise.all(googleCourses.map(async ({ course, roster, classId, className, mode, gradeLevel }) => {
     const target: GoogleSyncTarget = mode === "existing" ? { kind: "existing", classId: classId! } : { kind: "create", name: className, gradeLevel, academicYear: getCurrentAcademicYear() };
     const preview = await buildPreview(teacherId, course, roster, target);
-    return { course, classId, className, mode, gradeLevel, students: preview.students, removed: preview.removed, existingCount: preview.existingCount, newCount: preview.newCount, canApply: preview.canApply };
+    return { course, classId, className, mode, gradeLevel, students: preview.students, removed: preview.removed, existingCount: preview.existingCount, newCount: preview.newCount, hasChanges: mode === "create" || preview.newCount > 0 || preview.removed.length > 0, canApply: preview.canApply };
   }));
   const newGoogleIds = new Set<string>(); const newUsersByEmail = new Map<string, Set<string>>(); const emailsByGoogleId = new Map<string, Set<string>>(); const googleIdsByStudentId = new Map<string, Set<string>>();
   for (const course of courses) for (const student of course.students) {
