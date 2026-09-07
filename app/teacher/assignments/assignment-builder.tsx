@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type FormEvent } from "react";
+import { useActionState, useState, type ChangeEvent, type FormEvent } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import DueDateInput from "@/app/components/due-date-input";
@@ -11,6 +11,7 @@ import { createAssignment, type DraftActionState } from "../assignment-actions";
 import ExamModeSettings from "./exam-mode-settings";
 
 type Classroom = { id: string; name: string; grade_level: number; academic_year: string };
+const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
 
 export default function AssignmentBuilder({ classes }: { classes: Classroom[] }) {
   const [source, setSource] = useState(assignmentImportExample);
@@ -21,14 +22,43 @@ export default function AssignmentBuilder({ classes }: { classes: Classroom[] })
   const [titleError, setTitleError] = useState("");
   const [questionsError, setQuestionsError] = useState("");
   const [formError, setFormError] = useState("");
+  const [importFileName, setImportFileName] = useState("");
   const [saveState, saveAction] = useActionState<DraftActionState, FormData>(createAssignment, null);
 
-  const parse = () => {
-    const result = parseAssignmentImport(source);
+  const validateAndPreview = (nextSource: string) => {
+    const result = parseAssignmentImport(nextSource);
     setErrors(result.errors);
     setQuestions(result.data?.questions ?? null);
     setQuestionsError(result.data ? "" : "Fix the import errors, then click Validate & preview again.");
     setPreviewOpen(Boolean(result.data));
+    return Boolean(result.data);
+  };
+  const parse = () => validateAndPreview(source);
+  const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = "";
+    setImportFileName("");
+    setQuestions(null);
+    setPreviewOpen(false);
+    setQuestionsError("");
+    if (!file.name.toLowerCase().endsWith(".json")) {
+      setErrors(["Choose a JSON file with a .json extension."]);
+      return;
+    }
+    if (file.size > MAX_IMPORT_FILE_BYTES) {
+      setErrors(["The JSON file must be 2 MB or smaller."]);
+      return;
+    }
+    try {
+      const nextSource = (await file.text()).replace(/^\uFEFF/, "");
+      setSource(nextSource);
+      setImportFileName(file.name);
+      validateAndPreview(nextSource);
+    } catch {
+      setErrors(["The selected file could not be read. Choose another JSON file."]);
+    }
   };
   const updateQuestion = (index: number, patch: Partial<ImportedQuestion>) => setQuestions((current) => current?.map((question, questionIndex) => questionIndex === index ? { ...question, ...patch } : question) ?? null);
   const validateBeforeSave = (event: FormEvent<HTMLFormElement>) => {
@@ -42,7 +72,7 @@ export default function AssignmentBuilder({ classes }: { classes: Classroom[] })
     <form className="assessment-form" action={saveAction} onSubmit={validateBeforeSave}>
       <section className="teacher-section"><h2>Assignment settings</h2><div className="assessment-fields"><label>Title<input aria-describedby={titleError ? "assignment-title-error" : undefined} name="title" onChange={(event) => { setTitle(event.target.value); setTitleError(""); }} placeholder="e.g. Linear equations check-in" value={title} />{titleError && <span className="inline-error" id="assignment-title-error" role="alert">{titleError}</span>}</label><label>Type<select name="kind" defaultValue="quiz"><option value="homework">Homework</option><option value="quiz">Quiz</option><option value="test">Test</option></select></label><DueDateInput dueAt={null} /><label>Duration in minutes <input name="duration_minutes" min="1" type="number" /></label><label>Maximum attempts <input defaultValue="1" min="1" name="max_attempts" required type="number" /></label><label>Question display<select defaultValue="one_at_a_time" name="question_display_mode"><option value="one_at_a_time">One question at a time</option><option value="all_at_once">All questions on one page</option></select></label></div><label className="wide-field">Description<textarea name="description" placeholder="Optional instructions for students." rows={3} /></label><div className="assignment-toggles"><label><input defaultChecked name="show_score_after_submit" type="checkbox" /> Show score after submit</label><label><input name="show_answers_after_submit" type="checkbox" /> Show answer review after submit</label><label><input name="show_feedback_after_each_question" type="checkbox" /> Show correct or incorrect after each saved answer</label><label><input name="shuffle_questions" type="checkbox" /> Shuffle question order</label></div><ExamModeSettings /></section>
       <section className="teacher-section"><h2>Assign to classes</h2>{classes.length ? <div className="class-checklist">{classes.map((classroom) => <label key={classroom.id}><input name="class_ids" type="checkbox" value={classroom.id} /> <span>{classroom.name} · Grade {classroom.grade_level} · {classroom.academic_year}</span></label>)}</div> : <p className="form-note">Create a class before creating an assignment.</p>}</section>
-      <section className="teacher-section"><div className="section-row"><div><h2>Question import</h2><p className="form-note">Paste the agreed ChatGPT JSON format. Math wrapped in <code>$...$</code> or <code>$$...$$</code> is rendered safely.</p></div><button className="secondary-inline-button" onClick={parse} type="button">Validate & preview</button></div><textarea aria-label="Question import JSON" className="import-textarea" onChange={(event) => { setSource(event.target.value); setQuestions(null); setPreviewOpen(false); setQuestionsError(""); }} rows={18} value={source} />{errors.length > 0 && <ul className="import-errors" role="alert">{errors.map((error) => <li key={error}>{error}</li>)}</ul>}{questionsError && <p className="notice notice-error" role="alert">{questionsError}</p>}</section>
+      <section className="teacher-section"><div className="section-row"><div><h2>Question import</h2><p className="form-note">Upload a <code>.json</code> file or paste the agreed ChatGPT JSON format. Math wrapped in <code>$...$</code> or <code>$$...$$</code> is rendered safely.</p></div><div className="assignment-import-actions"><label className="secondary-inline-button import-file-button">Choose JSON file<input accept=".json,application/json" className="import-file-input" onChange={importFile} type="file" /></label><button className="secondary-inline-button" onClick={parse} type="button">Validate & preview</button></div></div>{importFileName && <p aria-live="polite" className={`import-file-status${questions ? "" : " has-error"}`}><span aria-hidden="true">{questions ? "✓" : "!"}</span> Loaded <strong>{importFileName}</strong>. {questions ? `${questions.length} question${questions.length === 1 ? " is" : "s are"} ready to review.` : "Review the import errors below."}</p>}<textarea aria-label="Question import JSON" className="import-textarea" onChange={(event) => { setSource(event.target.value); setImportFileName(""); setQuestions(null); setPreviewOpen(false); setQuestionsError(""); }} rows={18} value={source} />{errors.length > 0 && <ul className="import-errors" role="alert">{errors.map((error) => <li key={error}>{error}</li>)}</ul>}{questionsError && <p className="notice notice-error" role="alert">{questionsError}</p>}</section>
       {questions && <><input name="questions_json" type="hidden" value={JSON.stringify(questions)} /><section className="teacher-section validated-summary"><div><p className="eyebrow">Import ready</p><h2>Validated questions</h2><p className="form-note">Review the editable source and the student-facing presentation before saving.</p></div><button className="teacher-button" onClick={() => setPreviewOpen(true)} type="button">Review {questions.length} question{questions.length === 1 ? "" : "s"} <span aria-hidden="true">→</span></button></section>{previewOpen && <ValidatedQuestionsModal onClose={() => setPreviewOpen(false)} onUpdate={updateQuestion} questions={questions} />}</>}
       {(formError || saveState?.error) && <p className="notice notice-error" role="alert">{formError || saveState?.error}</p>}
       <SaveDraftButton disabled={!classes.length} />
