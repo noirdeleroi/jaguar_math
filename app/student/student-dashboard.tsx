@@ -36,8 +36,20 @@ export function AssignmentCard({ assignment }: { assignment: DashboardAssignment
   return <article className="dashboard-assignment-card"><div className="dashboard-card-main"><div className="dashboard-card-top"><span className={`dashboard-status status-${assignment.status.toLowerCase().replaceAll(" ", "-")}`}>{assignment.status}</span><DueLabel assignment={assignment} compact /></div><h3>{assignment.title}</h3><p className="dashboard-class-label">{assignment.classNames.join(" · ") || "Your class"}</p>{assignment.description && <p className="dashboard-description">{assignment.description}</p>}{assignment.questionCount > 0 && <p className="dashboard-question-count">{assignment.questionCount} {assignment.questionCount === 1 ? "question" : "questions"}</p>}<Progress assignment={assignment} />{assignment.completed && <p className="dashboard-result">{assignment.showScore && score !== null ? <><strong>{score}%</strong><span>{assignment.score} / {assignment.maxScore} points</span></> : <span>Submitted</span>}</p>}</div><AssignmentAction assignment={assignment} /></article>;
 }
 
-function SatPreparation({ summary }: { summary: SatSummary }) {
+function DashboardReadiness({ summary }: { summary: SatSummary }) {
   const readiness = Math.round(summary.readiness);
+  return (
+    <Link className="dashboard-readiness" href="/student/progress" aria-label={`View SAT Math progress: ${readiness}% ready`}>
+      <span>Your readiness</span>
+      <strong>{readiness}%</strong>
+      <i aria-hidden="true"><em style={{ width: `${Math.max(0, Math.min(100, summary.readiness))}%` }} /></i>
+      <small>{summary.assessedSkills} of {summary.totalSkills} skills assessed</small>
+      <b>View progress <span aria-hidden="true">→</span></b>
+    </Link>
+  );
+}
+
+function SatPreparation() {
   return (
     <section className="dashboard-sat-guide" aria-labelledby="sat-guide-title">
       <header>
@@ -46,12 +58,6 @@ function SatPreparation({ summary }: { summary: SatSummary }) {
           <h2 id="sat-guide-title">How to prepare for the SAT?</h2>
           <p>Choose a resource and take the next small step.</p>
         </div>
-        <Link className="dashboard-readiness" href="/student/progress" aria-label={`View SAT Math progress: ${readiness}% ready`}>
-          <span>Your readiness</span>
-          <strong>{readiness}%</strong>
-          <i aria-hidden="true"><em style={{ width: `${Math.max(0, Math.min(100, summary.readiness))}%` }} /></i>
-          <small>{summary.assessedSkills} of {summary.totalSkills} skills assessed</small>
-        </Link>
       </header>
       <div className="dashboard-sat-options">
         <Link href="/student/sat-math">
@@ -71,5 +77,5 @@ function SatPreparation({ summary }: { summary: SatSummary }) {
 
 export default function StudentDashboard({ firstName, email, classes, assignments, satSummary }: Props) {
   const actionable = assignments.filter((assignment) => assignment.actionable); const toDo = actionable.filter((assignment) => assignment.action === "start"); const inProgress = actionable.filter((assignment) => assignment.action === "continue"); const completed = assignments.filter((assignment) => assignment.completed); const hero = actionable[0];
-  return <main className="student-page"><div className="student-container student-dashboard-container"><header className="student-header"><div className="auth-brand"><span className="brand-mark" aria-hidden="true">∑</span>Jaguar Math</div><nav className="student-header-actions" aria-label="Student menu"><Link href="/student/assessments">Assessments</Link><Link href="/student/progress">Progress</Link><Link className="student-nav-button" href="/student/sat-math">SAT info</Link><Link className="student-nav-button student-nav-video" href="/student/videos"><span aria-hidden="true">▶</span> Study YouTube Videos</Link><LogoutButton /></nav></header><section className="dashboard-welcome"><p className="eyebrow">Student space</p><h1 suppressHydrationWarning>{greeting()}, {firstName}.</h1>{classes.length ? <p>{classes.join(" · ")}</p> : <p>{email || "Your Jaguar Math workspace"}</p>}</section>{hero ? <section className="dashboard-hero"><div><p className="eyebrow">Needs attention</p><div className="dashboard-hero-heading"><div><span className={`dashboard-status status-${hero.status.toLowerCase().replaceAll(" ", "-")}`}>{hero.status}</span><h2>{hero.title}</h2><p>{hero.classNames.join(" · ") || "Your class"}</p>{hero.questionCount > 0 && <p className="dashboard-hero-question-count">{hero.questionCount} {hero.questionCount === 1 ? "question" : "questions"}</p>}</div><DueLabel assignment={hero} /></div><Progress assignment={hero} /></div><AssignmentAction assignment={hero} /></section> : <section className="dashboard-caught-up"><p className="eyebrow">Your workspace</p><h2>You&apos;re all caught up.</h2><p>{assignments.length ? "Completed work is available on your Assessments page." : classes.length ? "Your teachers have not published any assignments yet." : "You are not enrolled in a class yet."}</p></section>}<SatPreparation summary={satSummary} /><section className="dashboard-summary" aria-label="Assessment summary"><article><span>To do</span><strong>{toDo.length}</strong></article><article><span>In progress</span><strong>{inProgress.length}</strong></article><article><span>Completed</span><strong>{completed.length}</strong></article></section></div></main>;
+  return <main className="student-page"><div className="student-container student-dashboard-container"><header className="student-header"><div className="auth-brand"><span className="brand-mark" aria-hidden="true">∑</span>Jaguar Math</div><nav className="student-header-actions" aria-label="Student menu"><Link href="/student/assessments">Assessments</Link><Link href="/student/progress">Progress</Link><Link href="/student/sat-math">SAT info</Link><Link className="student-nav-video" href="/student/videos"><span aria-hidden="true">▶</span> Study YouTube Videos</Link><LogoutButton /></nav></header><section className="dashboard-welcome"><div className="dashboard-welcome-copy"><p className="eyebrow">Student space</p><h1 suppressHydrationWarning>{greeting()}, {firstName}.</h1>{classes.length ? <p>{classes.join(" · ")}</p> : <p>{email || "Your Jaguar Math workspace"}</p>}</div><DashboardReadiness summary={satSummary} /></section>{hero ? <section className="dashboard-hero"><div><p className="eyebrow">Needs attention</p><div className="dashboard-hero-heading"><div><span className={`dashboard-status status-${hero.status.toLowerCase().replaceAll(" ", "-")}`}>{hero.status}</span><h2>{hero.title}</h2><p>{hero.classNames.join(" · ") || "Your class"}</p>{hero.questionCount > 0 && <p className="dashboard-hero-question-count">{hero.questionCount} {hero.questionCount === 1 ? "question" : "questions"}</p>}</div><DueLabel assignment={hero} /></div><Progress assignment={hero} /></div><AssignmentAction assignment={hero} /></section> : <section className="dashboard-caught-up"><p className="eyebrow">Your workspace</p><h2>You&apos;re all caught up.</h2><p>{assignments.length ? "Completed work is available on your Assessments page." : classes.length ? "Your teachers have not published any assignments yet." : "You are not enrolled in a class yet."}</p></section>}<section className="dashboard-summary" aria-label="Assessment summary"><article><span>To do</span><strong>{toDo.length}</strong></article><article><span>In progress</span><strong>{inProgress.length}</strong></article><article><span>Completed</span><strong>{completed.length}</strong></article></section><SatPreparation /></div></main>;
 }
