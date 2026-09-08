@@ -168,6 +168,8 @@
 @media(max-width:850px){.teacher-attempt-heading{align-items:flex-start;flex-direction:column}.teacher-attempt-student-link{width:100%;min-width:0}.teacher-attempt-overview{grid-template-columns:1fr}.teacher-attempt-score{padding:0 0 20px;border-right:0;border-bottom:1px solid #ffffff30}.teacher-attempt-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.teacher-attempt-review-header{align-items:flex-start;flex-direction:column}.teacher-attempt-legend{justify-content:flex-start}.teacher-attempt-question-nav{grid-template-columns:repeat(4,minmax(0,1fr));padding:9px}.teacher-attempt-question-nav button{padding:8px}.teacher-attempt-question-stage{padding:15px 14px 3px}.teacher-attempt-current-heading{align-items:flex-start;flex-direction:column;gap:8px}.teacher-attempt-review-controls button{padding:10px}.teacher-attempt-review-controls span{display:none}}
 
+.assignment-list-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}.assignment-list-meta small{margin-top:0}.assignment-list-meta small+small:before{margin-right:12px;color:#a2afa9;content:"·"}
+
 /* Published and closed assignments prioritize results while keeping management tools close by. */
 .results-first-assignment-page>.page-heading{max-width:none}
 .assignment-results-commandbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:28px;padding:10px;border:1px solid #d6cec1;border-radius:9px;background:#fffaf0;box-shadow:0 8px 22px #17342e0a}
