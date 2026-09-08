@@ -12,8 +12,8 @@ function embedUrl(videoUrl: string) {
   return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0` : videoUrl;
 }
 
-export default function VideoLibrary({ domains }: { domains: VideoDomain[] }) {
-  const [selectedVideo, setSelectedVideo] = useState<VideoSkill | null>(null);
+export default function VideoLibrary({ domains, initialSkillCode }: { domains: VideoDomain[]; initialSkillCode?: string }) {
+  const [selectedVideo, setSelectedVideo] = useState<VideoSkill | null>(() => domains.flatMap((domain) => domain.topics.flatMap((topic) => topic.skills)).find((skill) => skill.code === initialSkillCode && skill.videoUrl !== null) ?? null);
 
   useEffect(() => {
     if (!selectedVideo) return;

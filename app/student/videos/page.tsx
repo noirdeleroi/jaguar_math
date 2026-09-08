@@ -37,14 +37,16 @@ function buildDomains(): VideoDomain[] {
   return [...satDomains, { code: "FOUNDATIONS", name: "Foundations and supporting skills", subtitle: "Build the skills behind SAT Math", topics: [...foundationTopics.entries()].map(([name, topicSkills]) => ({ name, skills: topicSkills.map(toVideoSkill) })) }];
 }
 
-export default async function StudentVideosPage() {
+export default async function StudentVideosPage({ searchParams }: { searchParams: Promise<{ skill?: string | string[] }> }) {
   await requireStudent();
+  const requestedSkill = (await searchParams).skill;
+  const initialSkillCode = typeof requestedSkill === "string" ? requestedSkill : undefined;
   const domains = buildDomains();
   const videoCount = new Set(domains.flatMap((domain) => domain.topics.flatMap((topic) => topic.skills.map((skill) => skill.code)))).size;
   return <main className="student-page"><div className="student-container sat-progress-container video-library-container">
     <header className="student-header"><Link className="auth-brand" href="/student"><span className="brand-mark" aria-hidden="true">∑</span>Jaguar Math</Link><nav aria-label="Student navigation" className="student-header-actions"><Link href="/student/assessments">Assessments</Link><Link href="/student/progress">Progress</Link><Link aria-current="page" href="/student/videos">Video library</Link><Link href="/student/sat-math">SAT Math info</Link><LogoutButton /></nav></header>
     <section className="sat-progress-heading video-library-heading"><p className="eyebrow">SAT Math preparation</p><h1>Video Library</h1><p>Open any topic to find a guided YouTube lesson for each Jaguar Math skill. Videos play here, so you can stay focused on your study plan.</p></section>
     <section className="video-library-overview"><div><span>Study resources</span><strong>{videoCount}</strong><p>skill videos, organized around the SAT Math syllabus.</p></div><p>Pick a domain, expand a topic, and press <b>Watch</b> when you&apos;re ready to learn or review.</p></section>
-    <VideoLibrary domains={domains} />
+    <VideoLibrary domains={domains} initialSkillCode={initialSkillCode} />
   </div></main>;
 }
