@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import ManageStudentCredentials from "./manage-student-credentials";
 import DeleteClassButton from "./delete-class-button";
+import sittingStyles from "./sitting/sitting-chart.module.css";
 
 type Student = { id: string; full_name: string | null; email: string | null; grade_level: number | null };
 
@@ -20,7 +21,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
 
   return <main className="teacher-main">
     <Link className="back-link" href="/teacher/classes">← All classes</Link>
-    <section className="page-heading class-heading"><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} currently assigned.</p>{googleCourse && <Link className="class-google-sync-link" href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Sync Google Classroom <span>→</span></Link>}</div></section>
+    <section className="page-heading class-heading"><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} currently assigned.</p><div className={sittingStyles.classActions}><Link className="class-google-sync-link" href={`/teacher/classes/${id}/sitting`}>Open seating chart <span>→</span></Link>{googleCourse && <Link className="class-google-sync-link" href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Sync Google Classroom <span>→</span></Link>}</div></div></section>
     {messages.error && <p className="notice notice-error" role="alert">{messages.error}</p>}{messages.success && <p className="notice notice-success">{messages.success}</p>}
     <div className="teacher-two-column class-detail-grid">
       <section className="teacher-section">
