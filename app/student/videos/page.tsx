@@ -2,6 +2,7 @@ import Link from "next/link";
 import skillsData from "@/data/skills.json";
 import videoMap from "@/data/jaguar_math_skill_youtube_map.json";
 import { SAT_DOMAINS } from "@/lib/sat-progress";
+import { skillDisplayName } from "@/lib/skill-display-names";
 import { requireStudent } from "@/lib/auth";
 import LogoutButton from "../logout-button";
 import VideoLibrary, { type VideoDomain, type VideoSkill } from "./video-library";
@@ -14,7 +15,7 @@ const videos = videoMap as Record<string, VideoEntry>;
 
 function toVideoSkill(skill: TaxonomySkill): VideoSkill {
   const video = videos[skill.code];
-  return { code: skill.code, name: skill.name, videoTitle: video?.youtube_video_title ?? null, videoUrl: video?.youtube_link ?? null };
+  return { code: skill.code, name: skillDisplayName(skill.code), videoTitle: video?.youtube_video_title ?? null, videoUrl: video?.youtube_link ?? null };
 }
 
 function buildDomains(): VideoDomain[] {

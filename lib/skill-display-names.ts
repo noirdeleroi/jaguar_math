@@ -7,3 +7,7 @@ export const SKILL_DISPLAY_NAMES = Object.fromEntries((skillsData.skills as Taxo
 export function skillDisplayName(code: string) {
   return SKILL_DISPLAY_NAMES[code] ?? code;
 }
+
+export function teacherSkillDisplayName(code: string) {
+  return `${code} — ${skillDisplayName(code)}`;
+}

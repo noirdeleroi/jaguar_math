@@ -33,7 +33,7 @@ export default function VideoLibrary({ domains, initialSkillCode }: { domains: V
           {domain.topics.map((topic, topicIndex) => <details className="sat-topic-card" key={topic.name} open={domainIndex === 0 && topicIndex === 0}>
             <summary><div><strong>{topic.name}</strong><span>{topic.skills.length} {topic.skills.length === 1 ? "skill" : "skills"}</span></div></summary>
             <div className="video-skill-list">{topic.skills.map((skill) => <article className="video-skill-row" key={`${topic.name}-${skill.code}`}>
-              <div><strong>{skill.name}</strong><small>{skill.code}</small></div>
+              <div><strong>{skill.name}</strong></div>
               {skill.videoUrl && skill.videoTitle ? <button className="video-watch-button" onClick={() => setSelectedVideo(skill)} type="button"><span>Watch</span><b>{skill.videoTitle}</b><i aria-hidden="true">▶</i></button> : <span className="video-unavailable">Video coming soon</span>}
             </article>)}</div>
           </details>)}

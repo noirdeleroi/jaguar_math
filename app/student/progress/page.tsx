@@ -2,6 +2,7 @@ import Link from "next/link";
 import LogoutButton from "../logout-button";
 import { requireStudent } from "@/lib/auth";
 import { getStudentSatProgress } from "@/lib/student-sat-progress";
+import { skillDisplayName } from "@/lib/skill-display-names";
 import type { SatSkillProgress } from "@/lib/sat-progress";
 
 const percent = (value: number) => Math.round(value);
@@ -11,7 +12,7 @@ function ProgressMeter({ value }: { value: number }) {
 }
 
 function SkillRow({ skill }: { skill: SatSkillProgress }) {
-  return <article className="sat-skill-row"><div><strong>{skill.name}</strong><small>{skill.attempted ? `${skill.attempted} scored question${skill.attempted === 1 ? "" : "s"} · ${skill.evidenceLabel}` : "Not assessed"}</small></div><div className="sat-skill-score">{skill.readiness === null ? <b>Not assessed</b> : <><b>{percent(skill.readiness)}%</b><ProgressMeter value={skill.readiness} /></>}</div></article>;
+  return <article className="sat-skill-row"><div><strong>{skillDisplayName(skill.code)}</strong><small>{skill.attempted ? `${skill.attempted} scored question${skill.attempted === 1 ? "" : "s"} · ${skill.evidenceLabel}` : "Not assessed"}</small></div><div className="sat-skill-score">{skill.readiness === null ? <b>Not assessed</b> : <><b>{percent(skill.readiness)}%</b><ProgressMeter value={skill.readiness} /></>}</div></article>;
 }
 
 export default async function StudentProgressPage() {

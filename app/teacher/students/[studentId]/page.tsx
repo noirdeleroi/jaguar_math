@@ -6,6 +6,7 @@ import { progressByDomain, progressPercent, progressStatus, type SkillEvidence, 
 import type { SatSkillProgress } from "@/lib/sat-progress";
 import { getStudentSatProgress } from "@/lib/student-sat-progress";
 import { createClient } from "@/lib/supabase/server";
+import { skillDisplayName, teacherSkillDisplayName } from "@/lib/skill-display-names";
 
 type PageProps = { params: Promise<{ studentId: string }> };
 type TeacherAttempt = { id: string; assignment_id: string; attempt_number: number; submitted_at: string; score: number | null; max_score: number | null; assignments: { id: string; title: string } | { id: string; title: string }[] | null };
@@ -19,7 +20,7 @@ function ProgressMeter({ value }: { value: number }) {
 }
 
 function SatSkillRow({ skill }: { skill: SatSkillProgress }) {
-  return <article className="sat-skill-row"><div><strong>{skill.name}</strong><small><code>{skill.code}</code> · {skill.attempted ? `${skill.attempted} scored question${skill.attempted === 1 ? "" : "s"} · ${skill.earned}/${skill.possible} points · ${skill.evidenceLabel}` : "Not assessed yet"}</small></div><div className="sat-skill-score">{skill.readiness === null ? <b>Not assessed</b> : <><b>{Math.round(skill.readiness)}%</b><ProgressMeter value={skill.readiness} /></>}</div></article>;
+  return <article className="sat-skill-row"><div><strong>{skillDisplayName(skill.code)}</strong><small><code>{skill.code}</code> · {skill.attempted ? `${skill.attempted} scored question${skill.attempted === 1 ? "" : "s"} · ${skill.earned}/${skill.possible} points · ${skill.evidenceLabel}` : "Not assessed yet"}</small></div><div className="sat-skill-score">{skill.readiness === null ? <b>Not assessed</b> : <><b>{Math.round(skill.readiness)}%</b><ProgressMeter value={skill.readiness} /></>}</div></article>;
 }
 
 export default async function TeacherStudentProgressPage({ params }: PageProps) {
@@ -32,7 +33,14 @@ export default async function TeacherStudentProgressPage({ params }: PageProps) 
     supabase.from("attempts").select("id, assignment_id, attempt_number, submitted_at, score, max_score, assignments!inner(id, title)").eq("student_id", studentId).eq("status", "submitted").eq("assignments.created_by", teacher.id).order("submitted_at", { ascending: false }),
     getStudentSatProgress(studentId, { assignmentCreatedBy: teacher.id }),
   ]); if (!student) notFound();
-  const rows = (progress ?? []) as SkillProgress[]; const attempts = (submittedAttempts ?? []) as unknown as TeacherAttempt[]; const evidenceBySkill = new Map<string, SkillEvidence[]>(); (evidence as SkillEvidence[] ?? []).forEach((item) => evidenceBySkill.set(item.skill_code, [...(evidenceBySkill.get(item.skill_code) ?? []), item])); const classNames = membership.map((item) => { const classroom = Array.isArray(item.classes) ? item.classes[0] : item.classes; return classroom?.name ?? "Class"; }); const scoredAttempts = attempts.filter((attempt) => (attempt.max_score ?? 0) > 0); const overallAssessmentScore = scoredAttempts.length ? Math.round(scoredAttempts.reduce((sum, attempt) => sum + Number(attempt.score ?? 0), 0) / scoredAttempts.reduce((sum, attempt) => sum + Number(attempt.max_score ?? 0), 0) * 100) : null;
+  const rows = (progress ?? []) as SkillProgress[];
+  rows.forEach((row) => { row.skill_name = teacherSkillDisplayName(row.skill_code); });
+  const attempts = (submittedAttempts ?? []) as unknown as TeacherAttempt[];
+  const evidenceBySkill = new Map<string, SkillEvidence[]>();
+  (evidence as SkillEvidence[] ?? []).forEach((item) => evidenceBySkill.set(item.skill_code, [...(evidenceBySkill.get(item.skill_code) ?? []), item]));
+  const classNames = membership.map((item) => { const classroom = Array.isArray(item.classes) ? item.classes[0] : item.classes; return classroom?.name ?? "Class"; });
+  const scoredAttempts = attempts.filter((attempt) => (attempt.max_score ?? 0) > 0);
+  const overallAssessmentScore = scoredAttempts.length ? Math.round(scoredAttempts.reduce((sum, attempt) => sum + Number(attempt.score ?? 0), 0) / scoredAttempts.reduce((sum, attempt) => sum + Number(attempt.max_score ?? 0), 0) * 100) : null;
 
   return <main className="teacher-main assessment-page">
     <Link className="back-link" href="/teacher/students">← Students</Link>
