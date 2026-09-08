@@ -15,7 +15,7 @@ type CourseMapping = { google_course_id: string; class_id: string; teacher_id: s
 export type SyncStudent = { userId: string; fullName: string; emailAddress: string; status: "Existing / linked" | "Existing / matched by email" | "New account" | "Needs review"; studentId?: string; note?: string };
 export type RemovedStudent = { studentId: string; fullName: string; emailAddress: string };
 export type SyncPreview = { course: GoogleCourse; target: GoogleSyncTarget; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; canApply: boolean };
-export type SyncActionState = { error?: string; preview?: SyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number };
+export type SyncActionState = { error?: string; preview?: SyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number; addedStudentOnly?: boolean };
 export type BulkSyncCoursePreview = { course: GoogleCourse; classId?: string; className: string; mode: "existing" | "create"; gradeLevel?: 11 | 12; students: SyncStudent[]; removed: RemovedStudent[]; existingCount: number; newCount: number; hasChanges: boolean; canApply: boolean };
 export type BulkSyncPreview = { courses: BulkSyncCoursePreview[]; existingCount: number; newCount: number; removedCount: number; createCount: number; canApply: boolean; issue?: string; confirmationToken?: string };
 export type BulkSyncActionState = { error?: string; preview?: BulkSyncPreview; credentials?: { fullName: string; emailAddress: string; temporaryPassword: string }[]; completed?: boolean; removedCount?: number; createdClassCount?: number };
@@ -183,18 +183,23 @@ export async function applyGoogleClassroomSync(_previous: SyncActionState, formD
     const { course, students } = await loadGoogleCourse(teacher.id, confirmation.courseId);
     if (rosterFingerprint(students) !== confirmation.rosterFingerprint) { await clearGoogleSyncPreview(); return { error: "The Google Classroom roster changed. Review the updated preview before syncing." }; }
     const preview = await buildPreview(teacher.id, course, students, confirmation.target);
-    if (!preview.canApply) return { error: "Resolve the roster entries marked Needs review before syncing.", preview };
+    const selectedGoogleUserId = text(formData.get("google_user_id"));
+    const selectedStudent = selectedGoogleUserId ? preview.students.find((student) => student.userId === selectedGoogleUserId) : undefined;
+    if (selectedGoogleUserId && confirmation.target.kind !== "existing") return { error: "Create or link the Jaguar Math class before adding one student at a time.", preview };
+    if (selectedGoogleUserId && selectedStudent?.status !== "New account") return { error: "That student is no longer a new account. Preview the roster again.", preview };
+    if (!selectedGoogleUserId && !preview.canApply) return { error: "Resolve the roster entries marked Needs review before syncing.", preview };
+    const studentsToSync = selectedStudent ? [selectedStudent] : preview.students;
     const admin = createAdminClient();
     const classId = confirmation.target.kind === "existing" ? confirmation.target.classId : randomUUID();
     const credentials: { fullName: string; emailAddress: string; temporaryPassword: string }[] = []; const usedPasswords = new Set<string>();
-    const studentIdByGoogleId = new Map(preview.students.filter((student) => student.studentId).map((student) => [student.userId, student.studentId!]));
-    for (const student of preview.students.filter((student) => student.status === "New account")) {
+    const studentIdByGoogleId = new Map(studentsToSync.filter((student) => student.studentId).map((student) => [student.userId, student.studentId!]));
+    for (const student of studentsToSync.filter((student) => student.status === "New account")) {
       const temporaryPassword = createTemporaryPassword(usedPasswords); const { data, error } = await admin.auth.admin.createUser({ email: student.emailAddress, password: temporaryPassword, email_confirm: true, user_metadata: { full_name: student.fullName } });
       if (error || !data.user) throw error ?? new Error("Student account creation failed.");
       createdUserIds.push(data.user.id); studentIdByGoogleId.set(student.userId, data.user.id); credentials.push({ fullName: student.fullName, emailAddress: student.emailAddress, temporaryPassword });
     }
     const rosterById = new Map(students.map((student) => [student.userId, student]));
-    const identities: StudentIdentity[] = preview.students.map((student) => {
+    const identities: StudentIdentity[] = studentsToSync.map((student) => {
       const studentId = studentIdByGoogleId.get(student.userId); if (!studentId) throw new Error("Student profile was unavailable after account creation.");
       const rosterStudent = rosterById.get(student.userId);
       return { userId: student.userId, studentId, fullName: student.fullName, emailAddress: student.emailAddress, photoUrl: rosterStudent?.photoUrl, isNew: student.status === "New account" };
@@ -206,14 +211,15 @@ export async function applyGoogleClassroomSync(_previous: SyncActionState, formD
       : { id: classId, create_new: false };
     await applyDatabaseSync({
       classes: [classChange],
-      courses: [{ google_course_id: course.id, class_id: classId, google_course_name: course.name || "Untitled course", google_course_section: course.section || null, google_course_state: course.courseState || null, last_synced_at: syncedAt }],
+      courses: selectedStudent ? [] : [{ google_course_id: course.id, class_id: classId, google_course_name: course.name || "Untitled course", google_course_section: course.section || null, google_course_state: course.courseState || null, last_synced_at: syncedAt }],
       students: await buildDatabaseStudentChanges(identities, syncedAt),
       memberships: identities.map((student) => ({ class_id: classId, student_id: student.studentId })),
-      removals: removeMissing ? preview.removed.map((student) => ({ class_id: classId, student_id: student.studentId })) : [],
+      removals: !selectedStudent && removeMissing ? preview.removed.map((student) => ({ class_id: classId, student_id: student.studentId })) : [],
     });
     databaseCommitted = true;
-    await clearGoogleSyncPreview(); revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
-    return { completed: true, credentials, removedCount: removeMissing ? preview.removed.length : 0 };
+    if (!selectedStudent) await clearGoogleSyncPreview();
+    revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
+    return { completed: true, credentials, removedCount: !selectedStudent && removeMissing ? preview.removed.length : 0, addedStudentOnly: Boolean(selectedStudent) };
   } catch (cause) {
     if (!databaseCommitted) await cleanupCreatedUsers(createdUserIds);
     console.error("[google-classroom] sync failed", cause instanceof GoogleClassroomError ? cause.code : "server_error"); return { error: actionError(cause) };
