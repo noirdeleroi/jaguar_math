@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export type VideoSkill = { code: string; name: string; videoTitle: string | null; videoUrl: string | null };
+export type VideoSkill = { code: string; name: string; readiness: number | null; attempted: number; evidenceLabel: "Not assessed" | "Low evidence" | "Some evidence" | "Strong evidence"; videoTitle: string | null; videoUrl: string | null };
 export type VideoTopic = { name: string; skills: VideoSkill[] };
 export type VideoDomain = { code: string; name: string; subtitle: string; topics: VideoTopic[] };
 
@@ -10,6 +10,10 @@ function embedUrl(videoUrl: string) {
   const url = new URL(videoUrl);
   const videoId = url.hostname.includes("youtu.be") ? url.pathname.slice(1) : url.searchParams.get("v");
   return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0` : videoUrl;
+}
+
+function ProgressMeter({ value }: { value: number }) {
+  return <i className="sat-meter" aria-label={`${Math.round(value)}% readiness`}><em style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></i>;
 }
 
 export default function VideoLibrary({ domains, initialSkillCode }: { domains: VideoDomain[]; initialSkillCode?: string }) {
@@ -33,7 +37,8 @@ export default function VideoLibrary({ domains, initialSkillCode }: { domains: V
           {domain.topics.map((topic, topicIndex) => <details className="sat-topic-card" key={topic.name} open={domainIndex === 0 && topicIndex === 0}>
             <summary><div><strong>{topic.name}</strong><span>{topic.skills.length} {topic.skills.length === 1 ? "skill" : "skills"}</span></div></summary>
             <div className="video-skill-list">{topic.skills.map((skill) => <article className="video-skill-row" key={`${topic.name}-${skill.code}`}>
-              <div><strong>{skill.name}</strong></div>
+              <div><strong>{skill.name}</strong><small>{skill.attempted ? `${skill.attempted} scored question${skill.attempted === 1 ? "" : "s"} · ${skill.evidenceLabel}` : "Not assessed"}</small></div>
+              <div className="video-skill-progress">{skill.readiness === null ? <b>Not assessed</b> : <><b>{Math.round(skill.readiness)}%</b><ProgressMeter value={skill.readiness} /></>}</div>
               {skill.videoUrl && skill.videoTitle ? <button className="video-watch-button" onClick={() => setSelectedVideo(skill)} type="button"><span>Watch</span><b>{skill.videoTitle}</b><i aria-hidden="true">▶</i></button> : <span className="video-unavailable">Video coming soon</span>}
             </article>)}</div>
           </details>)}
