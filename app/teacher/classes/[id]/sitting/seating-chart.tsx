@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useActionState, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
 import { saveSeatingChart, type SeatingChartSaveState } from "./actions";
 import styles from "./sitting-chart.module.css";
 
 type Student = { id: string; name: string };
 type Position = { id: string; x: number; y: number };
-type Layout = { version: 1; tables: Position[]; students: Position[] };
+type ChartStudent = Position & { guest?: true; name?: string };
+type Layout = { version: 1; tables: Position[]; students: ChartStudent[] };
 type DragTarget = { kind: "student" | "table"; id: string; pointerId: number };
 
 const clamp = (value: number, minimum: number, maximum: number) => Math.min(maximum, Math.max(minimum, value));
@@ -23,15 +24,17 @@ function createInitialLayout(value: unknown, students: Student[]): Layout {
   const candidate = value && typeof value === "object" ? value as Partial<Layout> : null;
   const validPosition = (item: unknown): item is Position => Boolean(item && typeof item === "object" && typeof (item as Position).id === "string" && Number.isFinite((item as Position).x) && Number.isFinite((item as Position).y));
   const tables = Array.isArray(candidate?.tables) ? candidate.tables.filter(validPosition).slice(0, 100).map((item) => ({ id: item.id, x: clamp(item.x, 6, 94), y: clamp(item.y, 9, 91) })) : [];
-  const savedStudents = new Map((Array.isArray(candidate?.students) ? candidate.students : []).filter(validPosition).map((item) => [item.id, item]));
+  const savedChartStudents = (Array.isArray(candidate?.students) ? candidate.students : []).filter(validPosition).map((item) => item as ChartStudent);
+  const savedStudents = new Map(savedChartStudents.map((item) => [item.id, item]));
+  const guests = savedChartStudents.filter((item) => item.guest === true && item.id.startsWith("guest-") && typeof item.name === "string" && item.name.trim().length > 0 && item.name.trim().length <= 80).map((item) => ({ id: item.id, x: clamp(item.x, 5, 95), y: clamp(item.y, 4, 96), guest: true as const, name: item.name!.trim() }));
   return {
     version: 1,
     tables,
-    students: students.map((student, index) => {
+    students: [...students.map((student, index) => {
       const saved = savedStudents.get(student.id);
       const fallback = defaultStudentPosition(index, students.length);
       return { id: student.id, x: saved ? clamp(saved.x, 5, 95) : fallback.x, y: saved ? clamp(saved.y, 4, 96) : fallback.y };
-    }),
+    }), ...guests],
   };
 }
 
@@ -51,24 +54,27 @@ export default function SeatingChart({ classId, className, students, initialLayo
   const initialSerialized = useMemo(() => JSON.stringify(startingLayout), [startingLayout]);
   const savedRosterIsCurrent = useMemo(() => {
     if (!initialLayout || typeof initialLayout !== "object" || !Array.isArray((initialLayout as Partial<Layout>).students)) return !initialSavedAt && students.length === 0;
-    const savedIds = new Set((initialLayout as Partial<Layout>).students?.map((student) => student?.id));
+    const savedIds = new Set((initialLayout as Partial<Layout>).students?.filter((student) => student?.guest !== true).map((student) => student?.id));
     return savedIds.size === students.length && students.every(({ id }) => savedIds.has(id));
   }, [initialLayout, initialSavedAt, students]);
   const [layout, setLayout] = useState(startingLayout);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
+  const [guestName, setGuestName] = useState("");
   const [dragTarget, setDragTarget] = useState<DragTarget | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const initialState: SeatingChartSaveState = { status: "idle", message: "", savedLayout: savedRosterIsCurrent ? initialSerialized : "", savedAt: initialSavedAt ?? undefined };
   const [saveState, saveAction, saving] = useActionState(saveSeatingChart, initialState);
   const serializedLayout = JSON.stringify(layout);
   const hasChanges = serializedLayout !== saveState.savedLayout;
-  const namesById = useMemo(() => new Map(students.map((student) => [student.id, student.name])), [students]);
+  const namesById = useMemo(() => new Map([...students.map((student) => [student.id, student.name] as const), ...layout.students.filter((student) => student.guest === true).map((student) => [student.id, student.name!] as const)]), [layout.students, students]);
 
   function addTable() {
     const index = layout.tables.length;
     const table = { id: `table-${Date.now()}-${index}`, x: 25 + (index % 3) * 25, y: 25 + (Math.floor(index / 3) % 2) * 28 };
     setLayout((current) => ({ ...current, tables: [...current.tables, table] }));
     setSelectedTable(table.id);
+    setSelectedGuest(null);
   }
 
   function removeSelectedTable() {
@@ -78,7 +84,24 @@ export default function SeatingChart({ classId, className, students, initialLayo
   }
 
   function arrangeStudents() {
-    setLayout((current) => ({ ...current, students: current.students.map(({ id }, index) => ({ id, ...defaultStudentPosition(index, current.students.length) })) }));
+    setLayout((current) => ({ ...current, students: current.students.map((student, index) => ({ ...student, ...defaultStudentPosition(index, current.students.length) })) }));
+  }
+
+  function addGuestStudent(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = guestName.trim();
+    if (!name) return;
+    const id = `guest-${crypto.randomUUID()}`;
+    setLayout((current) => ({ ...current, students: [...current.students, { id, name: name.slice(0, 80), guest: true, ...defaultStudentPosition(current.students.length, current.students.length + 1) }] }));
+    setGuestName("");
+    setSelectedGuest(id);
+    setSelectedTable(null);
+  }
+
+  function removeSelectedGuest() {
+    if (!selectedGuest) return;
+    setLayout((current) => ({ ...current, students: current.students.filter(({ id }) => id !== selectedGuest) }));
+    setSelectedGuest(null);
   }
 
   function beginDrag(event: PointerEvent<HTMLElement>, kind: DragTarget["kind"], id: string) {
@@ -86,7 +109,13 @@ export default function SeatingChart({ classId, className, students, initialLayo
     event.preventDefault();
     boardRef.current.setPointerCapture(event.pointerId);
     setDragTarget({ kind, id, pointerId: event.pointerId });
-    if (kind === "table") setSelectedTable(id);
+    if (kind === "table") {
+      setSelectedTable(id);
+      setSelectedGuest(null);
+    } else {
+      setSelectedTable(null);
+      setSelectedGuest(id.startsWith("guest-") ? id : null);
+    }
   }
 
   function moveDrag(event: PointerEvent<HTMLDivElement>) {
@@ -126,7 +155,7 @@ export default function SeatingChart({ classId, className, students, initialLayo
     context.fillText(`${className} — Seating chart`, 70, 72);
     context.fillStyle = "#607970";
     context.font = "24px Arial, sans-serif";
-    context.fillText(`${students.length} students`, 72, 108);
+    context.fillText(`${layout.students.length} students`, 72, 108);
     const board = { x: 70, y: 145, width: 1460, height: 790 };
     roundedRect(context, board.x, board.y, board.width, board.height, 20);
     context.fillStyle = "#fffdf7";
@@ -174,7 +203,9 @@ export default function SeatingChart({ classId, className, students, initialLayo
         <button className={styles.primaryTool} onClick={addTable} type="button"><span aria-hidden="true">○</span>Add round table</button>
         <button onClick={arrangeStudents} type="button">Arrange students</button>
         <button disabled={!selectedTable} onClick={removeSelectedTable} type="button">Remove table</button>
+        <button disabled={!selectedGuest} onClick={removeSelectedGuest} type="button">Remove chart student</button>
       </div>
+      <form className={styles.guestForm} onSubmit={addGuestStudent}><label htmlFor="chart-student-name">Add student by name</label><div><input id="chart-student-name" maxLength={80} onChange={(event) => setGuestName(event.target.value)} placeholder="Student name" required value={guestName} /><button type="submit">Add to chart</button></div></form>
       <div className={styles.actions}>
         <span className={hasChanges ? styles.unsaved : styles.saved}>{hasChanges ? "Unsaved changes" : saveState.savedAt ? "All changes saved" : "Ready to design"}</span>
         <button onClick={exportImage} type="button">Export PNG</button>
@@ -190,8 +221,8 @@ export default function SeatingChart({ classId, className, students, initialLayo
       <div aria-label={`Seating chart canvas for ${className}`} className={styles.board} onPointerCancel={endDrag} onPointerMove={moveDrag} onPointerUp={endDrag} ref={boardRef}>
         <div className={styles.front}><span>Front of room</span></div>
         {layout.tables.map((table, index) => <button aria-label={`Round table ${index + 1}. Drag to move; use arrow keys for precise movement.`} className={`${styles.table} ${selectedTable === table.id ? styles.selectedTable : ""}`} key={table.id} onClick={() => setSelectedTable(table.id)} onKeyDown={(event) => nudge(event, "table", table.id)} onPointerDown={(event) => beginDrag(event, "table", table.id)} style={{ left: `${table.x}%`, top: `${table.y}%` }} type="button"><span>Table {index + 1}</span></button>)}
-        {layout.students.map((student) => <button aria-label={`${namesById.get(student.id)}. Drag to move; use arrow keys for precise movement.`} className={styles.student} key={student.id} onKeyDown={(event) => nudge(event, "student", student.id)} onPointerDown={(event) => beginDrag(event, "student", student.id)} style={{ left: `${student.x}%`, top: `${student.y}%` }} type="button"><span>{namesById.get(student.id)}</span></button>)}
-        {!students.length && <div className={styles.empty}><span>＋</span><strong>No students in this class yet</strong><p>Add students from the class page, then return to create the chart.</p></div>}
+        {layout.students.map((student) => <button aria-label={`${namesById.get(student.id)}${student.guest ? ", chart-only student" : ""}. Drag to move; use arrow keys for precise movement.`} className={`${styles.student} ${student.guest ? styles.guestStudent : ""} ${selectedGuest === student.id ? styles.selectedStudent : ""}`} key={student.id} onKeyDown={(event) => nudge(event, "student", student.id)} onPointerDown={(event) => beginDrag(event, "student", student.id)} style={{ left: `${student.x}%`, top: `${student.y}%` }} type="button"><span>{namesById.get(student.id)}</span></button>)}
+        {!layout.students.length && <div className={styles.empty}><span>＋</span><strong>No students on this chart yet</strong><p>Add a name above, or enroll students from the class page.</p></div>}
       </div>
     </div>
     <footer className={styles.help}><span><b>Drag</b> students and tables anywhere on the canvas.</span><span><b>Keyboard</b> arrow keys move a selected item; hold Shift for larger steps.</span></footer>
