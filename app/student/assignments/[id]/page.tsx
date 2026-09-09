@@ -29,9 +29,17 @@ export default async function StudentAssignmentPage({ params }: AssignmentPagePr
   const { id } = await params;
   const supabase = await createClient();
   const { data: assignment, error } = await supabase.from("assignments").select("id, title, description, kind, status, due_at, duration_minutes, max_attempts, show_score_after_submit, show_answers_after_submit, show_feedback_after_each_question, question_display_mode, shuffle_questions, shuffle_options, exam_mode, exam_require_fullscreen, exam_track_focus_exits, exam_allowed_focus_exits, exam_violation_action").eq("id", id).in("status", ["published", "closed"]).maybeSingle();
-  if (error || !assignment) notFound();
+  if (error) {
+    console.error(`[student-assignment] load failed: code=${error.code}; message=${error.message}`);
+    throw new Error("Student assignment data could not be loaded.");
+  }
+  if (!assignment) notFound();
 
-  const { data: attempts } = await supabase.from("attempts").select("id, status, started_at, expires_at, form_code, submitted_at, score, max_score, attempt_number, exam_focus_violations").eq("assignment_id", id).eq("student_id", student.id).order("attempt_number", { ascending: false });
+  const { data: attempts, error: attemptsError } = await supabase.from("attempts").select("id, status, started_at, expires_at, form_code, submitted_at, score, max_score, attempt_number, exam_focus_violations").eq("assignment_id", id).eq("student_id", student.id).order("attempt_number", { ascending: false });
+  if (attemptsError) {
+    console.error(`[student-assignment] attempts failed: code=${attemptsError.code}; message=${attemptsError.message}`);
+    throw new Error("Student attempt data could not be loaded.");
+  }
   const activeAttempt = attempts?.find((attempt) => attempt.status === "in_progress");
   const latestSubmitted = attempts?.find((attempt) => attempt.status === "submitted");
   const attemptIds = [activeAttempt?.id, latestSubmitted?.id].filter((value): value is string => Boolean(value));

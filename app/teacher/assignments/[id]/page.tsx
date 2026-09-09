@@ -20,7 +20,11 @@ type QuestionSkill = { question_id: string; weight: number; is_primary: boolean;
 export default async function AssignmentDetailPage({ params, searchParams }: AssignmentPageProps) {
   const teacher = await requireTeacher(); const { id } = await params; const messages = await searchParams; const supabase = await createClient();
   const { data: assignment, error } = await supabase.from("assignments").select("id, title, description, kind, status, due_at, duration_minutes, max_attempts, show_score_after_submit, show_answers_after_submit, show_feedback_after_each_question, question_display_mode, shuffle_questions, shuffle_options, exam_mode, exam_require_fullscreen, exam_track_focus_exits, exam_allowed_focus_exits, exam_violation_action, created_by, published_at").eq("id", id).maybeSingle();
-  if (error || !assignment || assignment.created_by !== teacher.id) notFound();
+  if (error) {
+    console.error(`[teacher-assignment] load failed: code=${error.code}; message=${error.message}`);
+    throw new Error("Teacher assignment data could not be loaded.");
+  }
+  if (!assignment || assignment.created_by !== teacher.id) notFound();
   const isDraft = assignment.status === "draft";
   const [{ data: classes }, { data: linkedClasses }, { data: composition }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year").eq("teacher_id", teacher.id).order("grade_level"),

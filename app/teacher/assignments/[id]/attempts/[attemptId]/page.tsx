@@ -10,9 +10,17 @@ type AttemptDetailPageProps = { params: Promise<{ id: string; attemptId: string 
 export default async function TeacherAttemptDetailPage({ params }: AttemptDetailPageProps) {
   const teacher = await requireTeacher(); const { id, attemptId } = await params; const supabase = await createClient();
   const { data: assignment, error: assignmentError } = await supabase.from("assignments").select("id, title, exam_mode, created_by").eq("id", id).maybeSingle();
-  if (assignmentError || !assignment || assignment.created_by !== teacher.id) notFound();
+  if (assignmentError) {
+    console.error(`[teacher-attempt] assignment load failed: code=${assignmentError.code}; message=${assignmentError.message}`);
+    throw new Error("Teacher assignment data could not be loaded.");
+  }
+  if (!assignment || assignment.created_by !== teacher.id) notFound();
   const { data: attempt, error: attemptError } = await supabase.from("attempts").select("id, student_id, attempt_number, status, score, max_score, submitted_at, form_code, exam_focus_violations, offline_recovery_used, offline_recovery_seconds, profiles(full_name, email)").eq("id", attemptId).eq("assignment_id", assignment.id).eq("status", "submitted").maybeSingle();
-  if (attemptError || !attempt) notFound();
+  if (attemptError) {
+    console.error(`[teacher-attempt] attempt load failed: code=${attemptError.code}; message=${attemptError.message}`);
+    throw new Error("Teacher attempt data could not be loaded.");
+  }
+  if (!attempt) notFound();
   const [{ data: composition }, { data: responses }, { data: examEvents }] = await Promise.all([
     supabase.from("attempt_questions").select("question_id, position, points, option_order").eq("attempt_id", attempt.id).order("position"),
     supabase.from("responses").select("question_id, student_answer, is_correct, points_awarded").eq("attempt_id", attempt.id),
