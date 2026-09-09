@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { startOrContinueExamAssignment } from "../actions";
 import { sendExamActivity } from "./exam-activity-client";
 import styles from "./exam-mode.module.css";
 
-export type ExamAttempt = { id: string; startedAt: string; focusViolations: number };
+export type ExamAttempt = { id: string; expiresAt: string | null; formCode: string | null; focusViolations: number };
 
-export default function ExamModeGate({ assignmentId, attempt, requireFullscreen, allowedFocusExits, onActive }: { assignmentId: string; attempt?: ExamAttempt; requireFullscreen: boolean; allowedFocusExits: number; onActive: (attempt: ExamAttempt) => void }) {
+export default function ExamModeGate({ assignmentId, attempt, requireFullscreen, allowedFocusExits, violationAction, onActive }: { assignmentId: string; attempt?: ExamAttempt; requireFullscreen: boolean; allowedFocusExits: number; violationAction: "warn" | "auto_submit"; onActive?: (attempt: ExamAttempt) => void }) {
+  const router = useRouter();
   const [notice, setNotice] = useState(""); const [entering, setEntering] = useState(false); const [pending, startTransition] = useTransition(); const resume = Boolean(attempt);
   const enter = async () => {
     if (pending || entering) return;
@@ -19,7 +21,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     }
     if (attempt) {
       if (requireFullscreen) await sendExamActivity(attempt.id, "fullscreen_restored");
-      setEntering(false); onActive(attempt); return;
+      setEntering(false); if (onActive) onActive(attempt); else router.refresh(); return;
     }
     startTransition(async () => {
       try {
@@ -27,9 +29,10 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
         if (result.error) { setNotice(result.error); setEntering(false); return; }
         if (requireFullscreen) await sendExamActivity(result.attemptId, "fullscreen_restored");
         setEntering(false);
-        onActive({ id: result.attemptId, startedAt: result.startedAt, focusViolations: 0 });
+        const startedAttempt = { id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations: 0 };
+        if (onActive) onActive(startedAttempt); else router.refresh();
       } catch { setNotice("Exam Mode could not start. Please try again."); setEntering(false); }
     });
   };
-  return <section className={`student-results ${styles.start}`}><p className="eyebrow">Exam Mode</p><h2>{resume ? "Resume Exam Mode" : "Ready to begin?"}</h2><p>{requireFullscreen ? "This assessment must run in fullscreen." : "This assessment uses Exam Mode activity monitoring."} Leaving this tab or exiting fullscreen will be recorded.</p><p className={styles.gateDetail}>Focus exit limit: {allowedFocusExits} · The next counted interruption beyond this limit submits the assessment automatically.</p><p className="form-note">Exam Mode can detect page and fullscreen interruptions, but it cannot fully lock your device.</p><button className="teacher-button" disabled={pending || entering} onClick={enter} type="button">{pending || entering ? "Entering Exam Mode..." : resume ? requireFullscreen ? "Return to fullscreen and continue" : "Continue Exam Mode" : "Enter Exam Mode"} <span aria-hidden="true">→</span></button>{notice && <section className={styles.warning} role="alert"><strong>Fullscreen is required</strong><p>{notice}</p><button className="secondary-inline-button" disabled={pending || entering} onClick={enter} type="button">Try fullscreen again</button></section>}</section>;
+  return <section className={`student-results ${styles.start}`}><p className="eyebrow">Secure mode · Exam Mode</p><h2>{resume ? "Resume your assessment" : "Ready to begin?"}</h2><p>{requireFullscreen ? "This assessment must run in fullscreen." : "This assessment uses activity monitoring."} Questions stay protected until the server starts your timed attempt.</p><p className={styles.gateDetail}>Focus exit allowance: {allowedFocusExits} · {violationAction === "auto_submit" ? "The next counted interruption after the allowance submits the assessment." : "Extra interruptions are flagged for teacher review."}</p><p className="form-note">Your answers are saved on this device during brief Wi-Fi interruptions. Exam Mode cannot fully lock a personal device.</p><button className="teacher-button" disabled={pending || entering} onClick={enter} type="button">{pending || entering ? "Starting securely..." : resume ? requireFullscreen ? "Return to fullscreen and continue" : "Continue assessment" : "Start timed assessment"} <span aria-hidden="true">→</span></button>{notice && <section className={styles.warning} role="alert"><strong>Exam Mode could not start</strong><p>{notice}</p><button className="secondary-inline-button" disabled={pending || entering} onClick={enter} type="button">Try again</button></section>}</section>;
 }

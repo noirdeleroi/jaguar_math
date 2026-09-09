@@ -13,10 +13,10 @@ export async function startOrContinueAssignment(assignmentId: string) {
 
 export async function startOrContinueExamAssignment(assignmentId: string) {
   const student = await requireStudent(); const supabase = await createClient();
-  const { data: active } = await supabase.from("attempts").select("id, started_at").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
-  if (active) return { attemptId: active.id, startedAt: active.started_at };
+  const { data: active } = await supabase.from("attempts").select("id, expires_at, form_code").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
+  if (active) return { attemptId: active.id, expiresAt: active.expires_at, formCode: active.form_code };
   const { data, error } = await supabase.rpc("start_exam_attempt", { p_assignment_id: assignmentId });
-  return error || !data ? { error: "This Exam Mode assignment is no longer available to start." } : { attemptId: data.id as string, startedAt: data.started_at as string };
+  return error || !data ? { error: "This Exam Mode assignment is no longer available to start." } : { attemptId: data.id as string, expiresAt: data.expires_at as string | null, formCode: data.form_code as string | null };
 }
 
 export async function saveStudentResponse(attemptId: string, questionId: string, answer: string) {
@@ -38,6 +38,19 @@ export async function submitStudentAttempt(attemptId: string) {
 export async function submitExamAttempt(attemptId: string) {
   await requireStudent(); const supabase = await createClient(); const { error } = await supabase.rpc("submit_exam_attempt", { p_attempt_id: attemptId });
   return error ? { error: "Your attempt could not be submitted." } : { ok: true };
+}
+
+type SubmissionResponse = { questionId: string; answer: string; revision: number };
+const uuid = (value: string) => /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value);
+
+export async function submitAttemptSnapshot(attemptId: string, responses: SubmissionResponse[], clientSubmittedAt: string, timed: boolean) {
+  await requireStudent();
+  if (!uuid(attemptId) || !Array.isArray(responses) || responses.length > 200 || responses.some((response) => !response || !uuid(response.questionId) || typeof response.answer !== "string" || response.answer.length > 20_000 || !Number.isSafeInteger(response.revision) || response.revision < 0) || new Set(responses.map((response) => response.questionId)).size !== responses.length || Number.isNaN(new Date(clientSubmittedAt).getTime())) return { error: "The final response snapshot is invalid." };
+  const supabase = await createClient();
+  const payload = responses.map((response) => ({ question_id: response.questionId, student_answer: response.answer, client_revision: response.revision }));
+  const { data, error } = await supabase.rpc("submit_attempt_snapshot", { p_attempt_id: attemptId, p_responses: payload, p_client_submitted_at: clientSubmittedAt, p_timed: timed });
+  if (error || !data) return { error: error?.message.includes("recovery window") ? "The offline recovery window has closed. Ask your teacher for help." : "Your assessment could not be submitted. Keep this page open and try again." };
+  return { ok: true, recovered: Boolean(data.offline_recovery_used) };
 }
 
 export type ExamActivityEvent = "page_hidden" | "page_visible" | "window_blur" | "window_focus" | "fullscreen_exited" | "fullscreen_restored" | "fullscreen_unavailable";
