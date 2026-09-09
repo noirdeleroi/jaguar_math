@@ -11,10 +11,14 @@ import { createAssignment, type DraftActionState } from "../assignment-actions";
 import AssessmentPolicySettings, { type AssignmentKind } from "./assessment-policy-settings";
 
 type Classroom = { id: string; name: string; grade_level: number; academic_year: string };
+type ImportMode = "single" | "versions";
 const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
 
 export default function AssignmentBuilder({ classes }: { classes: Classroom[] }) {
   const [source, setSource] = useState(assignmentImportExample);
+  const [importMode, setImportMode] = useState<ImportMode>("single");
+  const [versionSources, setVersionSources] = useState(["", "", ""]);
+  const [activeVersion, setActiveVersion] = useState(0);
   const [assessment, setAssessment] = useState<ImportedAssessment | null>(null);
   const questions = assessment?.questions ?? null;
   const [errors, setErrors] = useState<string[]>([]);
@@ -35,7 +39,36 @@ export default function AssignmentBuilder({ classes }: { classes: Classroom[] })
     setPreviewOpen(Boolean(result.data));
     return Boolean(result.data);
   };
-  const parse = () => validateAndPreview(source);
+  const clearValidatedImport = () => { setAssessment(null); setPreviewOpen(false); setQuestionsError(""); setImportFileName(""); setErrors([]); };
+  const parse = () => {
+    if (importMode === "single") { validateAndPreview(source); return; }
+    const pasted = versionSources.map((value) => value.trim());
+    if (!pasted[0] || !pasted[1]) {
+      setErrors(["Paste complete JSON into Version 1 and Version 2. Version 3 is optional."]);
+      setAssessment(null); setPreviewOpen(false);
+      return;
+    }
+    if (!pasted[2] && versionSources[2]) setVersionSources((current) => [current[0], current[1], ""]);
+    const count = pasted[2] ? 3 : 2;
+    const parsedVersions: unknown[] = [];
+    const parseErrors: string[] = [];
+    pasted.slice(0, count).forEach((value, index) => {
+      try { parsedVersions.push(JSON.parse(value.replace(/^\uFEFF/, ""))); }
+      catch { parseErrors.push(`Version ${index + 1} is not valid JSON.`); }
+    });
+    if (parseErrors.length) { setErrors(parseErrors); setAssessment(null); setPreviewOpen(false); return; }
+    const combined = JSON.stringify({ versions: parsedVersions }, null, 2);
+    setSource(combined);
+    validateAndPreview(combined);
+  };
+  const chooseImportMode = (nextMode: ImportMode) => {
+    if (nextMode === importMode) return;
+    setImportMode(nextMode); clearValidatedImport();
+    if (nextMode === "versions") {
+      setVersionSources((current) => current.some((value) => value.trim()) ? current : [source, "", ""]);
+      setActiveVersion(0);
+    }
+  };
   const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
     const files = Array.from(input.files ?? []);
@@ -60,6 +93,8 @@ export default function AssignmentBuilder({ classes }: { classes: Classroom[] })
     try {
       const sources = await Promise.all(files.map((file) => file.text().then((value) => value.replace(/^\uFEFF/, ""))));
       const nextSource = files.length === 1 ? sources[0] : JSON.stringify({ versions: sources.map((value) => JSON.parse(value)) }, null, 2);
+      setImportMode(files.length === 1 ? "single" : "versions");
+      if (files.length > 1) { setVersionSources([sources[0], sources[1], sources[2] ?? ""]); setActiveVersion(0); }
       setSource(nextSource);
       setImportFileName(files.map((file) => file.name).join(", "));
       validateAndPreview(nextSource);
@@ -84,7 +119,7 @@ export default function AssignmentBuilder({ classes }: { classes: Classroom[] })
     <form className="assessment-form" action={saveAction} onSubmit={validateBeforeSave}>
       <section className="teacher-section"><h2>Assignment settings</h2><div className="assessment-fields"><label>Title<input aria-describedby={titleError ? "assignment-title-error" : undefined} name="title" onChange={(event) => { setTitle(event.target.value); setTitleError(""); }} placeholder="e.g. Linear equations check-in" value={title} />{titleError && <span className="inline-error" id="assignment-title-error" role="alert">{titleError}</span>}</label><DueDateInput dueAt={null} /></div><label className="wide-field">Description<textarea name="description" placeholder="Optional instructions for students." rows={3} /></label><AssessmentPolicySettings onKindChange={(nextKind) => { setKind(nextKind); if (nextKind === "test") setQuestionsError(""); }} /></section>
       <section className="teacher-section"><h2>Assign to classes</h2>{classes.length ? <div className="class-checklist">{classes.map((classroom) => <label key={classroom.id}><input name="class_ids" type="checkbox" value={classroom.id} /> <span>{classroom.name} · Grade {classroom.grade_level} · {classroom.academic_year}</span></label>)}</div> : <p className="form-note">Create a class before creating an assignment.</p>}</section>
-      <section className="teacher-section"><div className="section-row"><div><h2>Question import</h2><p className="form-note">For homework or quiz, upload one normal JSON file. For a <strong>Test</strong>, select two or three complete JSON files together: matching question positions become variants and the server chooses one independently for each student and question. A single test file may instead contain <code>{`{"versions":[{"questions":[...]},{"questions":[...]}]}`}</code>.</p></div><div className="assignment-import-actions"><label className="secondary-inline-button import-file-button">Choose 1–3 JSON files<input accept=".json,application/json" className="import-file-input" multiple onChange={importFile} type="file" /></label><button className="secondary-inline-button" onClick={parse} type="button">Validate & preview</button></div></div>{importFileName && <p aria-live="polite" className={`import-file-status${questions ? "" : " has-error"}`}><span aria-hidden="true">{questions ? "✓" : "!"}</span> Loaded <strong>{importFileName}</strong>. {assessment ? `${assessment.questions.length} question slot${assessment.questions.length === 1 ? "" : "s"} × ${assessment.version_count} version${assessment.version_count === 1 ? "" : "s"} ready to review.` : "Review the import errors below."}</p>}<textarea aria-label="Question import JSON" className="import-textarea" onChange={(event) => { setSource(event.target.value); setImportFileName(""); setAssessment(null); setPreviewOpen(false); setQuestionsError(""); }} rows={18} value={source} />{errors.length > 0 && <ul className="import-errors" role="alert">{errors.map((error) => <li key={error}>{error}</li>)}</ul>}{questionsError && <p className="notice notice-error" role="alert">{questionsError}</p>}</section>
+      <section className="teacher-section"><div className="section-row"><div><h2>Question import</h2><p className="form-note">Paste one JSON for homework or quiz. For a <strong>Test</strong>, paste or upload two or three complete JSONs: matching question positions become variants and the server chooses one independently for each student and question.</p></div><div className="assignment-import-actions"><label className="secondary-inline-button import-file-button">Choose 1–3 JSON files<input accept=".json,application/json" className="import-file-input" multiple onChange={importFile} type="file" /></label><button className="secondary-inline-button" onClick={parse} type="button">Validate & preview</button></div></div><div aria-label="JSON paste format" className="import-mode-picker"><button aria-pressed={importMode === "single"} className={importMode === "single" ? "active" : ""} onClick={() => chooseImportMode("single")} type="button">Paste one JSON</button><button aria-pressed={importMode === "versions"} className={importMode === "versions" ? "active" : ""} onClick={() => chooseImportMode("versions")} type="button">Paste 2–3 test JSONs</button></div>{importFileName && <p aria-live="polite" className={`import-file-status${questions ? "" : " has-error"}`}><span aria-hidden="true">{questions ? "✓" : "!"}</span> Loaded <strong>{importFileName}</strong>. {assessment ? `${assessment.questions.length} question slot${assessment.questions.length === 1 ? "" : "s"} × ${assessment.version_count} version${assessment.version_count === 1 ? "" : "s"} ready to review.` : "Review the import errors below."}</p>}{importMode === "single" ? <textarea aria-label="Question import JSON" className="import-textarea" onChange={(event) => { setSource(event.target.value); clearValidatedImport(); }} rows={18} value={source} /> : <section aria-labelledby={`paste-version-${activeVersion + 1}`} className="version-paste-panel"><nav aria-label="Test JSON versions" className="version-paste-tabs">{versionSources.map((value, index) => <button aria-current={activeVersion === index ? "page" : undefined} className={activeVersion === index ? "active" : ""} key={index} onClick={() => setActiveVersion(index)} type="button"><span>Version {index + 1}{index === 2 ? " (optional)" : ""}</span><small>{value.trim() ? "JSON pasted ✓" : "Empty"}</small></button>)}</nav><label id={`paste-version-${activeVersion + 1}`}>Version {activeVersion + 1} complete JSON{activeVersion === 2 ? " (optional)" : ""}<textarea aria-label={`Version ${activeVersion + 1} JSON`} autoFocus className="import-textarea" onChange={(event) => { const value = event.target.value; setVersionSources((current) => current.map((item, index) => index === activeVersion ? value : item)); clearValidatedImport(); }} placeholder={`Paste the complete JSON for test version ${activeVersion + 1} here`} rows={18} value={versionSources[activeVersion]} /></label><p className="form-note">Version 1 and 2 are required. Version 3 is optional. Each JSON may be a normal <code>{`{"questions":[...]}`}</code> object.</p></section>}{errors.length > 0 && <ul className="import-errors" role="alert">{errors.map((error) => <li key={error}>{error}</li>)}</ul>}{questionsError && <p className="notice notice-error" role="alert">{questionsError}</p>}</section>
       {assessment && <><input name="questions_json" type="hidden" value={JSON.stringify({ question_groups: assessment.question_groups })} /><section className="teacher-section validated-summary"><div><p className="eyebrow">Import ready</p><h2>{assessment.questions.length} question slot{assessment.questions.length === 1 ? "" : "s"} · {assessment.version_count} version{assessment.version_count === 1 ? "" : "s"}</h2><p className="form-note">Review every version and its student-facing presentation before saving.{assessment.version_count > 1 && kind !== "test" ? " Select Test above before saving this versioned import." : ""}</p></div><button className="teacher-button" onClick={() => setPreviewOpen(true)} type="button">Review all versions <span aria-hidden="true">→</span></button></section>{previewOpen && <ValidatedQuestionsModal groups={assessment.question_groups} onClose={() => setPreviewOpen(false)} onUpdate={updateQuestion} />}</>}
       {(formError || saveState?.error) && <p className="notice notice-error" role="alert">{formError || saveState?.error}</p>}
       <SaveDraftButton disabled={!classes.length} />
