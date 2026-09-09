@@ -49,7 +49,7 @@ const PRESETS: Record<AssignmentKind, Policy> = {
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
   homework: { eyebrow: "Learning mode", title: "Homework", description: "Practice with support, retries, and immediate learning feedback.", note: "Students can learn while they work. Browser monitoring is disabled." },
   quiz: { eyebrow: "Check mode", title: "Quiz", description: "A short understanding check with protected answers and one attempt.", note: "Questions and choices are mixed per student. Exam monitoring is optional." },
-  test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and delayed results.", note: "Security-critical settings are locked and enforced by the database." },
+  test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
 };
 
 function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
@@ -62,6 +62,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange }:
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
   const quizOrTest = policy.kind !== "homework";
+  const resultVisibility = policy.showAnswersAfterSubmit ? "full_review" : policy.showScoreAfterSubmit ? "score_only" : "private";
   const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); onKindChange?.(kind); };
   const set = <K extends keyof Policy>(key: K, value: Policy[K]) => setPolicy((current) => ({ ...current, [key]: value }));
 
@@ -87,8 +88,17 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange }:
     <div className={styles.policyGroups}>
       <section><h3>Student feedback</h3><p>{policy.kind === "homework" ? "Help students learn during practice." : "Keep answer information protected during assessment."}</p>
         <div className="assignment-toggles">
-          <PolicyToggle checked={policy.showScoreAfterSubmit} disabled={secure} label="Show score after submit" name="show_score_after_submit" onChange={(value) => set("showScoreAfterSubmit", value)} />
-          <PolicyToggle checked={policy.showAnswersAfterSubmit} disabled={quizOrTest} label={policy.kind === "homework" ? "Show answer review after submit" : "Answer review is protected until you choose to release it"} name="show_answers_after_submit" onChange={(value) => set("showAnswersAfterSubmit", value)} />
+          {policy.kind === "homework" ? <>
+            <PolicyToggle checked={policy.showScoreAfterSubmit} label="Show score after submit" name="show_score_after_submit" onChange={(value) => set("showScoreAfterSubmit", value)} />
+            <PolicyToggle checked={policy.showAnswersAfterSubmit} label="Show answer review after submit" name="show_answers_after_submit" onChange={(value) => { set("showAnswersAfterSubmit", value); if (value) set("showScoreAfterSubmit", true); }} />
+          </> : <label className={styles.resultVisibility}>What students see after submitting
+            <select name="student_result_visibility" onChange={(event) => { const value = event.target.value; setPolicy((current) => ({ ...current, showScoreAfterSubmit: value !== "private", showAnswersAfterSubmit: value === "full_review" })); }} value={resultVisibility}>
+              <option value="private">Confirmation only — reveal nothing</option>
+              <option value="score_only">Score only — keep questions private</option>
+              <option value="full_review">Full review — reveal all</option>
+            </select>
+            <small>{resultVisibility === "private" ? "Students see only that the assessment was submitted." : resultVisibility === "score_only" ? "Students see their score, but no questions, answers, or correctness." : "Students see questions, their answers, correct answers, score, and improvement guidance."}</small>
+          </label>}
           <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={quizOrTest} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for assessments"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
         </div>
       </section>

@@ -39,9 +39,12 @@ export type DraftQuestionActionState = { error?: string; success?: boolean } | n
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
   if (!title || !["homework", "quiz", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
-  const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), 2) : 2; const exam_violation_action = text(formData.get("exam_violation_action")) || "warn"; const question_display_mode = text(formData.get("question_display_mode")) || "one_at_a_time";
+  const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), 2) : 2; const exam_violation_action = text(formData.get("exam_violation_action")) || "warn"; const question_display_mode = text(formData.get("question_display_mode")) || "one_at_a_time"; const resultVisibility = text(formData.get("student_result_visibility"));
   if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0 || !["warn", "auto_submit"].includes(exam_violation_action) || !["one_at_a_time", "all_at_once"].includes(question_display_mode)) return null;
-  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: checked(formData.get("show_score_after_submit")), show_answers_after_submit: checked(formData.get("show_answers_after_submit")), show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action };
+  if (resultVisibility && !["private", "score_only", "full_review"].includes(resultVisibility)) return null;
+  const showAnswersAfterSubmit = resultVisibility ? resultVisibility === "full_review" : checked(formData.get("show_answers_after_submit"));
+  const showScoreAfterSubmit = showAnswersAfterSubmit || (resultVisibility ? resultVisibility === "score_only" : checked(formData.get("show_score_after_submit")));
+  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action };
 }
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
@@ -97,6 +100,18 @@ export async function reopenAssignment(formData: FormData) {
   const supabase = await createClient(); const { error } = await supabase.rpc("reopen_owned_assignment", { p_assignment_id: id });
   if (error) { console.error(`reopen_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(path, "error", safeLifecycleError(error, "reopen"))); }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment reopened."));
+}
+
+export async function setAssignmentResultVisibility(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const visibility = text(formData.get("visibility")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id) || !["private", "score_only", "full_review"].includes(visibility)) redirect(message(path, "error", "Choose a valid student result setting."));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_owned_assignment_result_visibility", { p_assignment_id: id, p_visibility: visibility });
+  if (error) { console.error(`set_owned_assignment_result_visibility failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(path, "error", "Student result access could not be updated.")); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student");
+  const success = visibility === "full_review" ? "All results and answer review are now visible to students." : visibility === "score_only" ? "Scores are visible; questions and answers remain private." : "All student results and assessment content are hidden.";
+  redirect(message(path, "success", success));
 }
 
 const safeDuplicateError = (error: { code: string; message: string } | null) => {

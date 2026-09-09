@@ -16,12 +16,12 @@ function assignmentPriority(assignment: DashboardAssignment) {
   return 5;
 }
 
-export async function getStudentAssignments(studentId: string) {
+export async function getStudentAssignments() {
   const supabase = await createClient();
   const [{ data: classes }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year").order("grade_level").order("name"),
     supabase.from("assignments").select("id, title, description, kind, status, due_at, max_attempts, show_score_after_submit").in("status", ["published", "closed"]),
-    supabase.from("attempts").select("id, assignment_id, status, started_at, submitted_at, score, max_score, attempt_number").eq("student_id", studentId).order("attempt_number", { ascending: false }),
+    supabase.rpc("get_my_assignment_attempts"),
   ]);
   const assignmentRows = (assignments ?? []) as Assignment[]; const assignmentIds = assignmentRows.map((assignment) => assignment.id); const attemptRows = (attempts ?? []) as Attempt[]; const attemptIds = attemptRows.map((attempt) => attempt.id);
   const [{ data: links }, { data: composition }, { data: responses }] = await Promise.all([
