@@ -28,7 +28,7 @@ const safeDraftError = (error: { code: string; message: string } | null) => {
   if (error.code === "PGRST202" || error.code === "42883") return "The assessment database function is unavailable. Please contact an administrator.";
   if (error.code === "42501") return "You are not authorized to save an assignment for the selected class.";
   if (error.code === "23503") return "One of the selected classes or skills is no longer available.";
-  const knownValidationMessages = new Set(["Title is required", "At least one class is required", "Classes must be unique", "A selected class is not managed by this teacher", "At least one question is required", "Duration must be positive", "Maximum attempts must be at least one", "Exam Mode settings are invalid"]);
+  const knownValidationMessages = new Set(["Title is required", "At least one class is required", "Classes must be unique", "A selected class is not managed by this teacher", "At least one question is required", "Duration must be positive", "Maximum attempts must be at least one", "Exam Mode settings are invalid", "Question versions are available only for tests", "Every question slot must contain the same number of versions", "Each question slot must contain one to three versions", "An assessment can contain at most 200 question slots"]);
   if (error.code === "P0001" && knownValidationMessages.has(error.message)) return error.message;
   return "The draft could not be saved. Review the selected class and validated questions, then try again.";
 };
@@ -49,12 +49,12 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   console.info("createAssignment invoked", { teacherId: teacher.id, hasSettings: Boolean(values), classCount: values?.class_ids.length ?? 0, questionPayloadLength: rawQuestions.length });
   if (!values || values.class_ids.length === 0) return { error: "Complete the assignment settings and select at least one class." };
   let parsed: unknown; try { parsed = JSON.parse(rawQuestions); } catch { return { error: "Validate the question import before saving." }; }
-  const validated = validateAssignmentImport({ questions: parsed });
+  const validated = validateAssignmentImport(Array.isArray(parsed) ? { questions: parsed } : parsed);
   if (!validated.data) return { error: validated.errors[0] ?? "The questions are invalid." };
   // PostgreSQL distinguishes an absent JSON property from a JSON `null`. The RPC
   // accepts omitted options for non-multiple-choice questions, so preserve that
   // distinction when serializing the normalized import for Supabase.
-  const rpcQuestions = validated.data.questions.map(({ options, ...question }) => options === null ? question : { ...question, options });
+  const rpcQuestions = validated.data.question_groups.map((group) => group.map(({ options, ...question }) => options === null ? question : { ...question, options }));
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_assignment_draft_ready", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_questions: rpcQuestions, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question });
   if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }

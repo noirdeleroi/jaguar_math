@@ -57,12 +57,12 @@ function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
   return { ...PRESETS[kind], ...initial, kind } as Policy;
 }
 
-export default function AssessmentPolicySettings({ initial = {} }: { initial?: AssessmentPolicyInitial }) {
+export default function AssessmentPolicySettings({ initial = {}, onKindChange }: { initial?: AssessmentPolicyInitial; onKindChange?: (kind: AssignmentKind) => void }) {
   const [policy, setPolicy] = useState<Policy>(() => normalizedInitial(initial));
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
   const quizOrTest = policy.kind !== "homework";
-  const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); };
+  const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); onKindChange?.(kind); };
   const set = <K extends keyof Policy>(key: K, value: Policy[K]) => setPolicy((current) => ({ ...current, [key]: value }));
 
   return <div className={styles.wrapper}>
