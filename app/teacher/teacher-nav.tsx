@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import LogoutButton from "@/app/student/logout-button";
 import { requireTeacher } from "@/lib/auth";
 
-const links = [{ href: "/teacher", label: "Dashboard" }, { href: "/teacher/classes", label: "Classes" }, { href: "/teacher/students", label: "Students" }, { href: "/teacher/assignments", label: "Assignments" }, { href: "/teacher/questions", label: "Question Bank" }, { href: "/teacher/google-classroom", label: "Google Classroom" }];
+const links = [{ href: "/teacher", label: "Dashboard" }, { href: "/teacher/classes", label: "Classes" }, { href: "/teacher/stars", label: "Stars" }, { href: "/teacher/students", label: "Students" }, { href: "/teacher/assignments", label: "Assignments" }, { href: "/teacher/questions", label: "Question Bank" }, { href: "/teacher/google-classroom", label: "Google Classroom" }];
 
 async function TeacherName() {
   const teacher = await requireTeacher();

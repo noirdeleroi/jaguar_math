@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { OfflineServiceWorker } from "@/app/components/offline-service-worker";
 import "./globals.css";
 import "./assessment-readiness.css";
 
@@ -20,6 +21,6 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}><body>{children}</body></html>
+    <html lang="en" className={`${sans.variable} ${display.variable}`}><body><OfflineServiceWorker />{children}</body></html>
   );
 }
