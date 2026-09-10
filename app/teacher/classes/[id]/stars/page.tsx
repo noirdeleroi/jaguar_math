@@ -5,14 +5,17 @@ import { loadClassroomStarState, loadTeacherCurrentWeek } from "@/lib/classroom-
 import StarClassroom from "./star-classroom";
 import styles from "./stars.module.css";
 
-export default async function ClassStarsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClassStarsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ week?: string | string[] }> }) {
   const teacher = await requireTeacher();
   const { id } = await params;
   const [state, currentWeek] = await Promise.all([loadClassroomStarState(id, teacher.id), loadTeacherCurrentWeek(teacher.id)]);
   if (!state) notFound();
+  const requested = await searchParams;
+  const requestedWeek = typeof requested.week === "string" ? requested.week.trim().toUpperCase() : "";
+  const preferredWeek = state.weeks.some((week) => week.label === requestedWeek) ? requestedWeek : currentWeek;
 
   return <main className={`teacher-main ${styles.main}`}>
     <Link className="back-link" href={`/teacher/classes/${id}`}>← {state.classroom.name}</Link>
-    <StarClassroom currentWeekLabel={currentWeek} initialState={state} key={`${currentWeek}:${state.eventIds.length}:${state.workItems.length}:${state.weeks.length}`} />
+    <StarClassroom currentWeekLabel={preferredWeek} initialState={state} key={`${preferredWeek}:${state.eventIds.length}:${state.workItems.length}:${state.weeks.length}`} />
   </main>;
 }
