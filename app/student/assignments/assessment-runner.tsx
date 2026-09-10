@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import MathText from "@/app/components/math-text";
 import { saveStudentResponseWithFeedback, submitAttemptSnapshot, submitExamAttempt, submitStudentAttempt } from "../actions";
 import { flushExamActivityQueue, sendExamActivity, type ExamActivityEvent } from "./exam-activity-client";
+import { canRequestFullscreen, createFullscreenExitTracker, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import styles from "./exam-mode.module.css";
 
 type Question = { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null; points: number; answer: string; isCorrect: boolean | null; pointsAwarded: number | null };
@@ -28,13 +29,18 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const [online, setOnline] = useState(true);
   const [focusViolations, setFocusViolations] = useState(examMode?.focusViolations ?? 0);
   const [examWarning, setExamWarning] = useState("");
+  // The live fullscreen snapshot below provides the initial closed state; this
+  // state keeps the warning locked after each detected exit until confirmation.
   const [fullscreenBlocked, setFullscreenBlocked] = useState(false);
   const [verifyingExit, setVerifyingExit] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
+  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isFullscreenActive(), () => false);
   const awayAt = useRef<number | null>(null);
-  const lastViolationAt = useRef(0);
+  const fullscreenExitTracker = useRef(createFullscreenExitTracker());
+  const restoringFullscreen = useRef(false);
   const autoSubmitKnown = useRef(false);
   const activeRef = useRef(true);
+  const restoreButtonRef = useRef<HTMLButtonElement | null>(null);
   const pendingRef = useRef<Record<string, PendingAnswer>>({});
   const syncTimerRef = useRef<number | null>(null);
   const syncPromiseRef = useRef<Promise<boolean> | null>(null);
@@ -140,15 +146,15 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const applyActivityResult = useCallback((result: Awaited<ReturnType<typeof sendExamActivity>> | null, violation = false) => {
     if (!result) return;
     if ("error" in result) { setVerifyingExit(false); setExamWarning(result.error ?? "This exit is saved locally and will be verified when the connection returns."); return; }
-    setFocusViolations(result.focusViolations);
+    setFocusViolations((current) => Math.max(current, result.focusViolations));
     setVerifyingExit(false);
     if (result.autoSubmitted) { autoSubmitKnown.current = true; setAutoSubmitted(true); setFullscreenBlocked(true); setExamWarning(""); localStorage.removeItem(draftKey(attemptId)); window.setTimeout(() => { if (activeRef.current) router.refresh(); }, 1200); return; }
     if (violation) setExamWarning(`Focus exits: ${result.focusViolations}. ${warningFor(result.focusViolations)}`);
   }, [attemptId, router, warningFor]);
 
   const logActivity = useCallback(async (eventType: ExamActivityEvent, awayDurationSeconds?: number, violation = false, keepalive = false) => {
-    if (!examMode || !activeRef.current || autoSubmitKnown.current || (violation && Date.now() - lastViolationAt.current < 1200)) return;
-    if (violation) { lastViolationAt.current = Date.now(); setVerifyingExit(true); setExamWarning("Checking this exit against your teacher's limit…"); }
+    if (!examMode || !activeRef.current || autoSubmitKnown.current) return;
+    if (violation) { setVerifyingExit(true); setExamWarning("Checking this exit against your teacher's limit…"); }
     const result = await sendExamActivity(attemptId, eventType, awayDurationSeconds, keepalive);
     applyActivityResult(result, violation);
   }, [applyActivityResult, attemptId, examMode]);
@@ -162,33 +168,82 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
 
   useEffect(() => {
     if (!examMode || responsesClosed || autoSubmitted) return;
-    const visibility = () => {
-      if (document.visibilityState === "hidden") { awayAt.current = Date.now(); sendPendingBeacon(); if (examMode.trackFocusExits) void logActivity("page_hidden", undefined, true, true); }
-      else { const duration = awayAt.current ? Math.round((Date.now() - awayAt.current) / 1000) : undefined; awayAt.current = null; if (examMode.requireFullscreen && !document.fullscreenElement) setFullscreenBlocked(true); window.setTimeout(() => void logActivity("page_visible", duration), 150); }
+    const recordFullscreenExit = (keepalive = false) => {
+      if (!examMode.requireFullscreen || autoSubmitKnown.current || !fullscreenExitTracker.current.beginExit()) return;
+      setFullscreenBlocked(true);
+      void logActivity("fullscreen_exited", undefined, true, keepalive);
     };
-    const blur = () => { if (document.visibilityState === "visible") void logActivity("window_blur"); };
-    const focus = () => { if (document.visibilityState === "visible") void logActivity("window_focus"); };
-    const fullscreen = () => { if (!document.fullscreenElement && examMode.requireFullscreen) { setFullscreenBlocked(true); window.setTimeout(() => { if (document.visibilityState === "visible" && !document.fullscreenElement) void logActivity("fullscreen_exited", undefined, true); }, 250); } };
-    document.addEventListener("visibilitychange", visibility); window.addEventListener("blur", blur); window.addEventListener("focus", focus); document.addEventListener("fullscreenchange", fullscreen);
-    return () => { document.removeEventListener("visibilitychange", visibility); window.removeEventListener("blur", blur); window.removeEventListener("focus", focus); document.removeEventListener("fullscreenchange", fullscreen); };
+    const enforceFullscreen = (keepalive = false) => {
+      if (examMode.requireFullscreen && !isFullscreenActive()) recordFullscreenExit(keepalive);
+    };
+    const visibility = () => {
+      if (document.visibilityState === "hidden") {
+        awayAt.current = Date.now();
+        sendPendingBeacon();
+        if (examMode.requireFullscreen) recordFullscreenExit(true);
+        else if (examMode.trackFocusExits) void logActivity("page_hidden", undefined, true, true);
+      } else {
+        const duration = awayAt.current ? Math.round((Date.now() - awayAt.current) / 1000) : undefined;
+        awayAt.current = null;
+        enforceFullscreen();
+        window.setTimeout(() => void logActivity("page_visible", duration), 150);
+      }
+    };
+    const blur = () => { if (document.visibilityState === "visible") { if (examMode.requireFullscreen) recordFullscreenExit(true); void logActivity("window_blur"); } };
+    const focus = () => { if (document.visibilityState === "visible") { enforceFullscreen(); void logActivity("window_focus"); } };
+    const pageHide = () => { sendPendingBeacon(); if (examMode.requireFullscreen) recordFullscreenExit(true); };
+    const fullscreen = () => enforceFullscreen();
+
+    if (examMode.requireFullscreen && !isFullscreenActive()) window.setTimeout(recordFullscreenExit, 0);
+    document.addEventListener("visibilitychange", visibility);
+    window.addEventListener("blur", blur);
+    window.addEventListener("focus", focus);
+    window.addEventListener("pagehide", pageHide);
+    const unsubscribeFullscreen = subscribeToFullscreen(fullscreen);
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      window.removeEventListener("blur", blur);
+      window.removeEventListener("focus", focus);
+      window.removeEventListener("pagehide", pageHide);
+      unsubscribeFullscreen();
+    };
   }, [autoSubmitted, examMode, logActivity, responsesClosed, sendPendingBeacon]);
 
+  useEffect(() => {
+    if (!fullscreenBlocked || autoSubmitted) return;
+    const previousOverflow = document.body.style.overflow;
+    const keepFocusOnWarning = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      restoreButtonRef.current?.focus();
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", keepFocusOnWarning, true);
+    window.setTimeout(() => restoreButtonRef.current?.focus(), 0);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", keepFocusOnWarning, true); };
+  }, [autoSubmitted, fullscreenBlocked]);
+
   const restoreFullscreen = async () => {
-    if (autoSubmitKnown.current || verifyingExit) return;
+    if (autoSubmitKnown.current || verifyingExit || restoringFullscreen.current) return;
+    restoringFullscreen.current = true;
     setVerifyingExit(true);
     try {
       const queuedResult = await flushExamActivityQueue(attemptId); applyActivityResult(queuedResult);
       if ((queuedResult && "error" in queuedResult) || autoSubmitKnown.current) return;
-      if (!document.documentElement.requestFullscreen) throw new Error("unsupported");
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      if (!document.fullscreenElement) throw new Error("not-entered");
+      if (!canRequestFullscreen()) throw new Error("unsupported");
+      if (!(await requestAppFullscreen())) throw new Error("not-entered");
+      // Fullscreen has genuinely been restored. Open a fresh episode now so a
+      // second exit during server confirmation is still recorded separately.
+      fullscreenExitTracker.current.markRestored();
       const restoredResult = await sendExamActivity(attemptId, "fullscreen_restored"); applyActivityResult(restoredResult);
-      if (restoredResult && !("error" in restoredResult) && !autoSubmitKnown.current) { setFullscreenBlocked(false); setExamWarning(""); }
+      if (restoredResult && !("error" in restoredResult) && !autoSubmitKnown.current && isFullscreenActive()) { setFullscreenBlocked(false); setExamWarning(""); }
     }
     catch { setVerifyingExit(false); await logActivity("fullscreen_unavailable"); setExamWarning("Fullscreen could not be restored. Try again to continue the assessment."); }
+    finally { restoringFullscreen.current = false; }
   };
 
   const checkFeedback = async (questionId: string, answer: string) => {
+    if (examMode?.requireFullscreen && (fullscreenBlocked || !isFullscreenActive())) { setFullscreenBlocked(true); return; }
     setCheckingQuestionId(questionId);
     try {
       if (!(await syncPending())) { setNotice("Feedback will be available after this answer synchronizes."); setCheckingQuestionId(null); return; }
@@ -198,10 +253,10 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
     } catch { setNotice("Feedback is waiting for a connection. Your answer remains saved on this device."); }
     setCheckingQuestionId(null);
   };
-  const save = (questionId: string, answer: string, checkImmediately = false) => { if (responsesClosed || fullscreenBlocked || autoSubmitted || (deadline !== null && remaining === 0)) return; queueAnswer(questionId, answer); if (checkImmediately) void checkFeedback(questionId, answer); };
+  const save = (questionId: string, answer: string, checkImmediately = false) => { if (responsesClosed || fullscreenBlocked || (examMode?.requireFullscreen && !isFullscreenActive()) || autoSubmitted || (deadline !== null && remaining === 0)) { if (examMode?.requireFullscreen && !isFullscreenActive()) setFullscreenBlocked(true); return; } queueAnswer(questionId, answer); if (checkImmediately) void checkFeedback(questionId, answer); };
 
   const submit = useCallback((timed = false) => {
-    if (submitting || autoSubmitted || (!timed && fullscreenBlocked && !responsesClosed)) return;
+    if (submitting || autoSubmitted || (!timed && !responsesClosed && (fullscreenBlocked || (examMode?.requireFullscreen && !isFullscreenActive())))) { if (!timed && examMode?.requireFullscreen && !isFullscreenActive()) setFullscreenBlocked(true); return; }
     if (timed) timedSubmissionPending.current = true;
     if (!responsesClosed && !submissionRef.current) submissionRef.current = {
       responses: questions.map((question) => ({ questionId: question.id, answer: answers[question.id] ?? "", revision: pendingRef.current[question.id]?.revision ?? 0 })),
@@ -238,14 +293,14 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
 
   const clock = `${String(Math.floor(remaining / 60_000)).padStart(2, "0")}:${String(Math.floor((remaining % 60_000) / 1000)).padStart(2, "0")}`;
   const timeEnded = deadline !== null && remaining === 0;
-  const interactionBlocked = fullscreenBlocked || autoSubmitted || timeEnded;
+  const interactionBlocked = fullscreenBlocked || Boolean(examMode?.requireFullscreen && !fullscreenActive) || autoSubmitted || timeEnded;
   const displayQuestions = questionDisplayMode === "all_at_once" ? questions.map((question, index) => ({ question, index })) : questions[currentQuestion] ? [{ question: questions[currentQuestion], index: currentQuestion }] : [];
   const inputDisabled = responsesClosed || interactionBlocked;
   const syncLabel = syncState === "saved" ? "All answers saved" : syncState === "saving" ? "Saving answers…" : syncState === "offline" ? "Offline · answers safe on this device" : "Answers need attention";
 
   return <section className={`runner ${interactionBlocked ? styles.runnerBlocked : ""}`}><div className="runner-header"><div><p className="eyebrow">{examMode ? "Secure mode · Exam Mode" : "Active attempt"}</p><h2>{questions.length} questions</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span>{formCode && <span>Form {formCode}</span>}{examMode && <span>Focus exits: {focusViolations} · allowance {examMode.allowedFocusExits}</span>}</div></div><div className={styles.meta}>{deadline && <strong className={timeEnded ? "timer-expired" : ""}>Time remaining: {clock}</strong>}</div></div>{examWarning && !interactionBlocked && <section className={styles.warning} role="status"><strong>Exam Mode activity</strong><p>{examWarning}</p></section>}{responsesClosed && <p className="form-note lifecycle-note">Overdue. Answers can no longer be changed. Submitting now grades only work already synchronized to the server.</p>}
-    {questionDisplayMode === "one_at_a_time" && <nav aria-label="Question navigation" className={`${styles.questionNavigator} ${examMode ? styles.secureNavigator : ""}`}>{questions.map((question, index) => { const itemFeedback = feedback[question.id]; const state = itemFeedback ? itemFeedback.isCorrect ? styles.correct : styles.incorrect : answers[question.id]?.trim() ? styles.answered : ""; return <button aria-current={index === currentQuestion ? "step" : undefined} aria-label={`Question ${index + 1}: ${itemFeedback ? itemFeedback.isCorrect ? "correct" : "incorrect" : answers[question.id]?.trim() ? "answered" : "not answered"}`} className={`${styles.questionNavButton} ${index === currentQuestion ? styles.active : ""} ${state}`} key={question.id} onClick={() => setCurrentQuestion(index)} type="button">{index + 1}</button>; })}</nav>}
+    {questionDisplayMode === "one_at_a_time" && <nav aria-label="Question navigation" className={`${styles.questionNavigator} ${examMode ? styles.secureNavigator : ""}`}>{questions.map((question, index) => { const itemFeedback = feedback[question.id]; const state = itemFeedback ? itemFeedback.isCorrect ? styles.correct : styles.incorrect : answers[question.id]?.trim() ? styles.answered : ""; return <button aria-current={index === currentQuestion ? "step" : undefined} aria-label={`Question ${index + 1}: ${itemFeedback ? itemFeedback.isCorrect ? "correct" : "incorrect" : answers[question.id]?.trim() ? "answered" : "not answered"}`} className={`${styles.questionNavButton} ${index === currentQuestion ? styles.active : ""} ${state}`} disabled={interactionBlocked} key={question.id} onClick={() => setCurrentQuestion(index)} type="button">{index + 1}</button>; })}</nav>}
     {displayQuestions.map(({ question, index }) => { const itemFeedback = feedback[question.id]; return <article className="student-question" key={question.id}><div className="question-number">Question {index + 1} · {question.points} {question.points === 1 ? "point" : "points"}</div><div className="question-prompt"><MathText>{question.prompt}</MathText></div>{question.type === "multiple_choice" ? <div className="answer-options">{question.options?.map((option, optionIndex) => <label key={option.id}><input checked={answers[question.id] === option.id} disabled={inputDisabled} name={question.id} onChange={() => save(question.id, option.id, showFeedbackAfterEachQuestion)} type="radio" /><b>{String.fromCharCode(65 + optionIndex)}</b><MathText>{option.text}</MathText></label>)}</div> : <><label className="answer-text">Your answer<input disabled={inputDisabled} onChange={(event) => save(question.id, event.target.value)} value={answers[question.id] ?? ""} /></label>{showFeedbackAfterEachQuestion && <button className="secondary-inline-button" disabled={inputDisabled || checkingQuestionId === question.id} onClick={() => void checkFeedback(question.id, answers[question.id] ?? "")} type="button">{checkingQuestionId === question.id ? "Checking..." : "Check answer"}</button>}</>}{showFeedbackAfterEachQuestion && itemFeedback && <p className={itemFeedback.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect}>{itemFeedback.isCorrect ? `Correct · ${itemFeedback.pointsAwarded} points` : "Try again."}</p>}</article>; })}
-    {questionDisplayMode === "one_at_a_time" && <div className={styles.questionControls}><button className="secondary-inline-button" disabled={currentQuestion === 0} onClick={() => setCurrentQuestion((current) => current - 1)} type="button">← Previous</button>{currentQuestion === questions.length - 1 ? <button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting..." : "Submit assessment"} <span aria-hidden="true">→</span></button> : <button className="secondary-inline-button" onClick={() => setCurrentQuestion((current) => current + 1)} type="button">Next question →</button>}</div>}
-    {notice && <p className={syncState === "offline" ? styles.connectionNotice : "notice notice-error"} role="status">{notice}</p>}{questionDisplayMode === "all_at_once" && <button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting..." : "Submit assignment"} <span aria-hidden="true">→</span></button>}{interactionBlocked && <section aria-live="assertive" className={`${styles.blockOverlay} ${fullscreenBlocked && !timeEnded && !autoSubmitted ? styles.fullscreenAlert : ""}`} role="alert">{autoSubmitted ? <><p className="eyebrow">Assessment submitted</p><h2>Exam Mode submitted your work.</h2><p>The configured focus-exit limit was exceeded. Your answers are locked and no further action is needed.</p></> : fullscreenBlocked && !timeEnded ? <><span aria-hidden="true" className={styles.alertIcon}>!</span><p className="eyebrow">Security warning · Exit recorded</p><h2>You left fullscreen.</h2><p>This interruption is being recorded and will be visible to your teacher. {examWarning || warningFor(focusViolations)}</p><strong className={styles.alertInstruction}>{verifyingExit ? "Do not leave this page. Your attempt status is being verified." : "Return immediately. Do not switch tabs, apps, or windows during the assessment."}</strong><button className="teacher-button" disabled={verifyingExit} onClick={restoreFullscreen} type="button">{verifyingExit ? online ? "Checking attempt status…" : "Waiting for connection…" : "Return to fullscreen"} <span aria-hidden="true">→</span></button></> : <><p className="eyebrow">Time is up</p><h2>{submitting ? "Submitting your assessment…" : online ? "Finalizing your assessment…" : "Waiting for Wi-Fi"}</h2><p>{online ? "Your synchronized answers are being submitted." : "Keep this page open. Your answers are safe on this device and submission will retry after reconnection."}</p></>}</section>}</section>;
+    {questionDisplayMode === "one_at_a_time" && <div className={styles.questionControls}><button className="secondary-inline-button" disabled={interactionBlocked || currentQuestion === 0} onClick={() => setCurrentQuestion((current) => current - 1)} type="button">← Previous</button>{currentQuestion === questions.length - 1 ? <button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting..." : "Submit assessment"} <span aria-hidden="true">→</span></button> : <button className="secondary-inline-button" disabled={interactionBlocked} onClick={() => setCurrentQuestion((current) => current + 1)} type="button">Next question →</button>}</div>}
+    {notice && <p className={syncState === "offline" ? styles.connectionNotice : "notice notice-error"} role="status">{notice}</p>}{questionDisplayMode === "all_at_once" && <button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting..." : "Submit assignment"} <span aria-hidden="true">→</span></button>}{interactionBlocked && <section aria-live="assertive" className={`${styles.blockOverlay} ${(fullscreenBlocked || (examMode?.requireFullscreen && !fullscreenActive)) && !timeEnded && !autoSubmitted ? styles.fullscreenAlert : ""}`} role="alert">{autoSubmitted ? <><p className="eyebrow">Assessment submitted</p><h2>Exam Mode submitted your work.</h2><p>The configured focus-exit limit was exceeded. Your answers are locked and no further action is needed.</p></> : (fullscreenBlocked || (examMode?.requireFullscreen && !fullscreenActive)) && !timeEnded ? <><span aria-hidden="true" className={styles.alertIcon}>!</span><p className="eyebrow">Security warning · Exit recorded</p><h2>You left fullscreen.</h2><p>This interruption is being recorded and will be visible to your teacher. {examWarning || warningFor(focusViolations)}</p><strong className={styles.alertInstruction}>{verifyingExit ? "Do not leave this page. Your attempt status is being verified." : "Return immediately. Do not switch tabs, apps, or windows during the assessment."}</strong><button className="teacher-button" disabled={verifyingExit} onClick={restoreFullscreen} ref={restoreButtonRef} type="button">{verifyingExit ? online ? "Checking attempt status…" : "Waiting for connection…" : "Return to fullscreen"} <span aria-hidden="true">→</span></button></> : <><p className="eyebrow">Time is up</p><h2>{submitting ? "Submitting your assessment…" : online ? "Finalizing your assessment…" : "Waiting for Wi-Fi"}</h2><p>{online ? "Your synchronized answers are being submitted." : "Keep this page open. Your answers are safe on this device and submission will retry after reconnection."}</p></>}</section>}</section>;
 }

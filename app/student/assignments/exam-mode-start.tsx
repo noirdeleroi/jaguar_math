@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { startOrContinueExamAssignment } from "../actions";
-import { sendExamActivity } from "./exam-activity-client";
+import { flushExamActivityQueue, sendExamActivity } from "./exam-activity-client";
+import { canRequestFullscreen, isFullscreenActive, requestAppFullscreen } from "./fullscreen-api";
 import styles from "./exam-mode.module.css";
 
 export type ExamAttempt = { id: string; expiresAt: string | null; formCode: string | null; focusViolations: number };
@@ -11,25 +12,49 @@ export type ExamAttempt = { id: string; expiresAt: string | null; formCode: stri
 export default function ExamModeGate({ assignmentId, attempt, requireFullscreen, allowedFocusExits, violationAction, onActive }: { assignmentId: string; attempt?: ExamAttempt; requireFullscreen: boolean; allowedFocusExits: number; violationAction: "warn" | "auto_submit"; onActive?: (attempt: ExamAttempt) => void }) {
   const router = useRouter();
   const [notice, setNotice] = useState(""); const [entering, setEntering] = useState(false); const [pending, startTransition] = useTransition(); const resume = Boolean(attempt); const loading = pending || entering;
+  const stopIfFullscreenWasLost = (attemptId: string) => {
+    if (!requireFullscreen || isFullscreenActive()) return false;
+    setNotice("You left fullscreen before the assessment was ready. The exit was recorded. Return to fullscreen to continue.");
+    setEntering(false);
+    void sendExamActivity(attemptId, "fullscreen_exited", undefined, true);
+    return true;
+  };
   const enter = async () => {
     if (pending || entering) return;
     setEntering(true); setNotice("");
-    if (requireFullscreen && !document.fullscreenElement) {
-      if (!document.documentElement.requestFullscreen) { setNotice("Fullscreen is not supported by this browser. Ask your teacher how to continue."); setEntering(false); return; }
-      try { await document.documentElement.requestFullscreen(); } catch { setNotice("Chrome could not enter fullscreen. Close any browser permission prompt and try fullscreen again."); setEntering(false); return; }
-      if (!document.fullscreenElement) { setNotice("Fullscreen was not entered. Try fullscreen again before continuing."); setEntering(false); return; }
+    if (requireFullscreen && !isFullscreenActive()) {
+      if (!canRequestFullscreen()) { setNotice("Fullscreen is not supported by this browser. Ask your teacher how to continue."); setEntering(false); return; }
+      try { if (!(await requestAppFullscreen())) throw new Error("not-entered"); } catch { setNotice("The browser could not enter fullscreen. Close any permission prompt and try again."); setEntering(false); return; }
     }
     if (attempt) {
-      if (requireFullscreen) await sendExamActivity(attempt.id, "fullscreen_restored");
-      setEntering(false); if (onActive) onActive(attempt); else router.refresh(); return;
+      let verifiedAttempt = attempt;
+      if (requireFullscreen) {
+        const queued = await flushExamActivityQueue(attempt.id);
+        if (queued && "error" in queued) { setNotice("Your previous fullscreen exit is saved on this device, but it could not be verified yet. Check the connection and try again."); setEntering(false); return; }
+        if (queued?.autoSubmitted) { setEntering(false); router.refresh(); return; }
+        if (queued) verifiedAttempt = { ...verifiedAttempt, focusViolations: Math.max(verifiedAttempt.focusViolations, queued.focusViolations) };
+        if (stopIfFullscreenWasLost(attempt.id)) return;
+        const result = await sendExamActivity(attempt.id, "fullscreen_restored");
+        if (result && !("error" in result) && result.autoSubmitted) { setEntering(false); router.refresh(); return; }
+        if (result && !("error" in result)) verifiedAttempt = { ...verifiedAttempt, focusViolations: Math.max(verifiedAttempt.focusViolations, result.focusViolations) };
+        if (stopIfFullscreenWasLost(attempt.id)) return;
+      }
+      setEntering(false); if (onActive) onActive(verifiedAttempt); else router.refresh(); return;
     }
     startTransition(async () => {
       try {
         const result = await startOrContinueExamAssignment(assignmentId);
         if (result.error) { setNotice(result.error); setEntering(false); return; }
-        if (requireFullscreen) await sendExamActivity(result.attemptId, "fullscreen_restored");
+        let focusViolations = 0;
+        if (requireFullscreen) {
+          if (stopIfFullscreenWasLost(result.attemptId)) return;
+          const activity = await sendExamActivity(result.attemptId, "fullscreen_restored");
+          if (activity && !("error" in activity) && activity.autoSubmitted) { setEntering(false); router.refresh(); return; }
+          if (activity && !("error" in activity)) focusViolations = activity.focusViolations;
+          if (stopIfFullscreenWasLost(result.attemptId)) return;
+        }
         setEntering(false);
-        const startedAttempt = { id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations: 0 };
+        const startedAttempt = { id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations };
         if (onActive) onActive(startedAttempt); else router.refresh();
       } catch { setNotice("Exam Mode could not start. Please try again."); setEntering(false); }
     });
