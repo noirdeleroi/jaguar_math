@@ -23,7 +23,7 @@ function subheader(value: string): StyledCell {
 }
 
 function statusLabel(status: WorkStatus | undefined) {
-  return status ? { done: "Done", late: "Late", missing: "Missing", ok: "OK", not_ok: "Not OK" }[status] : "";
+  return status ? { late: "Late", ok: "OK", not_ok: "Not OK" }[status] : "";
 }
 
 function sheetName(value: string, used: Set<string>) {
@@ -95,8 +95,10 @@ export async function buildClassroomStarsWorkbook(states: ClassroomStarState[]) 
     sheets.push({ data: rows, sheet: sheetName(state.classroom.name, usedNames), columns, stickyRowsCount: 4, stickyColumnsCount: 2, fontFamily: "Aptos", fontSize: 10 });
   }
 
-  const reference = states[0];
-  const weekRows: StyledCell[][] = [[header("Order"), header("Week"), header("Unit"), header("Focus")], ...(reference?.weeks ?? []).map((week) => [week.sortOrder, week.label, week.title ?? "", week.focus ?? ""] as StyledCell[])];
-  sheets.push({ data: weekRows, sheet: sheetName("Weeks", usedNames), columns: [{ width: 10 }, { width: 12 }, { width: 32 }, { width: 48 }], stickyRowsCount: 1, fontFamily: "Aptos", fontSize: 10 });
+  for (const gradeLevel of [...new Set(states.map((state) => state.classroom.gradeLevel))].sort((first, second) => first - second)) {
+    const reference = states.find((state) => state.classroom.gradeLevel === gradeLevel);
+    const weekRows: StyledCell[][] = [[header("Order"), header("Week"), header("Unit"), header("Focus")], ...(reference?.weeks ?? []).map((week) => [week.sortOrder, week.label, week.title ?? "", week.focus ?? ""] as StyledCell[])];
+    sheets.push({ data: weekRows, sheet: sheetName(`Grade ${gradeLevel} Weeks`, usedNames), columns: [{ width: 10 }, { width: 12 }, { width: 32 }, { width: 48 }], stickyRowsCount: 1, fontFamily: "Aptos", fontSize: 10 });
+  }
   return writeExcelFile(sheets).toBuffer();
 }

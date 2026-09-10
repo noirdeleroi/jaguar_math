@@ -4,6 +4,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ClassroomStarState, ClassroomWorkItem, WorkStatus } from "@/lib/classroom-stars";
 import type { StudentMatchCandidate } from "@/lib/classroom-star-import";
+import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
+
+function firstName(value: string) {
+  return value.trim().split(/\s+/)[0] ?? value;
+}
+
+export async function loadTeacherCurrentWeek(teacherId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("teacher_star_settings").select("current_week_label").eq("teacher_id", teacherId).maybeSingle();
+  if (error) throw error;
+  return data?.current_week_label ?? defaultCurrentWeek;
+}
 
 export async function loadClassroomStarState(classId: string, teacherId: string): Promise<ClassroomStarState | null> {
   const supabase = await createClient();
@@ -48,7 +60,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {} })),
+    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {} })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
     workItems: (workItems ?? []).map((item): ClassroomWorkItem => {
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;
       return { id: item.id, weekLabel: relation?.label ?? "", kind: item.kind as ClassroomWorkItem["kind"], position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} };

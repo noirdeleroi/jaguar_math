@@ -151,9 +151,9 @@ function matchStudents(excelStudents: ExcelStudent[], candidates: StudentMatchCa
 function statusValue(value: Cell, kind: WorkKind): WorkStatus | null {
   const normalized = plain(value);
   if (kind === "homework") {
-    if (normalized === "done") return "done";
+    if (normalized === "done" || normalized === "ok") return "ok";
     if (normalized === "late") return "late";
-    if (normalized === "missing") return "missing";
+    if (normalized === "missing" || normalized === "not ok" || normalized === "not_ok") return "not_ok";
   } else {
     if (normalized === "ok") return "ok";
     if (normalized === "not ok" || normalized === "not_ok") return "not_ok";
@@ -186,7 +186,8 @@ export async function previewClassroomWorkbook(buffer: Buffer, fileName: string,
   const matches = matchStudents(excelStudents, candidates);
   const weekStarts = firstRow.map((value, index) => ({ label: String(value ?? "").trim(), index })).filter((item) => item.index > nameColumn && item.label && plain(item.label) !== "total stars");
 
-  const weeksSheet = sheets.find((sheet) => plain(sheet.sheet) === "weeks");
+  const grade = classroomName.match(/\b(11|12)[a-z]?\b/i)?.[1];
+  const weeksSheet = sheets.find((sheet) => grade && plain(sheet.sheet) === `grade ${grade} weeks`) ?? sheets.find((sheet) => plain(sheet.sheet) === "weeks");
   const weekMetadata = new Map<string, { title: string; focus: string }>();
   if (weeksSheet) {
     const header = weeksSheet.data[0] ?? [];

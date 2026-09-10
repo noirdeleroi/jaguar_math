@@ -6,7 +6,7 @@ import type { ClassroomSyncPayload, WorkKind, WorkStatus } from "@/lib/classroom
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const weekLabelPattern = /^.{1,30}$/u;
 const workKinds = new Set<WorkKind>(["homework", "classwork"]);
-const statuses = new Set<WorkStatus | "">(["done", "late", "missing", "ok", "not_ok", ""]);
+const statuses = new Set<WorkStatus | "">(["late", "ok", "not_ok", ""]);
 
 function validPayload(value: unknown): value is ClassroomSyncPayload {
   if (!value || typeof value !== "object") return false;

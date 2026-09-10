@@ -1,0 +1,426 @@
+{
+  "11": [
+    {
+      "trimester": "Trimester 1",
+      "label": "A1",
+      "sortOrder": 1,
+      "unit": "Course Introduction",
+      "topic": "Welcome, routines & getting ready to work"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A2",
+      "sortOrder": 2,
+      "unit": "Unit 1: Foundations & Algebra",
+      "topic": "Diagnostic + arithmetic foundations"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A3",
+      "sortOrder": 3,
+      "unit": "Unit 1: Foundations & Algebra",
+      "topic": "Algebra foundations"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A4",
+      "sortOrder": 4,
+      "unit": "Unit 1: Foundations & Algebra",
+      "topic": "Linear equations & modeling"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A5",
+      "sortOrder": 5,
+      "unit": "Unit 1: Foundations & Algebra",
+      "topic": "Lines & linear functions"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A6",
+      "sortOrder": 6,
+      "unit": "Unit 1: Foundations & Algebra",
+      "topic": "Systems & inequalities"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A7",
+      "sortOrder": 7,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Quadratics I"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A8",
+      "sortOrder": 8,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Quadratics II"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A9",
+      "sortOrder": 9,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Polynomials & equivalent expressions"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A10",
+      "sortOrder": 10,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Exponential functions"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B1",
+      "sortOrder": 11,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Logarithmic functions"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B2",
+      "sortOrder": 12,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Functions, domain, range & transformations"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B3",
+      "sortOrder": 13,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Rational, radical & nonlinear equations"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B4",
+      "sortOrder": 14,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Geometry fundamentals"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B5",
+      "sortOrder": 15,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Similarity, Pythagorean theorem & special triangles"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B6",
+      "sortOrder": 16,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Circles & coordinate geometry"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B7",
+      "sortOrder": 17,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Right-triangle trigonometry"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B8",
+      "sortOrder": 18,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Trigonometric functions & unit circle"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B9",
+      "sortOrder": 19,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Trig graphs & periodicity"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B10",
+      "sortOrder": 20,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Analytic trigonometry"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C1",
+      "sortOrder": 21,
+      "unit": "Unit 3: Geometry & Trigonometry",
+      "topic": "Trig applications & modeling"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C2",
+      "sortOrder": 22,
+      "unit": "Unit 4: Data, Statistics & Probability",
+      "topic": "Data displays, center & spread"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C3",
+      "sortOrder": 23,
+      "unit": "Unit 4: Data, Statistics & Probability",
+      "topic": "Scatterplots, regression & models"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C4",
+      "sortOrder": 24,
+      "unit": "Unit 4: Data, Statistics & Probability",
+      "topic": "Probability fundamentals"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C5",
+      "sortOrder": 25,
+      "unit": "Unit 4: Data, Statistics & Probability",
+      "topic": "Conditional probability"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C6",
+      "sortOrder": 26,
+      "unit": "Unit 4: Data, Statistics & Probability",
+      "topic": "Sampling, inference & study design"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C7",
+      "sortOrder": 27,
+      "unit": "Unit 5: ICFES Extensions & Synthesis",
+      "topic": "Sequences, sets & combinatorics"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C8",
+      "sortOrder": 28,
+      "unit": "Unit 5: ICFES Extensions & Synthesis",
+      "topic": "Full SAT Math survey + Desmos"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C9",
+      "sortOrder": 29,
+      "unit": "Unit 5: ICFES Extensions & Synthesis",
+      "topic": "PBL / Math communication showcase"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C10",
+      "sortOrder": 30,
+      "unit": "Unit 5: ICFES Extensions & Synthesis",
+      "topic": "Cumulative review & Grade 12 readiness"
+    }
+  ],
+  "12": [
+    {
+      "trimester": "Trimester 1",
+      "label": "A1",
+      "sortOrder": 1,
+      "unit": "Course Introduction",
+      "topic": "Welcome, routines & getting ready to work"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A2",
+      "sortOrder": 2,
+      "unit": "Unit 1: Foundations & Linear Relationships",
+      "topic": "Diagnostic + targeted arithmetic foundations"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A3",
+      "sortOrder": 3,
+      "unit": "Unit 1: Foundations & Linear Relationships",
+      "topic": "Algebra foundations at SAT level"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A4",
+      "sortOrder": 4,
+      "unit": "Unit 1: Foundations & Linear Relationships",
+      "topic": "Linear equations & modeling"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A5",
+      "sortOrder": 5,
+      "unit": "Unit 1: Foundations & Linear Relationships",
+      "topic": "Lines & linear functions"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A6",
+      "sortOrder": 6,
+      "unit": "Unit 1: Foundations & Linear Relationships",
+      "topic": "Systems & linear inequalities"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A7",
+      "sortOrder": 7,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Quadratic functions I"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A8",
+      "sortOrder": 8,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Quadratic functions II"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A9",
+      "sortOrder": 9,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Equivalent expressions & polynomials"
+    },
+    {
+      "trimester": "Trimester 1",
+      "label": "A10",
+      "sortOrder": 10,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Exponential & nonlinear functions"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B1",
+      "sortOrder": 11,
+      "unit": "Unit 2: Advanced Algebra & Functions",
+      "topic": "Rational/radical equations + cumulative review"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B2",
+      "sortOrder": 12,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Ratios, rates, percentages & units"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B3",
+      "sortOrder": 13,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Statistics & data displays"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B4",
+      "sortOrder": 14,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Models, probability & inference"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B5",
+      "sortOrder": 15,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Geometry fundamentals"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B6",
+      "sortOrder": 16,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Circles & coordinate geometry"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B7",
+      "sortOrder": 17,
+      "unit": "Unit 3: Data, Geometry & Trigonometry",
+      "topic": "Right-triangle trigonometry"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B8",
+      "sortOrder": 18,
+      "unit": "Unit 4: SAT & ICFES Preparation",
+      "topic": "ICFES-specific extensions"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B9",
+      "sortOrder": 19,
+      "unit": "Unit 4: SAT & ICFES Preparation",
+      "topic": "Mixed SAT problem solving + Desmos"
+    },
+    {
+      "trimester": "Trimester 2",
+      "label": "B10",
+      "sortOrder": 20,
+      "unit": "Unit 4: SAT & ICFES Preparation",
+      "topic": "Final SAT preparation -> ICFES transition"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C1",
+      "sortOrder": 21,
+      "unit": "Unit 3: Derivatives",
+      "topic": "ICFES final review + introduction to derivatives"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C2",
+      "sortOrder": 22,
+      "unit": "Unit 3: Derivatives",
+      "topic": "Basic derivative rules"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C3",
+      "sortOrder": 23,
+      "unit": "Unit 3: Derivatives",
+      "topic": "Derivatives from graphs & functions"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C4",
+      "sortOrder": 24,
+      "unit": "Unit 3: Derivatives",
+      "topic": "Applications of derivatives"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C5",
+      "sortOrder": 25,
+      "unit": "Unit 3: Derivatives",
+      "topic": "Derivative review & assessment"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C6",
+      "sortOrder": 26,
+      "unit": "Unit 4: Integrals",
+      "topic": "Introduction to antiderivatives"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C7",
+      "sortOrder": 27,
+      "unit": "Unit 4: Integrals",
+      "topic": "Definite integrals & area"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C8",
+      "sortOrder": 28,
+      "unit": "Unit 4: Integrals",
+      "topic": "Fundamental Theorem of Calculus"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C9",
+      "sortOrder": 29,
+      "unit": "Unit 4: Integrals",
+      "topic": "Simple applications & cumulative calculus review"
+    },
+    {
+      "trimester": "Trimester 3",
+      "label": "C10",
+      "sortOrder": 30,
+      "unit": "Unit 4: Integrals",
+      "topic": "Final assessment & reflection"
+    }
+  ]
+}

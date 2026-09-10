@@ -17,7 +17,7 @@ type ImportPreview = {
 
 const emptyQueue = (): ClassroomSyncPayload => ({ weeks: [], starEvents: [], workItems: [], workStatuses: [] });
 const queueSize = (queue: ClassroomSyncPayload) => queue.weeks.length + queue.starEvents.length + queue.workItems.length + queue.workStatuses.length;
-const statusLabels: Record<WorkStatus, string> = { done: "Done", late: "Late", missing: "Missing", ok: "OK", not_ok: "Not OK" };
+const statusLabels: Record<WorkStatus, string> = { late: "Late", ok: "OK", not_ok: "Not OK" };
 
 function queueKey(classId: string) { return `jaguar-stars-queue:${classId}:v1`; }
 function localDateKey() {
@@ -101,9 +101,22 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
   return next;
 }
 
-function initialWeek(state: ClassroomStarState) {
+function initialWeek(state: ClassroomStarState, preferredWeek: string) {
+  if (state.weeks.some((week) => week.label === preferredWeek)) return preferredWeek;
   const used = state.weeks.filter((week) => state.students.some((student) => (student.totals[week.label] ?? 0) > 0) || state.workItems.some((item) => item.weekLabel === week.label));
   return used.at(-1)?.label ?? state.weeks[0]?.label ?? "A1";
+}
+
+function workPosition(state: ClassroomStarState, weekLabel: string, kind: WorkKind) {
+  return Math.max(0, ...state.workItems.filter((item) => item.weekLabel === weekLabel && item.kind === kind).map((item) => item.position)) + 1;
+}
+
+function automaticWorkTitle(state: ClassroomStarState, weekLabel: string, kind: WorkKind) {
+  return `${kind === "homework" ? "HW" : "CW"} ${workPosition(state, weekLabel, kind)}`;
+}
+
+function firstName(value: string) {
+  return value.trim().split(/\s+/)[0] ?? value;
 }
 
 function shuffle<T>(values: T[]) {
@@ -115,18 +128,18 @@ function shuffle<T>(values: T[]) {
   return result;
 }
 
-export default function StarClassroom({ initialState }: { initialState: ClassroomStarState }) {
+export default function StarClassroom({ initialState, currentWeekLabel }: { initialState: ClassroomStarState; currentWeekLabel: string }) {
   const router = useRouter();
   const [data, setData] = useState(initialState);
-  const [selectedWeek, setSelectedWeek] = useState(() => initialWeek(initialState));
+  const [selectedWeek, setSelectedWeek] = useState(() => initialWeek(initialState, currentWeekLabel));
   const [queue, setQueue] = useState<ClassroomSyncPayload>(emptyQueue);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [saveMessage, setSaveMessage] = useState("Everything is safely saved in Jaguar.");
   const [skulls, setSkulls] = useState<Record<string, number>>({});
   const [activeWorkId, setActiveWorkId] = useState<string>("");
   const [newWorkKind, setNewWorkKind] = useState<WorkKind>("homework");
-  const [newWorkTitle, setNewWorkTitle] = useState("");
-  const [newWorkDate, setNewWorkDate] = useState("");
+  const [newWorkTitle, setNewWorkTitle] = useState(() => automaticWorkTitle(initialState, initialWeek(initialState, currentWeekLabel), "homework"));
+  const [newWorkDate, setNewWorkDate] = useState(localDateKey);
   const [utilityMessage, setUtilityMessage] = useState("Pick a student or make balanced teams.");
   const [teamCount, setTeamCount] = useState(4);
   const [timer, setTimer] = useState(60);
@@ -245,19 +258,24 @@ export default function StarClassroom({ initialState }: { initialState: Classroo
   }
 
   function addWorkItem() {
-    const title = newWorkTitle.trim();
-    if (!title) return;
-    const position = Math.max(0, ...data.workItems.filter((item) => item.weekLabel === selectedWeek && item.kind === newWorkKind).map((item) => item.position)) + 1;
+    const position = workPosition(data, selectedWeek, newWorkKind);
+    const title = newWorkTitle.trim() || `${newWorkKind === "homework" ? "HW" : "CW"} ${position}`;
     const item: ClassroomWorkItem = { id: crypto.randomUUID(), weekLabel: selectedWeek, kind: newWorkKind, position, title, activityDate: newWorkDate || null, statuses: {} };
-    const defaultStatus: WorkStatus = newWorkKind === "homework" ? "done" : "ok";
+    const defaultStatus: WorkStatus = "ok";
     item.statuses = Object.fromEntries(data.students.map((student) => [student.id, defaultStatus]));
     setData((current) => ({ ...current, workItems: [...current.workItems, item] }));
     setActiveWorkId(item.id);
-    setNewWorkTitle(""); setNewWorkDate("");
+    setNewWorkTitle(`${newWorkKind === "homework" ? "HW" : "CW"} ${position + 1}`); setNewWorkDate(localDateKey());
     enqueue({
       workItems: [{ id: item.id, week_label: selectedWeek, kind: item.kind, position, title: item.title, activity_date: item.activityDate || undefined }],
       workStatuses: data.students.map((student) => ({ student_id: student.id, week_label: selectedWeek, kind: item.kind, position, status: defaultStatus })),
     });
+  }
+
+  function editWorkItem(item: ClassroomWorkItem, changes: Partial<Pick<ClassroomWorkItem, "title" | "activityDate">>, save: boolean) {
+    const updated = { ...item, ...changes };
+    setData((current) => ({ ...current, workItems: current.workItems.map((workItem) => workItem.id === item.id ? updated : workItem) }));
+    if (save && updated.title.trim()) enqueue({ workItems: [{ id: updated.id, week_label: updated.weekLabel, kind: updated.kind, position: updated.position, title: updated.title.trim(), activity_date: updated.activityDate || undefined }] });
   }
 
   function setWorkStatus(item: ClassroomWorkItem, studentId: string, status: WorkStatus | "") {
@@ -287,13 +305,13 @@ export default function StarClassroom({ initialState }: { initialState: Classroo
   const activeWork = weekItems.find((item) => item.id === activeWorkId) ?? weekItems[0] ?? null;
   const classStars = data.students.reduce((sum, student) => sum + (student.totals[selectedWeek] ?? 0), 0);
   const skullTotal = Object.values(skulls).reduce((sum, value) => sum + value, 0);
-  const sortedStudents = [...data.students].sort((first, second) => (second.totals[selectedWeek] ?? 0) - (first.totals[selectedWeek] ?? 0) || first.fullName.localeCompare(second.fullName));
+  const sortedStudents = [...data.students].sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" }));
 
   function studentWorkSummary(studentId: string, kind: WorkKind) {
     const items = weekItems.filter((item) => item.kind === kind);
     if (!items.length) return kind === "homework" ? "HW —" : "CW —";
     const values = items.map((item) => item.statuses[studentId]);
-    if (kind === "homework") return `HW ✓${values.filter((value) => value === "done").length} L${values.filter((value) => value === "late").length} M${values.filter((value) => value === "missing").length}`;
+    if (kind === "homework") return `HW ✓${values.filter((value) => value === "ok").length} L${values.filter((value) => value === "late").length} ✕${values.filter((value) => value === "not_ok").length}`;
     return `CW ✓${values.filter((value) => value === "ok").length} ✕${values.filter((value) => value === "not_ok").length}`;
   }
 
@@ -314,13 +332,13 @@ export default function StarClassroom({ initialState }: { initialState: Classroo
 
     <div className={`${styles.saveBanner} ${styles[saveState]}`} role="status"><span>{saveState === "saved" ? "✓" : saveState === "syncing" ? "↻" : "●"}</span><div><strong>{saveState === "saved" ? "Safe and saved" : saveState === "syncing" ? "Saving now" : "Browser safety copy active"}</strong><p>{saveMessage}</p></div>{queueSize(queue) > 0 && isOnline ? <button onClick={() => void flushQueue()} type="button">Retry now</button> : null}</div>
 
-    <section className={styles.controlRow}><label>Teaching week<select onChange={(event) => { setSelectedWeek(event.target.value); setActiveWorkId(""); }} value={selectedWeek}>{data.weeks.map((week) => <option key={week.id} value={week.label}>{week.label}{week.focus ? ` — ${week.focus}` : ""}</option>)}</select></label><article><span>Class stars</span><strong>⭐ {classStars}</strong></article><article><span>Students</span><strong>{data.students.length}</strong></article><article><span>Skulls today</span><strong>💀 {skullTotal}</strong></article></section>
+    <section className={styles.controlRow}><label>Teaching week<select onChange={(event) => { const label = event.target.value; setSelectedWeek(label); setActiveWorkId(""); setNewWorkTitle(automaticWorkTitle(data, label, newWorkKind)); setNewWorkDate(localDateKey()); }} value={selectedWeek}>{data.weeks.map((week) => <option key={week.id} value={week.label}>{week.label}{week.focus ? ` — ${week.focus}` : ""}</option>)}</select></label><article><span>Class stars</span><strong>⭐ {classStars}</strong></article><article><span>Students</span><strong>{data.students.length}</strong></article><article><span>Skulls today</span><strong>💀 {skullTotal}</strong></article></section>
 
     <div className={styles.workspace}>
       <section className={styles.studentPanel}>
         <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars sync to Supabase. Today’s skulls stay only on this device.</p></div><button onClick={() => { setSkulls({}); localStorage.removeItem(skullKey(data.classroom.id)); }} type="button">Reset today’s skulls</button></div>
-        <div className={styles.studentGrid}>{sortedStudents.map((student, index) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""}`} key={student.id}>
-          <div className={styles.studentIdentity}><span className={styles.rank}>{index + 1}</span><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
+        <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""}`} key={student.id}>
+          <div className={styles.studentIdentity}><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
           <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 {skulls[student.id] ?? 0}/3</span></div>
           <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={(skulls[student.id] ?? 0) >= 3} onClick={() => updateSkulls(student.id, (skulls[student.id] ?? 0) + 1)} type="button">＋ 💀</button>{(skulls[student.id] ?? 0) > 0 ? <button onClick={() => updateSkulls(student.id, 0)} type="button">Clear 💀</button> : null}</div>
         </article>)}</div>
@@ -334,8 +352,8 @@ export default function StarClassroom({ initialState }: { initialState: Classroo
 
     <section className={styles.workSection}>
       <div className={styles.sectionHeader}><div><p className="eyebrow">Weekly records</p><h2>Homework and classwork</h2><p>No ten-item limit: Jaguar can keep adding records throughout the week.</p></div></div>
-      <div className={styles.workCreator}><select aria-label="Work type" onChange={(event) => setNewWorkKind(event.target.value as WorkKind)} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select><input aria-label="Work title" maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} value={newWorkTitle} /><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /><button disabled={!newWorkTitle.trim()} onClick={addWorkItem} type="button">Add to {selectedWeek}</button></div>
-      {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork ? <div className={styles.statusTable}><header><div><strong>{activeWork.title}</strong><span>{activeWork.activityDate || "No date"} · {activeWork.kind === "homework" ? "Done / Late / Missing" : "OK / Not OK"}</span></div></header>{data.students.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["done", "late", "missing"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for {selectedWeek}.</p>}
+      <div className={styles.workCreator}><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select><input aria-label="Work title" maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} value={newWorkTitle} /><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /><button disabled={!newWorkTitle.trim()} onClick={addWorkItem} type="button">Add to {selectedWeek}</button></div>
+      {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork ? <div className={styles.statusTable}><header><div className={styles.workEditor}><label><span>Name</span><input maxLength={120} onBlur={() => editWorkItem(activeWork, { title: activeWork.title.trim() || `${activeWork.kind === "homework" ? "HW" : "CW"} ${activeWork.position}` }, true)} onChange={(event) => editWorkItem(activeWork, { title: event.target.value }, false)} value={activeWork.title} /></label><label><span>Date</span><input onChange={(event) => editWorkItem(activeWork, { activityDate: event.target.value || null }, true)} type="date" value={activeWork.activityDate || ""} /></label><small>{activeWork.kind === "homework" ? "OK / Not OK / Late" : "OK / Not OK"} · changes save automatically</small></div></header>{sortedStudents.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["ok", "not_ok", "late"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for {selectedWeek}.</p>}
     </section>
 
     <section className={styles.importSection}>

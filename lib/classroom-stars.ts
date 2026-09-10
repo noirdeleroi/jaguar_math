@@ -14,7 +14,7 @@ export type ClassroomStudent = {
 };
 
 export type WorkKind = "homework" | "classwork";
-export type WorkStatus = "done" | "late" | "missing" | "ok" | "not_ok";
+export type WorkStatus = "ok" | "not_ok" | "late";
 
 export type ClassroomWorkItem = {
   id: string;
