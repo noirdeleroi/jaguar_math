@@ -289,12 +289,12 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     try {
       const formData = new FormData(); formData.set("mode", mode); formData.set("workbook", workbook);
       const response = await fetch(`/api/classes/${data.classroom.id}/stars/import`, { method: "POST", body: formData });
-      const result = await response.json() as { error?: string; preview?: ImportPreview; imported?: { status?: string } };
+      const result = await response.json() as { error?: string; preview?: ImportPreview; imported?: { status?: string; new_statuses?: number } };
       if (result.preview) setImportPreview(result.preview);
       if (!response.ok) throw new Error(result.error || "Workbook check failed.");
       if (mode === "preview") setImportMessage("Review complete. Ambiguous and Excel-only names will be skipped.");
       else {
-        setImportMessage(result.imported?.status === "already_imported" ? "This exact workbook was already imported; no duplicate data was added." : "Import complete. Only matched existing Jaguar students were updated.");
+        setImportMessage(result.imported?.status === "refreshed" ? `Roster refresh complete. ${result.imported.new_statuses ?? 0} missing HW/CW ${result.imported.new_statuses === 1 ? "status was" : "statuses were"} added for newly matched students; existing stars and teacher changes were preserved.` : "Import complete. Only matched existing Jaguar students were updated.");
         router.refresh();
       }
     } catch (cause) { setImportMessage(cause instanceof Error ? cause.message : "Workbook check failed. Nothing was changed."); }
