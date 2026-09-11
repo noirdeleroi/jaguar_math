@@ -7,8 +7,16 @@ import styles from "./sitting-chart.module.css";
 type Student = { id: string; name: string };
 type Position = { id: string; x: number; y: number };
 type ChartStudent = Position & { guest?: true; name?: string };
-type Layout = { version: 1; tables: Position[]; students: ChartStudent[] };
+type TableShape = "rectangle" | "oval";
+type ChartTable = Position & { shape: TableShape; width: number; height: number };
+type Layout = { version: 1; tables: ChartTable[]; students: ChartStudent[] };
 type DragTarget = { kind: "student" | "table"; id: string; pointerId: number };
+type DrawingTarget = { pointerId: number; shape: TableShape; startX: number; startY: number };
+
+const BOARD_ASPECT_RATIO = 16 / 9;
+const DEFAULT_TABLE_WIDTH = 13;
+const DEFAULT_TABLE_HEIGHT = DEFAULT_TABLE_WIDTH * BOARD_ASPECT_RATIO;
+const MINIMUM_TABLE_SIZE = 4;
 
 const clamp = (value: number, minimum: number, maximum: number) => Math.min(maximum, Math.max(minimum, value));
 
@@ -20,10 +28,43 @@ function defaultStudentPosition(index: number, total: number) {
   return { x: columns === 1 ? 50 : 10 + (column * 80) / (columns - 1), y: rows === 1 ? 72 : 62 + (row * 28) / (rows - 1) };
 }
 
+function normalizeTable(value: Position & Partial<ChartTable>): ChartTable {
+  const width = Number.isFinite(value.width) ? clamp(value.width!, MINIMUM_TABLE_SIZE, 90) : DEFAULT_TABLE_WIDTH;
+  const height = Number.isFinite(value.height) ? clamp(value.height!, MINIMUM_TABLE_SIZE, 90) : DEFAULT_TABLE_HEIGHT;
+  return {
+    id: value.id,
+    shape: value.shape === "rectangle" ? "rectangle" : "oval",
+    width,
+    height,
+    x: clamp(value.x, width / 2, 100 - width / 2),
+    y: clamp(value.y, height / 2, 100 - height / 2),
+  };
+}
+
+function tableFromPoints(shape: TableShape, startX: number, startY: number, endX: number, endY: number, constrain: boolean): Omit<ChartTable, "id"> {
+  let horizontal = endX - startX;
+  let vertical = endY - startY;
+  if (constrain) {
+    const height = Math.max(Math.abs(vertical), Math.abs(horizontal) * BOARD_ASPECT_RATIO, MINIMUM_TABLE_SIZE * BOARD_ASPECT_RATIO);
+    horizontal = (horizontal || 1) < 0 ? -height / BOARD_ASPECT_RATIO : height / BOARD_ASPECT_RATIO;
+    vertical = (vertical || 1) < 0 ? -height : height;
+  }
+  const width = Math.max(MINIMUM_TABLE_SIZE, Math.abs(horizontal));
+  const height = Math.max(MINIMUM_TABLE_SIZE, Math.abs(vertical));
+  return normalizeTable({
+    id: "",
+    shape,
+    width,
+    height,
+    x: startX + horizontal / 2,
+    y: startY + vertical / 2,
+  });
+}
+
 function createInitialLayout(value: unknown, students: Student[]): Layout {
   const candidate = value && typeof value === "object" ? value as Partial<Layout> : null;
   const validPosition = (item: unknown): item is Position => Boolean(item && typeof item === "object" && typeof (item as Position).id === "string" && Number.isFinite((item as Position).x) && Number.isFinite((item as Position).y));
-  const tables = Array.isArray(candidate?.tables) ? candidate.tables.filter(validPosition).slice(0, 100).map((item) => ({ id: item.id, x: clamp(item.x, 6, 94), y: clamp(item.y, 9, 91) })) : [];
+  const tables = Array.isArray(candidate?.tables) ? candidate.tables.filter(validPosition).slice(0, 100).map((item) => normalizeTable(item as Position & Partial<ChartTable>)) : [];
   const savedChartStudents = (Array.isArray(candidate?.students) ? candidate.students : []).filter(validPosition).map((item) => item as ChartStudent);
   const savedStudents = new Map(savedChartStudents.map((item) => [item.id, item]));
   const guests = savedChartStudents.filter((item) => item.guest === true && item.id.startsWith("guest-") && typeof item.name === "string" && item.name.trim().length > 0 && item.name.trim().length <= 80).map((item) => ({ id: item.id, x: clamp(item.x, 5, 95), y: clamp(item.y, 4, 96), guest: true as const, name: item.name!.trim() }));
@@ -62,6 +103,9 @@ export default function SeatingChart({ classId, className, students, initialLayo
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [guestName, setGuestName] = useState("");
   const [dragTarget, setDragTarget] = useState<DragTarget | null>(null);
+  const [drawTool, setDrawTool] = useState<TableShape | null>(null);
+  const [drawingTarget, setDrawingTarget] = useState<DrawingTarget | null>(null);
+  const [tablePreview, setTablePreview] = useState<Omit<ChartTable, "id"> | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const initialState: SeatingChartSaveState = { status: "idle", message: "", savedLayout: savedRosterIsCurrent ? initialSerialized : "", savedAt: initialSavedAt ?? undefined };
   const [saveState, saveAction, saving] = useActionState(saveSeatingChart, initialState);
@@ -69,11 +113,9 @@ export default function SeatingChart({ classId, className, students, initialLayo
   const hasChanges = serializedLayout !== saveState.savedLayout;
   const namesById = useMemo(() => new Map([...students.map((student) => [student.id, student.name] as const), ...layout.students.filter((student) => student.guest === true).map((student) => [student.id, student.name!] as const)]), [layout.students, students]);
 
-  function addTable() {
-    const index = layout.tables.length;
-    const table = { id: `table-${Date.now()}-${index}`, x: 25 + (index % 3) * 25, y: 25 + (Math.floor(index / 3) % 2) * 28 };
-    setLayout((current) => ({ ...current, tables: [...current.tables, table] }));
-    setSelectedTable(table.id);
+  function toggleDrawTool(shape: TableShape) {
+    setDrawTool((current) => current === shape ? null : shape);
+    setSelectedTable(null);
     setSelectedGuest(null);
   }
 
@@ -119,18 +161,45 @@ export default function SeatingChart({ classId, className, students, initialLayo
   }
 
   function moveDrag(event: PointerEvent<HTMLDivElement>) {
+    if (drawingTarget && drawingTarget.pointerId === event.pointerId) {
+      const position = boardPosition(event);
+      setTablePreview(tableFromPoints(drawingTarget.shape, drawingTarget.startX, drawingTarget.startY, position.x, position.y, event.shiftKey));
+      return;
+    }
     if (!dragTarget || dragTarget.pointerId !== event.pointerId || !boardRef.current) return;
     const bounds = boardRef.current.getBoundingClientRect();
-    const marginX = dragTarget.kind === "table" ? 7 : 5;
-    const marginY = dragTarget.kind === "table" ? 11 : 5;
+    const table = dragTarget.kind === "table" ? layout.tables.find(({ id }) => id === dragTarget.id) : null;
+    const marginX = table ? table.width / 2 : 5;
+    const marginY = table ? table.height / 2 : 5;
     const position = { x: clamp(((event.clientX - bounds.left) / bounds.width) * 100, marginX, 100 - marginX), y: clamp(((event.clientY - bounds.top) / bounds.height) * 100, marginY, 100 - marginY) };
     setLayout((current) => ({ ...current, [dragTarget.kind === "table" ? "tables" : "students"]: current[dragTarget.kind === "table" ? "tables" : "students"].map((item) => item.id === dragTarget.id ? { ...item, ...position } : item) }));
   }
 
   function endDrag(event: PointerEvent<HTMLDivElement>) {
+    if (drawingTarget && drawingTarget.pointerId === event.pointerId) {
+      const position = boardPosition(event);
+      const table = tableFromPoints(drawingTarget.shape, drawingTarget.startX, drawingTarget.startY, position.x, position.y, event.shiftKey);
+      if (boardRef.current?.hasPointerCapture(event.pointerId)) boardRef.current.releasePointerCapture(event.pointerId);
+      setDrawingTarget(null);
+      setTablePreview(null);
+      const id = `table-${crypto.randomUUID()}`;
+      setLayout((current) => ({ ...current, tables: [...current.tables, { ...table, id }] }));
+      setSelectedTable(id);
+      setSelectedGuest(null);
+      return;
+    }
     if (!dragTarget || dragTarget.pointerId !== event.pointerId) return;
     if (boardRef.current?.hasPointerCapture(event.pointerId)) boardRef.current.releasePointerCapture(event.pointerId);
     setDragTarget(null);
+  }
+
+  function cancelDrag(event: PointerEvent<HTMLDivElement>) {
+    if (boardRef.current?.hasPointerCapture(event.pointerId)) boardRef.current.releasePointerCapture(event.pointerId);
+    if (drawingTarget?.pointerId === event.pointerId) {
+      setDrawingTarget(null);
+      setTablePreview(null);
+    }
+    if (dragTarget?.pointerId === event.pointerId) setDragTarget(null);
   }
 
   function nudge(event: KeyboardEvent<HTMLButtonElement>, kind: DragTarget["kind"], id: string) {
@@ -139,7 +208,25 @@ export default function SeatingChart({ classId, className, students, initialLayo
     if (!delta) return;
     event.preventDefault();
     const key = kind === "table" ? "tables" : "students";
-    setLayout((current) => ({ ...current, [key]: current[key].map((item) => item.id === id ? { ...item, x: clamp(item.x + delta[0], 5, 95), y: clamp(item.y + delta[1], 5, 95) } : item) }));
+    setLayout((current) => ({ ...current, [key]: current[key].map((item) => {
+      if (item.id !== id) return item;
+      const table = kind === "table" ? item as ChartTable : null;
+      return { ...item, x: clamp(item.x + delta[0], table ? table.width / 2 : 5, table ? 100 - table.width / 2 : 95), y: clamp(item.y + delta[1], table ? table.height / 2 : 5, table ? 100 - table.height / 2 : 95) };
+    }) }));
+  }
+
+  function boardPosition(event: PointerEvent<HTMLDivElement>) {
+    const bounds = boardRef.current!.getBoundingClientRect();
+    return { x: clamp(((event.clientX - bounds.left) / bounds.width) * 100, 0, 100), y: clamp(((event.clientY - bounds.top) / bounds.height) * 100, 0, 100) };
+  }
+
+  function beginTableDrawing(event: PointerEvent<HTMLDivElement>) {
+    if (!drawTool || event.target !== event.currentTarget || !boardRef.current) return;
+    const position = boardPosition(event);
+    event.preventDefault();
+    boardRef.current.setPointerCapture(event.pointerId);
+    setDrawingTarget({ pointerId: event.pointerId, shape: drawTool, startX: position.x, startY: position.y });
+    setTablePreview(tableFromPoints(drawTool, position.x, position.y, position.x, position.y, event.shiftKey));
   }
 
   function exportImage() {
@@ -166,8 +253,13 @@ export default function SeatingChart({ classId, className, students, initialLayo
     layout.tables.forEach((table) => {
       const x = board.x + (table.x / 100) * board.width;
       const y = board.y + (table.y / 100) * board.height;
-      context.beginPath();
-      context.arc(x, y, 78, 0, Math.PI * 2);
+      const width = (table.width / 100) * board.width;
+      const height = (table.height / 100) * board.height;
+      if (table.shape === "rectangle") roundedRect(context, x - width / 2, y - height / 2, width, height, 14);
+      else {
+        context.beginPath();
+        context.ellipse(x, y, width / 2, height / 2, 0, 0, Math.PI * 2);
+      }
       context.fillStyle = "#e6ddce";
       context.fill();
       context.strokeStyle = "#977f61";
@@ -200,7 +292,8 @@ export default function SeatingChart({ classId, className, students, initialLayo
   return <section className={styles.workspace}>
     <div className={styles.toolbar}>
       <div className={styles.tools}>
-        <button className={styles.primaryTool} onClick={addTable} type="button"><span aria-hidden="true">○</span>Add round table</button>
+        <button aria-pressed={drawTool === "rectangle"} className={`${styles.drawTool} ${drawTool === "rectangle" ? styles.activeDrawTool : ""}`} onClick={() => toggleDrawTool("rectangle")} type="button"><span aria-hidden="true">▭</span>Draw rectangle table</button>
+        <button aria-pressed={drawTool === "oval"} className={`${styles.drawTool} ${drawTool === "oval" ? styles.activeDrawTool : ""}`} onClick={() => toggleDrawTool("oval")} type="button"><span aria-hidden="true">○</span>Draw oval table</button>
         <button onClick={arrangeStudents} type="button">Arrange students</button>
         <button disabled={!selectedTable} onClick={removeSelectedTable} type="button">Remove table</button>
         <button disabled={!selectedGuest} onClick={removeSelectedGuest} type="button">Remove chart student</button>
@@ -218,13 +311,14 @@ export default function SeatingChart({ classId, className, students, initialLayo
     </div>
     {saveState.status !== "idle" && <p className={`${styles.message} ${saveState.status === "error" ? styles.error : styles.success}`} role={saveState.status === "error" ? "alert" : "status"}>{saveState.message}</p>}
     <div className={styles.boardWrap}>
-      <div aria-label={`Seating chart canvas for ${className}`} className={styles.board} onPointerCancel={endDrag} onPointerMove={moveDrag} onPointerUp={endDrag} ref={boardRef}>
+      <div aria-label={`Seating chart canvas for ${className}`} className={`${styles.board} ${drawTool ? styles.drawingBoard : ""}`} onPointerCancel={cancelDrag} onPointerDown={beginTableDrawing} onPointerMove={moveDrag} onPointerUp={endDrag} ref={boardRef}>
         <div className={styles.front}><span>Front of room</span></div>
-        {layout.tables.map((table, index) => <button aria-label={`Round table ${index + 1}. Drag to move; use arrow keys for precise movement.`} className={`${styles.table} ${selectedTable === table.id ? styles.selectedTable : ""}`} key={table.id} onClick={() => setSelectedTable(table.id)} onKeyDown={(event) => nudge(event, "table", table.id)} onPointerDown={(event) => beginDrag(event, "table", table.id)} style={{ left: `${table.x}%`, top: `${table.y}%` }} type="button"><span>Table {index + 1}</span></button>)}
+        {layout.tables.map((table, index) => <button aria-label={`${table.shape === "rectangle" ? "Rectangle" : "Oval"} table ${index + 1}. Drag to move; use arrow keys for precise movement.`} className={`${styles.table} ${table.shape === "rectangle" ? styles.rectangleTable : ""} ${selectedTable === table.id ? styles.selectedTable : ""}`} key={table.id} onClick={() => setSelectedTable(table.id)} onKeyDown={(event) => nudge(event, "table", table.id)} onPointerDown={(event) => beginDrag(event, "table", table.id)} style={{ height: `${table.height}%`, left: `${table.x}%`, top: `${table.y}%`, width: `${table.width}%` }} type="button"><span>Table {index + 1}</span></button>)}
+        {tablePreview && <div aria-hidden="true" className={`${styles.table} ${styles.tablePreview} ${tablePreview.shape === "rectangle" ? styles.rectangleTable : ""}`} style={{ height: `${tablePreview.height}%`, left: `${tablePreview.x}%`, top: `${tablePreview.y}%`, width: `${tablePreview.width}%` }} />}
         {layout.students.map((student) => <button aria-label={`${namesById.get(student.id)}${student.guest ? ", chart-only student" : ""}. Drag to move; use arrow keys for precise movement.`} className={`${styles.student} ${student.guest ? styles.guestStudent : ""} ${selectedGuest === student.id ? styles.selectedStudent : ""}`} key={student.id} onKeyDown={(event) => nudge(event, "student", student.id)} onPointerDown={(event) => beginDrag(event, "student", student.id)} style={{ left: `${student.x}%`, top: `${student.y}%` }} type="button"><span>{namesById.get(student.id)}</span></button>)}
         {!layout.students.length && <div className={styles.empty}><span>＋</span><strong>No students on this chart yet</strong><p>Add a name above, or enroll students from the class page.</p></div>}
       </div>
     </div>
-    <footer className={styles.help}><span><b>Drag</b> students and tables anywhere on the canvas.</span><span><b>Keyboard</b> arrow keys move a selected item; hold Shift for larger steps.</span></footer>
+    <footer className={styles.help}><span><b>Draw</b> a table on open canvas, then drag it anywhere in the room.</span><span><b>Shift + draw</b> makes a square or circle.</span><span><b>Keyboard</b> arrow keys move a selected item; hold Shift for larger steps.</span></footer>
   </section>;
 }

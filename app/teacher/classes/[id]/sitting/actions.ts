@@ -13,12 +13,30 @@ export type SeatingChartSaveState = {
 
 type Position = { id: string; x: number; y: number };
 type ChartStudent = Position & { guest?: true; name?: string };
-type SeatingLayout = { version: 1; tables: Position[]; students: ChartStudent[] };
+type TableShape = "rectangle" | "oval";
+type ChartTable = Position & { shape: TableShape; width: number; height: number };
+type SeatingLayout = { version: 1; tables: ChartTable[]; students: ChartStudent[] };
 
+const DEFAULT_TABLE_WIDTH = 13;
+const DEFAULT_TABLE_HEIGHT = DEFAULT_TABLE_WIDTH * 16 / 9;
+const MINIMUM_TABLE_SIZE = 4;
 const textFrom = (value: FormDataEntryValue | null) => typeof value === "string" ? value.trim() : "";
-const validCoordinate = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
-const validId = (value: unknown) => typeof value === "string" && value.length > 0 && value.length <= 80;
+const validCoordinate = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+const validId = (value: unknown): value is string => typeof value === "string" && value.length > 0 && value.length <= 80;
 const validGuestName = (value: unknown) => typeof value === "string" && value.trim().length > 0 && value.trim().length <= 80 && !/[\u0000-\u001f\u007f]/.test(value);
+const validTableSize = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value >= MINIMUM_TABLE_SIZE && value <= 90;
+
+function parseTable(value: unknown): ChartTable | null {
+  if (!value || typeof value !== "object") return null;
+  const table = value as Partial<ChartTable>;
+  if (!validId(table.id) || !validCoordinate(table.x) || !validCoordinate(table.y)) return null;
+  const width = table.width ?? DEFAULT_TABLE_WIDTH;
+  const height = table.height ?? DEFAULT_TABLE_HEIGHT;
+  const shape = table.shape ?? "oval";
+  if (!validTableSize(width) || !validTableSize(height) || (shape !== "rectangle" && shape !== "oval")) return null;
+  if (table.x < width / 2 || table.x > 100 - width / 2 || table.y < height / 2 || table.y > 100 - height / 2) return null;
+  return { id: table.id, x: table.x, y: table.y, width, height, shape };
+}
 
 function parseLayout(value: string): SeatingLayout | null {
   if (!value || value.length > 100_000) return null;
@@ -27,12 +45,13 @@ function parseLayout(value: string): SeatingLayout | null {
     if (layout.version !== 1 || !Array.isArray(layout.tables) || !Array.isArray(layout.students)) return null;
     if (layout.tables.length > 100 || layout.students.length > 500) return null;
     const positionsAreValid = (items: Position[]) => items.every((item) => validId(item?.id) && validCoordinate(item?.x) && validCoordinate(item?.y));
-    if (!positionsAreValid(layout.tables) || !positionsAreValid(layout.students)) return null;
+    const tables = layout.tables.map(parseTable);
+    if (tables.some((table) => !table) || !positionsAreValid(layout.students)) return null;
     if (layout.students.some((student) => student.guest === true ? !student.id.startsWith("guest-") || !validGuestName(student.name) : student.guest !== undefined)) return null;
     if (new Set(layout.tables.map(({ id }) => id)).size !== layout.tables.length || new Set(layout.students.map(({ id }) => id)).size !== layout.students.length) return null;
     return {
       version: 1,
-      tables: layout.tables.map(({ id, x, y }) => ({ id, x, y })),
+      tables: tables as ChartTable[],
       students: layout.students.map(({ id, x, y, guest, name }) => guest === true ? { id, x, y, guest: true, name: name!.trim() } : { id, x, y }),
     };
   } catch {
