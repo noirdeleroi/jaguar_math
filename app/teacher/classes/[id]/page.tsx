@@ -2,19 +2,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
 import { loadTeacherCurrentWeek } from "@/lib/classroom-star-data";
+import type { ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
 import { curriculumTopic } from "@/lib/curriculum-weeks";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import ClassAchievementManager, { type ManagerAssessment, type ManagerStudent, type ManagerWeek, type WeekAchievement, type WorkSummary } from "./class-achievement-manager";
+import ClassAchievementManager, { type ManagerAssessment, type ManagerStudent, type WeekAchievement, type WorkSummary } from "./class-achievement-manager";
 import ClassManagerDialogs from "./class-manager-dialogs";
 import ManageStudentCredentials from "./manage-student-credentials";
+import StarClassroom from "./stars/star-classroom";
 import styles from "./class-manager.module.css";
 
 type Student = { id: string; full_name: string | null; email: string | null; grade_level: number | null };
 type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null };
-type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork" };
+type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork"; position: number; title: string; activity_date: string | null };
 type WorkStatus = { work_item_id: string; student_id: string; status: string };
+type StarEvent = { id: string; student_id: string; week_id: string; delta: number };
 type Assessment = { id: string; title: string; kind: string; status: string; due_at: string | null };
 type Attempt = { id: string; assignment_id: string; student_id: string; score: number | null; max_score: number | null; attempt_number: number };
 
@@ -30,6 +33,11 @@ function addWork(target: WorkSummary, status: string) {
 }
 function sumWork(target: WorkSummary, source: WorkSummary) { target.ok += source.ok; target.notOk += source.notOk; target.late += source.late; target.recorded += source.recorded; }
 function percentage(ok: number, recorded: number) { return recorded ? `${Math.round(ok / recorded * 100)}%` : "—"; }
+function normalizeWorkStatus(status: string): ClassroomWorkStatus | null {
+  if (status === "ok" || status === "done") return "ok";
+  if (status === "not_ok" || status === "missing") return "not_ok";
+  return status === "late" ? "late" : null;
+}
 
 export default async function ClassDetailPage({ params, searchParams }: PageProps<"/teacher/classes/[id]">) {
   const teacher = await requireTeacher();
@@ -44,8 +52,8 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     supabase.from("class_members").select("student_id").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
     supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", id).order("sort_order"),
-    supabase.from("classroom_star_events").select("student_id, week_id, delta").eq("class_id", id),
-    supabase.from("classroom_work_items").select("id, week_id, kind").eq("class_id", id),
+    supabase.from("classroom_star_events").select("id, student_id, week_id, delta").eq("class_id", id),
+    supabase.from("classroom_work_items").select("id, week_id, kind, position, title, activity_date").eq("class_id", id),
     supabase.from("assignment_classes").select("assignment_id").eq("class_id", id),
     loadTeacherCurrentWeek(teacher.id),
     hasGoogleGmailSendPermission(teacher.id),
@@ -73,6 +81,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
 
   const weekById = new Map(weeks.map((week) => [week.id, week]));
   const workItemById = new Map(workItems.map((item) => [item.id, item]));
+  const statusesByItem = new Map<string, Record<string, ClassroomWorkStatus>>();
   const achievements = new Map<string, Record<string, WeekAchievement>>();
   function studentWeeks(studentId: string) {
     const existing = achievements.get(studentId);
@@ -87,6 +96,12 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     const item = workItemById.get(status.work_item_id); const week = item ? weekById.get(item.week_id) : null;
     if (!item || !week) continue;
     addWork(item.kind === "homework" ? studentWeeks(status.student_id)[week.label].homework : studentWeeks(status.student_id)[week.label].classwork, status.status);
+    const normalizedStatus = normalizeWorkStatus(status.status);
+    if (normalizedStatus) {
+      const itemStatuses = statusesByItem.get(status.work_item_id) ?? {};
+      itemStatuses[status.student_id] = normalizedStatus;
+      statusesByItem.set(status.work_item_id, itemStatuses);
+    }
   }
 
   const latestAttempt = new Map<string, Attempt>();
@@ -99,8 +114,14 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     const scoreValues = Object.values(scores).map((score) => score.percent);
     return { id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, totalStars, homework, classwork, weeks: studentAchievement, scores, assessmentAverage: scoreValues.length ? Math.round(scoreValues.reduce((sum, value) => sum + value, 0) / scoreValues.length) : null };
   });
-  const managerWeeks: ManagerWeek[] = weeks.map((week) => { const curriculum = curriculumTopic(classroom.grade_level, week.label); return { id: week.id, label: week.label, sortOrder: week.sort_order, unit: week.title || curriculum?.unit || `Week ${week.label}`, topic: week.focus || curriculum?.topic || "Topic not set", homeworkItems: workItems.filter((item) => item.week_id === week.id && item.kind === "homework").length, classworkItems: workItems.filter((item) => item.week_id === week.id && item.kind === "classwork").length }; });
   const managerAssessments: ManagerAssessment[] = ((assessmentRows ?? []) as Assessment[]).map((assessment) => { const values = managerStudents.flatMap((student) => student.scores[assessment.id] ? [student.scores[assessment.id].percent] : []); return { id: assessment.id, title: assessment.title, kind: assessment.kind, status: assessment.status, average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null }; });
+  const starState: ClassroomStarState = {
+    classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
+    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
+    students: enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])) })),
+    workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
+    eventIds: ((starEvents ?? []) as StarEvent[]).map((event) => event.id),
+  };
   const currentCurriculum = curriculumTopic(classroom.grade_level, currentWeekLabel);
   const classStars = managerStudents.reduce((sum, student) => sum + student.totalStars, 0); const homework = emptyWork(); const classwork = emptyWork();
   managerStudents.forEach((student) => { sumWork(homework, student.homework); sumWork(classwork, student.classwork); });
@@ -109,10 +130,11 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
 
   return <main className={`teacher-main ${styles.main}`}>
     <Link className="back-link" href="/teacher/classes">← All classes</Link>
-    <section className={styles.hero}><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} · Complete class achievement manager</p></div><div className={styles.heroActions}><Link href={`/teacher/classes/${id}/stars?week=${currentWeekLabel}`}>Open {currentWeekLabel} Stars →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</div></section>
+    <section className={styles.hero}><div><p className="eyebrow">Grade {classroom.grade_level} · {classroom.academic_year}</p><h1>{classroom.name}</h1><p>{enrolled.length} {enrolled.length === 1 ? "student" : "students"} · Complete class achievement manager</p></div><div className={styles.heroActions}><a href="#weekly-classroom">Open {currentWeekLabel} classroom ↓</a><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</div></section>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{currentWeekLabel}</strong><div><strong>Current week · {currentCurriculum?.unit ?? "Curriculum"}</strong><span>{currentCurriculum?.topic ?? "Topic not set for this grade"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || "Unnamed student", emailAddress: student.email || "No email" }))} /> : null}</div></section>
     <section className={styles.kpis} aria-label="Class achievement summary"><article><span>Students</span><strong>{enrolled.length}</strong><small>Active roster</small></article><article><span>Total stars</span><strong>★ {classStars}</strong><small>All recorded weeks</small></article><article><span>Homework OK</span><strong>{percentage(homework.ok, homework.recorded)}</strong><small>{homework.ok} of {homework.recorded} records</small></article><article><span>Classwork OK</span><strong>{percentage(classwork.ok, classwork.recorded)}</strong><small>{classwork.ok} of {classwork.recorded} records</small></article><article><span>Assessment average</span><strong>{assessmentAverage}</strong><small>{managerAssessments.length} visible assessment{managerAssessments.length === 1 ? "" : "s"}</small></article></section>
-    {enrolled.length ? <ClassAchievementManager assessments={managerAssessments} classId={id} currentWeekLabel={currentWeekLabel} students={managerStudents} weeks={managerWeeks} /> : <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section>}
+    <StarClassroom currentWeekLabel={currentWeekLabel} embedded initialState={starState} key={`${currentWeekLabel}:${starState.eventIds.length}:${starState.workItems.length}:${starState.weeks.length}`} />
+    {enrolled.length ? <ClassAchievementManager assessments={managerAssessments} students={managerStudents} /> : <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section>}
   </main>;
 }

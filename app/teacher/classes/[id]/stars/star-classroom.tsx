@@ -201,10 +201,11 @@ function RewardAnimation({ effect, onClose }: { effect: RewardEffect; onClose: (
   </div>;
 }
 
-export default function StarClassroom({ initialState, currentWeekLabel }: { initialState: ClassroomStarState; currentWeekLabel: string }) {
+export default function StarClassroom({ initialState, currentWeekLabel, embedded = false }: { initialState: ClassroomStarState; currentWeekLabel: string; embedded?: boolean }) {
   const router = useRouter();
   const [data, setData] = useState(initialState);
   const [selectedWeek, setSelectedWeek] = useState(() => initialWeek(initialState, currentWeekLabel));
+  const [openWeek, setOpenWeek] = useState<string | null>(() => initialWeek(initialState, currentWeekLabel));
   const [queue, setQueue] = useState<ClassroomSyncPayload>(emptyQueue);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [saveMessage, setSaveMessage] = useState("Everything is safely saved in Jaguar.");
@@ -220,6 +221,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
   const [timerRunning, setTimerRunning] = useState(false);
   const [utilityOverlay, setUtilityOverlay] = useState<UtilityOverlay | null>(null);
   const [rewardEffect, setRewardEffect] = useState<RewardEffect | null>(null);
+  const [workCreatorOpen, setWorkCreatorOpen] = useState(false);
   const [workbook, setWorkbook] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
   const [importMessage, setImportMessage] = useState("");
@@ -229,7 +231,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
   const randomizerInterval = useRef<number | null>(null);
   const utilityRevealTimer = useRef<number | null>(null);
   const rewardTimer = useRef<number | null>(null);
-  const blockingOverlayOpen = Boolean(utilityOverlay || rewardEffect?.kind === "death");
+  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -311,6 +313,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
       randomizerInterval.current = null;
       utilityRevealTimer.current = null;
       setUtilityOverlay(null);
+      setWorkCreatorOpen(false);
       setRewardEffect(null);
     };
     document.body.style.overflow = "hidden";
@@ -398,6 +401,10 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     const week = { id: crypto.randomUUID(), label, sort_order: nextOrder, title: "", focus: "" };
     setData((current) => ({ ...current, weeks: [...current.weeks, { id: week.id, label, sortOrder: nextOrder, title: null, focus: null }] }));
     setSelectedWeek(label);
+    setOpenWeek(label);
+    setActiveWorkId("");
+    setNewWorkTitle(newWorkKind === "homework" ? "HW 1" : "CW 1");
+    setNewWorkDate(localDateKey());
     enqueue({ weeks: [week] });
   }
 
@@ -409,6 +416,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     item.statuses = Object.fromEntries(data.students.map((student) => [student.id, defaultStatus]));
     setData((current) => ({ ...current, workItems: [...current.workItems, item] }));
     setActiveWorkId(item.id);
+    setWorkCreatorOpen(false);
     setNewWorkTitle(`${newWorkKind === "homework" ? "HW" : "CW"} ${position + 1}`); setNewWorkDate(localDateKey());
     enqueue({
       workItems: [{ id: item.id, week_label: selectedWeek, kind: item.kind, position, title: item.title, activity_date: item.activityDate || undefined }],
@@ -451,6 +459,30 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
   const skullTotal = Object.values(skulls).reduce((sum, value) => sum + value, 0);
   const sortedStudents = [...data.students].sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" }));
 
+  function toggleWeek(label: string) {
+    if (openWeek === label) {
+      setOpenWeek(null);
+      return;
+    }
+    setSelectedWeek(label);
+    setOpenWeek(label);
+    setActiveWorkId("");
+    setNewWorkTitle(automaticWorkTitle(data, label, newWorkKind));
+    setNewWorkDate(localDateKey());
+  }
+
+  function weekSummary(label: string, kind: WorkKind) {
+    const items = data.workItems.filter((item) => item.weekLabel === label && item.kind === kind);
+    const values = items.flatMap((item) => Object.values(item.statuses));
+    return {
+      items: items.length,
+      ok: values.filter((value) => value === "ok").length,
+      late: values.filter((value) => value === "late").length,
+      notOk: values.filter((value) => value === "not_ok").length,
+      recorded: values.length,
+    };
+  }
+
   function studentWorkSummary(studentId: string, kind: WorkKind) {
     const items = weekItems.filter((item) => item.kind === kind);
     if (!items.length) return kind === "homework" ? "HW —" : "CW —";
@@ -492,33 +524,52 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     }, 1900);
   }
 
-  return <div className={styles.page}>
-    <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Stars</h1><p>Weekly rewards, homework and classwork records. Skulls remain only in this browser for today.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addWeek} type="button">＋ Add week</button></div></section>
+  return <div className={`${styles.page} ${embedded ? styles.embeddedPage : ""}`}>
+    {embedded ? <section className={styles.embeddedHeading} id="weekly-classroom"><div><p className="eyebrow">Live classroom workspace</p><h2>Weeks, Stars and class records</h2><p>Open a week to run the class, award Stars or Skulls, and update HW and CW.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addWeek} type="button">＋ Add week</button></div></section> : <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Stars</h1><p>Weekly rewards, homework and classwork records. Skulls remain only in this browser for today.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addWeek} type="button">＋ Add week</button></div></section>}
 
     <div className={`${styles.saveBanner} ${styles[saveState]}`} role="status"><span>{saveState === "saved" ? "✓" : saveState === "syncing" ? "↻" : "●"}</span><div><strong>{saveState === "saved" ? "Safe and saved" : saveState === "syncing" ? "Saving now" : "Browser safety copy active"}</strong><p>{saveMessage}</p></div>{queueSize(queue) > 0 && isOnline ? <button onClick={() => void flushQueue()} type="button">Retry now</button> : null}</div>
 
-    <section className={styles.controlRow}><label>Teaching week<select onChange={(event) => { const label = event.target.value; setSelectedWeek(label); setActiveWorkId(""); setNewWorkTitle(automaticWorkTitle(data, label, newWorkKind)); setNewWorkDate(localDateKey()); }} value={selectedWeek}>{data.weeks.map((week) => <option key={week.id} value={week.label}>{week.label}{week.focus ? ` — ${week.focus}` : ""}</option>)}</select></label><article><span>Class stars</span><strong>⭐ {classStars}</strong></article><article><span>Students</span><strong>{data.students.length}</strong></article><article><span>Skulls today</span><strong>💀 {skullTotal}</strong></article></section>
+    <section className={styles.weekAccordion} aria-label="Classroom weeks">
+      {data.weeks.map((week) => {
+        const expanded = openWeek === week.label;
+        const homework = weekSummary(week.label, "homework");
+        const classwork = weekSummary(week.label, "classwork");
+        const stars = data.students.reduce((sum, student) => sum + (student.totals[week.label] ?? 0), 0);
+        return <article className={`${styles.weekPanel} ${week.label === currentWeekLabel ? styles.currentWeekPanel : ""} ${expanded ? styles.openWeekPanel : ""}`} key={week.id}>
+          <button aria-controls={`week-${week.id}`} aria-expanded={expanded} className={styles.weekToggle} onClick={() => toggleWeek(week.label)} type="button">
+            <div className={styles.weekTitle}><b>{week.label}</b><span><strong>{week.focus || week.title || `Teaching week ${week.label}`}</strong><small>{week.label === currentWeekLabel ? "Current week" : "Click to open classroom"}</small></span></div>
+            <div className={styles.weekMetric}><span>Stars</span><strong>★ {stars}</strong></div>
+            <div className={styles.weekMetric}><span>Homework</span><strong>{homework.recorded ? `${homework.ok}/${homework.recorded} OK` : "—"}</strong><small>{homework.items} {homework.items === 1 ? "item" : "items"}{homework.late ? ` · ${homework.late} late` : ""}</small></div>
+            <div className={styles.weekMetric}><span>Classwork</span><strong>{classwork.recorded ? `${classwork.ok}/${classwork.recorded} OK` : "—"}</strong><small>{classwork.items} {classwork.items === 1 ? "item" : "items"}</small></div>
+            <i aria-hidden="true">⌄</i>
+          </button>
 
-    <div className={styles.workspace}>
-      <section className={styles.studentPanel}>
-        <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars sync to Supabase. Today’s skulls stay only on this device.</p></div><button onClick={() => { setSkulls({}); localStorage.removeItem(skullKey(data.classroom.id)); }} type="button">Reset today’s skulls</button></div>
-        <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind === "star" ? styles.starAwarded : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind !== "star" ? styles.skullMarked : ""}`} key={student.id}>
-          <div className={styles.studentIdentity}><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
-          <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 {skulls[student.id] ?? 0}/3</span></div>
-          <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={(skulls[student.id] ?? 0) >= 3} onClick={() => updateSkulls(student.id, (skulls[student.id] ?? 0) + 1)} type="button">＋ 💀</button>{(skulls[student.id] ?? 0) > 0 ? <button onClick={() => updateSkulls(student.id, 0)} type="button">Clear 💀</button> : null}</div>
-        </article>)}</div>
-      </section>
+          {expanded ? <div className={styles.weekPanelBody} id={`week-${week.id}`}>
+            <section className={styles.controlRow}><article><span>Open week</span><strong>{selectedWeek}</strong></article><article><span>Class stars</span><strong>⭐ {classStars}</strong></article><article><span>Students</span><strong>{data.students.length}</strong></article><article><span>Skulls today</span><strong>💀 {skullTotal}</strong></article></section>
 
-      <aside className={styles.sidebar}>
-        <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Random student</button><label>Teams<select disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
-        <section className={styles.timerCard}><span>Ready for Math</span><strong>{formatTimer(timer)}</strong><p>Backpacks away · laptops closed · notebook and pen out.</p><div><button onClick={openTimer} type="button">{timerRunning ? "Show timer" : "Open timer"}</button><button onClick={() => { setTimerRunning(false); setTimerDuration(60); setTimer(60); }} type="button">Reset</button></div></section>
-      </aside>
-    </div>
+            <div className={styles.workspace}>
+              <section className={styles.studentPanel}>
+                <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars sync to Supabase. Today’s skulls stay only on this device.</p></div><button onClick={() => { setSkulls({}); localStorage.removeItem(skullKey(data.classroom.id)); }} type="button">Reset today’s skulls</button></div>
+                <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind === "star" ? styles.starAwarded : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind !== "star" ? styles.skullMarked : ""}`} key={student.id}>
+                  <div className={styles.studentIdentity}><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
+                  <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 {skulls[student.id] ?? 0}/3</span></div>
+                  <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={(skulls[student.id] ?? 0) >= 3} onClick={() => updateSkulls(student.id, (skulls[student.id] ?? 0) + 1)} type="button">＋ 💀</button>{(skulls[student.id] ?? 0) > 0 ? <button onClick={() => updateSkulls(student.id, 0)} type="button">Clear 💀</button> : null}</div>
+                </article>)}</div>
+              </section>
 
-    <section className={styles.workSection}>
-      <div className={styles.sectionHeader}><div><p className="eyebrow">Weekly records</p><h2>Homework and classwork</h2><p>No ten-item limit: Jaguar can keep adding records throughout the week.</p></div></div>
-      <div className={styles.workCreator}><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select><input aria-label="Work title" maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} value={newWorkTitle} /><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /><button disabled={!newWorkTitle.trim()} onClick={addWorkItem} type="button">Add to {selectedWeek}</button></div>
-      {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork ? <div className={styles.statusTable}><header><div className={styles.workEditor}><label><span>Name</span><input maxLength={120} onBlur={() => editWorkItem(activeWork, { title: activeWork.title.trim() || `${activeWork.kind === "homework" ? "HW" : "CW"} ${activeWork.position}` }, true)} onChange={(event) => editWorkItem(activeWork, { title: event.target.value }, false)} value={activeWork.title} /></label><label><span>Date</span><input onChange={(event) => editWorkItem(activeWork, { activityDate: event.target.value || null }, true)} type="date" value={activeWork.activityDate || ""} /></label><small>{activeWork.kind === "homework" ? "OK / Not OK / Late" : "OK / Not OK"} · changes save automatically</small></div></header>{sortedStudents.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["ok", "not_ok", "late"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for {selectedWeek}.</p>}
+              <aside className={styles.sidebar}>
+                <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Random student</button><label>Teams<select disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
+                <section className={styles.timerCard}><span>Ready for Math</span><strong>{formatTimer(timer)}</strong><p>Backpacks away · laptops closed · notebook and pen out.</p><div><button onClick={openTimer} type="button">{timerRunning ? "Show timer" : "Open timer"}</button><button onClick={() => { setTimerRunning(false); setTimerDuration(60); setTimer(60); }} type="button">Reset</button></div></section>
+              </aside>
+            </div>
+
+            <section className={styles.workSection}>
+              <div className={styles.sectionHeader}><div><p className="eyebrow">Weekly records</p><h2>Homework and classwork</h2><p>Select a record to edit every student’s status. Changes save automatically.</p></div><button className={styles.workAddButton} onClick={() => setWorkCreatorOpen(true)} type="button">＋ Add HW / CW</button></div>
+              {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork ? <div className={styles.statusTable}><header><div className={styles.workEditor}><label><span>Name</span><input maxLength={120} onBlur={() => editWorkItem(activeWork, { title: activeWork.title.trim() || `${activeWork.kind === "homework" ? "HW" : "CW"} ${activeWork.position}` }, true)} onChange={(event) => editWorkItem(activeWork, { title: event.target.value }, false)} value={activeWork.title} /></label><label><span>Date</span><input onChange={(event) => editWorkItem(activeWork, { activityDate: event.target.value || null }, true)} type="date" value={activeWork.activityDate || ""} /></label><small>{activeWork.kind === "homework" ? "OK / Not OK / Late" : "OK / Not OK"} · changes save automatically</small></div></header>{sortedStudents.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["ok", "not_ok", "late"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for {selectedWeek}. Use Add HW / CW to create the first record.</p>}
+            </section>
+          </div> : null}
+        </article>;
+      })}
     </section>
 
     <section className={styles.importSection}>
@@ -528,6 +579,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
       {importMessage ? <p className={styles.importMessage} role="status">{importMessage}</p> : null}
       {importPreview ? <div className={styles.importReport}><div className={styles.reportStats}><article><span>Matched safely</span><strong>{importPreview.counts.matched}</strong></article><article><span>Needs review</span><strong>{importPreview.counts.ambiguous}</strong></article><article><span>Excel-only skipped</span><strong>{importPreview.counts.excelOnly}</strong></article><article><span>Jaguar-only</span><strong>{importPreview.counts.jaguarOnly}</strong></article></div><details open={importPreview.counts.ambiguous + importPreview.counts.excelOnly > 0}><summary>Matching report for {importPreview.sheetName}</summary><div className={styles.matchList}>{importPreview.matches.map((match) => <div className={styles[match.outcome]} key={match.excelName}><strong>{match.excelName}</strong><span>{match.outcome === "matched" ? `→ ${match.matchedStudentName} (${match.confidence}%)` : match.outcome === "ambiguous" ? `Needs review${match.suggestions?.length ? `: ${match.suggestions.join(" or ")}` : ""}` : "Not found in this Jaguar class — skipped"}</span><small>{match.reason}</small></div>)}{importPreview.missingFromWorkbook.map((student) => <div className={styles.jaguarOnly} key={student.studentName}><strong>{student.studentName}</strong><span>Existing Jaguar student, not found in Excel</span><small>Kept on the Stars page with no imported history.</small></div>)}</div></details></div> : null}
     </section>
+    {workCreatorOpen ? <div className={`${styles.popupBackdrop} ${styles.workBackdrop}`} role="presentation"><form aria-label={`Add homework or classwork to ${selectedWeek}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.workPopup}`} onSubmit={(event) => { event.preventDefault(); addWorkItem(); }} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setWorkCreatorOpen(false)} type="button">×</button><div aria-hidden="true" className={styles.workPopupIcon}>{newWorkKind === "homework" ? "HW" : "CW"}</div><p className={styles.popupEyebrow}>Week {selectedWeek}</p><h2>Add {newWorkKind === "homework" ? "homework" : "classwork"}</h2><p className={styles.popupHint}>Every student starts as OK. Open the new record afterward to mark Late, Not OK, or Clear.</p><div className={styles.workPopupFields}><label><span>Record type</span><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select></label><label><span>Title</span><input aria-label="Work title" autoFocus maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} required value={newWorkTitle} /></label><label><span>Activity date</span><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /></label></div><button className={styles.popupAction} disabled={!newWorkTitle.trim()} type="submit">Add to {selectedWeek}</button></form></div> : null}
     {utilityOverlay ? <UtilityPopup onClose={closeUtilityOverlay} onPickAgain={chooseRandomStudent} onRemix={makeTeams} onSetTimer={setClassTimer} onToggleTimer={() => timer === 0 ? setClassTimer(timerDuration) : setTimerRunning((value) => !value)} overlay={utilityOverlay} timer={timer} timerDuration={timerDuration} timerRunning={timerRunning} /> : null}
     {rewardEffect ? <RewardAnimation effect={rewardEffect} key={rewardEffect.id} onClose={closeReward} /> : null}
   </div>;
