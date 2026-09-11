@@ -1,0 +1,514 @@
+{
+  "versions": [
+    {
+      "questions": [
+        {
+          "prompt": "Calculate $\\frac{5}{12}+\\frac{1}{8}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "13", "numeric_tolerance": 0,
+          "explanation": "$\\frac{5}{12}=\\frac{10}{24}$ and $\\frac{1}{8}=\\frac{3}{24}$, so the sum is $\\frac{13}{24}$. Therefore, $a=13$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $\\frac{8}{15}\\times\\frac{9}{16}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the denominator $b$.",
+          "type": "numeric", "options": null, "correct_answer": "10", "numeric_tolerance": 0,
+          "explanation": "$\\frac{8}{15}\\times\\frac{9}{16}=\\frac{72}{240}=\\frac{3}{10}$. Therefore, $b=10$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $-8.6+2.3$.",
+          "type": "numeric", "options": null, "correct_answer": "-6.3", "numeric_tolerance": 0,
+          "explanation": "The numbers have different signs, so subtract their absolute values: $8.6-2.3=6.3$. The number with the greater absolute value is negative, so the answer is $-6.3$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $1.5\\times2$.",
+          "type": "numeric", "options": null, "correct_answer": "3", "numeric_tolerance": 0,
+          "explanation": "$15\\times2=30$, so $1.5\\times2=3$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{2}{5}+\\frac{3}{4}$, what should you do first?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Add the numerators and denominators separately" }, { "id": "B", "text": "Rewrite both fractions using a common denominator" }, { "id": "C", "text": "Multiply the fractions" }, { "id": "D", "text": "Flip the second fraction" }],
+          "correct_answer": "B", "numeric_tolerance": 0,
+          "explanation": "Fractions must have a common denominator before they can be added. Here, both fractions can be rewritten with denominator $20$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Evaluate $10-2(3-5)^2$.",
+          "type": "numeric", "options": null, "correct_answer": "2", "numeric_tolerance": 0,
+          "explanation": "First, $3-5=-2$. Then $(-2)^2=4$, so $10-2(4)=10-8=2$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $-2+\\frac{3}{4}\\times8$.",
+          "type": "numeric", "options": null, "correct_answer": "4", "numeric_tolerance": 0,
+          "explanation": "Multiply first: $\\frac{3}{4}\\times8=6$. Then $-2+6=4$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.7, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Find $30\\%$ of $70$.",
+          "type": "numeric", "options": null, "correct_answer": "21", "numeric_tolerance": 0,
+          "explanation": "$30\\%=0.30$, and $0.30\\times70=21$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A price is increased by $15\\%$. Which expression gives the new price if the original price is $P$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "$0.15P$" }, { "id": "B", "text": "$0.85P$" }, { "id": "C", "text": "$1.15P$" }, { "id": "D", "text": "$1.5P$" }],
+          "correct_answer": "C", "numeric_tolerance": 0,
+          "explanation": "The new price is $100\\%+15\\%=115\\%$ of the original price. Since $115\\%=1.15$, the expression is $1.15P$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "A bag costs $\\$50$ and is discounted by $30\\%$. Enter the new price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "35", "numeric_tolerance": 0,
+          "explanation": "The discount is $0.30\\times50=15$ dollars. The new price is $50-15=35$ dollars.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Red and blue counters are in the ratio $4:7$. There are $55$ counters altogether. Enter the number of blue counters.",
+          "type": "numeric", "options": null, "correct_answer": "35", "numeric_tolerance": 0,
+          "explanation": "There are $4+7=11$ equal parts. Each part is $55\\div11=5$ counters, so the number of blue counters is $7\\times5=35$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A recipe uses $5$ cups of flour for $12$ muffins. How many cups of flour are needed for $36$ muffins?",
+          "type": "numeric", "options": null, "correct_answer": "15", "numeric_tolerance": 0,
+          "explanation": "$36$ is $3$ times $12$, so multiply the flour by $3$: $5\\times3=15$ cups.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Estimate $302\\times19.8$ by using $300\\times20$. Enter the estimated product.",
+          "type": "numeric", "options": null, "correct_answer": "6000", "numeric_tolerance": 0,
+          "explanation": "$302$ is close to $300$ and $19.8$ is close to $20$. Therefore, $302\\times19.8\\approx300\\times20=6000$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{3}{4}\\div\\frac{2}{5}$, why can we multiply by $\\frac{5}{2}$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Dividing by a fraction is equivalent to multiplying by its reciprocal" }, { "id": "B", "text": "Fractions must always have the same denominator" }, { "id": "C", "text": "Multiplication and division always give the same answer" }, { "id": "D", "text": "The larger fraction must come first" }],
+          "correct_answer": "A", "numeric_tolerance": 0,
+          "explanation": "Dividing by a nonzero number is equivalent to multiplying by its reciprocal. The reciprocal of $\\frac{2}{5}$ is $\\frac{5}{2}$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Write $\\frac{13}{20}$ as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "0.65", "numeric_tolerance": 0,
+          "explanation": "$\\frac{13}{20}=\\frac{65}{100}=0.65$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "An item costs $\\$96$. It is discounted by $25\\%$, then $\\$8$ shipping is added. Enter the final price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "80", "numeric_tolerance": 0,
+          "explanation": "$25\\%$ of $96$ is $24$, so the discounted price is $96-24=72$ dollars. Adding $8$ dollars shipping gives $80$.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "The ratio of Group A to Group B is $2:3$. There are $50$ people altogether. Then $20\\%$ of Group B leave. Enter the number of people remaining in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "24", "numeric_tolerance": 0,
+          "explanation": "There are $2+3=5$ equal parts, so Group B begins with $\\frac{3}{5}\\times50=30$ people. Then $20\\%$ of $30$, or $6$, leave. Therefore, $30-6=24$ people remain.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A tank is $\\frac{7}{8}$ full. Then $\\frac{2}{7}$ of the water currently in the tank is used. The fraction of the whole tank remaining is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "5", "numeric_tolerance": 0,
+          "explanation": "After $\\frac{2}{7}$ is used, $\\frac{5}{7}$ of the water remains. Thus, $\\frac{5}{7}\\times\\frac{7}{8}=\\frac{5}{8}$ of the whole tank remains, so $a=5$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $\\frac{5}{6}\\div\\frac{5}{12}+2\\left(1-\\frac{1}{4}\\right)$. Enter your answer as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "3.5", "numeric_tolerance": 0,
+          "explanation": "$\\frac{5}{6}\\div\\frac{5}{12}=2$ and $2\\left(1-\\frac{1}{4}\\right)=1.5$. Therefore, the total is $3.5$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.6, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Fiction and nonfiction books are in the ratio $5:3$. There are $64$ books altogether. Then $\\frac{1}{5}$ of the fiction books and $25\\%$ of the nonfiction books are sold. Enter the total number of books remaining.",
+          "type": "numeric", "options": null, "correct_answer": "50", "numeric_tolerance": 0,
+          "explanation": "There are $40$ fiction and $24$ nonfiction books. After the sales, $32$ fiction and $18$ nonfiction books remain, for a total of $50$.",
+          "difficulty": 5, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.4, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }, { "code": "NUM.PERCENT", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        }
+      ]
+    },
+    {
+      "questions": [
+        {
+          "prompt": "Calculate $\\frac{7}{15}+\\frac{1}{6}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "19", "numeric_tolerance": 0,
+          "explanation": "$\\frac{7}{15}=\\frac{14}{30}$ and $\\frac{1}{6}=\\frac{5}{30}$, so the sum is $\\frac{19}{30}$. Therefore, $a=19$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $\\frac{6}{7}\\times\\frac{14}{15}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the denominator $b$.",
+          "type": "numeric", "options": null, "correct_answer": "5", "numeric_tolerance": 0,
+          "explanation": "$\\frac{6}{7}\\times\\frac{14}{15}=\\frac{84}{105}=\\frac{4}{5}$. Therefore, $b=5$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $-7.4+3.1$.",
+          "type": "numeric", "options": null, "correct_answer": "-4.3", "numeric_tolerance": 0,
+          "explanation": "$7.4-3.1=4.3$, and the number with the greater absolute value is negative, so the answer is $-4.3$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $1.2\\times3$.",
+          "type": "numeric", "options": null, "correct_answer": "3.6", "numeric_tolerance": 0,
+          "explanation": "$12\\times3=36$, so $1.2\\times3=3.6$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{3}{8}+\\frac{5}{6}$, what should you do first?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Flip the second fraction" }, { "id": "B", "text": "Multiply the fractions" }, { "id": "C", "text": "Add the numerators and denominators separately" }, { "id": "D", "text": "Rewrite both fractions using a common denominator" }],
+          "correct_answer": "D", "numeric_tolerance": 0,
+          "explanation": "Fractions must have a common denominator before they can be added. Here, both fractions can be rewritten with denominator $24$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Evaluate $12-3(4-6)^2$.",
+          "type": "numeric", "options": null, "correct_answer": "0", "numeric_tolerance": 0,
+          "explanation": "First, $4-6=-2$. Then $(-2)^2=4$, so $12-3(4)=0$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $-3+\\frac{5}{6}\\times12$.",
+          "type": "numeric", "options": null, "correct_answer": "7", "numeric_tolerance": 0,
+          "explanation": "Multiply first: $\\frac{5}{6}\\times12=10$. Then $-3+10=7$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.7, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Find $25\\%$ of $84$.",
+          "type": "numeric", "options": null, "correct_answer": "21", "numeric_tolerance": 0,
+          "explanation": "$25\\%=\\frac{1}{4}$, and one quarter of $84$ is $21$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A price is increased by $20\\%$. Which expression gives the new price if the original price is $P$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "$0.20P$" }, { "id": "B", "text": "$0.80P$" }, { "id": "C", "text": "$1.02P$" }, { "id": "D", "text": "$1.20P$" }],
+          "correct_answer": "D", "numeric_tolerance": 0,
+          "explanation": "$100\\%+20\\%=120\\%=1.20$, so the new price is $1.20P$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "A bag costs $\\$80$ and is discounted by $25\\%$. Enter the new price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "60", "numeric_tolerance": 0,
+          "explanation": "The discount is $\\frac{1}{4}\\times80=20$ dollars. The new price is $80-20=60$ dollars.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Red and blue counters are in the ratio $3:5$. There are $64$ counters altogether. Enter the number of blue counters.",
+          "type": "numeric", "options": null, "correct_answer": "40", "numeric_tolerance": 0,
+          "explanation": "There are $3+5=8$ equal parts. Each part is $64\\div8=8$, so the number of blue counters is $5\\times8=40$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A recipe uses $4$ cups of flour for $10$ muffins. How many cups of flour are needed for $30$ muffins?",
+          "type": "numeric", "options": null, "correct_answer": "12", "numeric_tolerance": 0,
+          "explanation": "$30$ is $3$ times $10$, so $4\\times3=12$ cups are needed.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Estimate $398\\times31.2$ by using $400\\times30$. Enter the estimated product.",
+          "type": "numeric", "options": null, "correct_answer": "12000", "numeric_tolerance": 0,
+          "explanation": "$398$ is close to $400$ and $31.2$ is close to $30$. Therefore, $398\\times31.2\\approx400\\times30=12000$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{2}{3}\\div\\frac{4}{7}$, why can we multiply by $\\frac{7}{4}$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Fractions must always have the same denominator" }, { "id": "B", "text": "The larger fraction must come first" }, { "id": "C", "text": "Dividing by a fraction is equivalent to multiplying by its reciprocal" }, { "id": "D", "text": "Multiplication and division always give the same answer" }],
+          "correct_answer": "C", "numeric_tolerance": 0,
+          "explanation": "The reciprocal of $\\frac{4}{7}$ is $\\frac{7}{4}$, and dividing by a nonzero fraction is equivalent to multiplying by its reciprocal.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Write $\\frac{7}{20}$ as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "0.35", "numeric_tolerance": 0,
+          "explanation": "$\\frac{7}{20}=\\frac{35}{100}=0.35$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "An item costs $\\$120$. It is discounted by $20\\%$, then $\\$9$ shipping is added. Enter the final price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "105", "numeric_tolerance": 0,
+          "explanation": "$20\\%$ of $120$ is $24$, so the discounted price is $96$. Adding $9$ shipping gives $105$.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "The ratio of Group A to Group B is $3:5$. There are $64$ people altogether. Then $25\\%$ of Group B leave. Enter the number of people remaining in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "30", "numeric_tolerance": 0,
+          "explanation": "Group B begins with $\\frac{5}{8}\\times64=40$ people. Then $25\\%$ of $40$, or $10$, leave, so $30$ remain.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A tank is $\\frac{5}{6}$ full. Then $\\frac{2}{5}$ of the water currently in the tank is used. The fraction of the whole tank remaining is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "1", "numeric_tolerance": 0,
+          "explanation": "$\\frac{3}{5}$ of the water remains, and $\\frac{3}{5}\\times\\frac{5}{6}=\\frac{1}{2}$ of the whole tank. Therefore, $a=1$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $\\frac{7}{8}\\div\\frac{7}{16}+5\\left(1-\\frac{1}{2}\\right)$. Enter your answer as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "4.5", "numeric_tolerance": 0,
+          "explanation": "$\\frac{7}{8}\\div\\frac{7}{16}=2$ and $5\\left(1-\\frac{1}{2}\\right)=2.5$. Therefore, the total is $4.5$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.6, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Fiction and nonfiction books are in the ratio $3:2$. There are $70$ books altogether. Then $\\frac{1}{7}$ of the fiction books and $25\\%$ of the nonfiction books are sold. Enter the total number of books remaining.",
+          "type": "numeric", "options": null, "correct_answer": "57", "numeric_tolerance": 0,
+          "explanation": "There are $42$ fiction and $28$ nonfiction books. After the sales, $36$ fiction and $21$ nonfiction books remain, for a total of $57$.",
+          "difficulty": 5, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.4, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }, { "code": "NUM.PERCENT", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        }
+      ]
+    },
+    {
+      "questions": [
+        {
+          "prompt": "Calculate $\\frac{7}{12}+\\frac{1}{10}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "41", "numeric_tolerance": 0,
+          "explanation": "$\\frac{7}{12}=\\frac{35}{60}$ and $\\frac{1}{10}=\\frac{6}{60}$, so the sum is $\\frac{41}{60}$. Therefore, $a=41$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $\\frac{10}{21}\\times\\frac{14}{25}$. Your answer is $\\frac{a}{b}$ in simplest form. Enter the denominator $b$.",
+          "type": "numeric", "options": null, "correct_answer": "15", "numeric_tolerance": 0,
+          "explanation": "$\\frac{10}{21}\\times\\frac{14}{25}=\\frac{140}{525}=\\frac{4}{15}$. Therefore, $b=15$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $-9.2+4.7$.",
+          "type": "numeric", "options": null, "correct_answer": "-4.5", "numeric_tolerance": 0,
+          "explanation": "$9.2-4.7=4.5$, and the number with the greater absolute value is negative, so the answer is $-4.5$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Calculate $2.5\\times4$.",
+          "type": "numeric", "options": null, "correct_answer": "10", "numeric_tolerance": 0,
+          "explanation": "$25\\times4=100$, so $2.5\\times4=10$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{5}{12}+\\frac{2}{9}$, what should you do first?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Rewrite both fractions using a common denominator" }, { "id": "B", "text": "Flip the second fraction" }, { "id": "C", "text": "Add the numerators and denominators separately" }, { "id": "D", "text": "Multiply the fractions" }],
+          "correct_answer": "A", "numeric_tolerance": 0,
+          "explanation": "Fractions must have a common denominator before they can be added. Here, both fractions can be rewritten with denominator $36$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Evaluate $15-2(6-3)^2$.",
+          "type": "numeric", "options": null, "correct_answer": "-3", "numeric_tolerance": 0,
+          "explanation": "First, $6-3=3$. Then $3^2=9$, so $15-2(9)=-3$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $-4+\\frac{2}{5}\\times15$.",
+          "type": "numeric", "options": null, "correct_answer": "2", "numeric_tolerance": 0,
+          "explanation": "Multiply first: $\\frac{2}{5}\\times15=6$. Then $-4+6=2$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.7, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Find $40\\%$ of $65$.",
+          "type": "numeric", "options": null, "correct_answer": "26", "numeric_tolerance": 0,
+          "explanation": "$40\\%=0.4$, and $0.4\\times65=26$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A price is increased by $8\\%$. Which expression gives the new price if the original price is $P$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "$0.08P$" }, { "id": "B", "text": "$1.08P$" }, { "id": "C", "text": "$0.92P$" }, { "id": "D", "text": "$1.8P$" }],
+          "correct_answer": "B", "numeric_tolerance": 0,
+          "explanation": "$100\\%+8\\%=108\\%=1.08$, so the new price is $1.08P$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "A bag costs $\\$60$ and is discounted by $20\\%$. Enter the new price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "48", "numeric_tolerance": 0,
+          "explanation": "The discount is $0.20\\times60=12$ dollars. The new price is $60-12=48$ dollars.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Red and blue counters are in the ratio $5:4$. There are $72$ counters altogether. Enter the number of blue counters.",
+          "type": "numeric", "options": null, "correct_answer": "32", "numeric_tolerance": 0,
+          "explanation": "There are $5+4=9$ equal parts. Each part is $72\\div9=8$, so the number of blue counters is $4\\times8=32$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A recipe uses $3$ cups of flour for $8$ muffins. How many cups of flour are needed for $40$ muffins?",
+          "type": "numeric", "options": null, "correct_answer": "15", "numeric_tolerance": 0,
+          "explanation": "$40$ is $5$ times $8$, so $3\\times5=15$ cups are needed.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Estimate $603\\times9.7$ by using $600\\times10$. Enter the estimated product.",
+          "type": "numeric", "options": null, "correct_answer": "6000", "numeric_tolerance": 0,
+          "explanation": "$603$ is close to $600$ and $9.7$ is close to $10$. Therefore, $603\\times9.7\\approx600\\times10=6000$.",
+          "difficulty": 1, "points": 5,
+          "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "To calculate $\\frac{5}{8}\\div\\frac{3}{10}$, why can we multiply by $\\frac{10}{3}$?",
+          "type": "multiple_choice",
+          "options": [{ "id": "A", "text": "Multiplication and division always give the same answer" }, { "id": "B", "text": "Dividing by a fraction is equivalent to multiplying by its reciprocal" }, { "id": "C", "text": "The larger fraction must come first" }, { "id": "D", "text": "Fractions must always have the same denominator" }],
+          "correct_answer": "B", "numeric_tolerance": 0,
+          "explanation": "The reciprocal of $\\frac{3}{10}$ is $\\frac{10}{3}$, and dividing by a nonzero fraction is equivalent to multiplying by its reciprocal.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "ARGUMENTACION"
+        },
+        {
+          "prompt": "Write $\\frac{9}{25}$ as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "0.36", "numeric_tolerance": 0,
+          "explanation": "$\\frac{9}{25}=\\frac{36}{100}=0.36$.",
+          "difficulty": 2, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "INTERPRETACION_REPRESENTACION"
+        },
+        {
+          "prompt": "An item costs $\\$84$. It is discounted by $25\\%$, then $\\$7$ shipping is added. Enter the final price in dollars.",
+          "type": "numeric", "options": null, "correct_answer": "70", "numeric_tolerance": 0,
+          "explanation": "$25\\%$ of $84$ is $21$, so the discounted price is $63$. Adding $7$ shipping gives $70$.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "The ratio of Group A to Group B is $4:5$. There are $72$ people altogether. Then $15\\%$ of Group B leave. Enter the number of people remaining in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "34", "numeric_tolerance": 0,
+          "explanation": "Group B begins with $\\frac{5}{9}\\times72=40$ people. Then $15\\%$ of $40$, or $6$, leave, so $34$ remain.",
+          "difficulty": 3, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "A tank is $\\frac{9}{10}$ full. Then $\\frac{1}{3}$ of the water currently in the tank is used. The fraction of the whole tank remaining is $\\frac{a}{b}$ in simplest form. Enter the numerator $a$.",
+          "type": "numeric", "options": null, "correct_answer": "3", "numeric_tolerance": 0,
+          "explanation": "$\\frac{2}{3}$ of the water remains, and $\\frac{2}{3}\\times\\frac{9}{10}=\\frac{3}{5}$ of the whole tank. Therefore, $a=3$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Evaluate $\\frac{2}{3}\\div\\frac{4}{9}+4\\left(1-\\frac{1}{2}\\right)$. Enter your answer as a decimal.",
+          "type": "numeric", "options": null, "correct_answer": "3.5", "numeric_tolerance": 0,
+          "explanation": "$\\frac{2}{3}\\div\\frac{4}{9}=1.5$ and $4\\left(1-\\frac{1}{2}\\right)=2$. Therefore, the total is $3.5$.",
+          "difficulty": 4, "points": 5,
+          "skills": [{ "code": "NUM.ORDER_OPS", "weight": 0.6, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.4, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        },
+        {
+          "prompt": "Fiction and nonfiction books are in the ratio $7:5$. There are $72$ books altogether. Then $\\frac{1}{7}$ of the fiction books and $20\\%$ of the nonfiction books are sold. Enter the total number of books remaining.",
+          "type": "numeric", "options": null, "correct_answer": "60", "numeric_tolerance": 0,
+          "explanation": "There are $42$ fiction and $30$ nonfiction books. After the sales, $36$ fiction and $24$ nonfiction books remain, for a total of $60$.",
+          "difficulty": 5, "points": 5,
+          "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.4, "is_primary": true }, { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }, { "code": "NUM.PERCENT", "weight": 0.3, "is_primary": false }],
+          "icfes_competency": "FORMULACION_EJECUCION"
+        }
+      ]
+    }
+  ]
+}
