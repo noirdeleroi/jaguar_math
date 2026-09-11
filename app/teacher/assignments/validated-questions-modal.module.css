@@ -2,8 +2,25 @@
   width: min(1480px, 100%);
 }
 
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 10px 18px;
+}
+
 .header h2 {
-  font-size: clamp(30px, 3vw, 40px);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.headerCopy > :global(.eyebrow) {
+  display: none;
+}
+
+.headerCopy > p:last-child {
+  margin-top: 4px;
+  font-size: 12px;
 }
 
 .headerActions {
@@ -13,8 +30,16 @@
 }
 
 .proofToggle {
-  min-height: 38px;
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 12px;
   white-space: nowrap;
+}
+
+.header :global(.validated-modal-close) {
+  width: 34px;
+  height: 34px;
+  font-size: 23px;
 }
 
 .body > :global(.validated-question-nav) {
@@ -85,6 +110,134 @@
 
 .editorGrid:first-child {
   grid-row: 1 / -1;
+}
+
+.comparisonViewport {
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+  background: #ebe6dc;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.comparisonGrid {
+  display: grid;
+  gap: 12px;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.comparisonCard {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  align-content: start;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #d4ccbf;
+  border-radius: 7px;
+  background: #fffdf7;
+  box-shadow: 0 8px 20px #17342e0c;
+}
+
+.comparisonCard > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #ded8cd;
+}
+
+.comparisonCard > header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comparisonCard > header span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #31554b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.comparisonCard > header strong {
+  color: #31554b;
+  font-size: 13px;
+}
+
+.comparisonCard > header small {
+  color: #607970;
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.comparisonPrompt {
+  padding: 20px 0;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.comparisonOptions {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.comparisonOptions > div {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 7px;
+  padding: 8px 9px;
+  border: 1px solid #e0dbd2;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.comparisonOptions b {
+  color: #31554b;
+}
+
+.comparisonKey {
+  align-self: end;
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #ded8cd;
+}
+
+.comparisonKey > div {
+  display: grid;
+  gap: 5px;
+}
+
+.comparisonKey span {
+  color: #607970;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.comparisonKey strong,
+.comparisonKey p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.comparisonKey strong > b {
+  color: #31554b;
 }
 
 .proofViewport {
@@ -241,9 +394,17 @@
 }
 
 @media (max-width: 900px) {
+  .header {
+    padding: 9px 14px;
+  }
+
+  .headerCopy > p:last-child {
+    display: none;
+  }
+
   .headerActions {
-    align-items: flex-end;
-    flex-direction: column-reverse;
+    align-items: center;
+    flex-direction: row;
   }
 
   .workspace {
@@ -266,6 +427,10 @@
 }
 
 @media (max-width: 560px) {
+  .header h2 {
+    font-size: 21px;
+  }
+
   .headerActions {
     gap: 7px;
   }

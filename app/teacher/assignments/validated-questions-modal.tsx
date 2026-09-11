@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import MathText from "@/app/components/math-text";
 import type { ImportedQuestion } from "@/lib/assignment-import";
 import styles from "./validated-questions-modal.module.css";
@@ -23,8 +23,9 @@ export default function ValidatedQuestionsModal({
   onClose,
 }: Props) {
   const [selected, setSelected] = useState(0);
-  const [variant, setVariant] = useState(0);
+  const [versionView, setVersionView] = useState<number | "all">(0);
   const [mode, setMode] = useState<ReviewMode>("edit");
+  const variant = typeof versionView === "number" ? versionView : 0;
   const questions = groups.map((group) => group[0]);
   const question = groups[selected][variant];
 
@@ -61,7 +62,7 @@ export default function ValidatedQuestionsModal({
 
   const selectQuestion = (index: number) => {
     setSelected(index);
-    setVariant(0);
+    if (versionView !== "all") setVersionView(0);
   };
 
   return (
@@ -76,12 +77,10 @@ export default function ValidatedQuestionsModal({
     >
       <section className={`validated-modal ${styles.modal}`}>
         <header className={`validated-modal-header ${styles.header}`}>
-          <div>
+          <div className={styles.headerCopy}>
             <p className="eyebrow">Assignment review</p>
             <h2 id="validated-questions-title">
-              {mode === "edit"
-                ? "Review question versions"
-                : "Full test proof"}
+              {mode === "edit" ? "Question review" : "Full test proof"}
             </h2>
             <p>
               {mode === "edit"
@@ -145,183 +144,204 @@ export default function ValidatedQuestionsModal({
                   <span>Question version</span>
                   {groups[selected].map((_, index) => (
                     <button
-                      aria-current={index === variant ? "page" : undefined}
                       aria-label={`Version ${index + 1}`}
-                      className={index === variant ? styles.activeVersion : ""}
+                      aria-pressed={versionView === index}
+                      className={
+                        versionView === index ? styles.activeVersion : ""
+                      }
                       key={index}
-                      onClick={() => setVariant(index)}
+                      onClick={() => setVersionView(index)}
                       type="button"
                     >
                       V{index + 1}
                     </button>
                   ))}
+                  <button
+                    aria-pressed={versionView === "all"}
+                    className={
+                      versionView === "all" ? styles.activeVersion : ""
+                    }
+                    onClick={() => setVersionView("all")}
+                    type="button"
+                  >
+                    All
+                  </button>
                 </nav>
               )}
 
-              <div className={styles.editorGrid}>
-                <section className="question-source-pane">
-                  <div className="pane-heading">
-                    <span>Editable source · Version {variant + 1}</span>
-                    <small>LaTeX and answer key</small>
-                  </div>
-                  <label>
-                    Prompt source (LaTeX)
-                    <textarea
-                      onChange={(event) =>
-                        onUpdate(selected, variant, {
-                          prompt: event.target.value,
-                        })
-                      }
-                      rows={5}
-                      value={question.prompt}
-                    />
-                  </label>
-                  {question.options && (
-                    <fieldset className="source-options">
-                      <legend>Option source (LaTeX)</legend>
-                      {question.options.map((option, index) => (
-                        <label key={option.id}>
-                          <span>{option.id}</span>
-                          <input
-                            onChange={(event) =>
-                              updateOption(index, event.target.value)
-                            }
-                            value={option.text}
-                          />
-                        </label>
-                      ))}
-                    </fieldset>
-                  )}
-                  <div className="assessment-fields compact-fields">
+              {versionView === "all" ? (
+                <VersionComparison
+                  questionNumber={selected + 1}
+                  questions={groups[selected]}
+                />
+              ) : (
+                <div className={styles.editorGrid}>
+                  <section className="question-source-pane">
+                    <div className="pane-heading">
+                      <span>Editable source · Version {variant + 1}</span>
+                      <small>LaTeX and answer key</small>
+                    </div>
                     <label>
-                      Difficulty
-                      <input
-                        max="5"
-                        min="1"
+                      Prompt source (LaTeX)
+                      <textarea
                         onChange={(event) =>
                           onUpdate(selected, variant, {
-                            difficulty: Number(event.target.value),
+                            prompt: event.target.value,
                           })
                         }
-                        type="number"
-                        value={question.difficulty}
+                        rows={5}
+                        value={question.prompt}
                       />
                     </label>
-                    <label>
-                      Points
-                      <input
-                        min="0.1"
-                        onChange={(event) =>
-                          onUpdate(selected, variant, {
-                            points: Number(event.target.value),
-                          })
-                        }
-                        step="0.1"
-                        type="number"
-                        value={question.points}
-                      />
-                    </label>
-                    <label>
-                      Correct answer
-                      <input
-                        onChange={(event) =>
-                          onUpdate(selected, variant, {
-                            correct_answer: event.target.value,
-                          })
-                        }
-                        value={question.correct_answer}
-                      />
-                    </label>
-                    {question.type === "numeric" && (
+                    {question.options && (
+                      <fieldset className="source-options">
+                        <legend>Option source (LaTeX)</legend>
+                        {question.options.map((option, index) => (
+                          <label key={option.id}>
+                            <span>{option.id}</span>
+                            <input
+                              onChange={(event) =>
+                                updateOption(index, event.target.value)
+                              }
+                              value={option.text}
+                            />
+                          </label>
+                        ))}
+                      </fieldset>
+                    )}
+                    <div className="assessment-fields compact-fields">
                       <label>
-                        Numeric tolerance
+                        Difficulty
                         <input
-                          min="0"
+                          max="5"
+                          min="1"
                           onChange={(event) =>
                             onUpdate(selected, variant, {
-                              numeric_tolerance: Number(event.target.value),
+                              difficulty: Number(event.target.value),
                             })
                           }
-                          step="0.01"
                           type="number"
-                          value={question.numeric_tolerance}
+                          value={question.difficulty}
                         />
                       </label>
-                    )}
-                  </div>
-                  <label>
-                    Jaguar skills (comma-separated codes)
-                    <input
-                      onChange={(event) => updateSkills(event.target.value)}
-                      value={question.skills
-                        .map((skill) => skill.code)
-                        .join(", ")}
-                    />
-                  </label>
-                  <label>
-                    Explanation / solution source (LaTeX)
-                    <textarea
-                      onChange={(event) =>
-                        onUpdate(selected, variant, {
-                          explanation: event.target.value || null,
-                        })
-                      }
-                      rows={5}
-                      value={question.explanation ?? ""}
-                    />
-                  </label>
-                </section>
-
-                <section className="student-question-preview">
-                  <div className="pane-heading">
-                    <span>Student presentation · Version {variant + 1}</span>
-                    <small>Teacher-only answer key shown below</small>
-                  </div>
-                  <article>
-                    <div className="question-number">
-                      Question {selected + 1} · {question.points}{" "}
-                      {question.points === 1 ? "point" : "points"}
-                    </div>
-                    <div className="question-prompt">
-                      <MathText>
-                        {question.prompt || "Add a question prompt."}
-                      </MathText>
-                    </div>
-                    {question.type === "multiple_choice" ? (
-                      <div className="answer-options">
-                        {question.options?.map((option) => (
-                          <div key={option.id}>
-                            <b>{option.id}</b>
-                            <MathText>{option.text}</MathText>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <label className="answer-text">
-                        Your answer
+                      <label>
+                        Points
                         <input
-                          disabled
-                          placeholder={
-                            question.type === "numeric"
-                              ? "Enter a number"
-                              : "Type your answer"
+                          min="0.1"
+                          onChange={(event) =>
+                            onUpdate(selected, variant, {
+                              points: Number(event.target.value),
+                            })
                           }
+                          step="0.1"
+                          type="number"
+                          value={question.points}
                         />
                       </label>
-                    )}
-                    <div className="teacher-answer-preview">
-                      <span>Correct answer</span>
-                      <MathText>{question.correct_answer || "Not set"}</MathText>
+                      <label>
+                        Correct answer
+                        <input
+                          onChange={(event) =>
+                            onUpdate(selected, variant, {
+                              correct_answer: event.target.value,
+                            })
+                          }
+                          value={question.correct_answer}
+                        />
+                      </label>
+                      {question.type === "numeric" && (
+                        <label>
+                          Numeric tolerance
+                          <input
+                            min="0"
+                            onChange={(event) =>
+                              onUpdate(selected, variant, {
+                                numeric_tolerance: Number(event.target.value),
+                              })
+                            }
+                            step="0.01"
+                            type="number"
+                            value={question.numeric_tolerance}
+                          />
+                        </label>
+                      )}
                     </div>
-                    {question.explanation && (
-                      <div className="teacher-solution-preview">
-                        <span>Solution</span>
-                        <MathText>{question.explanation}</MathText>
+                    <label>
+                      Jaguar skills (comma-separated codes)
+                      <input
+                        onChange={(event) => updateSkills(event.target.value)}
+                        value={question.skills
+                          .map((skill) => skill.code)
+                          .join(", ")}
+                      />
+                    </label>
+                    <label>
+                      Explanation / solution source (LaTeX)
+                      <textarea
+                        onChange={(event) =>
+                          onUpdate(selected, variant, {
+                            explanation: event.target.value || null,
+                          })
+                        }
+                        rows={5}
+                        value={question.explanation ?? ""}
+                      />
+                    </label>
+                  </section>
+
+                  <section className="student-question-preview">
+                    <div className="pane-heading">
+                      <span>Student presentation · Version {variant + 1}</span>
+                      <small>Teacher-only answer key shown below</small>
+                    </div>
+                    <article>
+                      <div className="question-number">
+                        Question {selected + 1} · {question.points}{" "}
+                        {question.points === 1 ? "point" : "points"}
                       </div>
-                    )}
-                  </article>
-                </section>
-              </div>
+                      <div className="question-prompt">
+                        <MathText>
+                          {question.prompt || "Add a question prompt."}
+                        </MathText>
+                      </div>
+                      {question.type === "multiple_choice" ? (
+                        <div className="answer-options">
+                          {question.options?.map((option) => (
+                            <div key={option.id}>
+                              <b>{option.id}</b>
+                              <MathText>{option.text}</MathText>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <label className="answer-text">
+                          Your answer
+                          <input
+                            disabled
+                            placeholder={
+                              question.type === "numeric"
+                                ? "Enter a number"
+                                : "Type your answer"
+                            }
+                          />
+                        </label>
+                      )}
+                      <div className="teacher-answer-preview">
+                        <span>Correct answer</span>
+                        <MathText>
+                          {question.correct_answer || "Not set"}
+                        </MathText>
+                      </div>
+                      {question.explanation && (
+                        <div className="teacher-solution-preview">
+                          <span>Solution</span>
+                          <MathText>{question.explanation}</MathText>
+                        </div>
+                      )}
+                    </article>
+                  </section>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -329,8 +349,10 @@ export default function ValidatedQuestionsModal({
         {mode === "edit" && (
           <footer className="validated-modal-footer">
             <span>
-              Question {selected + 1} of {questions.length} · Version{" "}
-              {variant + 1} of {groups[selected].length}
+              Question {selected + 1} of {questions.length} ·{" "}
+              {versionView === "all"
+                ? `Comparing all ${groups[selected].length} versions`
+                : `Version ${variant + 1} of ${groups[selected].length}`}
             </span>
             <div>
               <button
@@ -353,6 +375,79 @@ export default function ValidatedQuestionsModal({
           </footer>
         )}
       </section>
+    </div>
+  );
+}
+
+function VersionComparison({
+  questions,
+  questionNumber,
+}: {
+  questions: ImportedQuestion[];
+  questionNumber: number;
+}) {
+  const gridStyle: CSSProperties = {
+    gridTemplateColumns: `repeat(${questions.length}, minmax(280px, 1fr))`,
+  };
+
+  return (
+    <div className={styles.comparisonViewport}>
+      <div className={styles.comparisonGrid} style={gridStyle}>
+        {questions.map((question, versionIndex) => {
+          const correctOption = question.options?.find(
+            (option) => option.id === question.correct_answer,
+          );
+
+          return (
+            <article className={styles.comparisonCard} key={versionIndex}>
+              <header>
+                <div>
+                  <span>V{versionIndex + 1}</span>
+                  <strong>Version {versionIndex + 1}</strong>
+                </div>
+                <small>
+                  Q{questionNumber} · {question.points}{" "}
+                  {question.points === 1 ? "point" : "points"}
+                </small>
+              </header>
+              <div className={styles.comparisonPrompt}>
+                <MathText>{question.prompt}</MathText>
+              </div>
+              {question.options && (
+                <div className={styles.comparisonOptions}>
+                  {question.options.map((option) => (
+                    <div key={option.id}>
+                      <b>{option.id}</b>
+                      <MathText>{option.text}</MathText>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className={styles.comparisonKey}>
+                <div>
+                  <span>Answer</span>
+                  <strong>
+                    {correctOption && <b>{correctOption.id} · </b>}
+                    <MathText>
+                      {correctOption?.text ?? question.correct_answer}
+                    </MathText>
+                  </strong>
+                </div>
+                <div>
+                  <span>Solution</span>
+                  <p>
+                    {question.explanation ? (
+                      <MathText>{question.explanation}</MathText>
+                    ) : (
+                      "No solution provided."
+                    )}
+                  </p>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -384,10 +479,7 @@ function AllQuestionsProof({ groups }: { groups: ImportedQuestion[][] }) {
                 );
 
                 return (
-                  <article
-                    className={styles.proofQuestion}
-                    key={questionIndex}
-                  >
+                  <article className={styles.proofQuestion} key={questionIndex}>
                     <div className={styles.proofQuestionHeading}>
                       <span>Question {questionIndex + 1}</span>
                       <small>
