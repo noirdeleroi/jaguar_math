@@ -236,3 +236,21 @@
   font-weight: 500;
   line-height: 1.4;
 }
+
+.dashboard-current-week-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.dashboard-current-week-link:hover {
+  color: var(--coral);
+}
+
+.dashboard-current-week-link b {
+  font-size: 16px;
+}
