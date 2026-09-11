@@ -79,9 +79,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "A bag costs $\\$50$ and is discounted by $30\\%$. Enter the new price in dollars.",
+          "prompt": "A bag costs 50 USD and is discounted by $30\\%$. Enter the new price in USD.",
           "type": "numeric", "options": null, "correct_answer": "35", "numeric_tolerance": 0,
-          "explanation": "The discount is $0.30\\times50=15$ dollars. The new price is $50-15=35$ dollars.",
+          "explanation": "The discount is $0.30\\times50=15$ USD. The new price is $50-15=35$ USD.",
           "difficulty": 1, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
@@ -129,9 +129,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs $\\$96$. It is discounted by $25\\%$, then $\\$8$ shipping is added. Enter the final price in dollars.",
+          "prompt": "An item costs 96 USD. It is discounted by $25\\%$, then 8 USD shipping is added. Enter the final price in USD.",
           "type": "numeric", "options": null, "correct_answer": "80", "numeric_tolerance": 0,
-          "explanation": "$25\\%$ of $96$ is $24$, so the discounted price is $96-24=72$ dollars. Adding $8$ dollars shipping gives $80$.",
+          "explanation": "$25\\%$ of $96$ is $24$, so the discounted price is $96-24=72$ USD. Adding 8 USD shipping gives $80$ USD.",
           "difficulty": 3, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
@@ -249,9 +249,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "A bag costs $\\$80$ and is discounted by $25\\%$. Enter the new price in dollars.",
+          "prompt": "A bag costs 80 USD and is discounted by $25\\%$. Enter the new price in USD.",
           "type": "numeric", "options": null, "correct_answer": "60", "numeric_tolerance": 0,
-          "explanation": "The discount is $\\frac{1}{4}\\times80=20$ dollars. The new price is $80-20=60$ dollars.",
+          "explanation": "The discount is $\\frac{1}{4}\\times80=20$ USD. The new price is $80-20=60$ USD.",
           "difficulty": 1, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
@@ -299,9 +299,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs $\\$120$. It is discounted by $20\\%$, then $\\$9$ shipping is added. Enter the final price in dollars.",
+          "prompt": "An item costs 120 USD. It is discounted by $20\\%$, then 9 USD shipping is added. Enter the final price in USD.",
           "type": "numeric", "options": null, "correct_answer": "105", "numeric_tolerance": 0,
-          "explanation": "$20\\%$ of $120$ is $24$, so the discounted price is $96$. Adding $9$ shipping gives $105$.",
+          "explanation": "$20\\%$ of $120$ is $24$, so the discounted price is $96$ USD. Adding 9 USD shipping gives $105$ USD.",
           "difficulty": 3, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
@@ -419,9 +419,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "A bag costs $\\$60$ and is discounted by $20\\%$. Enter the new price in dollars.",
+          "prompt": "A bag costs 60 USD and is discounted by $20\\%$. Enter the new price in USD.",
           "type": "numeric", "options": null, "correct_answer": "48", "numeric_tolerance": 0,
-          "explanation": "The discount is $0.20\\times60=12$ dollars. The new price is $60-12=48$ dollars.",
+          "explanation": "The discount is $0.20\\times60=12$ USD. The new price is $60-12=48$ USD.",
           "difficulty": 1, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
@@ -469,9 +469,9 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs $\\$84$. It is discounted by $25\\%$, then $\\$7$ shipping is added. Enter the final price in dollars.",
+          "prompt": "An item costs 84 USD. It is discounted by $25\\%$, then 7 USD shipping is added. Enter the final price in USD.",
           "type": "numeric", "options": null, "correct_answer": "70", "numeric_tolerance": 0,
-          "explanation": "$25\\%$ of $84$ is $21$, so the discounted price is $63$. Adding $7$ shipping gives $70$.",
+          "explanation": "$25\\%$ of $84$ is $21$, so the discounted price is $63$ USD. Adding 7 USD shipping gives $70$ USD.",
           "difficulty": 3, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
