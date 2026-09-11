@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import styles from "./stars.module.css";
@@ -14,6 +14,13 @@ type ImportPreview = {
   matches: MatchRow[];
   missingFromWorkbook: Array<{ studentName: string }>;
 };
+type UtilityOverlay =
+  | { kind: "randomizer"; phase: "spinning" | "result"; name: string }
+  | { kind: "teams"; phase: "mixing" | "result"; teams: string[][]; previewNames: string[] }
+  | { kind: "timer" };
+type RewardEffect = { id: string; kind: "star" | "skull" | "death"; studentId: string; studentName: string };
+
+const rewardParticles = Array.from({ length: 18 }, (_, index) => index);
 
 const emptyQueue = (): ClassroomSyncPayload => ({ weeks: [], starEvents: [], workItems: [], workStatuses: [] });
 const queueSize = (queue: ClassroomSyncPayload) => queue.weeks.length + queue.starEvents.length + queue.workItems.length + queue.workStatuses.length;
@@ -128,6 +135,72 @@ function shuffle<T>(values: T[]) {
   return result;
 }
 
+function formatTimer(value: number) {
+  return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
+}
+
+function UtilityPopup({ overlay, timer, timerDuration, timerRunning, onClose, onPickAgain, onRemix, onSetTimer, onToggleTimer }: {
+  overlay: UtilityOverlay;
+  timer: number;
+  timerDuration: number;
+  timerRunning: boolean;
+  onClose: () => void;
+  onPickAgain: () => void;
+  onRemix: () => void;
+  onSetTimer: (seconds: number) => void;
+  onToggleTimer: () => void;
+}) {
+  const timerStyle = { "--timer-progress": `${timerDuration ? Math.max(0, Math.min(1, timer / timerDuration)) * 360 : 0}deg` } as CSSProperties;
+  return <div className={`${styles.popupBackdrop} ${styles[`${overlay.kind}Backdrop`]}`} role="presentation">
+    <section aria-label={overlay.kind === "randomizer" ? "Random student picker" : overlay.kind === "teams" ? "Random teams" : "Ready for class timer"} aria-modal="true" className={`${styles.classroomPopup} ${styles[`${overlay.kind}Popup`]}`} role="dialog">
+      <button aria-label="Close popup" className={styles.popupClose} onClick={onClose} type="button">×</button>
+      {overlay.kind === "randomizer" ? <>
+        <div aria-hidden="true" className={styles.randomizerOrbit}><span>?</span><i /><i /><i /></div>
+        <p className={styles.popupEyebrow}>{overlay.phase === "spinning" ? "The wheel is choosing…" : "You’re up!"}</p>
+        <strong className={`${styles.rouletteName} ${overlay.phase === "result" ? styles.rouletteWinner : ""}`}>{overlay.name}</strong>
+        <p className={styles.popupHint}>{overlay.phase === "spinning" ? "Every name has a chance." : "The classroom has spoken."}</p>
+        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onPickAgain} type="button">🎲 Pick again</button> : <div aria-label="Choosing a student" className={styles.pickerTrack} role="progressbar"><span /></div>}
+      </> : null}
+      {overlay.kind === "teams" ? <>
+        <div className={`${styles.teamMixer} ${overlay.phase === "mixing" ? styles.teamMixerActive : ""}`}>
+          {overlay.phase === "mixing" ? <div className={styles.mixingDeck} aria-label="Mixing teams">{overlay.previewNames.map((name, index) => <span key={`${name}-${index}`} style={{ "--mix-index": index } as CSSProperties}>{firstName(name)}</span>)}</div> : <div className={styles.teamResultGrid}>{overlay.teams.map((team, index) => <article key={index}><span>Team {index + 1}</span><strong>{team.map(firstName).join(" · ") || "—"}</strong></article>)}</div>}
+        </div>
+        <p className={styles.popupEyebrow}>{overlay.phase === "mixing" ? "Shuffling the class…" : "Teams are ready!"}</p>
+        <h2>{overlay.phase === "mixing" ? "Mix. Flip. Reveal." : `${overlay.teams.length} balanced teams`}</h2>
+        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onRemix} type="button">↻ Mix again</button> : <div aria-label="Mixing teams" className={styles.pickerTrack} role="progressbar"><span /></div>}
+      </> : null}
+      {overlay.kind === "timer" ? <>
+        <p className={styles.popupEyebrow}>{timer === 0 ? "Class is ready" : "Ready for Math"}</p>
+        <div className={`${styles.timerDial} ${timerRunning ? styles.timerDialRunning : ""} ${timer === 0 ? styles.timerComplete : ""}`} style={timerStyle}><div><strong>{timer === 0 ? "READY!" : formatTimer(timer)}</strong><span>{timer === 0 ? "Let’s begin" : timerRunning ? "Get set…" : "Paused"}</span></div></div>
+        <h2>{timer === 0 ? "Eyes front. Let’s go!" : "Backpacks away · laptops closed"}</h2>
+        <p className={styles.popupHint}>Notebook and pen out. Everything else away.</p>
+        <div className={styles.timerPresets}><button onClick={() => onSetTimer(60)} type="button">1 min</button><button onClick={() => onSetTimer(120)} type="button">2 min</button><button onClick={() => onSetTimer(300)} type="button">5 min</button></div>
+        <button className={styles.popupAction} onClick={onToggleTimer} type="button">{timerRunning ? "Pause timer" : timer === 0 ? "Restart timer" : "Start timer"}</button>
+      </> : null}
+    </section>
+  </div>;
+}
+
+function RewardAnimation({ effect, onClose }: { effect: RewardEffect; onClose: () => void }) {
+  if (effect.kind === "death") return <div className={styles.deathBackdrop} role="alertdialog" aria-label={`${effect.studentName} received three skulls`} aria-modal="true">
+    <div aria-hidden="true" className={styles.deathFog} /><div aria-hidden="true" className={styles.deathFlash} />
+    <section className={styles.deathScene}>
+      <p>THREE SKULLS</p>
+      <div aria-hidden="true" className={styles.deathSkull}>☠</div>
+      <h2>{effect.studentName}</h2>
+      <strong>THE FINAL WARNING</strong>
+      <button onClick={onClose} type="button">Return to the living</button>
+    </section>
+  </div>;
+
+  return <div aria-live="assertive" className={`${styles.rewardEffect} ${effect.kind === "star" ? styles.starEffect : styles.skullEffect}`}>
+    <div aria-hidden="true" className={styles.rewardParticles}>{rewardParticles.map((particle) => <span key={particle} style={{ "--particle": particle } as CSSProperties}>{effect.kind === "star" ? particle % 3 === 0 ? "✦" : "★" : "☠"}</span>)}</div>
+    <div aria-hidden="true" className={styles.rewardIcon}>{effect.kind === "star" ? "⭐" : "💀"}</div>
+    <strong>{effect.studentName}</strong>
+    <span>{effect.kind === "star" ? "+1 STAR!" : "A SKULL APPEARS"}</span>
+  </div>;
+}
+
 export default function StarClassroom({ initialState, currentWeekLabel }: { initialState: ClassroomStarState; currentWeekLabel: string }) {
   const router = useRouter();
   const [data, setData] = useState(initialState);
@@ -143,13 +216,20 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
   const [utilityMessage, setUtilityMessage] = useState("Pick a student or make balanced teams.");
   const [teamCount, setTeamCount] = useState(4);
   const [timer, setTimer] = useState(60);
+  const [timerDuration, setTimerDuration] = useState(60);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [utilityOverlay, setUtilityOverlay] = useState<UtilityOverlay | null>(null);
+  const [rewardEffect, setRewardEffect] = useState<RewardEffect | null>(null);
   const [workbook, setWorkbook] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
   const [importMessage, setImportMessage] = useState("");
   const [importing, setImporting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const syncing = useRef(false);
+  const randomizerInterval = useRef<number | null>(null);
+  const utilityRevealTimer = useRef<number | null>(null);
+  const rewardTimer = useRef<number | null>(null);
+  const blockingOverlayOpen = Boolean(utilityOverlay || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -221,6 +301,65 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     return () => window.clearInterval(interval);
   }, [timerRunning]);
 
+  useEffect(() => {
+    if (!blockingOverlayOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+      if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
+      randomizerInterval.current = null;
+      utilityRevealTimer.current = null;
+      setUtilityOverlay(null);
+      setRewardEffect(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", closeOnEscape); };
+  }, [blockingOverlayOpen]);
+
+  useEffect(() => () => {
+    if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+    if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
+    if (rewardTimer.current !== null) window.clearTimeout(rewardTimer.current);
+  }, []);
+
+  function clearUtilityAnimationTimers() {
+    if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+    if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
+    randomizerInterval.current = null;
+    utilityRevealTimer.current = null;
+  }
+
+  function closeUtilityOverlay() {
+    clearUtilityAnimationTimers();
+    setUtilityOverlay(null);
+  }
+
+  function showReward(kind: RewardEffect["kind"], studentId: string, studentName: string) {
+    if (rewardTimer.current !== null) window.clearTimeout(rewardTimer.current);
+    setRewardEffect({ id: crypto.randomUUID(), kind, studentId, studentName });
+    if (kind !== "death") rewardTimer.current = window.setTimeout(() => setRewardEffect(null), kind === "star" ? 1800 : 2200);
+  }
+
+  function closeReward() {
+    if (rewardTimer.current !== null) window.clearTimeout(rewardTimer.current);
+    rewardTimer.current = null;
+    setRewardEffect(null);
+  }
+
+  function setClassTimer(seconds: number) {
+    setTimerDuration(seconds);
+    setTimer(seconds);
+    setTimerRunning(true);
+  }
+
+  function openTimer() {
+    setUtilityOverlay({ kind: "timer" });
+    if (timer === 0) setClassTimer(timerDuration);
+    else setTimerRunning(true);
+  }
+
   function enqueue(additions: Partial<ClassroomSyncPayload>) {
     const next = mergeQueue(readQueue(data.classroom.id), additions);
     writeQueue(data.classroom.id, next);
@@ -238,12 +377,17 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     const event: QueuedStarEvent = { id: crypto.randomUUID(), student_id: studentId, week_label: selectedWeek, delta, source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: new Date().toISOString() };
     setData((current) => ({ ...current, students: current.students.map((item) => item.id === studentId ? { ...item, totals: { ...item.totals, [selectedWeek]: Math.max(0, (item.totals[selectedWeek] ?? 0) + delta) } } : item) }));
     enqueue({ starEvents: [event] });
+    if (delta > 0) showReward("star", student.id, student.fullName);
   }
 
   function updateSkulls(studentId: string, value: number) {
-    const next = { ...skulls, [studentId]: Math.max(0, Math.min(3, value)) };
+    const student = data.students.find((item) => item.id === studentId);
+    const previousValue = skulls[studentId] ?? 0;
+    const nextValue = Math.max(0, Math.min(3, value));
+    const next = { ...skulls, [studentId]: nextValue };
     setSkulls(next);
     localStorage.setItem(skullKey(data.classroom.id), JSON.stringify(next));
+    if (student && nextValue > previousValue) showReward(nextValue === 3 ? "death" : "skull", student.id, student.fullName);
   }
 
   function addWeek() {
@@ -316,15 +460,36 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
   }
 
   function chooseRandomStudent() {
-    const student = data.students[Math.floor(Math.random() * data.students.length)];
-    if (student) setUtilityMessage(`🎲 ${student.fullName}`);
+    if (!data.students.length) return;
+    clearUtilityAnimationTimers();
+    const order = shuffle(data.students);
+    const winner = order[0];
+    let index = 0;
+    setUtilityOverlay({ kind: "randomizer", phase: "spinning", name: order[0].fullName });
+    randomizerInterval.current = window.setInterval(() => {
+      index = (index + 1) % order.length;
+      setUtilityOverlay((current) => current?.kind === "randomizer" ? { ...current, name: order[index].fullName } : current);
+    }, 85);
+    utilityRevealTimer.current = window.setTimeout(() => {
+      if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+      randomizerInterval.current = null;
+      setUtilityOverlay({ kind: "randomizer", phase: "result", name: winner.fullName });
+      setUtilityMessage(`🎲 ${winner.fullName}`);
+    }, 1900);
   }
 
   function makeTeams() {
+    if (data.students.length < 2) return;
+    clearUtilityAnimationTimers();
     const count = Math.max(2, Math.min(teamCount, data.students.length));
     const teams = Array.from({ length: count }, () => [] as string[]);
-    shuffle(data.students).forEach((student, index) => teams[index % count].push(student.fullName));
-    setUtilityMessage(teams.map((team, index) => `Team ${index + 1}: ${team.join(", ")}`).join("\n"));
+    const shuffled = shuffle(data.students);
+    shuffled.forEach((student, index) => teams[index % count].push(student.fullName));
+    setUtilityOverlay({ kind: "teams", phase: "mixing", teams, previewNames: shuffled.slice(0, 10).map((student) => student.fullName) });
+    utilityRevealTimer.current = window.setTimeout(() => {
+      setUtilityOverlay({ kind: "teams", phase: "result", teams, previewNames: [] });
+      setUtilityMessage(teams.map((team, index) => `Team ${index + 1}: ${team.join(", ")}`).join("\n"));
+    }, 1900);
   }
 
   return <div className={styles.page}>
@@ -337,7 +502,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
     <div className={styles.workspace}>
       <section className={styles.studentPanel}>
         <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars sync to Supabase. Today’s skulls stay only on this device.</p></div><button onClick={() => { setSkulls({}); localStorage.removeItem(skullKey(data.classroom.id)); }} type="button">Reset today’s skulls</button></div>
-        <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""}`} key={student.id}>
+        <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${(skulls[student.id] ?? 0) > 0 ? styles.warned : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind === "star" ? styles.starAwarded : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind !== "star" ? styles.skullMarked : ""}`} key={student.id}>
           <div className={styles.studentIdentity}><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
           <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 {skulls[student.id] ?? 0}/3</span></div>
           <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={(skulls[student.id] ?? 0) >= 3} onClick={() => updateSkulls(student.id, (skulls[student.id] ?? 0) + 1)} type="button">＋ 💀</button>{(skulls[student.id] ?? 0) > 0 ? <button onClick={() => updateSkulls(student.id, 0)} type="button">Clear 💀</button> : null}</div>
@@ -345,8 +510,8 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
       </section>
 
       <aside className={styles.sidebar}>
-        <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button onClick={chooseRandomStudent} type="button">🎲 Random student</button><label>Teams<select onChange={(event) => setTeamCount(Number(event.target.value))} value={teamCount}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length - 1)) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
-        <section className={styles.timerCard}><span>Ready for Math</span><strong>{String(Math.floor(timer / 60)).padStart(2, "0")}:{String(timer % 60).padStart(2, "0")}</strong><p>Backpacks away · laptops closed · notebook and pen out.</p><div><button onClick={() => setTimerRunning((value) => !value)} type="button">{timerRunning ? "Pause" : "Start"}</button><button onClick={() => { setTimerRunning(false); setTimer(60); }} type="button">Reset</button></div></section>
+        <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Random student</button><label>Teams<select disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
+        <section className={styles.timerCard}><span>Ready for Math</span><strong>{formatTimer(timer)}</strong><p>Backpacks away · laptops closed · notebook and pen out.</p><div><button onClick={openTimer} type="button">{timerRunning ? "Show timer" : "Open timer"}</button><button onClick={() => { setTimerRunning(false); setTimerDuration(60); setTimer(60); }} type="button">Reset</button></div></section>
       </aside>
     </div>
 
@@ -363,5 +528,7 @@ export default function StarClassroom({ initialState, currentWeekLabel }: { init
       {importMessage ? <p className={styles.importMessage} role="status">{importMessage}</p> : null}
       {importPreview ? <div className={styles.importReport}><div className={styles.reportStats}><article><span>Matched safely</span><strong>{importPreview.counts.matched}</strong></article><article><span>Needs review</span><strong>{importPreview.counts.ambiguous}</strong></article><article><span>Excel-only skipped</span><strong>{importPreview.counts.excelOnly}</strong></article><article><span>Jaguar-only</span><strong>{importPreview.counts.jaguarOnly}</strong></article></div><details open={importPreview.counts.ambiguous + importPreview.counts.excelOnly > 0}><summary>Matching report for {importPreview.sheetName}</summary><div className={styles.matchList}>{importPreview.matches.map((match) => <div className={styles[match.outcome]} key={match.excelName}><strong>{match.excelName}</strong><span>{match.outcome === "matched" ? `→ ${match.matchedStudentName} (${match.confidence}%)` : match.outcome === "ambiguous" ? `Needs review${match.suggestions?.length ? `: ${match.suggestions.join(" or ")}` : ""}` : "Not found in this Jaguar class — skipped"}</span><small>{match.reason}</small></div>)}{importPreview.missingFromWorkbook.map((student) => <div className={styles.jaguarOnly} key={student.studentName}><strong>{student.studentName}</strong><span>Existing Jaguar student, not found in Excel</span><small>Kept on the Stars page with no imported history.</small></div>)}</div></details></div> : null}
     </section>
+    {utilityOverlay ? <UtilityPopup onClose={closeUtilityOverlay} onPickAgain={chooseRandomStudent} onRemix={makeTeams} onSetTimer={setClassTimer} onToggleTimer={() => timer === 0 ? setClassTimer(timerDuration) : setTimerRunning((value) => !value)} overlay={utilityOverlay} timer={timer} timerDuration={timerDuration} timerRunning={timerRunning} /> : null}
+    {rewardEffect ? <RewardAnimation effect={rewardEffect} key={rewardEffect.id} onClose={closeReward} /> : null}
   </div>;
 }
