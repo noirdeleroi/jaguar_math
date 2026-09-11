@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
 import { loadTeacherCurrentWeek } from "@/lib/classroom-star-data";
-import type { ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
+import type { ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
 import { curriculumTopic } from "@/lib/curriculum-weeks";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,8 +18,8 @@ type ClassroomWeek = { id: string; label: string; sort_order: number; title: str
 type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork"; position: number; title: string; activity_date: string | null };
 type WorkStatus = { work_item_id: string; student_id: string; status: string };
 type StarEvent = { id: string; student_id: string; week_id: string; delta: number };
-type Assessment = { id: string; title: string; kind: string; status: string; due_at: string | null };
-type Attempt = { id: string; assignment_id: string; student_id: string; score: number | null; max_score: number | null; attempt_number: number };
+type Assessment = { id: string; title: string; kind: string; status: "published" | "closed"; due_at: string | null };
+type Attempt = { id: string; assignment_id: string; student_id: string; status: "in_progress" | "submitted"; score: number | null; max_score: number | null; attempt_number: number; started_at: string; submitted_at: string | null };
 
 function firstName(value: string) { return value.trim().split(/\s+/)[0] ?? value; }
 function emptyWork(): WorkSummary { return { ok: 0, notOk: 0, late: 0, recorded: 0 }; }
@@ -76,7 +76,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   ]);
   if (statusError || assessmentError) throw statusError ?? assessmentError;
   const assessmentIds = (assessmentRows ?? []).map((assessment) => assessment.id);
-  const { data: attemptRows, error: attemptError } = assessmentIds.length && enrolled.length ? await supabase.from("attempts").select("id, assignment_id, student_id, score, max_score, attempt_number").in("assignment_id", assessmentIds).in("student_id", enrolled.map((student) => student.id)).eq("status", "submitted").order("attempt_number", { ascending: false }) : { data: [] as Attempt[], error: null };
+  const { data: attemptRows, error: attemptError } = assessmentIds.length && enrolled.length ? await supabase.from("attempts").select("id, assignment_id, student_id, status, score, max_score, attempt_number, started_at, submitted_at").in("assignment_id", assessmentIds).in("student_id", enrolled.map((student) => student.id)).in("status", ["in_progress", "submitted"]).order("attempt_number", { ascending: false }).order("started_at", { ascending: false }) : { data: [] as Attempt[], error: null };
   if (attemptError) throw attemptError;
 
   const weekById = new Map(weeks.map((week) => [week.id, week]));
@@ -104,17 +104,37 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     }
   }
 
-  const latestAttempt = new Map<string, Attempt>();
-  for (const attempt of (attemptRows ?? []) as Attempt[]) { const key = `${attempt.student_id}|${attempt.assignment_id}`; if (!latestAttempt.has(key)) latestAttempt.set(key, attempt); }
+  const latestActivity = new Map<string, Attempt>();
+  const latestSubmitted = new Map<string, Attempt>();
+  for (const attempt of (attemptRows ?? []) as Attempt[]) {
+    const key = `${attempt.student_id}|${attempt.assignment_id}`;
+    if (!latestActivity.has(key)) latestActivity.set(key, attempt);
+    if (attempt.status === "submitted" && !latestSubmitted.has(key)) latestSubmitted.set(key, attempt);
+  }
   const managerStudents: ManagerStudent[] = enrolled.map((student) => {
     const studentAchievement = studentWeeks(student.id); const homework = emptyWork(); const classwork = emptyWork(); let totalStars = 0;
     for (const week of Object.values(studentAchievement)) { totalStars += week.stars; sumWork(homework, week.homework); sumWork(classwork, week.classwork); }
     const scores: ManagerStudent["scores"] = {};
-    for (const assessment of assessmentRows ?? []) { const attempt = latestAttempt.get(`${student.id}|${assessment.id}`); if (!attempt || Number(attempt.max_score ?? 0) <= 0) continue; scores[assessment.id] = { attemptId: attempt.id, score: Number(attempt.score ?? 0), maxScore: Number(attempt.max_score), percent: Math.round(Number(attempt.score ?? 0) / Number(attempt.max_score) * 100) }; }
+    for (const assessment of assessmentRows ?? []) { const attempt = latestSubmitted.get(`${student.id}|${assessment.id}`); if (!attempt || Number(attempt.max_score ?? 0) <= 0) continue; scores[assessment.id] = { attemptId: attempt.id, score: Number(attempt.score ?? 0), maxScore: Number(attempt.max_score), percent: Math.round(Number(attempt.score ?? 0) / Number(attempt.max_score) * 100) }; }
     const scoreValues = Object.values(scores).map((score) => score.percent);
     return { id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, totalStars, homework, classwork, weeks: studentAchievement, scores, assessmentAverage: scoreValues.length ? Math.round(scoreValues.reduce((sum, value) => sum + value, 0) / scoreValues.length) : null };
   });
   const managerAssessments: ManagerAssessment[] = ((assessmentRows ?? []) as Assessment[]).map((assessment) => { const values = managerStudents.flatMap((student) => student.scores[assessment.id] ? [student.scores[assessment.id].percent] : []); return { id: assessment.id, title: assessment.title, kind: assessment.kind, status: assessment.status, average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null }; });
+  const classroomHomework: ClassroomHomeworkAssignment[] = ((assessmentRows ?? []) as Assessment[]).filter((assessment) => assessment.kind === "homework").map((assessment) => ({
+    id: assessment.id,
+    title: assessment.title,
+    status: assessment.status,
+    dueAt: assessment.due_at,
+    weekLabel: currentWeekLabel,
+    results: Object.fromEntries(enrolled.map((student) => {
+      const key = `${student.id}|${assessment.id}`;
+      const activity = latestActivity.get(key);
+      const submitted = latestSubmitted.get(key);
+      const maxScore = submitted?.max_score === null || submitted?.max_score === undefined ? null : Number(submitted.max_score);
+      const score = submitted?.score === null || submitted?.score === undefined ? null : Number(submitted.score);
+      return [student.id, { attemptId: submitted?.id ?? activity?.id ?? null, status: activity?.status ?? "not_started", score, maxScore, percentage: score !== null && maxScore && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
+    })),
+  }));
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
@@ -134,7 +154,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{currentWeekLabel}</strong><div><strong>Current week · {currentCurriculum?.unit ?? "Curriculum"}</strong><span>{currentCurriculum?.topic ?? "Topic not set for this grade"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || "Unnamed student", emailAddress: student.email || "No email" }))} /> : null}</div></section>
     <section className={styles.kpis} aria-label="Class achievement summary"><article><span>Students</span><strong>{enrolled.length}</strong><small>Active roster</small></article><article><span>Total stars</span><strong>★ {classStars}</strong><small>All recorded weeks</small></article><article><span>Homework OK</span><strong>{percentage(homework.ok, homework.recorded)}</strong><small>{homework.ok} of {homework.recorded} records</small></article><article><span>Classwork OK</span><strong>{percentage(classwork.ok, classwork.recorded)}</strong><small>{classwork.ok} of {classwork.recorded} records</small></article><article><span>Assessment average</span><strong>{assessmentAverage}</strong><small>{managerAssessments.length} visible assessment{managerAssessments.length === 1 ? "" : "s"}</small></article></section>
-    <StarClassroom currentWeekLabel={currentWeekLabel} embedded initialState={starState} key={`${currentWeekLabel}:${starState.eventIds.length}:${starState.workItems.length}:${starState.weeks.length}`} />
+    <StarClassroom currentWeekLabel={currentWeekLabel} embedded initialAssignments={classroomHomework} initialState={starState} key={`${currentWeekLabel}:${starState.eventIds.length}:${starState.workItems.length}:${starState.weeks.length}`} />
     {enrolled.length ? <ClassAchievementManager assessments={managerAssessments} students={managerStudents} /> : <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section>}
   </main>;
 }

@@ -34,6 +34,23 @@ export type ClassroomStarState = {
   eventIds: string[];
 };
 
+export type ClassroomAssignmentResult = {
+  attemptId: string | null;
+  status: "not_started" | "in_progress" | "submitted";
+  score: number | null;
+  maxScore: number | null;
+  percentage: number | null;
+};
+
+export type ClassroomHomeworkAssignment = {
+  id: string;
+  title: string;
+  status: "published" | "closed";
+  dueAt: string | null;
+  weekLabel: string;
+  results: Record<string, ClassroomAssignmentResult>;
+};
+
 export type QueuedWeek = {
   id: string;
   label: string;
