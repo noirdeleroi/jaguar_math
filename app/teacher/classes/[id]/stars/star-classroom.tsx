@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import type { ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
+import type { ClassroomCwRecord, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import styles from "./stars.module.css";
 
 type SaveState = "saved" | "offline" | "syncing" | "error";
@@ -222,12 +222,12 @@ function AssignmentResultsPopup({ assignment, students, updatedAt, onClose }: { 
   </section></div>;
 }
 
-export default function StarClassroom({ initialState, currentWeekLabel, embedded = false, initialAssignments = [] }: { initialState: ClassroomStarState; currentWeekLabel: string; embedded?: boolean; initialAssignments?: ClassroomHomeworkAssignment[] }) {
+export default function StarClassroom({ initialState, currentWeekLabel, embedded = false, initialAssignments = [], initialCwRecords = [] }: { initialState: ClassroomStarState; currentWeekLabel: string; embedded?: boolean; initialAssignments?: ClassroomHomeworkAssignment[]; initialCwRecords?: ClassroomCwRecord[] }) {
   const router = useRouter();
   const [data, setData] = useState(initialState);
   const [selectedWeek, setSelectedWeek] = useState(() => initialWeek(initialState, currentWeekLabel));
   const [openWeek, setOpenWeek] = useState<string | null>(() => initialWeek(initialState, currentWeekLabel));
-  const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(() => new Set());
+  const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(() => new Set([initialWeek(initialState, currentWeekLabel)]));
   const [queue, setQueue] = useState<ClassroomSyncPayload>(emptyQueue);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [saveMessage, setSaveMessage] = useState("Everything is safely saved in Jaguar.");
@@ -247,6 +247,13 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [assignments, setAssignments] = useState(initialAssignments);
   const [assignmentPopupId, setAssignmentPopupId] = useState<string | null>(null);
   const [assignmentsUpdatedAt, setAssignmentsUpdatedAt] = useState<Date | null>(null);
+  const [cwRecords, setCwRecords] = useState(initialCwRecords);
+  const [cwPopup, setCwPopup] = useState<{ studentId: string; weekLabel: string } | null>(null);
+  const [cwRecordDate, setCwRecordDate] = useState(localDateKey);
+  const [cwReason, setCwReason] = useState("");
+  const [cwMessage, setCwMessage] = useState("");
+  const [cwBusy, setCwBusy] = useState(false);
+  const [deletingWorkItemId, setDeletingWorkItemId] = useState<string | null>(null);
   const [workbook, setWorkbook] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
   const [importMessage, setImportMessage] = useState("");
@@ -256,7 +263,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const randomizerInterval = useRef<number | null>(null);
   const utilityRevealTimer = useRef<number | null>(null);
   const rewardTimer = useRef<number | null>(null);
-  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || rewardEffect?.kind === "death");
+  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -341,6 +348,23 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }, [embedded, initialState.classroom.id]);
 
   useEffect(() => {
+    if (!embedded) return;
+    let active = true;
+    const refreshCwRecords = async () => {
+      try {
+        const response = await fetch(`/api/classes/${initialState.classroom.id}/cw-records`, { cache: "no-store" });
+        if (!response.ok) return;
+        const result = await response.json() as { records?: ClassroomCwRecord[] };
+        if (active && Array.isArray(result.records)) setCwRecords(result.records);
+      } catch { /* Keep the last loaded notes visible and retry when the page regains focus. */ }
+    };
+    const refreshOnFocus = () => void refreshCwRecords();
+    const firstRefresh = window.setTimeout(refreshOnFocus, 0);
+    window.addEventListener("focus", refreshOnFocus);
+    return () => { active = false; window.clearTimeout(firstRefresh); window.removeEventListener("focus", refreshOnFocus); };
+  }, [embedded, initialState.classroom.id]);
+
+  useEffect(() => {
     if (!timerRunning) return;
     const interval = window.setInterval(() => setTimer((value) => {
       if (value <= 1) { setTimerRunning(false); return 0; }
@@ -361,6 +385,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       setUtilityOverlay(null);
       setWorkCreatorOpen(false);
       setAssignmentPopupId(null);
+      setCwPopup(null);
       setRewardEffect(null);
     };
     document.body.style.overflow = "hidden";
@@ -482,6 +507,55 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     enqueue({ workStatuses: [{ student_id: studentId, week_label: item.weekLabel, kind: item.kind, position: item.position, status }] });
   }
 
+  async function deleteHomework(item: ClassroomWorkItem) {
+    if (queueSize(readQueue(data.classroom.id)) > 0) { window.alert("Wait until the classroom changes finish saving, then delete this homework."); return; }
+    if (!window.confirm(`Delete ${item.title} (${item.weekLabel} HW${item.position}) for every student? All of its statuses will also be deleted.`)) return;
+    setDeletingWorkItemId(item.id);
+    try {
+      const response = await fetch(`/api/classes/${data.classroom.id}/work-items/${item.id}`, { method: "DELETE" });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Homework could not be deleted.");
+      setData((current) => ({ ...current, workItems: current.workItems.filter((workItem) => workItem.id !== item.id) }));
+      if (activeWorkId === item.id) setActiveWorkId("");
+    } catch (cause) { window.alert(cause instanceof Error ? cause.message : "Homework could not be deleted."); }
+    finally { setDeletingWorkItemId(null); }
+  }
+
+  function openCwRecords(studentId: string, weekLabel: string) {
+    setSelectedWeek(weekLabel);
+    setCwPopup({ studentId, weekLabel });
+    setCwRecordDate(localDateKey());
+    setCwReason("");
+    setCwMessage("");
+  }
+
+  async function addCwRecord() {
+    if (!cwPopup || !cwReason.trim()) return;
+    setCwBusy(true); setCwMessage("Saving…");
+    try {
+      const response = await fetch(`/api/classes/${data.classroom.id}/cw-records`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentId: cwPopup.studentId, weekLabel: cwPopup.weekLabel, recordDate: cwRecordDate, reason: cwReason }) });
+      const result = await response.json() as { record?: ClassroomCwRecord; error?: string };
+      if (!response.ok || !result.record) throw new Error(result.error || "Classwork record could not be saved.");
+      const savedRecord = result.record;
+      setCwRecords((current) => [savedRecord, ...current]);
+      setCwReason(""); setCwMessage("Not OK classwork record saved.");
+    } catch (cause) { setCwMessage(cause instanceof Error ? cause.message : "Classwork record could not be saved."); }
+    finally { setCwBusy(false); }
+  }
+
+  async function deleteCwRecord(record: ClassroomCwRecord) {
+    if (!window.confirm(`Delete the ${record.recordDate} classwork note?`)) return;
+    setCwBusy(true); setCwMessage("Deleting…");
+    try {
+      const response = await fetch(`/api/classes/${data.classroom.id}/cw-records/${record.id}`, { method: "DELETE" });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Classwork record could not be deleted.");
+      setCwRecords((current) => current.filter((item) => item.id !== record.id));
+      setCwMessage("Classwork record deleted.");
+    } catch (cause) { setCwMessage(cause instanceof Error ? cause.message : "Classwork record could not be deleted."); }
+    finally { setCwBusy(false); }
+  }
+
   async function submitWorkbook(mode: "preview" | "import") {
     if (!workbook) return;
     setImporting(true); setImportMessage(mode === "preview" ? "Checking names and workbook structure…" : "Importing only safely matched students…");
@@ -505,6 +579,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const classStars = data.students.reduce((sum, student) => sum + (student.totals[selectedWeek] ?? 0), 0);
   const skullTotal = Object.values(skulls).reduce((sum, value) => sum + value, 0);
   const sortedStudents = [...data.students].sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" }));
+  const cwPopupStudent = cwPopup ? data.students.find((student) => student.id === cwPopup.studentId) ?? null : null;
+  const cwPopupRecords = cwPopup ? cwRecords.filter((record) => record.studentId === cwPopup.studentId && record.weekLabel === cwPopup.weekLabel) : [];
 
   function toggleWeek(label: string) {
     if (openWeek === label) {
@@ -553,7 +629,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function studentWeekWorkSummary(studentId: string, weekLabel: string, kind: WorkKind) {
     const items = data.workItems.filter((item) => item.weekLabel === weekLabel && item.kind === kind);
     const values = items.map((item) => item.statuses[studentId]);
-    return { items, ok: values.filter((value) => value === "ok").length, late: values.filter((value) => value === "late").length, notOk: values.filter((value) => value === "not_ok").length, recorded: values.filter(Boolean).length };
+    const noteCount = kind === "classwork" ? cwRecords.filter((record) => record.studentId === studentId && record.weekLabel === weekLabel).length : 0;
+    return { items, noteCount, ok: values.filter((value) => value === "ok").length, late: values.filter((value) => value === "late").length, notOk: values.filter((value) => value === "not_ok").length + noteCount, recorded: values.filter(Boolean).length + noteCount };
   }
 
   function cycleWorkStatus(item: ClassroomWorkItem, studentId: string) {
@@ -565,10 +642,14 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function sheetWorkCell(studentId: string, weekLabel: string, kind: WorkKind) {
     const summary = studentWeekWorkSummary(studentId, weekLabel, kind);
     const linkedAssignments = kind === "homework" ? assignments.filter((assignment) => assignment.weekLabel === weekLabel) : [];
-    return <td className={styles.sheetWorkCell}><div className={styles.sheetWorkTotal}><strong>{summary.ok}/{summary.items.length} OK</strong>{summary.late ? <span>{summary.late} late</span> : null}{summary.notOk ? <span>{summary.notOk} not OK</span> : null}</div><div className={styles.sheetWorkItems}>
-      {summary.items.map((item) => { const status = item.statuses[studentId]; return <button className={status ? styles[`work_${status}`] : styles.work_clear} key={item.id} onClick={() => cycleWorkStatus(item, studentId)} title={`${item.title}: ${status ? statusLabels[status] : "Clear"}. Click to change.`} type="button"><b>{item.kind === "homework" ? "HW" : "CW"}{item.position}</b><span>{status ? statusMarks[status] : "—"}</span></button>; })}
-      {linkedAssignments.map((assignment) => { const result = assignment.results[studentId]; return <button className={`${styles.assignmentChip} ${styles[`assignment_${result?.status ?? "not_started"}`]}`} key={assignment.id} onClick={() => setAssignmentPopupId(assignment.id)} title={`Open live results for ${assignment.title}`} type="button"><b>{assignment.title}</b><span>{assignmentResultLabel(result)}</span></button>; })}
-      {!summary.items.length && !linkedAssignments.length ? <small>—</small> : null}
+    const studentCwRecords = kind === "classwork" ? cwRecords.filter((record) => record.studentId === studentId && record.weekLabel === weekLabel) : [];
+    const openCell = () => { if (kind === "classwork") openCwRecords(studentId, weekLabel); };
+    return <td className={`${styles.sheetWorkCell} ${kind === "classwork" ? styles.clickableCwCell : ""}`} onClick={openCell} onKeyDown={(event) => { if (kind === "classwork" && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openCell(); } }} tabIndex={kind === "classwork" ? 0 : undefined}><div className={styles.sheetWorkTotal}><strong>{summary.ok}/{summary.recorded} OK</strong>{summary.late ? <span>{summary.late} late</span> : null}{summary.notOk ? <span>{summary.notOk} not OK</span> : null}</div><div className={styles.sheetWorkItems}>
+      {summary.items.map((item) => { const status = item.statuses[studentId]; return <div className={styles.sheetWorkItemLine} key={item.id}><button className={status ? styles[`work_${status}`] : styles.work_clear} onClick={(event) => { event.stopPropagation(); cycleWorkStatus(item, studentId); }} title={`${item.title}: ${status ? statusLabels[status] : "Clear"}. Click to change.`} type="button"><b>{item.kind === "homework" ? "HW" : "CW"}{item.position}</b><span>{status ? statusMarks[status] : "—"}</span></button>{kind === "homework" ? <button aria-label={`Delete ${item.title} for all students`} className={styles.deleteHomeworkButton} disabled={deletingWorkItemId === item.id} onClick={(event) => { event.stopPropagation(); void deleteHomework(item); }} title="Delete this homework for every student" type="button">{deletingWorkItemId === item.id ? "…" : "×"}</button> : null}</div>; })}
+      {linkedAssignments.map((assignment) => { const result = assignment.results[studentId]; return <button className={`${styles.assignmentChip} ${styles[`assignment_${result?.status ?? "not_started"}`]}`} key={assignment.id} onClick={(event) => { event.stopPropagation(); setAssignmentPopupId(assignment.id); }} title={`Open live results for ${assignment.title}`} type="button"><b>{assignment.title}</b><span>{assignmentResultLabel(result)}</span></button>; })}
+      {studentCwRecords.slice(0, 2).map((record) => <button className={styles.cwNotePreview} key={record.id} onClick={(event) => { event.stopPropagation(); openCell(); }} title={record.reason} type="button"><b>{record.recordDate}</b><span>{record.reason}</span></button>)}
+      {kind === "classwork" ? <button className={styles.addCwInline} onClick={(event) => { event.stopPropagation(); openCell(); }} type="button">＋ {studentCwRecords.length ? `${studentCwRecords.length} note${studentCwRecords.length === 1 ? "" : "s"}` : "Add NOT OK"}</button> : null}
+      {!summary.items.length && !linkedAssignments.length && kind === "homework" ? <small>—</small> : null}
     </div></td>;
   }
 
@@ -619,7 +700,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
           <tbody>{sortedStudents.map((student) => <tr key={student.id}><th className={styles.sheetStudentCell}><a href={`/teacher/students/${student.id}`}><span className={styles.sheetAvatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><span><strong>{student.fullName}</strong><small>{student.email || "Student profile"}</small></span></a></th>{data.weeks.map((week) => {
             const homework = studentWeekWorkSummary(student.id, week.label, "homework");
             const classwork = studentWeekWorkSummary(student.id, week.label, "classwork");
-            if (!expandedWeeks.has(week.label)) return <td className={`${styles.sheetCollapsedCell} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""}`} key={week.id}><strong>★ {student.totals[week.label] ?? 0}</strong><span>💀 {skulls[student.id] ?? 0}</span><small>HW {homework.ok}/{homework.items.length} · CW {classwork.ok}/{classwork.items.length}</small></td>;
+            if (!expandedWeeks.has(week.label)) return <td className={`${styles.sheetCollapsedCell} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""}`} key={week.id}><strong>★ {student.totals[week.label] ?? 0}</strong><span>💀 {skulls[student.id] ?? 0}</span><small>HW {homework.ok}/{homework.recorded} · CW {classwork.ok}/{classwork.recorded}</small></td>;
             return <Fragment key={week.id}><td className={`${styles.sheetActionCell} ${styles.sheetStarCell}`}><strong>★ {student.totals[week.label] ?? 0}</strong><div><button aria-label={`Remove a Star from ${student.fullName} in ${week.label}`} disabled={(student.totals[week.label] ?? 0) <= 0} onClick={() => changeStars(student.id, -1, week.label)} type="button">−</button><button aria-label={`Add a Star to ${student.fullName} in ${week.label}`} className={styles.sheetStarAdd} onClick={() => changeStars(student.id, 1, week.label)} type="button">＋</button></div></td><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell}`}><strong>💀 {skulls[student.id] ?? 0}</strong><div><button aria-label={`Clear Skulls for ${student.fullName}`} disabled={(skulls[student.id] ?? 0) === 0} onClick={() => updateSkulls(student.id, 0)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName}`} className={styles.sheetSkullAdd} disabled={(skulls[student.id] ?? 0) >= 3} onClick={() => updateSkulls(student.id, (skulls[student.id] ?? 0) + 1)} type="button">＋</button></div></td>{sheetWorkCell(student.id, week.label, "homework")}{sheetWorkCell(student.id, week.label, "classwork")}</Fragment>;
           })}</tr>)}</tbody>
         </table>
@@ -675,6 +756,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       {importPreview ? <div className={styles.importReport}><div className={styles.reportStats}><article><span>Matched safely</span><strong>{importPreview.counts.matched}</strong></article><article><span>Needs review</span><strong>{importPreview.counts.ambiguous}</strong></article><article><span>Excel-only skipped</span><strong>{importPreview.counts.excelOnly}</strong></article><article><span>Jaguar-only</span><strong>{importPreview.counts.jaguarOnly}</strong></article></div><details open={importPreview.counts.ambiguous + importPreview.counts.excelOnly > 0}><summary>Matching report for {importPreview.sheetName}</summary><div className={styles.matchList}>{importPreview.matches.map((match) => <div className={styles[match.outcome]} key={match.excelName}><strong>{match.excelName}</strong><span>{match.outcome === "matched" ? `→ ${match.matchedStudentName} (${match.confidence}%)` : match.outcome === "ambiguous" ? `Needs review${match.suggestions?.length ? `: ${match.suggestions.join(" or ")}` : ""}` : "Not found in this Jaguar class — skipped"}</span><small>{match.reason}</small></div>)}{importPreview.missingFromWorkbook.map((student) => <div className={styles.jaguarOnly} key={student.studentName}><strong>{student.studentName}</strong><span>Existing Jaguar student, not found in Excel</span><small>Kept on the Stars page with no imported history.</small></div>)}</div></details></div> : null}
     </section>
     {assignmentPopupId && assignments.find((assignment) => assignment.id === assignmentPopupId) ? <AssignmentResultsPopup assignment={assignments.find((assignment) => assignment.id === assignmentPopupId)!} onClose={() => setAssignmentPopupId(null)} students={sortedStudents} updatedAt={assignmentsUpdatedAt} /> : null}
+    {cwPopup && cwPopupStudent ? <div className={`${styles.popupBackdrop} ${styles.cwBackdrop}`} role="presentation"><section aria-label={`Classwork records for ${cwPopupStudent.fullName} in ${cwPopup.weekLabel}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.cwPopup}`} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setCwPopup(null)} type="button">×</button><header><p className={styles.popupEyebrow}>Week {cwPopup.weekLabel} · Classwork</p><h2>{cwPopupStudent.fullName}</h2><p>Add a dated Not OK record for this student only. The CW cell stays compact and shows the saved notes.</p></header><form onSubmit={(event) => { event.preventDefault(); void addCwRecord(); }}><label><span>Date</span><input onChange={(event) => setCwRecordDate(event.target.value)} required type="date" value={cwRecordDate} /></label><label><span>Reason / note</span><textarea autoFocus maxLength={500} onChange={(event) => setCwReason(event.target.value)} placeholder="Why was this classwork Not OK?" required rows={3} value={cwReason} /></label><div><span className={styles.cwNotOkPill}>Not OK CW</span><button disabled={cwBusy || !cwReason.trim()} type="submit">{cwBusy ? "Saving…" : "Save record"}</button></div></form>{cwMessage ? <p className={styles.cwMessage} role="status">{cwMessage}</p> : null}<section className={styles.cwRecordList}><div><strong>Saved records</strong><span>{cwPopupRecords.length}</span></div>{cwPopupRecords.length ? cwPopupRecords.map((record) => <article key={record.id}><time dateTime={record.recordDate}>{record.recordDate}</time><p>{record.reason}</p><button aria-label={`Delete classwork note from ${record.recordDate}`} disabled={cwBusy} onClick={() => void deleteCwRecord(record)} type="button">Delete</button></article>) : <p>No classwork notes for this student in {cwPopup.weekLabel} yet.</p>}</section></section></div> : null}
     {workCreatorOpen ? <div className={`${styles.popupBackdrop} ${styles.workBackdrop}`} role="presentation"><form aria-label={`Add homework or classwork to ${selectedWeek}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.workPopup}`} onSubmit={(event) => { event.preventDefault(); addWorkItem(); }} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setWorkCreatorOpen(false)} type="button">×</button><div aria-hidden="true" className={styles.workPopupIcon}>{newWorkKind === "homework" ? "HW" : "CW"}</div><p className={styles.popupEyebrow}>Week {selectedWeek}</p><h2>Add {newWorkKind === "homework" ? "homework" : "classwork"}</h2><p className={styles.popupHint}>Every student starts as OK. Open the new record afterward to mark Late, Not OK, or Clear.</p><div className={styles.workPopupFields}><label><span>Record type</span><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select></label><label><span>Title</span><input aria-label="Work title" autoFocus maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} required value={newWorkTitle} /></label><label><span>Activity date</span><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /></label></div><button className={styles.popupAction} disabled={!newWorkTitle.trim()} type="submit">Add to {selectedWeek}</button></form></div> : null}
     {utilityOverlay ? <UtilityPopup onClose={closeUtilityOverlay} onPickAgain={chooseRandomStudent} onRemix={makeTeams} onSetTimer={setClassTimer} onToggleTimer={() => timer === 0 ? setClassTimer(timerDuration) : setTimerRunning((value) => !value)} overlay={utilityOverlay} timer={timer} timerDuration={timerDuration} timerRunning={timerRunning} /> : null}
     {rewardEffect ? <RewardAnimation effect={rewardEffect} key={rewardEffect.id} onClose={closeReward} /> : null}

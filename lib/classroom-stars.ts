@@ -51,6 +51,14 @@ export type ClassroomHomeworkAssignment = {
   results: Record<string, ClassroomAssignmentResult>;
 };
 
+export type ClassroomCwRecord = {
+  id: string;
+  studentId: string;
+  weekLabel: string;
+  recordDate: string;
+  reason: string;
+};
+
 export type QueuedWeek = {
   id: string;
   label: string;
