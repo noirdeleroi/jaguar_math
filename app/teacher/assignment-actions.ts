@@ -44,7 +44,7 @@ function settings(formData: FormData) {
   if (resultVisibility && !["private", "score_only", "full_review"].includes(resultVisibility)) return null;
   const showAnswersAfterSubmit = resultVisibility ? resultVisibility === "full_review" : checked(formData.get("show_answers_after_submit"));
   const showScoreAfterSubmit = showAnswersAfterSubmit || (resultVisibility ? resultVisibility === "score_only" : checked(formData.get("show_score_after_submit")));
-  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), include_in_class_manager: checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action };
+  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), include_in_class_manager: checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release: kind === "test" && checked(formData.get("teacher_controlled_question_release")) };
 }
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
@@ -61,7 +61,7 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_assignment_draft_ready", { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_questions: rpcQuestions, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question });
   if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
-  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager }).eq("id", data).eq("created_by", teacher.id);
+  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", data).eq("created_by", teacher.id);
   if (managerError) redirect(message(`/teacher/assignments/${data}`, "error", "The draft was saved, but its class-manager grade setting could not be saved."));
   for (const classId of values.class_ids) revalidatePath(`/teacher/classes/${classId}`);
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); redirect(`/teacher/assignments/${data}`);
@@ -74,6 +74,8 @@ export async function updateAssignment(formData: FormData) {
   if (error) redirect(message(path, "error", "The assignment could not be updated."));
   const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager }).eq("id", id).eq("created_by", teacher.id);
   if (managerError) redirect(message(path, "error", "The assignment was saved, but its class-manager grade setting could not be updated."));
+  const { error: releaseSettingError } = await supabase.from("assignments").update({ teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", id).eq("created_by", teacher.id).eq("status", "draft");
+  if (releaseSettingError) redirect(message(path, "error", "The assignment was saved, but its test-start setting could not be updated."));
   for (const classId of values.class_ids) revalidatePath(`/teacher/classes/${classId}`);
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); redirect(message(path, "success", `Assignment saved by ${teacher.full_name || "teacher"}.`));
 }
@@ -118,6 +120,17 @@ export async function setAssignmentResultVisibility(formData: FormData) {
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student");
   const success = visibility === "full_review" ? "All results and answer review are now visible to students." : visibility === "score_only" ? "Scores are visible; questions and answers remain private." : "All student results and assessment content are hidden.";
   redirect(message(path, "success", success));
+}
+
+export async function releaseTestQuestions(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("release_owned_test_questions", { p_assignment_id: id });
+  if (error) { console.error(`release_owned_test_questions failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(path, "error", "Test questions could not be released.")); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); revalidatePath(`/student/assignments/${id}`);
+  redirect(message(path, "success", "Test questions are now open. Student timers begin when their waiting screens connect."));
 }
 
 const safeDuplicateError = (error: { code: string; message: string } | null) => {

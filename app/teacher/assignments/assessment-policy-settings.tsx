@@ -21,6 +21,7 @@ export type AssessmentPolicyInitial = {
   examTrackFocusExits?: boolean;
   examAllowedFocusExits?: number;
   examViolationAction?: "warn" | "auto_submit";
+  teacherControlledQuestionRelease?: boolean;
 };
 
 type Policy = Required<Omit<AssessmentPolicyInitial, "durationMinutes">> & { durationMinutes: number | null };
@@ -30,19 +31,19 @@ const PRESETS: Record<AssignmentKind, Policy> = {
     kind: "homework", durationMinutes: null, maxAttempts: 3, questionDisplayMode: "all_at_once",
     showScoreAfterSubmit: true, showAnswersAfterSubmit: true, showFeedbackAfterEachQuestion: true,
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
-    examTrackFocusExits: false, examAllowedFocusExits: 2, examViolationAction: "warn",
+    examTrackFocusExits: false, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
   },
   quiz: {
     kind: "quiz", durationMinutes: 20, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: true, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
     shuffleQuestions: true, shuffleOptions: true, examMode: false, examRequireFullscreen: true,
-    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn",
+    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
   },
   test: {
     kind: "test", durationMinutes: 60, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
     shuffleQuestions: true, shuffleOptions: true, examMode: true, examRequireFullscreen: true,
-    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn",
+    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: true,
   },
 };
 
@@ -57,7 +58,7 @@ function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
   return { ...PRESETS[kind], ...initial, kind } as Policy;
 }
 
-export default function AssessmentPolicySettings({ initial = {}, onKindChange }: { initial?: AssessmentPolicyInitial; onKindChange?: (kind: AssignmentKind) => void }) {
+export default function AssessmentPolicySettings({ initial = {}, onKindChange, questionReleaseLocked = false }: { initial?: AssessmentPolicyInitial; onKindChange?: (kind: AssignmentKind) => void; questionReleaseLocked?: boolean }) {
   const [policy, setPolicy] = useState<Policy>(() => normalizedInitial(initial));
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
@@ -111,6 +112,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange }:
     </div>
 
     {policy.kind === "homework" ? <section className={styles.homeworkGuard}><strong>No Exam Mode for homework</strong><p>Homework is for practice. Students may leave the page and use learning resources without being flagged.</p></section> : <ExamModeSettings forcedEnabled={secure} initial={{ enabled: policy.examMode, requireFullscreen: policy.examRequireFullscreen, trackFocusExits: policy.examTrackFocusExits, allowedFocusExits: policy.examAllowedFocusExits, violationAction: policy.examViolationAction }} key={`${policy.kind}-${presetVersion}`} />}
+    {secure && <section className={styles.releaseSetting}><div><strong>Teacher-controlled question release</strong>{questionReleaseLocked && <small className={styles.lockedLabel}>Locked after publishing</small>}<p>Students can enter fullscreen and read the instructions, but their timer and questions stay locked until you release the test.</p></div><label><input checked={policy.teacherControlledQuestionRelease} disabled={questionReleaseLocked} name={questionReleaseLocked ? undefined : "teacher_controlled_question_release"} onChange={(event) => set("teacherControlledQuestionRelease", event.target.checked)} type="checkbox" /> Wait for me to release the questions{questionReleaseLocked && policy.teacherControlledQuestionRelease && <input name="teacher_controlled_question_release" type="hidden" value="on" />}</label></section>}
   </div>;
 }
 

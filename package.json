@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/exam-activity-client.test.mjs tests/student-randomizer.test.mjs",
+    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/exam-activity-client.test.mjs tests/student-randomizer.test.mjs tests/test-question-release.test.mjs",
     "generate:skill-seed": "node scripts/generate-skill-seed.mjs",
     "validate:skills": "node scripts/generate-skill-seed.mjs"
   },
