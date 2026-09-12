@@ -199,25 +199,25 @@
       "icfes_competency": "INTERPRETACION_REPRESENTACION"
     },
     {
-      "prompt": "An item costs 96 USD. It is discounted by $25\\%$, then 8 USD shipping is added. Enter the final price in USD.",
+      "prompt": "An item has a list price of 160 USD. A sale takes $15\\%$ off the list price. A loyalty coupon then takes another $25\\%$ off the already discounted price. Finally, 13 USD shipping is added. Enter the final price in USD.",
       "type": "numeric",
       "options": null,
-      "correct_answer": "80",
+      "correct_answer": "115",
       "numeric_tolerance": 0,
-      "explanation": "$25\\%$ of $96$ is $24$, so the discounted price is $96-24=72$ USD. Adding 8 USD shipping gives $80$ USD.",
-      "difficulty": 3,
+      "explanation": "The first discount is $0.15\\times160=24$ USD, leaving $136$ USD. The coupon removes $25\\%$ of $136$, which is $34$ USD, leaving $102$ USD. Adding 13 USD shipping gives $115$ USD.",
+      "difficulty": 4,
       "points": 5,
       "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
     {
-      "prompt": "The ratio of Group A to Group B is $2:3$. There are $50$ people altogether. Then $20\\%$ of Group B leave. Enter the number of people remaining in Group B.",
+      "prompt": "Before anyone moves, the ratio of Group A to Group B is $5:7$, and there are $120$ people altogether. First, $20\\%$ of the people who started in Group B leave. Then $25\\%$ of the people still in Group B transfer to Group A. Enter the final number of people in Group B.",
       "type": "numeric",
       "options": null,
-      "correct_answer": "24",
+      "correct_answer": "42",
       "numeric_tolerance": 0,
-      "explanation": "There are $2+3=5$ equal parts, so Group B begins with $\\frac{3}{5}\\times50=30$ people. Then $20\\%$ of $30$, or $6$, leave. Therefore, $30-6=24$ people remain.",
-      "difficulty": 3,
+      "explanation": "Group B starts with $\\frac{7}{12}\\times120=70$ people. Then $20\\%$ of $70$, or $14$, leave, so $56$ remain. Finally, $25\\%$ of the remaining $56$, or $14$, transfer to Group A, leaving $42$ in Group B.",
+      "difficulty": 4,
       "points": 5,
       "skills": [
         { "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true },

@@ -129,18 +129,18 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs 96 USD. It is discounted by $25\\%$, then 8 USD shipping is added. Enter the final price in USD.",
-          "type": "numeric", "options": null, "correct_answer": "80", "numeric_tolerance": 0,
-          "explanation": "$25\\%$ of $96$ is $24$, so the discounted price is $96-24=72$ USD. Adding 8 USD shipping gives $80$ USD.",
-          "difficulty": 3, "points": 5,
+          "prompt": "An item has a list price of 160 USD. A sale takes $15\\%$ off the list price. A loyalty coupon then takes another $25\\%$ off the already discounted price. Finally, 13 USD shipping is added. Enter the final price in USD.",
+          "type": "numeric", "options": null, "correct_answer": "115", "numeric_tolerance": 0,
+          "explanation": "The first discount is $0.15\\times160=24$ USD, leaving $136$ USD. The coupon removes $25\\%$ of $136$, which is $34$ USD, leaving $102$ USD. Adding 13 USD shipping gives $115$ USD.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
         {
-          "prompt": "The ratio of Group A to Group B is $2:3$. There are $50$ people altogether. Then $20\\%$ of Group B leave. Enter the number of people remaining in Group B.",
-          "type": "numeric", "options": null, "correct_answer": "24", "numeric_tolerance": 0,
-          "explanation": "There are $2+3=5$ equal parts, so Group B begins with $\\frac{3}{5}\\times50=30$ people. Then $20\\%$ of $30$, or $6$, leave. Therefore, $30-6=24$ people remain.",
-          "difficulty": 3, "points": 5,
+          "prompt": "Before anyone moves, the ratio of Group A to Group B is $5:7$, and there are $120$ people altogether. First, $20\\%$ of the people who started in Group B leave. Then $25\\%$ of the people still in Group B transfer to Group A. Enter the final number of people in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "42", "numeric_tolerance": 0,
+          "explanation": "Group B starts with $\\frac{7}{12}\\times120=70$ people. Then $20\\%$ of $70$, or $14$, leave, so $56$ remain. Finally, $25\\%$ of the remaining $56$, or $14$, transfer to Group A, leaving $42$ in Group B.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
@@ -299,18 +299,18 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs 120 USD. It is discounted by $20\\%$, then 9 USD shipping is added. Enter the final price in USD.",
-          "type": "numeric", "options": null, "correct_answer": "105", "numeric_tolerance": 0,
-          "explanation": "$20\\%$ of $120$ is $24$, so the discounted price is $96$ USD. Adding 9 USD shipping gives $105$ USD.",
-          "difficulty": 3, "points": 5,
+          "prompt": "An item has a list price of 240 USD. A clearance sale takes $35\\%$ off the list price. A coupon then takes another $25\\%$ off the clearance price. Finally, 18 USD shipping is added. Enter the final price in USD.",
+          "type": "numeric", "options": null, "correct_answer": "135", "numeric_tolerance": 0,
+          "explanation": "The first discount is $0.35\\times240=84$ USD, leaving $156$ USD. The coupon removes $25\\%$ of $156$, which is $39$ USD, leaving $117$ USD. Adding 18 USD shipping gives $135$ USD.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
         {
-          "prompt": "The ratio of Group A to Group B is $3:5$. There are $64$ people altogether. Then $25\\%$ of Group B leave. Enter the number of people remaining in Group B.",
-          "type": "numeric", "options": null, "correct_answer": "30", "numeric_tolerance": 0,
-          "explanation": "Group B begins with $\\frac{5}{8}\\times64=40$ people. Then $25\\%$ of $40$, or $10$, leave, so $30$ remain.",
-          "difficulty": 3, "points": 5,
+          "prompt": "Before anyone moves, the ratio of Group A to Group B is $7:9$, and there are $160$ people altogether. First, $20\\%$ of the people who started in Group B leave. Then $25\\%$ of the people still in Group B transfer to Group A. Enter the final number of people in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "54", "numeric_tolerance": 0,
+          "explanation": "Group B starts with $\\frac{9}{16}\\times160=90$ people. Then $20\\%$ of $90$, or $18$, leave, so $72$ remain. Finally, $25\\%$ of the remaining $72$, or $18$, transfer to Group A, leaving $54$ in Group B.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
@@ -469,18 +469,18 @@
           "icfes_competency": "INTERPRETACION_REPRESENTACION"
         },
         {
-          "prompt": "An item costs 84 USD. It is discounted by $25\\%$, then 7 USD shipping is added. Enter the final price in USD.",
-          "type": "numeric", "options": null, "correct_answer": "70", "numeric_tolerance": 0,
-          "explanation": "$25\\%$ of $84$ is $21$, so the discounted price is $63$ USD. Adding 7 USD shipping gives $70$ USD.",
-          "difficulty": 3, "points": 5,
+          "prompt": "An item has a list price of 180 USD. A sale takes $20\\%$ off the list price. A coupon then takes another $12.5\\%$ off the already discounted price. Finally, 19 USD shipping is added. Enter the final price in USD.",
+          "type": "numeric", "options": null, "correct_answer": "145", "numeric_tolerance": 0,
+          "explanation": "The first discount is $0.20\\times180=36$ USD, leaving $144$ USD. Since $12.5\\%=\\frac{1}{8}$, the coupon removes $18$ USD, leaving $126$ USD. Adding 19 USD shipping gives $145$ USD.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
         {
-          "prompt": "The ratio of Group A to Group B is $4:5$. There are $72$ people altogether. Then $15\\%$ of Group B leave. Enter the number of people remaining in Group B.",
-          "type": "numeric", "options": null, "correct_answer": "34", "numeric_tolerance": 0,
-          "explanation": "Group B begins with $\\frac{5}{9}\\times72=40$ people. Then $15\\%$ of $40$, or $6$, leave, so $34$ remain.",
-          "difficulty": 3, "points": 5,
+          "prompt": "Before anyone moves, the ratio of Group A to Group B is $4:7$, and there are $176$ people altogether. First, $25\\%$ of the people who started in Group B leave. Then $25\\%$ of the people still in Group B transfer to Group A. Enter the final number of people in Group B.",
+          "type": "numeric", "options": null, "correct_answer": "63", "numeric_tolerance": 0,
+          "explanation": "Group B starts with $\\frac{7}{11}\\times176=112$ people. Then $25\\%$ of $112$, or $28$, leave, so $84$ remain. Finally, $25\\%$ of the remaining $84$, or $21$, transfer to Group A, leaving $63$ in Group B.",
+          "difficulty": 4, "points": 5,
           "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true }, { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }],
           "icfes_competency": "FORMULACION_EJECUCION"
         },
