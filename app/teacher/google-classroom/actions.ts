@@ -71,6 +71,15 @@ async function applyDatabaseSync(changes: DatabaseSyncChanges) {
   if (error) throw error;
 }
 
+function revalidateClassStudentNames(classId: string) {
+  revalidatePath(`/teacher/classes/${classId}`);
+  revalidatePath(`/teacher/classes/${classId}/stars`);
+  revalidatePath(`/teacher/classes/${classId}/randomizer`);
+  revalidatePath(`/teacher/classes/${classId}/sitting`);
+  revalidatePath(`/teacher/classes/${classId}/progress`);
+  revalidatePath("/student");
+}
+
 function actionError(cause: unknown) {
   if (cause instanceof GoogleClassroomError) {
     if (cause.code === "token_expired" || cause.code === "refresh_token_missing") return "Your Google connection needs to be renewed. Connect Google Classroom again.";
@@ -218,7 +227,7 @@ export async function applyGoogleClassroomSync(_previous: SyncActionState, formD
     });
     databaseCommitted = true;
     if (!selectedStudent) await clearGoogleSyncPreview();
-    revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
+    revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidateClassStudentNames(classId); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
     return { completed: true, credentials, removedCount: !selectedStudent && removeMissing ? preview.removed.length : 0, addedStudentOnly: Boolean(selectedStudent) };
   } catch (cause) {
     if (!databaseCommitted) await cleanupCreatedUsers(createdUserIds);
@@ -384,7 +393,7 @@ export async function applyAllLinkedGoogleClassrooms(_previous: BulkSyncActionSt
       removals: [...removals.values()],
     });
     databaseCommitted = true;
-    for (const classId of classIdByCourseId.values()) revalidatePath(`/teacher/classes/${classId}`);
+    for (const classId of classIdByCourseId.values()) revalidateClassStudentNames(classId);
     await clearGoogleBulkSyncPreview(); revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath("/teacher/students"); revalidatePath("/teacher/google-classroom");
     return { completed: true, credentials, removedCount: removals.size, createdClassCount: newClassPreviews.length };
   } catch (cause) {

@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
 export type DashboardAssignment = { id: string; title: string; description: string | null; kind: string; dueAt: string | null; classNames: string[]; status: "Not started" | "In progress" | "Submitted" | "Completed" | "Overdue" | "Closed"; questionCount: number; answeredCount: number; score: number | null; maxScore: number | null; showScore: boolean; submittedAt: string | null; action: "start" | "continue" | "review" | "view" | null; actionable: boolean; completed: boolean; overdue: boolean };
-export type StudentClassroom = { id: string; name: string; gradeLevel: number; teacherId: string };
+export type StudentClassroom = { id: string; name: string; gradeLevel: number; teacherId: string; nickname: string | null };
 
 type Assignment = { id: string; title: string; description: string | null; kind: string; status: "published" | "closed"; due_at: string | null; max_attempts: number; show_score_after_submit: boolean };
 type Attempt = { id: string; assignment_id: string; status: "in_progress" | "submitted"; started_at: string; submitted_at: string | null; score: number | null; max_score: number | null; attempt_number: number };
@@ -19,8 +19,9 @@ function assignmentPriority(assignment: DashboardAssignment) {
 
 export async function getStudentAssignments() {
   const supabase = await createClient();
-  const [{ data: classes }, { data: assignments }, { data: attempts }] = await Promise.all([
+  const [{ data: classes }, { data: memberships }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").order("grade_level").order("name"),
+    supabase.from("class_members").select("class_id, nickname"),
     supabase.from("assignments").select("id, title, description, kind, status, due_at, max_attempts, show_score_after_submit").in("status", ["published", "closed"]),
     supabase.rpc("get_my_assignment_attempts"),
   ]);
@@ -52,6 +53,7 @@ export async function getStudentAssignments() {
     if (left.completed !== right.completed) return left.completed ? -1 : 1;
     return new Date(right.submittedAt ?? 0).getTime() - new Date(left.submittedAt ?? 0).getTime();
   });
-  const classrooms: StudentClassroom[] = (classes ?? []).map((classroom) => ({ id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, teacherId: classroom.teacher_id }));
+  const nicknameByClassId = new Map((memberships ?? []).map((membership) => [membership.class_id, membership.nickname]));
+  const classrooms: StudentClassroom[] = (classes ?? []).map((classroom) => ({ id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, teacherId: classroom.teacher_id, nickname: nicknameByClassId.get(classroom.id) ?? null }));
   return { assignments: dashboardAssignments, classes: [...classNameById.values()], classrooms };
 }

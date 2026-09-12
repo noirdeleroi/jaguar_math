@@ -24,7 +24,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   if (!classroom) return null;
 
   const [{ data: memberships, error: membershipError }, { data: weeks, error: weekError }, { data: events, error: eventError }, { data: workItems, error: workItemError }] = await Promise.all([
-    supabase.from("class_members").select("student_id").eq("class_id", classId),
+    supabase.from("class_members").select("student_id, nickname").eq("class_id", classId),
     supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", classId).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, delta, classroom_weeks!inner(label)").eq("class_id", classId),
     supabase.from("classroom_work_items").select("id, kind, position, title, activity_date, classroom_weeks!inner(label)").eq("class_id", classId).order("position"),
@@ -33,6 +33,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   if (firstError) throw firstError;
 
   const studentIds = (memberships ?? []).map((membership) => membership.student_id);
+  const nicknameByStudentId = new Map((memberships ?? []).map((membership) => [membership.student_id, membership.nickname]));
   const workItemIds = (workItems ?? []).map((item) => item.id);
   const [{ data: profiles, error: profileError }, { data: statuses, error: statusError }] = await Promise.all([
     studentIds.length ? supabase.from("profiles").select("id, full_name, email").in("id", studentIds).eq("role", "student").order("full_name") : Promise.resolve({ data: [], error: null }),
@@ -60,7 +61,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {} })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
+    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {} })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
     workItems: (workItems ?? []).map((item): ClassroomWorkItem => {
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;
       return { id: item.id, weekLabel: relation?.label ?? "", kind: item.kind as ClassroomWorkItem["kind"], position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} };
@@ -74,9 +75,10 @@ export async function loadStudentMatchCandidates(classId: string, teacherId: str
   const { data: classroom, error: classroomError } = await admin.from("classes").select("id, name").eq("id", classId).eq("teacher_id", teacherId).maybeSingle();
   if (classroomError) throw classroomError;
   if (!classroom) return null;
-  const { data: memberships, error: membershipError } = await admin.from("class_members").select("student_id").eq("class_id", classId);
+  const { data: memberships, error: membershipError } = await admin.from("class_members").select("student_id, nickname").eq("class_id", classId);
   if (membershipError) throw membershipError;
   const studentIds = (memberships ?? []).map((membership) => membership.student_id);
+  const nicknameByStudentId = new Map((memberships ?? []).map((membership) => [membership.student_id, membership.nickname]));
   if (!studentIds.length) return { classroomName: classroom.name, candidates: [] };
   const [{ data: profiles, error: profileError }, { data: googleProfiles, error: googleError }] = await Promise.all([
     admin.from("profiles").select("id, full_name, email").in("id", studentIds).eq("role", "student"),
@@ -88,8 +90,9 @@ export async function loadStudentMatchCandidates(classId: string, teacherId: str
     classroomName: classroom.name,
     candidates: (profiles ?? []).map((profile) => {
       const google = googleByStudentId.get(profile.id);
-      const aliases = [profile.full_name, google?.google_full_name, profile.email?.split("@")[0], google?.normalized_email?.split("@")[0]].filter((value): value is string => Boolean(value));
-      return { id: profile.id, fullName: profile.full_name || profile.email || "Unnamed student", email: profile.email, aliases: [...new Set(aliases)] };
+      const nickname = nicknameByStudentId.get(profile.id);
+      const aliases = [nickname, profile.full_name, google?.google_full_name, profile.email?.split("@")[0], google?.normalized_email?.split("@")[0]].filter((value): value is string => Boolean(value));
+      return { id: profile.id, fullName: nickname || profile.full_name || profile.email || "Unnamed student", email: profile.email, aliases: [...new Set(aliases)] };
     }),
   };
 }

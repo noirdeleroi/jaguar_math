@@ -15,6 +15,7 @@ const textFrom = (value: FormDataEntryValue | null) => typeof value === "string"
 export type ResetPasswordState = { error?: string; credential?: { fullName: string; emailAddress: string; temporaryPassword: string } };
 export type BulkResetPasswordState = { error?: string; credentials?: Array<{ fullName: string; emailAddress: string; temporaryPassword: string; emailDelivery?: "sent" | "failed" }> };
 export type AddStudentState = { error?: string; completed?: boolean; credential?: { fullName: string; emailAddress: string; temporaryPassword: string }; emailDelivery?: "sent" | "failed" };
+export type NicknameState = { error?: string; success?: string };
 
 export async function resetStudentPassword(_previous: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
   try {
@@ -110,11 +111,11 @@ export async function createAndEmailStudent(_previous: AddStudentState, formData
     const credential = { fullName, emailAddress, temporaryPassword };
     try {
       await sendGoogleCredentialEmail(connection.token, credential);
-      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
+      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidateClassStudentNames(classId); revalidatePath("/teacher/students");
       return { completed: true, credential, emailDelivery: "sent" };
     } catch (cause) {
       console.error("[teacher] dashboard credential email failed", cause instanceof GoogleClassroomError ? cause.code : "server_error");
-      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(`/teacher/classes/${classId}`); revalidatePath("/teacher/students");
+      revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidateClassStudentNames(classId); revalidatePath("/teacher/students");
       return { completed: true, credential, emailDelivery: "failed", error: "The account and class enrollment were created, but email delivery failed. Share the one-time password below manually." };
     }
   } catch (cause) {
@@ -155,6 +156,37 @@ async function teacherOwnsClass(classId: string, teacherId: string) {
   const supabase = await createClient(); const { data, error } = await supabase.from("classes").select("id, teacher_id").eq("id", classId).maybeSingle(); return !error && data?.teacher_id === teacherId;
 }
 
+export async function updateStudentNickname(_previous: NicknameState, formData: FormData): Promise<NicknameState> {
+  const teacher = await requireTeacher();
+  const classId = textFrom(formData.get("class_id"));
+  const studentId = textFrom(formData.get("student_id"));
+  if (!classId || !studentId || !(await teacherOwnsClass(classId, teacher.id))) return { error: "That class is not available." };
+
+  const supabase = await createClient();
+  if (formData.get("intent") === "automatic") {
+    const { data, error } = await supabase.from("class_members").update({ nickname_is_custom: false }).eq("class_id", classId).eq("student_id", studentId).select("student_id").maybeSingle();
+    if (error || !data) return { error: "We couldn’t restore the automatic nickname." };
+    revalidateClassStudentNames(classId);
+    return { success: "Automatic nickname restored." };
+  }
+
+  const nickname = textFrom(formData.get("nickname"));
+  if (!nickname || nickname.length > 80 || /[\u0000-\u001f\u007f]/.test(nickname)) return { error: "Enter a nickname of up to 80 characters." };
+  const { data, error } = await supabase.from("class_members").update({ nickname, nickname_is_custom: true }).eq("class_id", classId).eq("student_id", studentId).select("student_id").maybeSingle();
+  if (error || !data) return { error: "We couldn’t save that nickname." };
+  revalidateClassStudentNames(classId);
+  return { success: "Nickname saved." };
+}
+
+function revalidateClassStudentNames(classId: string) {
+  revalidatePath(`/teacher/classes/${classId}`);
+  revalidatePath(`/teacher/classes/${classId}/stars`);
+  revalidatePath(`/teacher/classes/${classId}/randomizer`);
+  revalidatePath(`/teacher/classes/${classId}/sitting`);
+  revalidatePath(`/teacher/classes/${classId}/progress`);
+  revalidatePath("/student");
+}
+
 export async function addStudentToClass(formData: FormData) {
   const teacher = await requireTeacher(); const classId = textFrom(formData.get("class_id")); const studentId = textFrom(formData.get("student_id")); const path = `/teacher/classes/${classId}`;
   if (!classId || !studentId || !(await teacherOwnsClass(classId, teacher.id))) redirect(message("/teacher/classes", "error", "That class is not available."));
@@ -162,7 +194,7 @@ export async function addStudentToClass(formData: FormData) {
   if (!student) redirect(message(path, "error", "Choose an existing student account."));
   const { error } = await supabase.from("class_members").insert({ class_id: classId, student_id: studentId });
   if (error) redirect(message(path, "error", error.code === "23505" ? "That student is already in this class." : "We couldn’t add that student."));
-  revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(path); revalidatePath("/teacher/students"); redirect(message(path, "success", "Student added to class."));
+  revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidateClassStudentNames(classId); revalidatePath("/teacher/students"); redirect(message(path, "success", "Student added to class."));
 }
 
 export async function removeStudentFromClass(formData: FormData) {
@@ -170,13 +202,14 @@ export async function removeStudentFromClass(formData: FormData) {
   if (!classId || !studentId || !(await teacherOwnsClass(classId, teacher.id))) redirect(message("/teacher/classes", "error", "That class is not available."));
   const supabase = await createClient(); const { error } = await supabase.from("class_members").delete().eq("class_id", classId).eq("student_id", studentId);
   if (error) redirect(message(path, "error", "We couldn’t remove that student."));
-  revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath(path); revalidatePath("/teacher/students"); redirect(message(path, "success", "Student removed from class."));
+  revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidateClassStudentNames(classId); revalidatePath("/teacher/students"); redirect(message(path, "success", "Student removed from class."));
 }
 
 export async function updateStudentProfile(formData: FormData) {
   await requireTeacher(); const studentId = textFrom(formData.get("student_id")); const fullName = textFrom(formData.get("full_name")); const gradeLevel = formData.get("grade_level") === "" ? null : gradeFrom(formData.get("grade_level"));
   if (!studentId || (formData.get("grade_level") !== "" && !gradeLevel)) redirect(message("/teacher/students", "error", "Choose Grade 11, Grade 12, or no grade."));
-  const supabase = await createClient(); const { data, error } = await supabase.from("profiles").update({ full_name: fullName || null, grade_level: gradeLevel }).eq("id", studentId).eq("role", "student").select("id").maybeSingle();
+  const supabase = await createClient(); const { data: memberships } = await supabase.from("class_members").select("class_id").eq("student_id", studentId); const { data, error } = await supabase.from("profiles").update({ full_name: fullName || null, grade_level: gradeLevel }).eq("id", studentId).eq("role", "student").select("id").maybeSingle();
   if (error || !data) redirect(message("/teacher/students", "error", "We couldn’t update that student profile."));
+  for (const membership of memberships ?? []) revalidateClassStudentNames(membership.class_id);
   revalidatePath("/teacher"); revalidatePath("/teacher/classes"); revalidatePath("/teacher/students"); redirect(message("/teacher/students", "success", "Student profile updated."));
 }

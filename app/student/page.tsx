@@ -13,5 +13,5 @@ export default async function StudentPage() {
   const weekLabel = classroom ? await loadTeacherCurrentWeek(classroom.teacherId) : null;
   const curriculum = gradeLevel && weekLabel ? curriculumTopic(gradeLevel, weekLabel) : null;
   const currentWeek = weekLabel && gradeLevel ? { label: weekLabel, gradeLevel, topic: curriculum?.topic ?? "Topic not set", unit: curriculum?.unit ?? "" } : null;
-  return <StudentDashboard assignments={assignments} classes={classes} currentWeek={currentWeek} email={student.email} firstName={student.full_name?.trim().split(/\s+/)[0] || "student"} satSummary={{ readiness: satProgress.readiness, assessedSkills: satProgress.assessedSkills, totalSkills: satProgress.totalSkills }} />;
+  return <StudentDashboard assignments={assignments} classes={classes} currentWeek={currentWeek} email={student.email} nickname={classroom?.nickname || student.full_name?.trim().split(/\s+/)[0] || "student"} satSummary={{ readiness: satProgress.readiness, assessedSkills: satProgress.assessedSkills, totalSkills: satProgress.totalSkills }} />;
 }
