@@ -38,7 +38,7 @@ export type DraftQuestionActionState = { error?: string; success?: boolean } | n
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
-  if (!title || !["homework", "quiz", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
+  if (!title || !["homework", "test"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
   const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), 2) : 2; const exam_violation_action = text(formData.get("exam_violation_action")) || "warn"; const question_display_mode = text(formData.get("question_display_mode")) || "one_at_a_time"; const resultVisibility = text(formData.get("student_result_visibility"));
   if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0 || !["warn", "auto_submit"].includes(exam_violation_action) || !["one_at_a_time", "all_at_once"].includes(question_display_mode)) return null;
   if (resultVisibility && !["private", "score_only", "full_review"].includes(resultVisibility)) return null;

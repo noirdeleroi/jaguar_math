@@ -4,10 +4,11 @@ import { useState } from "react";
 import ExamModeSettings from "./exam-mode-settings";
 import styles from "./assessment-policy-settings.module.css";
 
-export type AssignmentKind = "homework" | "quiz" | "test";
+export type AssignmentKind = "homework" | "test";
+type StoredAssignmentKind = AssignmentKind | "quiz";
 
 export type AssessmentPolicyInitial = {
-  kind?: AssignmentKind;
+  kind?: StoredAssignmentKind;
   durationMinutes?: number | null;
   maxAttempts?: number;
   questionDisplayMode?: "one_at_a_time" | "all_at_once";
@@ -24,7 +25,7 @@ export type AssessmentPolicyInitial = {
   teacherControlledQuestionRelease?: boolean;
 };
 
-type Policy = Required<Omit<AssessmentPolicyInitial, "durationMinutes">> & { durationMinutes: number | null };
+type Policy = Required<Omit<AssessmentPolicyInitial, "durationMinutes" | "kind">> & { kind: AssignmentKind; durationMinutes: number | null };
 
 const PRESETS: Record<AssignmentKind, Policy> = {
   homework: {
@@ -32,12 +33,6 @@ const PRESETS: Record<AssignmentKind, Policy> = {
     showScoreAfterSubmit: true, showAnswersAfterSubmit: true, showFeedbackAfterEachQuestion: true,
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
     examTrackFocusExits: false, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
-  },
-  quiz: {
-    kind: "quiz", durationMinutes: 20, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
-    showScoreAfterSubmit: true, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
-    shuffleQuestions: true, shuffleOptions: true, examMode: false, examRequireFullscreen: true,
-    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
   },
   test: {
     kind: "test", durationMinutes: 60, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
@@ -49,12 +44,11 @@ const PRESETS: Record<AssignmentKind, Policy> = {
 
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
   homework: { eyebrow: "Learning mode", title: "Homework", description: "Practice with support, retries, and immediate learning feedback.", note: "Students can learn while they work. Browser monitoring is disabled." },
-  quiz: { eyebrow: "Check mode", title: "Quiz", description: "A short understanding check with protected answers and one attempt.", note: "Questions and choices are mixed per student. Exam monitoring is optional." },
   test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
 };
 
 function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
-  const kind = initial.kind ?? "quiz";
+  const kind = initial.kind === "test" ? "test" : "homework";
   return { ...PRESETS[kind], ...initial, kind } as Policy;
 }
 
@@ -62,7 +56,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   const [policy, setPolicy] = useState<Policy>(() => normalizedInitial(initial));
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
-  const quizOrTest = policy.kind !== "homework";
+  const test = policy.kind === "test";
   const resultVisibility = policy.showAnswersAfterSubmit ? "full_review" : policy.showScoreAfterSubmit ? "score_only" : "private";
   const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); onKindChange?.(kind); };
   const set = <K extends keyof Policy>(key: K, value: Policy[K]) => setPolicy((current) => ({ ...current, [key]: value }));
@@ -70,7 +64,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   return <div className={styles.wrapper}>
     <fieldset className={styles.kindPicker}>
       <legend>Choose how students will use this work</legend>
-      <div className={styles.kindGrid}>{(["homework", "quiz", "test"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
+      <div className={styles.kindGrid}>{(["homework", "test"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
         <input checked={policy.kind === kind} name="kind" onChange={() => chooseKind(kind)} type="radio" value={kind} />
         <span>{COPY[kind].eyebrow}</span><strong>{COPY[kind].title}</strong><small>{COPY[kind].description}</small>
       </label>)}</div>
@@ -82,7 +76,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
 
     <div className="assessment-fields">
       <label>Duration in minutes<input min="1" name="duration_minutes" onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} placeholder={policy.kind === "homework" ? "No timer" : undefined} required={secure} type="number" value={policy.durationMinutes ?? ""} /></label>
-      <label>Maximum attempts{quizOrTest && <small className={styles.lockedLabel}>Locked for assessments</small>}<input disabled={quizOrTest} min="1" name={quizOrTest ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{quizOrTest && <input name="max_attempts" type="hidden" value="1" />}</label>
+      <label>Maximum attempts{test && <small className={styles.lockedLabel}>Locked for tests</small>}<input disabled={test} min="1" name={test ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{test && <input name="max_attempts" type="hidden" value="1" />}</label>
       <label>Question display{secure && <small className={styles.lockedLabel}>Locked for tests</small>}<select disabled={secure} name={secure ? undefined : "question_display_mode"} onChange={(event) => set("questionDisplayMode", event.target.value as Policy["questionDisplayMode"])} value={policy.questionDisplayMode}><option value="one_at_a_time">One question at a time</option><option value="all_at_once">All questions on one page</option></select>{secure && <input name="question_display_mode" type="hidden" value="one_at_a_time" />}</label>
     </div>
 
@@ -100,7 +94,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
             </select>
             <small>{resultVisibility === "private" ? "Students see only that the assessment was submitted." : resultVisibility === "score_only" ? "Students see their score, but no questions, answers, or correctness." : "Students see questions, their answers, correct answers, score, and improvement guidance."}</small>
           </label>}
-          <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={quizOrTest} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for assessments"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
+          <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={test} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for tests"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
         </div>
       </section>
       <section><h3>Form variation</h3><p>Each attempt receives a stable form code and server-saved order.</p>
