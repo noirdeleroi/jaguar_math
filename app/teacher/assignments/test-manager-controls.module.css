@@ -1,0 +1,197 @@
+.managerToolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #bdd1c4;
+  border-radius: 8px;
+  background: #edf5ef;
+}
+
+.toolbarIntro {
+  display: grid;
+  gap: 4px;
+}
+
+.toolbarIntro strong {
+  color: #183f35;
+  font-size: 15px;
+}
+
+.toolbarIntro span {
+  color: #607970;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.liveStatus {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  gap: 6px;
+  color: #32715c;
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.liveStatus::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2c8c68;
+  content: "";
+}
+
+.selectionActions {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectionActions button,
+.minutesField input {
+  min-height: 38px;
+}
+
+.selectionActions button {
+  border: 1px solid #9fb9aa;
+  border-radius: 5px;
+  padding: 8px 11px;
+  background: #fffdf7;
+  color: #234e42;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.selectionActions button[type="submit"] {
+  border-color: var(--green);
+  background: var(--green);
+  color: white;
+}
+
+.selectionActions button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.minutesField {
+  display: grid;
+  gap: 4px;
+  color: #31554b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.minutesField input {
+  width: 88px;
+  border: 1px solid #9fb9aa;
+  border-radius: 5px;
+  padding: 8px;
+  background: #fffdf7;
+  color: var(--ink);
+  font: inherit;
+}
+
+.selectionCell {
+  width: 34px;
+  text-align: center !important;
+}
+
+.selectionCell input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green);
+}
+
+.progressCell {
+  display: grid;
+  min-width: 110px;
+  gap: 5px;
+}
+
+.progressCell strong {
+  color: #234e42;
+  font-size: 12px;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e9e0d2;
+}
+
+.progressTrack i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #4f8e70;
+}
+
+.progressCell small,
+.timeCell small {
+  color: #72877f;
+  font-size: 10px;
+}
+
+.timeCell {
+  display: grid;
+  min-width: 92px;
+  gap: 3px;
+}
+
+.timeCell strong {
+  color: #234e42;
+  font-size: 12px;
+}
+
+.timeEnded {
+  color: #9a4935 !important;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rowActions button {
+  border: 1px solid #aac0b2;
+  border-radius: 5px;
+  padding: 6px 8px;
+  background: #fffdf7;
+  color: #234e42;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.rowActions .submitAction {
+  border-color: #d6aa55;
+  color: #765500;
+}
+
+.rowActions .unsubmitAction {
+  border-color: #d79a89;
+  color: #8b3e2e;
+}
+
+@media (max-width: 850px) {
+  .managerToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .selectionActions {
+    justify-content: flex-start;
+  }
+}

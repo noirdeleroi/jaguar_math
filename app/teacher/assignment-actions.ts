@@ -177,6 +177,60 @@ export async function addQuestionsToDraft(_: QuestionBankActionState, formData: 
 }
 
 const uuid = (value: string) => /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value);
+
+const refreshTestManager = (assignmentId: string) => {
+  revalidatePath("/teacher");
+  revalidatePath("/teacher/assignments");
+  revalidatePath(`/teacher/assignments/${assignmentId}`);
+  revalidatePath("/student");
+  revalidatePath(`/student/assignments/${assignmentId}`);
+};
+
+export async function forceSubmitTestAttempt(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const path = `/teacher/assignments/${assignmentId}`;
+  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid active Test attempt."));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("force_submit_owned_test_attempt", { p_assignment_id: assignmentId, p_attempt_id: attemptId });
+  if (error) {
+    console.error(`force_submit_owned_test_attempt failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    redirect(message(path, "error", "That Test attempt could not be submitted. It may have already changed."));
+  }
+  refreshTestManager(assignmentId);
+  redirect(message(path, "success", "The student's saved Test responses were submitted and graded."));
+}
+
+export async function unsubmitTestAttempt(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const path = `/teacher/assignments/${assignmentId}`;
+  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid submitted Test attempt."));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("unsubmit_owned_test_attempt", { p_assignment_id: assignmentId, p_attempt_id: attemptId });
+  if (error) {
+    console.error(`unsubmit_owned_test_attempt failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    redirect(message(path, "error", "That Test attempt could not be unsubmitted. It may have already changed."));
+  }
+  refreshTestManager(assignmentId);
+  redirect(message(path, "success", "The Test attempt is open again. Its answers were kept and its grade was cleared; add extra time if its timer has ended."));
+}
+
+export async function grantTestExtraTime(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const path = `/teacher/assignments/${assignmentId}`;
+  const studentIds = formData.getAll("student_ids").filter((value): value is string => typeof value === "string" && uuid(value));
+  const extraMinutes = integer(formData.get("extra_minutes"), 0);
+  if (!uuid(assignmentId) || !studentIds.length || new Set(studentIds).size !== studentIds.length || !extraMinutes || extraMinutes < 1 || extraMinutes > 1440) redirect(message(path, "error", "Select one or more students and enter 1–1440 extra minutes."));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("grant_owned_test_extra_time", { p_assignment_id: assignmentId, p_student_ids: studentIds, p_extra_minutes: extraMinutes });
+  if (error || !data) {
+    if (error) console.error(`grant_owned_test_extra_time failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    redirect(message(path, "error", "Extra time could not be added. One of the selected students may no longer be assigned to this Test."));
+  }
+  refreshTestManager(assignmentId);
+  const updated = Number(data);
+  redirect(message(path, "success", `${extraMinutes} extra minute${extraMinutes === 1 ? "" : "s"} added for ${updated} student${updated === 1 ? "" : "s"}.`));
+}
+
 const safeDraftQuestionError = (error: { code: string; message: string } | null) => {
   if (error?.code === "42501") return "You are not authorized to change this draft question.";
   const known = new Set(["Only draft questions managed by this teacher can be edited", "Only draft questions managed by this teacher can be removed", "Only drafts managed by this teacher can be reordered", "Question is not part of this draft", "Question cannot be moved further"]);
