@@ -38,7 +38,7 @@ const PRESETS: Record<AssignmentKind, Policy> = {
     kind: "test", durationMinutes: 60, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
     shuffleQuestions: true, shuffleOptions: true, examMode: true, examRequireFullscreen: true,
-    examTrackFocusExits: true, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: true,
+    examTrackFocusExits: true, examAllowedFocusExits: 1, examViolationAction: "auto_submit", teacherControlledQuestionRelease: true,
   },
 };
 
