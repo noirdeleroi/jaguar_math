@@ -25,11 +25,17 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
   const [notice, setNotice] = useState("");
   const [entering, setEntering] = useState(false);
   const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
+  const [waitingRoomViolation, setWaitingRoomViolation] = useState(false);
   const startingRef = useRef(false);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
   const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isFullscreenActive(), () => false);
   const resume = Boolean(attempt);
-  const fullscreenBlocked = waitingRoomOpen && requireFullscreen && !fullscreenActive;
+  const waitingRoomStorageKey = `jaguar-test-waiting-room:${assignmentId}`;
+  const fullscreenBlocked = waitingRoomOpen && requireFullscreen && (!fullscreenActive || waitingRoomViolation);
+
+  const forgetWaitingRoom = useCallback(() => {
+    try { sessionStorage.removeItem(waitingRoomStorageKey); } catch { /* Storage can be unavailable in privacy mode. */ }
+  }, [waitingRoomStorageKey]);
 
   const stopIfFullscreenWasLost = useCallback((attemptId: string) => {
     if (!requireFullscreen || isFullscreenActive()) return false;
@@ -39,7 +45,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
   }, [requireFullscreen]);
 
   const activateAttempt = useCallback(async () => {
-    if (startingRef.current || !questionsReleased || (requireFullscreen && !isFullscreenActive())) return;
+    if (startingRef.current || !questionsReleased || waitingRoomViolation || (requireFullscreen && !isFullscreenActive())) return;
     startingRef.current = true;
     setEntering(true);
     setNotice("");
@@ -49,14 +55,15 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
         if (requireFullscreen) {
           const queued = await flushExamActivityQueue(attempt.id);
           if (queued && "error" in queued) { setNotice("Your previous fullscreen exit is saved on this device, but it could not be verified yet. Check the connection and try again."); return; }
-          if (queued?.autoSubmitted) { router.refresh(); return; }
+          if (queued?.autoSubmitted) { forgetWaitingRoom(); router.refresh(); return; }
           if (queued) verifiedAttempt = { ...verifiedAttempt, focusViolations: Math.max(verifiedAttempt.focusViolations, queued.focusViolations) };
           if (stopIfFullscreenWasLost(attempt.id)) return;
           const result = await sendExamActivity(attempt.id, "fullscreen_restored");
-          if (result && !("error" in result) && result.autoSubmitted) { router.refresh(); return; }
+          if (result && !("error" in result) && result.autoSubmitted) { forgetWaitingRoom(); router.refresh(); return; }
           if (result && !("error" in result)) verifiedAttempt = { ...verifiedAttempt, focusViolations: Math.max(verifiedAttempt.focusViolations, result.focusViolations) };
           if (stopIfFullscreenWasLost(attempt.id)) return;
         }
+        forgetWaitingRoom();
         if (onActive) onActive(verifiedAttempt); else router.refresh();
         return;
       }
@@ -67,11 +74,12 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
       if (requireFullscreen) {
         if (stopIfFullscreenWasLost(result.attemptId)) return;
         const activity = await sendExamActivity(result.attemptId, "fullscreen_restored");
-        if (activity && !("error" in activity) && activity.autoSubmitted) { router.refresh(); return; }
+        if (activity && !("error" in activity) && activity.autoSubmitted) { forgetWaitingRoom(); router.refresh(); return; }
         if (activity && !("error" in activity)) focusViolations = activity.focusViolations;
         if (stopIfFullscreenWasLost(result.attemptId)) return;
       }
       const startedAttempt = { id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations };
+      forgetWaitingRoom();
       if (onActive) onActive(startedAttempt); else router.refresh();
     } catch {
       setNotice("Exam Mode could not start. Please try again.");
@@ -79,7 +87,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
       startingRef.current = false;
       setEntering(false);
     }
-  }, [assignmentId, attempt, onActive, questionsReleased, requireFullscreen, router, stopIfFullscreenWasLost]);
+  }, [assignmentId, attempt, forgetWaitingRoom, onActive, questionsReleased, requireFullscreen, router, stopIfFullscreenWasLost, waitingRoomViolation]);
 
   const enterWaitingRoom = async () => {
     if (entering || startingRef.current) return;
@@ -89,6 +97,8 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
       if (!canRequestFullscreen()) { setNotice("Fullscreen is not supported by this browser. Ask your teacher how to continue."); setEntering(false); return; }
       try { if (!(await requestAppFullscreen())) throw new Error("not-entered"); } catch { setNotice("The browser could not enter fullscreen. Close any permission prompt and try again."); setEntering(false); return; }
     }
+    setWaitingRoomViolation(false);
+    try { sessionStorage.setItem(waitingRoomStorageKey, "armed"); } catch { /* The in-memory lock remains active. */ }
     setWaitingRoomOpen(true);
     setEntering(false);
   };
@@ -99,12 +109,43 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     setNotice("");
     try {
       if (!canRequestFullscreen() || !(await requestAppFullscreen())) throw new Error("not-entered");
+      setWaitingRoomViolation(false);
     } catch {
       setNotice("Fullscreen could not be restored. You cannot start or continue the test until you return to fullscreen.");
     } finally {
       setEntering(false);
     }
   };
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(waitingRoomStorageKey) !== "armed") return;
+      const timeout = window.setTimeout(() => setWaitingRoomOpen(true), 0);
+      return () => window.clearTimeout(timeout);
+    } catch { /* The current component state still protects this visit. */ }
+  }, [waitingRoomStorageKey]);
+
+  useEffect(() => {
+    if (!waitingRoomOpen || !requireFullscreen) return;
+    const blockWaitingRoom = () => setWaitingRoomViolation(true);
+    const fullscreen = () => { if (!isFullscreenActive()) blockWaitingRoom(); };
+    const visibility = () => { if (document.visibilityState === "hidden") blockWaitingRoom(); };
+
+    // Waiting-room incidents lock the UI locally but are intentionally not
+    // sent to exam activity because the timed attempt has not started.
+    const initialCheck = !isFullscreenActive() ? window.setTimeout(blockWaitingRoom, 0) : undefined;
+    document.addEventListener("visibilitychange", visibility);
+    window.addEventListener("blur", blockWaitingRoom);
+    window.addEventListener("pagehide", blockWaitingRoom);
+    const unsubscribeFullscreen = subscribeToFullscreen(fullscreen);
+    return () => {
+      if (initialCheck !== undefined) window.clearTimeout(initialCheck);
+      document.removeEventListener("visibilitychange", visibility);
+      window.removeEventListener("blur", blockWaitingRoom);
+      window.removeEventListener("pagehide", blockWaitingRoom);
+      unsubscribeFullscreen();
+    };
+  }, [requireFullscreen, waitingRoomOpen]);
 
   useEffect(() => {
     if (!waitingRoomOpen || questionsReleased) return;
@@ -126,7 +167,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", keepFocusOnWarning, true); };
   }, [fullscreenBlocked]);
 
-  if (waitingRoomOpen) return <section aria-busy={entering} className={`student-results ${styles.start} ${styles.waiting}`}><p className="eyebrow">Secure mode · Test waiting room</p><h2>{questionsReleased ? resume ? "Your test is ready to continue" : "Your test is ready" : "Wait for your teacher to start the test"}</h2><p className={styles.instructionsLead}>Read these rules before you begin:</p><ul className={styles.instructions}><li><strong>Never exit fullscreen</strong> or switch to another tab, window, or app during the test.</li><li><strong>Answer every question.</strong> Your grade is based on the answers you submit.</li><li>If a question is difficult, move to another one and return to it before submitting.</li><li>Review your answers before you submit the test.</li></ul>{instructions && <div className={styles.teacherInstructions}><strong>Teacher instructions</strong><p>{instructions}</p></div>}<div aria-live="polite" className={`${styles.waitingStatus} ${questionsReleased ? styles.readyStatus : ""}`}><span aria-hidden="true" /><strong>{questionsReleased ? "Ready — start when you are prepared" : "Questions and timer are locked"}</strong></div>{entering && <div aria-label="Loading assessment" className={styles.loadingTrack} role="progressbar"><span /></div>}<button aria-describedby={!questionsReleased ? "teacher-start-instruction" : undefined} className="teacher-button" disabled={entering || !questionsReleased || fullscreenBlocked} onClick={() => void activateAttempt()} type="button">{entering ? resume ? "Opening test…" : "Starting test…" : resume ? "CONTINUE TEST" : "START TEST"} <span aria-hidden="true">→</span></button>{!questionsReleased && <p className="form-note" id="teacher-start-instruction"><strong>Wait for your teacher to start the test.</strong> The START TEST button is locked until your teacher begins the test. Keep this page open in fullscreen.</p>}{notice && !fullscreenBlocked && <section className={styles.warning} role="alert"><strong>Exam Mode could not continue</strong><p>{notice}</p></section>}{fullscreenBlocked && <section aria-live="assertive" className={`${styles.blockOverlay} ${styles.fullscreenAlert}`} role="alert"><span aria-hidden="true" className={styles.alertIcon}>!</span><p className="eyebrow">Critical test security warning</p><h2>NEVER EXIT FULLSCREEN.</h2><p>The test is completely locked while fullscreen is off. You cannot start, continue, view questions, or enter answers until fullscreen is restored.</p><strong className={styles.alertInstruction}>Return to fullscreen immediately. Do not switch tabs, windows, or apps at any time during the test.</strong><button className="teacher-button" disabled={entering} onClick={() => void restoreFullscreen()} ref={restoreButtonRef} type="button">{entering ? "Restoring fullscreen…" : "Return to fullscreen"} <span aria-hidden="true">→</span></button>{notice && <p className={styles.blockError}>{notice}</p>}</section>}</section>;
+  if (waitingRoomOpen) return <section aria-busy={entering} className={`student-results ${styles.start} ${styles.waiting}`}><p className="eyebrow">Secure mode · Test waiting room</p><h2>{questionsReleased ? resume ? "Your test is ready to continue" : "Your test is ready" : "Wait for your teacher to start the test"}</h2><p className={styles.instructionsLead}>Read these rules before you begin:</p><ul className={styles.instructions}><li><strong>Never exit fullscreen</strong> or switch to another tab, window, or app during the test.</li><li><strong>Answer every question.</strong> Your grade is based on the answers you submit.</li><li>If a question is difficult, move to another one and return to it before submitting.</li><li>Review your answers before you submit the test.</li></ul>{instructions && <div className={styles.teacherInstructions}><strong>Teacher instructions</strong><p>{instructions}</p></div>}<div aria-live="polite" className={`${styles.waitingStatus} ${questionsReleased ? styles.readyStatus : ""}`}><span aria-hidden="true" /><strong>{questionsReleased ? "Ready — start when you are prepared" : "Questions and timer are locked"}</strong></div>{entering && <div aria-label="Loading assessment" className={styles.loadingTrack} role="progressbar"><span /></div>}<button aria-describedby={!questionsReleased ? "teacher-start-instruction" : undefined} className="teacher-button" disabled={entering || !questionsReleased || fullscreenBlocked} onClick={() => void activateAttempt()} type="button">{entering ? resume ? "Opening test…" : "Starting test…" : resume ? "CONTINUE TEST" : "START TEST"} <span aria-hidden="true">→</span></button>{!questionsReleased && <p className="form-note" id="teacher-start-instruction"><strong>Wait for your teacher to start the test.</strong> The START TEST button is locked until your teacher begins the test. Keep this page open in fullscreen.</p>}{notice && !fullscreenBlocked && <section className={styles.warning} role="alert"><strong>Exam Mode could not continue</strong><p>{notice}</p></section>}{fullscreenBlocked && <section aria-live="assertive" className={`${styles.blockOverlay} ${styles.fullscreenAlert}`} role="alert"><span aria-hidden="true" className={styles.alertIcon}>!</span><p className="eyebrow">Critical waiting-room security warning</p><h2>DO NOT EXIT FULLSCREEN.</h2><p>The waiting room is completely locked because you left fullscreen. This is not counted as an exam exit because your test has not started.</p><strong className={styles.alertInstruction}>Return to fullscreen immediately. Do not switch tabs, windows, or apps while you wait for the test.</strong><button className="teacher-button" disabled={entering} onClick={() => void restoreFullscreen()} ref={restoreButtonRef} type="button">{entering ? "Restoring fullscreen…" : "Return to fullscreen"} <span aria-hidden="true">→</span></button>{notice && <p className={styles.blockError}>{notice}</p>}</section>}</section>;
 
   return <section aria-busy={entering} className={`student-results ${styles.start}`}><p className="eyebrow">Secure mode · Exam Mode</p><h2>{resume ? "Return to your secure test" : "Enter fullscreen to begin"}</h2><p>First, enter fullscreen. You will then see the test rules and the {resume ? "CONTINUE TEST" : "START TEST"} button.</p><p className={styles.gateDetail}>Once you enter the secure waiting room, leaving fullscreen locks the entire test.</p>{entering && <div aria-label="Entering fullscreen" className={styles.loadingTrack} role="progressbar"><span /></div>}<button className="teacher-button" disabled={entering} onClick={() => void enterWaitingRoom()} type="button">{entering ? "Entering fullscreen…" : "Enter fullscreen"} <span aria-hidden="true">→</span></button>{notice && <section className={styles.warning} role="alert"><strong>Exam Mode could not open</strong><p>{notice}</p><button className="secondary-inline-button" disabled={entering} onClick={() => void enterWaitingRoom()} type="button">Try again</button></section>}</section>;
 }
