@@ -8,7 +8,7 @@
       "numeric_tolerance": 0,
       "explanation": "$\\frac{5}{12}=\\frac{10}{24}$ and $\\frac{1}{8}=\\frac{3}{24}$, so the sum is $\\frac{13}{24}$. Therefore, $a=13$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -20,7 +20,7 @@
       "numeric_tolerance": 0,
       "explanation": "$\\frac{8}{15}\\times\\frac{9}{16}=\\frac{72}{240}=\\frac{3}{10}$. Therefore, $b=10$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -32,7 +32,7 @@
       "numeric_tolerance": 0,
       "explanation": "The numbers have different signs, so subtract their absolute values: $8.6-2.3=6.3$. The number with the greater absolute value is negative, so the answer is $-6.3$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -44,7 +44,7 @@
       "numeric_tolerance": 0,
       "explanation": "$15\\times2=30$, so $1.5\\times2=3$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.DECIMALS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -61,7 +61,7 @@
       "numeric_tolerance": 0,
       "explanation": "Fractions must have a common denominator before they can be added. Here, both fractions can be rewritten with denominator $20$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "ARGUMENTACION"
     },
@@ -73,7 +73,7 @@
       "numeric_tolerance": 0,
       "explanation": "First, $3-5=-2$. Then $(-2)^2=4$, so $10-2(4)=10-8=2$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.ORDER_OPS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -85,7 +85,7 @@
       "numeric_tolerance": 0,
       "explanation": "Multiply first: $\\frac{3}{4}\\times8=6$. Then $-2+6=4$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [
         { "code": "NUM.ORDER_OPS", "weight": 0.7, "is_primary": true },
         { "code": "NUM.FRACTIONS", "weight": 0.3, "is_primary": false }
@@ -100,7 +100,7 @@
       "numeric_tolerance": 0,
       "explanation": "$30\\%=0.30$, and $0.30\\times70=21$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -117,7 +117,7 @@
       "numeric_tolerance": 0,
       "explanation": "The new price is $100\\%+15\\%=115\\%$ of the original price. Since $115\\%=1.15$, the expression is $1.15P$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
       "icfes_competency": "INTERPRETACION_REPRESENTACION"
     },
@@ -129,7 +129,7 @@
       "numeric_tolerance": 0,
       "explanation": "The discount is $0.30\\times50=15$ USD. The new price is $50-15=35$ USD.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -141,7 +141,7 @@
       "numeric_tolerance": 0,
       "explanation": "There are $4+7=11$ equal parts. Each part is $55\\div11=5$ counters, so the number of blue counters is $7\\times5=35$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.RATIOS_RATES", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -153,7 +153,7 @@
       "numeric_tolerance": 0,
       "explanation": "$36$ is $3$ times $12$, so multiply the flour by $3$: $5\\times3=15$ cups.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.PROPORTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -165,7 +165,7 @@
       "numeric_tolerance": 0,
       "explanation": "$302$ is close to $300$ and $19.8$ is close to $20$. Therefore, $302\\times19.8\\approx300\\times20=6000$.",
       "difficulty": 1,
-      "points": 5,
+      "points": 1,
       "skills": [{ "code": "NUM.ESTIMATION", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -182,7 +182,7 @@
       "numeric_tolerance": 0,
       "explanation": "Dividing by a nonzero number is equivalent to multiplying by its reciprocal. The reciprocal of $\\frac{2}{5}$ is $\\frac{5}{2}$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "ARGUMENTACION"
     },
@@ -194,7 +194,7 @@
       "numeric_tolerance": 0,
       "explanation": "$\\frac{13}{20}=\\frac{65}{100}=0.65$.",
       "difficulty": 2,
-      "points": 5,
+      "points": 2,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "INTERPRETACION_REPRESENTACION"
     },
@@ -206,7 +206,7 @@
       "numeric_tolerance": 0,
       "explanation": "The first discount is $0.15\\times160=24$ USD, leaving $136$ USD. The coupon removes $25\\%$ of $136$, which is $34$ USD, leaving $102$ USD. Adding 13 USD shipping gives $115$ USD.",
       "difficulty": 4,
-      "points": 5,
+      "points": 4,
       "skills": [{ "code": "NUM.PERCENT", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -218,7 +218,7 @@
       "numeric_tolerance": 0,
       "explanation": "Group B starts with $\\frac{7}{12}\\times120=70$ people. Then $20\\%$ of $70$, or $14$, leave, so $56$ remain. Finally, $25\\%$ of the remaining $56$, or $14$, transfer to Group A, leaving $42$ in Group B.",
       "difficulty": 4,
-      "points": 5,
+      "points": 4,
       "skills": [
         { "code": "NUM.RATIOS_RATES", "weight": 0.6, "is_primary": true },
         { "code": "NUM.PERCENT", "weight": 0.4, "is_primary": false }
@@ -233,7 +233,7 @@
       "numeric_tolerance": 0,
       "explanation": "After $\\frac{2}{7}$ is used, $\\frac{5}{7}$ of the water remains. Thus, $\\frac{5}{7}\\times\\frac{7}{8}=\\frac{5}{8}$ of the whole tank remains, so $a=5$.",
       "difficulty": 4,
-      "points": 5,
+      "points": 4,
       "skills": [{ "code": "NUM.FRACTIONS", "weight": 1, "is_primary": true }],
       "icfes_competency": "FORMULACION_EJECUCION"
     },
@@ -245,7 +245,7 @@
       "numeric_tolerance": 0,
       "explanation": "$\\frac{5}{6}\\div\\frac{5}{12}=\\frac{5}{6}\\times\\frac{12}{5}=2$. Also, $2\\left(1-\\frac{1}{4}\\right)=2\\times\\frac{3}{4}=1.5$. Therefore, the total is $2+1.5=3.5$.",
       "difficulty": 4,
-      "points": 5,
+      "points": 4,
       "skills": [
         { "code": "NUM.ORDER_OPS", "weight": 0.6, "is_primary": true },
         { "code": "NUM.FRACTIONS", "weight": 0.4, "is_primary": false }
