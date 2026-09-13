@@ -8,6 +8,12 @@ import {
   requestAppFullscreen,
   subscribeToFullscreen,
 } from "../app/student/assignments/fullscreen-api.ts";
+import { resolveExamRunnerAttempt } from "../app/student/assignments/exam-mode-attempt.ts";
+
+test("keeps a started attempt mounted so its runner can count fullscreen exits", () => {
+  const startedAttempt = { id: "attempt-1" };
+  assert.equal(resolveExamRunnerAttempt(undefined, startedAttempt), startedAttempt);
+});
 
 test("counts every restored exit while deduplicating signals from one exit", () => {
   const tracker = createFullscreenExitTracker();
