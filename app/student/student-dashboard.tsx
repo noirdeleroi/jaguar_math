@@ -24,11 +24,9 @@ function Progress({ assignment }: { assignment: DashboardAssignment }) {
 }
 
 function AssignmentAction({ assignment }: { assignment: DashboardAssignment }) {
-  if (assignment.action === "start") return <Link className="dashboard-action" href={`/student/assignments/${assignment.id}`}>Open {assignment.kind} <span>→</span></Link>;
-  if (assignment.action === "continue") return <Link className="dashboard-action" href={`/student/assignments/${assignment.id}`}>Continue <span>→</span></Link>;
-  if (assignment.action === "review") return <Link className="dashboard-action dashboard-action-quiet" href={`/student/assignments/${assignment.id}`}>Review <span>→</span></Link>;
-  if (assignment.action === "view") return <Link className="dashboard-action dashboard-action-quiet" href={`/student/assignments/${assignment.id}`}>View <span>→</span></Link>;
-  return null;
+  const pageAction = assignment.action === "start" ? <>Open {assignment.kind} <span>→</span></> : assignment.action === "continue" ? <>Continue <span>→</span></> : assignment.action === "review" ? <>Review <span>→</span></> : assignment.action === "view" ? <>View <span>→</span></> : null;
+  if (!pageAction && !assignment.pdfAvailable) return null;
+  return <div className="dashboard-card-actions">{assignment.pdfAvailable && <a className="dashboard-action dashboard-action-quiet" download href={`/api/assignments/${assignment.id}/answer-key.pdf`}>Download PDF <span>↓</span></a>}{pageAction && <Link className={`dashboard-action${assignment.action === "review" || assignment.action === "view" ? " dashboard-action-quiet" : ""}`} href={`/student/assignments/${assignment.id}`}>{pageAction}</Link>}</div>;
 }
 
 export function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {

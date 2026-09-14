@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/exam-activity-client.test.mjs tests/student-randomizer.test.mjs tests/test-question-release.test.mjs",
+    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/exam-activity-client.test.mjs tests/student-randomizer.test.mjs tests/test-question-release.test.mjs tests/homework-pdf.test.mjs",
     "generate:skill-seed": "node scripts/generate-skill-seed.mjs",
     "validate:skills": "node scripts/generate-skill-seed.mjs"
   },
@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.112.4",
     "katex": "^0.18.4",
     "next": "16.3.3",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-katex": "^3.1.0",

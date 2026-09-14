@@ -133,6 +133,21 @@ export async function releaseTestQuestions(formData: FormData) {
   redirect(message(path, "success", "Test questions are now open. Student timers begin when their waiting screens connect."));
 }
 
+export async function setHomeworkPdfRelease(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const released = text(formData.get("released")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id) || !["true", "false"].includes(released)) redirect(message(path, "error", "Choose a valid homework PDF setting."));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_owned_homework_pdf_release", { p_assignment_id: id, p_released: released === "true" });
+  if (error) {
+    console.error(`set_owned_homework_pdf_release failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    const safeError = error.message.includes("deadline") ? "Add a homework deadline before releasing the PDF." : error.message.includes("Publish") ? "Publish the homework before releasing the PDF." : "Student PDF access could not be updated.";
+    redirect(message(path, "error", safeError));
+  }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); revalidatePath("/student/assessments"); revalidatePath(`/student/assignments/${id}`);
+  redirect(message(path, "success", released === "true" ? "The PDF will be available to students after the homework deadline." : "The homework PDF is hidden from students."));
+}
+
 const safeDuplicateError = (error: { code: string; message: string } | null) => {
   if (error?.code === "42501") return "You are not authorized to duplicate this assignment.";
   if (error?.code === "P0001" && error.message === "Assignment is not managed by this teacher") return "This assignment is not available to duplicate.";

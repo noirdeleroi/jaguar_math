@@ -1,10 +1,11 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { homeworkPdfIsAvailable } from "@/lib/homework-pdf-release";
 
-export type DashboardAssignment = { id: string; title: string; description: string | null; kind: string; dueAt: string | null; classNames: string[]; status: "Not started" | "In progress" | "Submitted" | "Completed" | "Overdue" | "Closed"; questionCount: number; answeredCount: number; score: number | null; maxScore: number | null; showScore: boolean; submittedAt: string | null; action: "start" | "continue" | "review" | "view" | null; actionable: boolean; completed: boolean; overdue: boolean };
+export type DashboardAssignment = { id: string; title: string; description: string | null; kind: string; dueAt: string | null; classNames: string[]; status: "Not started" | "In progress" | "Submitted" | "Completed" | "Overdue" | "Closed"; questionCount: number; answeredCount: number; score: number | null; maxScore: number | null; showScore: boolean; submittedAt: string | null; action: "start" | "continue" | "review" | "view" | null; actionable: boolean; completed: boolean; overdue: boolean; pdfAvailable: boolean };
 export type StudentClassroom = { id: string; name: string; gradeLevel: number; teacherId: string; nickname: string | null };
 
-type Assignment = { id: string; title: string; description: string | null; kind: string; status: "published" | "closed"; due_at: string | null; max_attempts: number; show_score_after_submit: boolean };
+type Assignment = { id: string; title: string; description: string | null; kind: string; status: "published" | "closed"; due_at: string | null; max_attempts: number; show_score_after_submit: boolean; homework_pdf_released_at: string | null };
 type Attempt = { id: string; assignment_id: string; status: "in_progress" | "submitted"; started_at: string; submitted_at: string | null; score: number | null; max_score: number | null; attempt_number: number };
 type Response = { attempt_id: string; question_id: string; student_answer: string | null };
 
@@ -24,7 +25,7 @@ export async function getStudentAssignments() {
   const [{ data: classes }, { data: memberships }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").order("grade_level").order("name"),
     supabase.from("class_members").select("class_id, nickname"),
-    supabase.from("assignments").select("id, title, description, kind, status, due_at, max_attempts, show_score_after_submit").in("status", ["published", "closed"]),
+    supabase.from("assignments").select("id, title, description, kind, status, due_at, max_attempts, show_score_after_submit, homework_pdf_released_at").in("status", ["published", "closed"]),
     supabase.rpc("get_my_assignment_attempts"),
   ]);
   const assignmentRows = (assignments ?? []) as Assignment[]; const assignmentIds = assignmentRows.map((assignment) => assignment.id); const attemptRows = (attempts ?? []) as Attempt[]; const attemptIds = attemptRows.map((attempt) => attempt.id);
@@ -47,7 +48,7 @@ export async function getStudentAssignments() {
     else if (submitted) { status = "Completed"; action = "review"; }
     else if (overdue) { status = "Overdue"; action = "view"; }
     else { status = "Not started"; action = "start"; actionable = true; }
-    return { id: assignment.id, title: assignment.title, description: assignment.description, kind: assignment.kind, dueAt: assignment.due_at, classNames: [...(classesByAssignment.get(assignment.id) ?? [])].filter(Boolean), status, questionCount, answeredCount: active ? answeredByAttempt.get(active.id) ?? 0 : 0, score: submitted?.score ?? null, maxScore: submitted?.max_score ?? null, showScore: assignment.show_score_after_submit, submittedAt: submitted?.submitted_at ?? null, action, actionable, completed: Boolean(submitted), overdue };
+    return { id: assignment.id, title: assignment.title, description: assignment.description, kind: assignment.kind, dueAt: assignment.due_at, classNames: [...(classesByAssignment.get(assignment.id) ?? [])].filter(Boolean), status, questionCount, answeredCount: active ? answeredByAttempt.get(active.id) ?? 0 : 0, score: submitted?.score ?? null, maxScore: submitted?.max_score ?? null, showScore: assignment.show_score_after_submit, submittedAt: submitted?.submitted_at ?? null, action, actionable, completed: Boolean(submitted), overdue, pdfAvailable: homeworkPdfIsAvailable({ kind: assignment.kind, dueAt: assignment.due_at, releasedAt: assignment.homework_pdf_released_at }, now) };
   });
   dashboardAssignments.sort((left, right) => {
     if (left.actionable !== right.actionable) return left.actionable ? -1 : 1;
