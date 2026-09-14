@@ -8,11 +8,18 @@ import {
   requestAppFullscreen,
   subscribeToFullscreen,
 } from "../app/student/assignments/fullscreen-api.ts";
-import { resolveExamRunnerAttempt } from "../app/student/assignments/exam-mode-attempt.ts";
+import { canStartExamFromWaitingRoom, resolveExamRunnerAttempt } from "../app/student/assignments/exam-mode-attempt.ts";
 
 test("keeps a started attempt mounted so its runner can count fullscreen exits", () => {
   const startedAttempt = { id: "attempt-1" };
   assert.equal(resolveExamRunnerAttempt(undefined, startedAttempt), startedAttempt);
+});
+
+test("keeps the waiting-room start button locked until teacher release", () => {
+  const waiting = { questionsReleased: false, requireFullscreen: true, fullscreenActive: true, waitingRoomViolation: false, starting: false };
+  assert.equal(canStartExamFromWaitingRoom(waiting), false);
+  assert.equal(canStartExamFromWaitingRoom({ ...waiting, questionsReleased: true }), true);
+  assert.equal(canStartExamFromWaitingRoom({ ...waiting, questionsReleased: true, fullscreenActive: false }), false);
 });
 
 test("counts every restored exit while deduplicating signals from one exit", () => {
