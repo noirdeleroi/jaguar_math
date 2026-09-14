@@ -33,6 +33,25 @@ test("persists an exit before starting its network request", async () => {
   }
 });
 
+test("queues the latest answer snapshot with a violation", async () => {
+  const storage = createStorage();
+  const previous = { fetch: globalThis.fetch, localStorage: globalThis.localStorage, window: globalThis.window };
+  globalThis.localStorage = storage;
+  globalThis.window = globalThis;
+  globalThis.fetch = async () => { throw new Error("offline"); };
+  const responses = [{ questionId: "question-1", answer: "42", revision: 123 }];
+  try {
+    await sendExamActivity("attempt-snapshot", "fullscreen_exited", undefined, true, responses);
+    const [queued] = JSON.parse(storage.getItem("jaguar-exam-events:attempt-snapshot"));
+    assert.deepEqual(queued.responses, responses);
+    assert.equal(Number.isNaN(new Date(queued.clientOccurredAt).getTime()), false);
+  } finally {
+    globalThis.fetch = previous.fetch;
+    globalThis.localStorage = previous.localStorage;
+    globalThis.window = previous.window;
+  }
+});
+
 test("concurrent acknowledgements remove only their own queued event", async () => {
   const storage = createStorage();
   const pending = [];

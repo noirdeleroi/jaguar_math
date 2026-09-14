@@ -8,7 +8,7 @@ import {
   requestAppFullscreen,
   subscribeToFullscreen,
 } from "../app/student/assignments/fullscreen-api.ts";
-import { canStartExamFromWaitingRoom, resolveExamRunnerAttempt } from "../app/student/assignments/exam-mode-attempt.ts";
+import { canStartExamFromWaitingRoom, resolveExamRunnerAttempt, restoreFullscreenBeforeVerification } from "../app/student/assignments/exam-mode-attempt.ts";
 
 test("keeps a started attempt mounted so its runner can count fullscreen exits", () => {
   const startedAttempt = { id: "attempt-1" };
@@ -62,4 +62,14 @@ test("requests fullscreen through the WebKit fallback used by iPad Safari", asyn
   assert.equal(canRequestFullscreen(element), true);
   assert.equal(await requestAppFullscreen(element), true);
   assert.equal(isFullscreenActive(documentTarget), true);
+});
+
+test("restores fullscreen before waiting for network verification", async () => {
+  const order = [];
+  const recovery = await restoreFullscreenBeforeVerification(
+    async () => { order.push("fullscreen"); return true; },
+    async () => { order.push("network"); return "verified"; },
+  );
+  assert.deepEqual(order, ["fullscreen", "network"]);
+  assert.deepEqual(recovery, { restored: true, result: "verified" });
 });

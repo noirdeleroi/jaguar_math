@@ -1,8 +1,9 @@
 export type ExamActivityEvent = "page_hidden" | "page_visible" | "window_blur" | "window_focus" | "fullscreen_exited" | "fullscreen_restored" | "fullscreen_unavailable";
+export type ExamResponseSnapshot = { questionId: string; answer: string; revision: number };
 export type ExamActivityResult = { focusViolations: number; autoSubmitted: boolean } | { error: string };
-type QueuedEvent = { eventId: string; eventType: ExamActivityEvent; awayDurationSeconds?: number };
+type QueuedEvent = { eventId: string; eventType: ExamActivityEvent; clientOccurredAt: string; awayDurationSeconds?: number; responses?: ExamResponseSnapshot[] };
 
-const maxQueuedEvents = 500;
+const maxQueuedEvents = 50;
 const queueKey = (attemptId: string) => `jaguar-exam-events:${attemptId}`;
 const readQueue = (attemptId: string): QueuedEvent[] => {
   try { const parsed = JSON.parse(localStorage.getItem(queueKey(attemptId)) ?? "[]"); return Array.isArray(parsed) ? parsed.slice(-maxQueuedEvents) : []; } catch { return []; }
@@ -17,7 +18,7 @@ async function postExamActivity(attemptId: string, event: QueuedEvent, keepalive
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 10_000);
   try {
-    const response = await fetch("/api/exam-activity", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId, ...event }), credentials: "same-origin", keepalive, signal: controller.signal });
+    const response = await fetch("/api/exam-activity", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId, ...event, clientOccurredAt: event.clientOccurredAt ?? new Date().toISOString() }), credentials: "same-origin", keepalive, signal: controller.signal });
     const data = await response.json().catch(() => null) as { focusViolations?: unknown; autoSubmitted?: unknown; error?: unknown } | null;
     if (!response.ok || !data || typeof data.focusViolations !== "number") return { error: typeof data?.error === "string" ? data.error : "Exam activity could not be recorded. It is queued on this device." };
     return { focusViolations: data.focusViolations, autoSubmitted: data.autoSubmitted === true };
@@ -26,8 +27,8 @@ async function postExamActivity(attemptId: string, event: QueuedEvent, keepalive
   }
 }
 
-export async function sendExamActivity(attemptId: string, eventType: ExamActivityEvent, awayDurationSeconds?: number, keepalive = false): Promise<ExamActivityResult> {
-  const event = { eventId: crypto.randomUUID(), eventType, awayDurationSeconds };
+export async function sendExamActivity(attemptId: string, eventType: ExamActivityEvent, awayDurationSeconds?: number, keepalive = false, responses?: ExamResponseSnapshot[]): Promise<ExamActivityResult> {
+  const event = { eventId: crypto.randomUUID(), eventType, clientOccurredAt: new Date().toISOString(), awayDurationSeconds, responses };
   // Persist before starting the request: mobile browsers can freeze the page as
   // soon as it becomes hidden, before a failed keepalive request rejects.
   queueEvent(attemptId, event);

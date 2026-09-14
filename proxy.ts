@@ -2,4 +2,4 @@ import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) { return updateSession(request); }
-export const config = { matcher: ["/student/:path*", "/teacher/:path*"] };
+export const config = { matcher: ["/student/:path*", "/teacher/:path*", "/api/attempt-responses", "/api/attempt-status", "/api/exam-activity"] };

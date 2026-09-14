@@ -5,7 +5,7 @@ import AssessmentRunner from "./assessment-runner";
 import ExamModeGate, { type ExamAttempt } from "./exam-mode-start";
 import { resolveExamRunnerAttempt } from "./exam-mode-attempt";
 
-type Question = { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null; points: number; answer: string; isCorrect: boolean | null; pointsAwarded: number | null };
+type Question = { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null; points: number; answer: string; serverRevision: number; isCorrect: boolean | null; pointsAwarded: number | null };
 type ExamMode = { requireFullscreen: boolean; trackFocusExits: boolean; allowedFocusExits: number; violationAction: "warn" | "auto_submit" };
 
 export default function ExamModeAssessment({ assignmentId, initialAttempt, expiresAt, durationMinutes, questions, responsesClosed, examMode, questionDisplayMode, showFeedbackAfterEachQuestion }: { assignmentId: string; initialAttempt?: ExamAttempt; expiresAt: string | null; durationMinutes: number | null; questions: Question[]; responsesClosed: boolean; examMode: ExamMode; questionDisplayMode: "one_at_a_time" | "all_at_once"; showFeedbackAfterEachQuestion: boolean }) {

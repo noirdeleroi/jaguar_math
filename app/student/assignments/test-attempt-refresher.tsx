@@ -7,8 +7,10 @@ export default function TestAttemptRefresher() {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = window.setInterval(() => router.refresh(), 5000);
-    return () => window.clearInterval(timer);
+    const refresh = () => { if (document.visibilityState === "visible" && navigator.onLine) router.refresh(); };
+    const timer = window.setInterval(refresh, 30_000);
+    window.addEventListener("online", refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener("online", refresh); };
   }, [router]);
 
   return null;
