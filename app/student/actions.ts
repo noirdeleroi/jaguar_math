@@ -1,7 +1,29 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { requireStudent } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+
+const notificationUuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+
+export async function markStudentNotificationRead(notificationId: string): Promise<{ ok: true } | { error: string }> {
+  const student = await requireStudent();
+  if (!notificationUuid.test(notificationId)) return { error: "That notification is not available." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("student_notifications").update({ read_at: new Date().toISOString() }).eq("id", notificationId).eq("student_id", student.id).is("read_at", null);
+  if (error) return { error: "That notification could not be updated." };
+  revalidatePath("/student");
+  return { ok: true };
+}
+
+export async function markAllStudentNotificationsRead(): Promise<{ ok: true } | { error: string }> {
+  const student = await requireStudent();
+  const supabase = await createClient();
+  const { error } = await supabase.from("student_notifications").update({ read_at: new Date().toISOString() }).eq("student_id", student.id).is("read_at", null);
+  if (error) return { error: "Notifications could not be updated." };
+  revalidatePath("/student");
+  return { ok: true };
+}
 
 export async function startOrContinueAssignment(assignmentId: string) {
   const student = await requireStudent(); const supabase = await createClient();
