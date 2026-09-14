@@ -19,6 +19,8 @@ function assignmentPriority(assignment: DashboardAssignment) {
 
 export async function getStudentAssignments() {
   const supabase = await createClient();
+  const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts");
+  if (finalizationError) console.error(`[student-assignments] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
   const [{ data: classes }, { data: memberships }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").order("grade_level").order("name"),
     supabase.from("class_members").select("class_id, nickname"),

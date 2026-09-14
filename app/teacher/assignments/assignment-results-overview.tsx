@@ -5,8 +5,12 @@ import ResultsOverviewClient, { type AssignmentResultsOverview } from "./results
 type ClassOption = { id: string; name: string; grade_level: number };
 type TestRosterRow = { student_id: string; attempt_id: string | null; attempt_number: number | null; status: "submitted" | "in_progress" | "not_started"; started_at: string | null; submitted_at: string | null; expires_at: string | null; teacher_extra_minutes: number; answered_count: number; total_questions: number; last_activity_at: string | null; focus_violations: number; form_code: string | null; offline_recovery_used: boolean; offline_recovery_seconds: number };
 
-export default async function AssignmentResultsOverview({ assignmentId, classes, selectedClassId, examMode = false, allowedFocusExits = 0, live = false, tabbed = false, questionSet }: { assignmentId: string; classes: ClassOption[]; selectedClassId?: string; examMode?: boolean; allowedFocusExits?: number; live?: boolean; tabbed?: boolean; questionSet?: ReactNode }) {
+export default async function AssignmentResultsOverview({ assignmentId, assignmentKind, classes, selectedClassId, examMode = false, allowedFocusExits = 0, live = false, tabbed = false, questionSet }: { assignmentId: string; assignmentKind: string; classes: ClassOption[]; selectedClassId?: string; examMode?: boolean; allowedFocusExits?: number; live?: boolean; tabbed?: boolean; questionSet?: ReactNode }) {
   const supabase = await createClient();
+  if (assignmentKind === "homework") {
+    const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: assignmentId });
+    if (finalizationError) console.error(`[assignment-results] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  }
   const { data, error } = await supabase.rpc("get_assignment_results_overview", { p_assignment_id: assignmentId, p_class_id: selectedClassId ?? null });
   if (error || !data) return <section className="teacher-section results-section"><h2>Results overview</h2><p className="form-note">Results are not available right now. Refresh the page and try again.</p></section>;
   const overview = data as AssignmentResultsOverview;

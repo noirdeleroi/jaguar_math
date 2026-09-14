@@ -17,8 +17,12 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   if (selectedClassId && !uuid(selectedClassId)) return new Response("Not found", { status: 404 });
 
   const supabase = await createClient();
-  const { data: assignment } = await supabase.from("assignments").select("id, title").eq("id", assignmentId).eq("created_by", profile.id).maybeSingle();
+  const { data: assignment } = await supabase.from("assignments").select("id, title, kind").eq("id", assignmentId).eq("created_by", profile.id).maybeSingle();
   if (!assignment) return new Response("Not found", { status: 404 });
+  if (assignment.kind === "homework") {
+    const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: assignmentId });
+    if (finalizationError) console.error(`[assignment-results-export] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  }
   const { data: linkedClasses } = await supabase.from("assignment_classes").select("class_id, classes(id, name)").eq("assignment_id", assignmentId);
   const classes = (linkedClasses ?? []).flatMap((row) => { const classroom = Array.isArray(row.classes) ? row.classes[0] : row.classes; return classroom ? [{ id: classroom.id, name: classroom.name }] : []; });
   const classById = new Map(classes.map((classroom) => [classroom.id, classroom.name]));

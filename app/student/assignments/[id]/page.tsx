@@ -38,6 +38,11 @@ export default async function StudentAssignmentPage({ params }: AssignmentPagePr
   }
   if (!assignment) notFound();
 
+  if (assignment.kind === "homework") {
+    const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: id });
+    if (finalizationError) console.error(`[student-assignment] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  }
+
   const { data: attemptData, error: attemptsError } = await supabase.rpc("get_my_assignment_attempts", { p_assignment_id: id });
   if (attemptsError) {
     console.error(`[student-assignment] attempts failed: code=${attemptsError.code}; message=${attemptsError.message}`);
