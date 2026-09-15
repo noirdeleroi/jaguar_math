@@ -4,6 +4,31 @@
   overflow-y: visible;
 }
 
+.frozenSheetHeader {
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid #bdb3a5;
+  background: #fffaf0;
+  box-shadow: 0 8px 20px rgb(31 63 54 / 20%);
+  pointer-events: none;
+  scrollbar-width: none;
+}
+
+.frozenSheetHeader::-webkit-scrollbar {
+  display: none;
+}
+
+.frozenSheetHeader[hidden] {
+  display: none;
+}
+
+.frozenSheetHeader table {
+  margin: 0;
+}
+
 .skullGroup {
   padding: 8px 12px;
   color: #31554b;

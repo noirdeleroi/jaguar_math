@@ -302,6 +302,9 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const randomizerInterval = useRef<number | null>(null);
   const utilityRevealTimer = useRef<number | null>(null);
   const rewardTimer = useRef<number | null>(null);
+  const sheetScrollerRef = useRef<HTMLDivElement>(null);
+  const sheetTableRef = useRef<HTMLTableElement>(null);
+  const frozenSheetHeaderRef = useRef<HTMLDivElement>(null);
   const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || gradeColumnDialog || workColumnDialog || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
@@ -410,6 +413,83 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     window.addEventListener("focus", refreshOnFocus);
     return () => { active = false; window.clearTimeout(firstRefresh); window.removeEventListener("focus", refreshOnFocus); };
   }, [embedded, initialState.classroom.id]);
+
+  useEffect(() => {
+    if (!embedded) return;
+    const scroller = sheetScrollerRef.current;
+    const table = sheetTableRef.current;
+    const frozenHeader = frozenSheetHeaderRef.current;
+    const sourceHeader = table?.tHead;
+    if (!scroller || !table || !frozenHeader || !sourceHeader) return;
+
+    let frame = 0;
+
+    const syncPosition = () => {
+      const scrollerRect = scroller.getBoundingClientRect();
+      const headerHeight = sourceHeader.getBoundingClientRect().height;
+      const left = Math.max(0, scrollerRect.left);
+      const right = Math.min(window.innerWidth, scrollerRect.right);
+      const visible = scrollerRect.top < 0 && scrollerRect.bottom > headerHeight && right > left;
+
+      frozenHeader.hidden = !visible;
+      if (!visible) return;
+      frozenHeader.style.left = `${left}px`;
+      frozenHeader.style.width = `${right - left}px`;
+      frozenHeader.style.height = `${headerHeight}px`;
+      frozenHeader.scrollLeft = scroller.scrollLeft + left - scrollerRect.left;
+    };
+
+    const requestSync = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(syncPosition);
+    };
+
+    const rebuildHeader = () => {
+      const sourceCells = table.querySelectorAll<HTMLTableCellElement>("tbody tr:first-child > th, tbody tr:first-child > td");
+      const widths = Array.from(sourceCells, (cell) => cell.getBoundingClientRect().width);
+      const frozenTable = document.createElement("table");
+      frozenTable.className = table.className;
+      frozenTable.setAttribute("aria-hidden", "true");
+
+      if (widths.length) {
+        const colgroup = document.createElement("colgroup");
+        widths.forEach((width) => {
+          const column = document.createElement("col");
+          column.style.width = `${width}px`;
+          colgroup.append(column);
+        });
+        frozenTable.style.width = `${widths.reduce((sum, width) => sum + width, 0)}px`;
+        frozenTable.style.tableLayout = "fixed";
+        frozenTable.append(colgroup);
+      } else {
+        frozenTable.style.width = `${table.getBoundingClientRect().width}px`;
+      }
+
+      const clonedHeader = sourceHeader.cloneNode(true) as HTMLTableSectionElement;
+      clonedHeader.querySelectorAll<HTMLElement>("a, button, input, select, textarea, [tabindex]").forEach((element) => { element.tabIndex = -1; });
+      frozenTable.append(clonedHeader);
+      frozenHeader.replaceChildren(frozenTable);
+      syncPosition();
+    };
+
+    rebuildHeader();
+    scroller.addEventListener("scroll", requestSync, { passive: true });
+    window.addEventListener("scroll", requestSync, { passive: true });
+    window.addEventListener("resize", rebuildHeader);
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(rebuildHeader);
+    resizeObserver?.observe(table);
+    resizeObserver?.observe(scroller);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      scroller.removeEventListener("scroll", requestSync);
+      window.removeEventListener("scroll", requestSync);
+      window.removeEventListener("resize", rebuildHeader);
+      frozenHeader.hidden = true;
+      frozenHeader.replaceChildren();
+    };
+  }, [assignments, data.weeks, data.workItems, embedded, expandedWeeks, gradeColumns]);
 
   useEffect(() => {
     if (!timerRunning) return;
@@ -808,8 +888,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
 
     {embedded ? <section className={styles.sheetSection} aria-label="Weekly class spreadsheet">
       <div className={styles.sheetHint}><span>Click a week to expand or collapse it</span><span><i /> Current week</span><button className={gradebookStyles.resetButton} disabled={skullsTodayTotal === 0} onClick={clearAllSkullsToday} type="button">Reset today’s skulls</button></div>
-      <div className={`${styles.sheetScroller} ${gradebookStyles.pageScroller}`}>
-        <table className={styles.sheetTable}>
+      <div className={`${styles.sheetScroller} ${gradebookStyles.pageScroller}`} ref={sheetScrollerRef}>
+        <table className={styles.sheetTable} ref={sheetTableRef}>
           <thead><tr><th className={styles.sheetStudentHead} rowSpan={2}>Student</th><th className={gradebookStyles.skullGroup} colSpan={2}>💀 Skulls</th>{data.weeks.map((week) => { const expanded = expandedWeeks.has(week.label); const columns = sheetColumnsForWeek(week.label); return <th className={`${styles.sheetWeekHead} ${week.label === currentWeekLabel ? styles.sheetCurrentWeek : ""} ${expanded ? styles.sheetExpandedWeek : ""}`} colSpan={1 + columns.length} key={week.id}><button aria-expanded={expanded} onClick={() => toggleSheetWeek(week.label)} title={week.focus || week.title || `Week ${week.label}`} type="button"><strong>{week.label}</strong><span>{columns.length} dated column{columns.length === 1 ? "" : "s"} · {expanded ? "Compact ←" : "Stars →"}</span>{week.label === currentWeekLabel ? <small>Current</small> : null}</button></th>; })}{gradeColumns.length ? <th className={gradebookStyles.averageHead} rowSpan={2}>Test avg</th> : null}</tr>
           <tr><th className={`${styles.sheetSubhead} ${styles.skullSubhead}`}>Today</th><th className={`${styles.sheetSubhead} ${gradebookStyles.skullTotalSubhead}`}>Accumulated</th>{data.weeks.map((week) => <Fragment key={week.id}><th className={`${styles.sheetSubhead} ${styles.starSubhead}`}>{expandedWeeks.has(week.label) ? "★ Stars" : "Totals"}</th>{sheetColumnsForWeek(week.label).map(sheetColumnHeader)}</Fragment>)}</tr></thead>
           <tbody>{sortedStudents.map((student) => <tr key={student.id}><th className={styles.sheetStudentCell}><a href={`/teacher/students/${student.id}`}><span className={styles.sheetAvatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><span><strong>{student.fullName}</strong><small>{student.email || "Student profile"}</small></span></a></th><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell}`}><strong>💀 {student.skullsToday}/3</strong><div><button aria-label={`Clear today’s Skulls for ${student.fullName}`} disabled={student.skullsToday === 0} onClick={() => clearStudentSkullsToday(student.id)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName}`} className={styles.sheetSkullAdd} disabled={student.skullsToday >= 3} onClick={() => addSkull(student.id)} type="button">＋</button></div></td><td className={gradebookStyles.skullTotalCell}><strong>💀 {student.skullsTotal}</strong><small>All time</small></td>{data.weeks.map((week) => {
@@ -821,6 +901,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
           })}{gradeColumns.length ? <td className={gradebookStyles.averageCell}>{(() => { const scores = gradeColumns.flatMap((column) => column.scores[student.id] ? [column.scores[student.id].percent] : []); return scores.length ? <strong>{Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length)}%</strong> : <span>—</span>; })()}</td> : null}</tr>)}</tbody>
         </table>
       </div>
+      <div aria-hidden="true" className={gradebookStyles.frozenSheetHeader} hidden ref={frozenSheetHeaderRef} />
     </section> : <section className={styles.weekAccordion} aria-label="Classroom weeks">
       {data.weeks.map((week) => {
         const expanded = openWeek === week.label;
