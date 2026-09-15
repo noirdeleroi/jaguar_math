@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
@@ -19,8 +19,10 @@ type ImportPreview = {
 };
 type UtilityOverlay =
   | { kind: "randomizer"; phase: "spinning" | "result"; name: string }
-  | { kind: "teams"; phase: "mixing" | "result"; teams: string[][]; previewNames: string[] }
+  | { kind: "teams"; phase: "mixing" | "settling" | "result"; teams: TeamMember[][]; previewTeams: TeamMember[][]; shuffleStep: number }
   | { kind: "timer" };
+type TeamMember = { id: string; nickname: string };
+type TeamNamePosition = { x: number; y: number; width: number };
 type RewardEffect = { id: string; kind: "star" | "skull" | "death"; studentId: string; studentName: string };
 type SheetDatedColumn =
   | { type: "work"; id: string; date: string | null; item: ClassroomWorkItem }
@@ -184,6 +186,79 @@ function formatTimer(value: number) {
   return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
 }
 
+function dealTeams(members: TeamMember[], count: number) {
+  const teams = Array.from({ length: count }, () => [] as TeamMember[]);
+  members.forEach((member, index) => teams[index % count].push(member));
+  return teams;
+}
+
+function TeamMixBoard({ overlay }: { overlay: Extract<UtilityOverlay, { kind: "teams" }> }) {
+  const boardRef = useRef<HTMLDivElement>(null);
+  const boxRefs = useRef<Array<HTMLElement | null>>([]);
+  const [positions, setPositions] = useState<Record<string, TeamNamePosition>>({});
+  const visibleTeams = overlay.phase === "mixing" ? overlay.previewTeams : overlay.teams;
+  const members = visibleTeams.flat();
+  const columns = visibleTeams.length <= 4 ? visibleTeams.length : visibleTeams.length <= 6 ? 3 : 4;
+  const largestTeam = Math.max(1, ...visibleTeams.map((team) => team.length));
+
+  const measurePositions = useCallback(() => {
+    const board = boardRef.current;
+    if (!board) return;
+    const boardRect = board.getBoundingClientRect();
+    const next: Record<string, TeamNamePosition> = {};
+    visibleTeams.forEach((team, teamIndex) => {
+      const box = boxRefs.current[teamIndex];
+      if (!box) return;
+      const boxRect = box.getBoundingClientRect();
+      team.forEach((member, memberIndex) => {
+        next[member.id] = {
+          x: boxRect.left - boardRect.left + board.scrollLeft + 11,
+          y: boxRect.top - boardRect.top + board.scrollTop + 48 + memberIndex * 37,
+          width: Math.max(92, boxRect.width - 22),
+        };
+      });
+    });
+    setPositions(next);
+  }, [visibleTeams]);
+
+  useLayoutEffect(() => {
+    measurePositions();
+    const board = boardRef.current;
+    if (!board) return;
+    const observer = new ResizeObserver(measurePositions);
+    observer.observe(board);
+    boxRefs.current.forEach((box) => { if (box) observer.observe(box); });
+    return () => observer.disconnect();
+  }, [measurePositions]);
+
+  return <div
+    aria-live={overlay.phase === "result" ? "polite" : "off"}
+    className={`${styles.teamBoard} ${overlay.phase === "mixing" ? styles.teamBoardMixing : overlay.phase === "settling" ? styles.teamBoardSettling : styles.teamBoardSettled}`}
+    ref={boardRef}
+    style={{ "--team-columns": columns, "--team-rows": largestTeam } as CSSProperties}
+  >
+    {visibleTeams.map((team, teamIndex) => <article aria-label={`Team ${teamIndex + 1}: ${team.map((member) => member.nickname).join(", ")}`} className={styles.teamBox} key={teamIndex} ref={(element) => { boxRefs.current[teamIndex] = element; }}>
+      <header><span>Team</span><strong>{teamIndex + 1}</strong></header>
+      <div aria-hidden="true" className={styles.teamSlots}>{team.map((member) => <i key={member.id} />)}</div>
+    </article>)}
+    <div aria-hidden="true" className={styles.teamNameLayer}>
+      {members.map((member, index) => {
+        const position = positions[member.id];
+        return <span
+          className={styles.teamNameCard}
+          key={member.id}
+          style={{
+            "--name-index": index,
+            opacity: position ? 1 : 0,
+            transform: position ? `translate3d(${position.x}px, ${position.y}px, 0)` : "translate3d(0, 0, 0)",
+            width: position?.width ?? 120,
+          } as CSSProperties}
+        >{member.nickname}</span>;
+      })}
+    </div>
+  </div>;
+}
+
 function UtilityPopup({ overlay, timer, timerDuration, timerRunning, onClose, onPickAgain, onRemix, onSetTimer, onToggleTimer }: {
   overlay: UtilityOverlay;
   timer: number;
@@ -207,15 +282,12 @@ function UtilityPopup({ overlay, timer, timerDuration, timerRunning, onClose, on
         {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onPickAgain} type="button">🎲 Pick again</button> : <div aria-label="Choosing a student" className={styles.pickerTrack} role="progressbar"><span /></div>}
       </> : null}
       {overlay.kind === "teams" ? <>
-        <div className={`${styles.teamMixer} ${overlay.phase === "mixing" ? styles.teamMixerActive : ""}`}>
-          {overlay.phase === "mixing" ? <div className={styles.teamMixingArena}>
-            <div aria-hidden="true" className={styles.teamDestinations}>{overlay.teams.map((_, index) => <span key={index} style={{ "--team-index": index } as CSSProperties}>Team {index + 1}</span>)}</div>
-            <div className={styles.mixingDeck} aria-label="Shuffling nicknames into teams">{overlay.previewNames.map((name, index) => <span key={`${name}-${index}`} style={{ "--mix-index": index } as CSSProperties}>{name}</span>)}</div>
-          </div> : <div aria-live="polite" className={styles.teamResultGrid}>{overlay.teams.map((team, index) => <article key={index} style={{ "--team-index": index } as CSSProperties}><span>Team {index + 1}</span><strong>{team.join(" · ") || "—"}</strong></article>)}</div>}
+        <div className={`${styles.teamMixer} ${overlay.phase !== "result" ? styles.teamMixerActive : ""}`}>
+          <TeamMixBoard overlay={overlay} />
         </div>
-        <p className={styles.popupEyebrow}>{overlay.phase === "mixing" ? "Shuffling nicknames…" : "Teams are ready!"}</p>
-        <h2>{overlay.phase === "mixing" ? "Mix. Fly. Team up." : `${overlay.teams.length} balanced teams`}</h2>
-        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onRemix} type="button">↻ Mix again</button> : <div aria-label="Mixing teams" className={styles.pickerTrack} role="progressbar"><span /></div>}
+        <p className={styles.popupEyebrow}>{overlay.phase === "mixing" ? "Names are changing places…" : overlay.phase === "settling" ? "Final move…" : "Teams are ready!"}</p>
+        <h2>{overlay.phase === "mixing" ? `Mixing ${overlay.teams.length} teams` : overlay.phase === "settling" ? "Settling into place" : `${overlay.teams.length} teams settled`}</h2>
+        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onRemix} type="button">↻ Mix again</button> : <div aria-label={overlay.phase === "settling" ? "Settling final teams" : "Mixing teams"} className={styles.pickerTrack} role="progressbar"><span /></div>}
       </> : null}
       {overlay.kind === "timer" ? <>
         <p className={styles.popupEyebrow}>{timer === 0 ? "Class is ready" : "Ready for Math"}</p>
@@ -798,24 +870,31 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     if (data.students.length < 2) return;
     clearUtilityAnimationTimers();
     const count = Math.max(2, Math.min(teamCount, data.students.length));
-    const teams = Array.from({ length: count }, () => [] as string[]);
-    const shuffled = shuffle(data.students);
-    const nicknames = shuffled.map((student) => student.nickname);
-    nicknames.forEach((nickname, index) => teams[index % count].push(nickname));
-    const previewNames = nicknames.slice(0, 12);
-    setUtilityOverlay({ kind: "teams", phase: "mixing", teams, previewNames });
+    const members = data.students.map((student) => ({ id: student.id, nickname: student.nickname }));
+    const teams = dealTeams(shuffle(members), count);
+    let shuffleStep = 0;
+    setUtilityOverlay({ kind: "teams", phase: "mixing", teams, previewTeams: dealTeams(shuffle(members), count), shuffleStep });
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reducedMotion) {
       utilityShuffleInterval.current = window.setInterval(() => {
-        setUtilityOverlay((current) => current?.kind === "teams" && current.phase === "mixing" ? { ...current, previewNames: shuffle(current.previewNames) } : current);
-      }, 130);
+        shuffleStep += 1;
+        setUtilityOverlay((current) => current?.kind === "teams" && current.phase === "mixing" ? { ...current, previewTeams: dealTeams(shuffle(members), count), shuffleStep } : current);
+      }, 800);
     }
+    const revealTeams = () => {
+      utilityRevealTimer.current = null;
+      setUtilityOverlay({ kind: "teams", phase: "result", teams, previewTeams: teams, shuffleStep: shuffleStep + 2 });
+      setUtilityMessage(teams.map((team, index) => `Team ${index + 1}: ${team.map((member) => member.nickname).join(", ")}`).join("\n"));
+    };
     utilityRevealTimer.current = window.setTimeout(() => {
       if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
       utilityShuffleInterval.current = null;
-      setUtilityOverlay({ kind: "teams", phase: "result", teams, previewNames: [] });
-      setUtilityMessage(teams.map((team, index) => `Team ${index + 1}: ${team.join(", ")}`).join("\n"));
-    }, reducedMotion ? 350 : 2200);
+      if (reducedMotion) revealTeams();
+      else {
+        setUtilityOverlay({ kind: "teams", phase: "settling", teams, previewTeams: teams, shuffleStep: shuffleStep + 1 });
+        utilityRevealTimer.current = window.setTimeout(revealTeams, 950);
+      }
+    }, reducedMotion ? 350 : 4300);
   }
 
   function sheetColumnsForWeek(weekLabel: string): SheetDatedColumn[] {
