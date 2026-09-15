@@ -1,0 +1,148 @@
+.pageScroller.pageScroller {
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.skullGroup,
+.assessmentGroup {
+  padding: 8px 12px;
+  color: #31554b;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.skullGroup {
+  background: #f5ded8 !important;
+  color: #8d3d2e;
+}
+
+.assessmentGroup {
+  background: #f3dfaa !important;
+  color: #6f5205;
+}
+
+.skullTotalSubhead,
+.skullTotalCell {
+  min-width: 112px;
+}
+
+.skullTotalCell {
+  padding: 8px;
+  background: #fff8f5 !important;
+  text-align: center;
+}
+
+.skullTotalCell strong,
+.skullTotalCell small {
+  display: block;
+}
+
+.skullTotalCell strong {
+  color: #963e2d;
+  font-size: 15px;
+}
+
+.skullTotalCell small {
+  margin-top: 3px;
+  color: #8d7069;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.assessmentHead,
+.assessmentCell {
+  min-width: 145px;
+}
+
+.assessmentHead {
+  max-width: 180px;
+  padding: 7px 9px;
+  background: #fff4d2 !important;
+}
+
+.assessmentHead a {
+  display: grid;
+  gap: 2px;
+}
+
+.assessmentHead strong,
+.assessmentHead span,
+.assessmentHead small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assessmentHead strong {
+  color: #31554b;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.assessmentHead span,
+.assessmentHead small {
+  color: #76694d;
+  font-size: 8px;
+  text-transform: capitalize;
+}
+
+.averageHead,
+.averageCell {
+  min-width: 105px;
+}
+
+.averageHead {
+  padding: 7px 9px;
+  background: #e3eee6 !important;
+  color: #31554b;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.assessmentCell {
+  padding: 8px;
+  text-align: center;
+}
+
+.assessmentCell > a {
+  display: inline-grid;
+  gap: 2px;
+  border-radius: 6px;
+  padding: 5px 10px;
+  background: #eaf3eb;
+}
+
+.assessmentCell > a strong {
+  color: var(--green);
+  font-size: 15px;
+}
+
+.assessmentCell > a span,
+.assessmentCell > span {
+  color: #71827b;
+  font-size: 8px;
+}
+
+.averageCell {
+  padding: 8px;
+  background: #eef5ef !important;
+  text-align: center;
+}
+
+.averageCell strong {
+  color: #31554b;
+  font-size: 16px;
+}
+
+.averageCell span {
+  color: #9aa8a2;
+}
+
+.resetButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}

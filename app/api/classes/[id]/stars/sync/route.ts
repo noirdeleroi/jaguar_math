@@ -11,10 +11,11 @@ const statuses = new Set<WorkStatus | "">(["late", "ok", "not_ok", ""]);
 function validPayload(value: unknown): value is ClassroomSyncPayload {
   if (!value || typeof value !== "object") return false;
   const payload = value as ClassroomSyncPayload;
-  if (![payload.weeks, payload.starEvents, payload.workItems, payload.workStatuses].every(Array.isArray)) return false;
-  if (payload.weeks.length + payload.starEvents.length + payload.workItems.length + payload.workStatuses.length > 2500) return false;
+  if (![payload.weeks, payload.starEvents, payload.skullEvents, payload.workItems, payload.workStatuses].every(Array.isArray)) return false;
+  if (payload.weeks.length + payload.starEvents.length + payload.skullEvents.length + payload.workItems.length + payload.workStatuses.length > 2500) return false;
   return payload.weeks.every((week) => uuidPattern.test(week.id) && weekLabelPattern.test(week.label) && Number.isInteger(week.sort_order) && week.sort_order > 0)
     && payload.starEvents.every((event) => uuidPattern.test(event.id) && uuidPattern.test(event.student_id) && weekLabelPattern.test(event.week_label) && Number.isInteger(event.delta) && event.delta !== 0 && Math.abs(event.delta) <= 100000 && !Number.isNaN(Date.parse(event.occurred_at)))
+    && payload.skullEvents.every((event) => uuidPattern.test(event.id) && uuidPattern.test(event.student_id) && (event.action === "add" || event.action === "clear_today") && (event.source === "classroom" || event.source === "offline_queue") && !Number.isNaN(Date.parse(event.occurred_at)))
     && payload.workItems.every((item) => uuidPattern.test(item.id) && weekLabelPattern.test(item.week_label) && workKinds.has(item.kind) && Number.isInteger(item.position) && item.position > 0 && item.title.trim().length > 0 && item.title.trim().length <= 120)
     && payload.workStatuses.every((status) => uuidPattern.test(status.student_id) && weekLabelPattern.test(status.week_label) && workKinds.has(status.kind) && Number.isInteger(status.position) && status.position > 0 && statuses.has(status.status));
 }
@@ -37,7 +38,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       p_work_statuses: payload.workStatuses,
     });
     if (error) throw error;
-    return NextResponse.json({ ok: true, savedAt: new Date().toISOString(), result: data }, { headers: { "Cache-Control": "no-store" } });
+    const { data: skullData, error: skullError } = await supabase.rpc("apply_classroom_skull_sync", {
+      p_class_id: id,
+      p_skull_events: payload.skullEvents,
+    });
+    if (skullError) throw skullError;
+    return NextResponse.json({ ok: true, savedAt: new Date().toISOString(), result: { classroom: data, skulls: skullData } }, { headers: { "Cache-Control": "no-store" } });
   } catch (cause) {
     console.error("[classroom-stars] sync failed", typeof cause === "object" && cause && "code" in cause ? String(cause.code) : "server_error");
     return NextResponse.json({ error: "Jaguar could not save these changes yet. They remain safely queued in this browser." }, { status: 503 });

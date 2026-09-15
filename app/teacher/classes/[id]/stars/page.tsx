@@ -16,6 +16,6 @@ export default async function ClassStarsPage({ params, searchParams }: { params:
 
   return <main className={`teacher-main ${styles.main}`}>
     <Link className="back-link" href={`/teacher/classes/${id}`}>← {state.classroom.name}</Link>
-    <StarClassroom currentWeekLabel={preferredWeek} initialState={state} key={`${preferredWeek}:${state.eventIds.length}:${state.workItems.length}:${state.weeks.length}`} />
+    <StarClassroom currentWeekLabel={preferredWeek} initialState={state} key={`${preferredWeek}:${state.eventIds.length}:${state.skullEventIds.length}:${state.workItems.length}:${state.weeks.length}`} />
   </main>;
 }

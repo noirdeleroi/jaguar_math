@@ -6,6 +6,8 @@ import type { ClassroomStarState, ClassroomWorkItem, WorkStatus } from "@/lib/cl
 import type { StudentMatchCandidate } from "@/lib/classroom-star-import";
 import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
 
+type SkullTotalRow = { student_id: string; skulls_today: number; skulls_total: number };
+
 function firstName(value: string) {
   return value.trim().split(/\s+/)[0] ?? value;
 }
@@ -23,13 +25,14 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   if (classroomError) throw classroomError;
   if (!classroom) return null;
 
-  const [{ data: memberships, error: membershipError }, { data: weeks, error: weekError }, { data: events, error: eventError }, { data: workItems, error: workItemError }] = await Promise.all([
+  const [{ data: memberships, error: membershipError }, { data: weeks, error: weekError }, { data: events, error: eventError }, { data: workItems, error: workItemError }, { data: skullRows, error: skullError }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname").eq("class_id", classId),
     supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", classId).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, delta, classroom_weeks!inner(label)").eq("class_id", classId),
     supabase.from("classroom_work_items").select("id, kind, position, title, activity_date, classroom_weeks!inner(label)").eq("class_id", classId).order("position"),
+    supabase.rpc("get_classroom_skull_totals", { p_class_id: classId }),
   ]);
-  const firstError = membershipError ?? weekError ?? eventError ?? workItemError;
+  const firstError = membershipError ?? weekError ?? eventError ?? workItemError ?? skullError;
   if (firstError) throw firstError;
 
   const studentIds = (memberships ?? []).map((membership) => membership.student_id);
@@ -57,16 +60,18 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
     values[status.student_id] = status.status as WorkStatus;
     statusesByItem.set(status.work_item_id, values);
   }
+  const skullsByStudent = new Map(((skullRows ?? []) as SkullTotalRow[]).map((row) => [row.student_id, { today: Number(row.skulls_today), total: Number(row.skulls_total) }]));
 
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {} })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
+    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {}, skullsToday: skullsByStudent.get(profile.id)?.today ?? 0, skullsTotal: skullsByStudent.get(profile.id)?.total ?? 0 })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
     workItems: (workItems ?? []).map((item): ClassroomWorkItem => {
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;
       return { id: item.id, weekLabel: relation?.label ?? "", kind: item.kind as ClassroomWorkItem["kind"], position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} };
     }).filter((item) => item.weekLabel),
     eventIds: (events ?? []).map((event) => event.id),
+    skullEventIds: [],
   };
 }
 

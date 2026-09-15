@@ -11,6 +11,8 @@ export type ClassroomStudent = {
   fullName: string;
   email: string | null;
   totals: Record<string, number>;
+  skullsToday: number;
+  skullsTotal: number;
 };
 
 export type WorkKind = "homework" | "classwork";
@@ -32,6 +34,23 @@ export type ClassroomStarState = {
   students: ClassroomStudent[];
   workItems: ClassroomWorkItem[];
   eventIds: string[];
+  skullEventIds: string[];
+};
+
+export type ClassroomAssessmentGrade = {
+  attemptId: string;
+  score: number;
+  maxScore: number;
+  percent: number;
+};
+
+export type ClassroomManagerAssessment = {
+  id: string;
+  title: string;
+  kind: string;
+  status: string;
+  average: number | null;
+  scores: Record<string, ClassroomAssessmentGrade>;
 };
 
 export type ClassroomAssignmentResult = {
@@ -77,6 +96,14 @@ export type QueuedStarEvent = {
   occurred_at: string;
 };
 
+export type QueuedSkullEvent = {
+  id: string;
+  student_id: string;
+  action: "add" | "clear_today";
+  source: "classroom" | "offline_queue";
+  occurred_at: string;
+};
+
 export type QueuedWorkItem = {
   id: string;
   week_label: string;
@@ -97,6 +124,7 @@ export type QueuedWorkStatus = {
 export type ClassroomSyncPayload = {
   weeks: QueuedWeek[];
   starEvents: QueuedStarEvent[];
+  skullEvents: QueuedSkullEvent[];
   workItems: QueuedWorkItem[];
   workStatuses: QueuedWorkStatus[];
 };
