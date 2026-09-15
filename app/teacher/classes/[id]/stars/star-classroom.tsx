@@ -17,7 +17,8 @@ type ImportPreview = {
   missingFromWorkbook: Array<{ studentName: string }>;
 };
 type UtilityOverlay =
-  | { kind: "randomizer"; phase: "spinning" | "result"; name: string }
+  | { kind: "randomizer"; phase: "spinning"; name: string; previousName: string; nextName: string; shuffleStep: number }
+  | { kind: "randomizer"; phase: "result"; name: string }
   | { kind: "teams"; phase: "mixing" | "result"; teams: string[][]; previewNames: string[] }
   | { kind: "timer" };
 type RewardEffect = { id: string; kind: "star" | "skull" | "death"; studentId: string; studentName: string };
@@ -200,9 +201,15 @@ function UtilityPopup({ overlay, timer, timerDuration, timerRunning, onClose, on
       <button aria-label="Close popup" className={styles.popupClose} onClick={onClose} type="button">×</button>
       {overlay.kind === "randomizer" ? <>
         <div aria-hidden="true" className={styles.randomizerOrbit}><span>?</span><i /><i /><i /></div>
-        <p className={styles.popupEyebrow}>{overlay.phase === "spinning" ? "The wheel is choosing…" : "You’re up!"}</p>
-        <strong className={`${styles.rouletteName} ${overlay.phase === "result" ? styles.rouletteWinner : ""}`}>{overlay.name}</strong>
-        <p className={styles.popupHint}>{overlay.phase === "spinning" ? "Every name has a chance." : "The classroom has spoken."}</p>
+        <p className={styles.popupEyebrow}>{overlay.phase === "spinning" ? "Shuffling class nicknames…" : "You’re up!"}</p>
+        <div aria-live={overlay.phase === "result" ? "assertive" : "off"} className={`${styles.nicknameShuffleStage} ${overlay.phase === "result" ? styles.nicknameShuffleResult : ""}`}>
+          {overlay.phase === "spinning" ? <div className={styles.nicknameReel} key={overlay.shuffleStep}>
+            <span aria-hidden="true">{overlay.previousName}</span>
+            <strong>{overlay.name}</strong>
+            <span aria-hidden="true">{overlay.nextName}</span>
+          </div> : <><div aria-hidden="true" className={styles.winnerBurst}>{rewardParticles.slice(0, 12).map((particle) => <i key={particle} style={{ "--particle": particle } as CSSProperties}>✦</i>)}</div><strong className={`${styles.rouletteName} ${styles.rouletteWinner}`}>{overlay.name}</strong></>}
+        </div>
+        <p className={styles.popupHint}>{overlay.phase === "spinning" ? "Every nickname is in the mix." : "The classroom has spoken."}</p>
         {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onPickAgain} type="button">🎲 Pick again</button> : <div aria-label="Choosing a student" className={styles.pickerTrack} role="progressbar"><span /></div>}
       </> : null}
       {overlay.kind === "teams" ? <>
@@ -299,7 +306,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [importing, setImporting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const syncing = useRef(false);
-  const randomizerInterval = useRef<number | null>(null);
+  const randomizerShuffleTimer = useRef<number | null>(null);
   const utilityRevealTimer = useRef<number | null>(null);
   const rewardTimer = useRef<number | null>(null);
   const sheetScrollerRef = useRef<HTMLDivElement>(null);
@@ -505,9 +512,9 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+      if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
       if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
-      randomizerInterval.current = null;
+      randomizerShuffleTimer.current = null;
       utilityRevealTimer.current = null;
       setUtilityOverlay(null);
       setWorkCreatorOpen(false);
@@ -521,15 +528,15 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }, [blockingOverlayOpen]);
 
   useEffect(() => () => {
-    if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+    if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
     if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
     if (rewardTimer.current !== null) window.clearTimeout(rewardTimer.current);
   }, []);
 
   function clearUtilityAnimationTimers() {
-    if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
+    if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
     if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
-    randomizerInterval.current = null;
+    randomizerShuffleTimer.current = null;
     utilityRevealTimer.current = null;
   }
 
@@ -775,18 +782,33 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     clearUtilityAnimationTimers();
     const order = shuffle(data.students);
     const winner = order[0];
-    let index = 0;
-    setUtilityOverlay({ kind: "randomizer", phase: "spinning", name: order[0].fullName });
-    randomizerInterval.current = window.setInterval(() => {
-      index = (index + 1) % order.length;
-      setUtilityOverlay((current) => current?.kind === "randomizer" ? { ...current, name: order[index].fullName } : current);
-    }, 85);
-    utilityRevealTimer.current = window.setTimeout(() => {
-      if (randomizerInterval.current !== null) window.clearInterval(randomizerInterval.current);
-      randomizerInterval.current = null;
-      setUtilityOverlay({ kind: "randomizer", phase: "result", name: winner.fullName });
-      setUtilityMessage(`🎲 ${winner.fullName}`);
-    }, 1900);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const steps = reducedMotion ? 2 : 24;
+    const frame = (step: number) => {
+      const index = step % order.length;
+      const previous = (index - 1 + order.length) % order.length;
+      const next = (index + 1) % order.length;
+      return { kind: "randomizer" as const, phase: "spinning" as const, name: order[index].nickname, previousName: order[previous].nickname, nextName: order[next].nickname, shuffleStep: step };
+    };
+    const revealWinner = () => {
+      randomizerShuffleTimer.current = null;
+      setUtilityOverlay({ kind: "randomizer", phase: "result", name: winner.nickname });
+      setUtilityMessage(`🎲 ${winner.nickname}`);
+    };
+    let step = 0;
+    setUtilityOverlay(frame(step));
+    const advance = () => {
+      step += 1;
+      if (step >= steps) {
+        utilityRevealTimer.current = window.setTimeout(revealWinner, reducedMotion ? 80 : 260);
+        return;
+      }
+      setUtilityOverlay(frame(step));
+      const progress = step / (steps - 1);
+      const delay = reducedMotion ? 80 : Math.round(58 + progress ** 3 * 235);
+      randomizerShuffleTimer.current = window.setTimeout(advance, delay);
+    };
+    randomizerShuffleTimer.current = window.setTimeout(advance, reducedMotion ? 80 : 58);
   }
 
   function makeTeams() {

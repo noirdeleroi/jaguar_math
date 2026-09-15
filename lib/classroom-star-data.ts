@@ -65,7 +65,10 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: (profiles ?? []).map((profile) => ({ id: profile.id, fullName: nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student", email: profile.email, totals: totals.get(profile.id) ?? {}, skullsToday: skullsByStudent.get(profile.id)?.today ?? 0, skullsTotal: skullsByStudent.get(profile.id)?.total ?? 0 })).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
+    students: (profiles ?? []).map((profile) => {
+      const nickname = nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student";
+      return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skullsToday: skullsByStudent.get(profile.id)?.today ?? 0, skullsTotal: skullsByStudent.get(profile.id)?.total ?? 0 };
+    }).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
     workItems: (workItems ?? []).map((item): ClassroomWorkItem => {
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;
       return { id: item.id, weekLabel: relation?.label ?? "", kind: item.kind as ClassroomWorkItem["kind"], position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} };

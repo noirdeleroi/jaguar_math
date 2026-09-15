@@ -9,6 +9,7 @@ export type ClassroomWeek = {
 export type ClassroomStudent = {
   id: string;
   fullName: string;
+  nickname: string;
   email: string | null;
   totals: Record<string, number>;
   skullsToday: number;

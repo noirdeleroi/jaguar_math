@@ -166,7 +166,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skullsToday: skullsByStudent.get(student.id)?.today ?? 0, skullsTotal: skullsByStudent.get(student.id)?.total ?? 0 })),
+    students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skullsToday: skullsByStudent.get(student.id)?.today ?? 0, skullsTotal: skullsByStudent.get(student.id)?.total ?? 0 })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
     eventIds: ((starEvents ?? []) as StarEvent[]).map((event) => event.id),
     skullEventIds: [],
