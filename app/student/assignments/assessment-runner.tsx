@@ -7,6 +7,7 @@ import { saveStudentResponseWithFeedback, submitAttemptSnapshot, submitExamAttem
 import { flushExamActivityQueue, sendExamActivity, type ExamActivityEvent, type ExamResponseSnapshot } from "./exam-activity-client";
 import { restoreFullscreenBeforeVerification } from "./exam-mode-attempt";
 import { canRequestFullscreen, createFullscreenExitTracker, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
+import { requestScreenWakeLock, type ScreenWakeLockHandle } from "./screen-wake-lock";
 import styles from "./exam-mode.module.css";
 
 type Question = { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null; points: number; answer: string; serverRevision: number; isCorrect: boolean | null; pointsAwarded: number | null };
@@ -15,6 +16,7 @@ type Feedback = { isCorrect: boolean; pointsAwarded: number };
 type PendingAnswer = { answer: string; revision: number };
 type StoredDraft = { version: 2; updatedAt: string; answers: Record<string, PendingAnswer>; pending: Record<string, PendingAnswer> };
 type SyncState = "saved" | "saving" | "offline" | "error";
+type WakeLockState = "idle" | "requesting" | "active" | "unavailable";
 type AttemptStatus = { status: "in_progress" | "submitted"; expiresAt: string | null; assignmentStatus: "published" | "closed"; examMode: Omit<ExamMode, "focusViolations"> | null };
 
 const draftKey = (attemptId: string) => `jaguar-attempt-draft:${attemptId}`;
@@ -31,6 +33,7 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const [syncState, setSyncState] = useState<SyncState>("saved");
   const [online, setOnline] = useState(true);
   const [authRequired, setAuthRequired] = useState(false);
+  const [wakeLockState, setWakeLockState] = useState<WakeLockState>(examMode ? "requesting" : "idle");
   const [focusViolations, setFocusViolations] = useState(examMode?.focusViolations ?? 0);
   const [examWarning, setExamWarning] = useState("");
   // The live fullscreen snapshot below provides the initial closed state; this
@@ -164,6 +167,47 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
     const timer = window.setInterval(() => setRemaining(Math.max(0, deadline - Date.now())), 1000);
     return () => window.clearInterval(timer);
   }, [deadline]);
+
+  useEffect(() => {
+    if (!examMode || responsesClosed || autoSubmitted) return;
+    let disposed = false;
+    let requesting = false;
+    let wakeLock: ScreenWakeLockHandle | null = null;
+    let retryTimer: number | null = null;
+
+    const scheduleRetry = (acquire: () => Promise<void>) => {
+      if (retryTimer !== null) window.clearTimeout(retryTimer);
+      retryTimer = window.setTimeout(() => void acquire(), 30_000);
+    };
+    const acquire = async () => {
+      if (disposed || requesting || wakeLock || document.visibilityState !== "visible") return;
+      requesting = true;
+      setWakeLockState("requesting");
+      const nextLock = await requestScreenWakeLock();
+      requesting = false;
+      if (disposed) { await nextLock?.release().catch(() => undefined); return; }
+      if (!nextLock) { setWakeLockState("unavailable"); scheduleRetry(acquire); return; }
+      wakeLock = nextLock;
+      setWakeLockState("active");
+      nextLock.addEventListener("release", () => {
+        if (disposed || wakeLock !== nextLock) return;
+        wakeLock = null;
+        setWakeLockState("unavailable");
+        if (document.visibilityState === "visible") scheduleRetry(acquire);
+      }, { once: true });
+    };
+    const visibility = () => { if (document.visibilityState === "visible") void acquire(); };
+
+    void acquire();
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      disposed = true;
+      document.removeEventListener("visibilitychange", visibility);
+      if (retryTimer !== null) window.clearTimeout(retryTimer);
+      void wakeLock?.release().catch(() => undefined);
+      wakeLock = null;
+    };
+  }, [autoSubmitted, examMode, responsesClosed]);
 
   const warningFor = useCallback((count: number) => {
     if (!examMode) return "";
@@ -361,7 +405,7 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const inputDisabled = responsesClosed || interactionBlocked;
   const syncLabel = syncState === "saved" ? "All answers saved" : syncState === "saving" ? "Saving answers…" : syncState === "offline" ? "Offline · answers safe on this device" : "Answers need attention";
 
-  return <section className={`runner ${interactionBlocked ? styles.runnerBlocked : ""}`}><div className="runner-header"><div><p className="eyebrow">{examMode ? "Secure mode · Exam Mode" : "Active attempt"}</p><h2>{questions.length} questions</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span>{formCode && <span>Form {formCode}</span>}{examMode && <span>Focus exits: {focusViolations} · allowance {examMode.allowedFocusExits}</span>}</div></div><div className={styles.meta}>{deadline && <strong className={timeEnded ? "timer-expired" : ""}>Time remaining: {clock}</strong>}</div></div>{examWarning && !interactionBlocked && <section className={styles.warning} role="status"><strong>Exam Mode activity</strong><p>{examWarning}</p></section>}{responsesClosed && <p className="form-note lifecycle-note">Overdue. Answers can no longer be changed. Submitting now grades only work already synchronized to the server.</p>}
+  return <section className={`runner ${interactionBlocked ? styles.runnerBlocked : ""}`}><div className="runner-header"><div><p className="eyebrow">{examMode ? "Secure mode · Exam Mode" : "Active attempt"}</p><h2>{questions.length} questions</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span>{formCode && <span>Form {formCode}</span>}{examMode && <><span>Focus exits: {focusViolations} · allowance {examMode.allowedFocusExits}</span><span>{wakeLockState === "active" ? "Screen sleep blocked" : wakeLockState === "requesting" ? "Blocking screen sleep…" : "Keep laptop awake manually"}</span></>}</div></div><div className={styles.meta}>{deadline && <strong className={timeEnded ? "timer-expired" : ""}>Time remaining: {clock}</strong>}</div></div>{examWarning && !interactionBlocked && <section className={styles.warning} role="status"><strong>Exam Mode activity</strong><p>{examWarning}</p></section>}{responsesClosed && <p className="form-note lifecycle-note">Overdue. Answers can no longer be changed. Submitting now grades only work already synchronized to the server.</p>}
     {questionDisplayMode === "one_at_a_time" && <nav aria-label="Question navigation" className={`${styles.questionNavigator} ${examMode ? styles.secureNavigator : ""}`}>{questions.map((question, index) => { const itemFeedback = feedback[question.id]; const state = itemFeedback ? itemFeedback.isCorrect ? styles.correct : styles.incorrect : answers[question.id]?.trim() ? styles.answered : ""; return <button aria-current={index === currentQuestion ? "step" : undefined} aria-label={`Question ${index + 1}: ${itemFeedback ? itemFeedback.isCorrect ? "correct" : "incorrect" : answers[question.id]?.trim() ? "answered" : "not answered"}`} className={`${styles.questionNavButton} ${index === currentQuestion ? styles.active : ""} ${state}`} disabled={interactionBlocked} key={question.id} onClick={() => setCurrentQuestion(index)} type="button">{index + 1}</button>; })}</nav>}
     {displayQuestions.map(({ question, index }) => { const itemFeedback = feedback[question.id]; return <article className="student-question" key={question.id}><div className="question-number">Question {index + 1} · {question.points} {question.points === 1 ? "point" : "points"}</div><div className="question-prompt"><MathText>{question.prompt}</MathText></div>{question.type === "multiple_choice" ? <div className="answer-options">{question.options?.map((option, optionIndex) => <label key={option.id}><input checked={answers[question.id] === option.id} disabled={inputDisabled} name={question.id} onChange={() => save(question.id, option.id, showFeedbackAfterEachQuestion)} type="radio" /><b>{String.fromCharCode(65 + optionIndex)}</b><MathText>{option.text}</MathText></label>)}</div> : <><label className="answer-text">Your answer<input disabled={inputDisabled} onChange={(event) => save(question.id, event.target.value)} value={answers[question.id] ?? ""} /></label>{showFeedbackAfterEachQuestion && <button className="secondary-inline-button" disabled={inputDisabled || checkingQuestionId === question.id} onClick={() => void checkFeedback(question.id, answers[question.id] ?? "")} type="button">{checkingQuestionId === question.id ? "Checking..." : "Check answer"}</button>}</>}{showFeedbackAfterEachQuestion && itemFeedback && <p className={itemFeedback.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect}>{itemFeedback.isCorrect ? `Correct · ${itemFeedback.pointsAwarded} points` : "Try again."}</p>}</article>; })}
     {questionDisplayMode === "one_at_a_time" && <div className={styles.questionControls}><button className="secondary-inline-button" disabled={interactionBlocked || currentQuestion === 0} onClick={() => setCurrentQuestion((current) => current - 1)} type="button">← Previous</button>{currentQuestion === questions.length - 1 ? <button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting..." : "Submit assessment"} <span aria-hidden="true">→</span></button> : <button className="secondary-inline-button" disabled={interactionBlocked} onClick={() => setCurrentQuestion((current) => current + 1)} type="button">Next question →</button>}</div>}
