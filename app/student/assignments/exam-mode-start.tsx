@@ -77,18 +77,18 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
 
       const result = await startOrContinueExamAssignment(assignmentId);
       if (result.error) { setNotice(result.error); return; }
-      let focusViolations = 0;
       if (requireFullscreen) {
         if (stopIfFullscreenWasLost(result.attemptId)) return;
         const activity = await sendExamActivity(result.attemptId, "fullscreen_restored");
         if (activity && !("error" in activity) && activity.autoSubmitted) { keepLoading = true; forgetWaitingRoom(); router.refresh(); return; }
-        if (activity && !("error" in activity)) focusViolations = activity.focusViolations;
         if (stopIfFullscreenWasLost(result.attemptId)) return;
       }
-      const startedAttempt = { id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations };
       keepLoading = true;
       forgetWaitingRoom();
-      if (onActive) onActive(startedAttempt); else router.refresh();
+      // The page was rendered before this attempt existed, so it has no
+      // attempt questions yet. Reload the Server Component data before
+      // mounting the runner rather than briefly opening an empty test.
+      router.refresh();
     } catch {
       setNotice("Exam Mode could not start. Please try again.");
     } finally {
@@ -160,6 +160,17 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     const interval = window.setInterval(() => router.refresh(), 2_000);
     return () => window.clearInterval(interval);
   }, [questionsReleased, router, waitingRoomOpen]);
+
+  useEffect(() => {
+    if (!launching) return;
+    const timeout = window.setTimeout(() => {
+      startingRef.current = false;
+      setEntering(false);
+      setLaunching(false);
+      setNotice("The test is taking longer than expected to load. Your attempt is safe; try again.");
+    }, 15_000);
+    return () => window.clearTimeout(timeout);
+  }, [launching]);
 
   useEffect(() => {
     if (!fullscreenBlocked) return;

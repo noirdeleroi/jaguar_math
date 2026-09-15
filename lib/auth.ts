@@ -7,10 +7,19 @@ export type Profile = { id: string; email: string | null; full_name: string | nu
 
 export const getCurrentProfile = cache(async () => {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
+  const { data, error: claimsError } = await supabase.auth.getClaims();
+  if (claimsError) {
+    if (claimsError.name === "AuthSessionMissingError") return null;
+    console.error(`[auth] session verification failed: name=${claimsError.name}; status=${claimsError.status ?? "unknown"}`);
+    throw new Error("Your session could not be verified. Please retry the page.");
+  }
   const userId = data?.claims.sub;
   if (!userId) return null;
-  const { data: profile } = await supabase.from("profiles").select("id, email, full_name, role, grade_level, must_change_password").eq("id", userId).maybeSingle();
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("id, email, full_name, role, grade_level, must_change_password").eq("id", userId).maybeSingle();
+  if (profileError) {
+    console.error(`[auth] profile load failed: code=${profileError.code}; message=${profileError.message}`);
+    throw new Error("Your account could not be loaded. Please retry the page.");
+  }
   return profile as Profile | null;
 });
 
