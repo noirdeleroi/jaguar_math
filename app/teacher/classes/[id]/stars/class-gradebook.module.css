@@ -87,7 +87,8 @@
 .assessmentHead strong {
   color: #31554b;
   font-size: 10px;
-  white-space: nowrap;
+  line-height: 1.25;
+  white-space: normal;
 }
 
 .assessmentHead span,
@@ -147,6 +148,163 @@
 
 .averageCell span {
   color: #9aa8a2;
+}
+
+.datedColumnHead,
+.workStatusCell {
+  min-width: 154px;
+  max-width: 185px;
+}
+
+.datedColumnHead {
+  height: 88px !important;
+  padding: 7px 9px;
+  vertical-align: top !important;
+}
+
+.assessmentHead {
+  height: 88px !important;
+  vertical-align: top !important;
+}
+
+.datedColumnHead > div {
+  display: grid;
+  gap: 3px;
+}
+
+.datedColumnHead strong,
+.datedColumnHead span,
+.datedColumnHead small {
+  display: block;
+}
+
+.datedColumnHead strong {
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .04em;
+}
+
+.datedColumnHead span {
+  overflow: hidden;
+  color: #324f46;
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.datedColumnHead small {
+  color: #6f7f79;
+  font-size: 8px;
+}
+
+.datedColumnHead button {
+  justify-self: center;
+  margin-top: 2px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: rgb(255 255 255 / 72%);
+  color: #49665d;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.homeworkHead {
+  background: #e6f2dc !important;
+  box-shadow: inset 0 3px #78a75d;
+}
+
+.homeworkHead strong {
+  color: #396d2e;
+}
+
+.classworkHead {
+  background: #e2edf7 !important;
+  box-shadow: inset 0 3px #6091bb;
+}
+
+.classworkHead strong {
+  color: #2e628e;
+}
+
+.assignmentHead {
+  background: #e8eef8 !important;
+  box-shadow: inset 0 3px #738ebd;
+}
+
+.assignmentHead strong {
+  color: #385c94;
+}
+
+.workStatusCell {
+  padding: 7px;
+  text-align: center;
+}
+
+.workStatusCell > button:first-child,
+.onlineHomeworkCell > button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  border: 1px solid #d0d8d3;
+  border-radius: 7px;
+  padding: 7px 8px;
+  background: #f7f8f6;
+  color: #52665f;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.workStatusCell strong,
+.onlineHomeworkCell strong {
+  font-size: 11px;
+}
+
+.workStatusCell span,
+.onlineHomeworkCell span {
+  font-size: 8px;
+}
+
+.workStatusCell .work_ok {
+  border-color: #8fbf8e;
+  background: #e5f3df;
+  color: #2e682d;
+}
+
+.workStatusCell .work_not_ok {
+  border-color: #dda39c;
+  background: #f9dedd;
+  color: #a32424;
+}
+
+.workStatusCell .work_late {
+  border-color: #d7bd68;
+  background: #fff2c9;
+  color: #765a0a;
+}
+
+.workStatusCell .work_clear {
+  border-style: dashed;
+  color: #8a9893;
+}
+
+.cwNoteButton {
+  margin-top: 4px;
+  border: 0;
+  background: transparent;
+  color: #426f94;
+  font-size: 8px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.onlineHomeworkCell > button {
+  border-color: #a9bad8;
+  background: #edf2fa;
+  color: #385c94;
 }
 
 .resetButton:disabled {

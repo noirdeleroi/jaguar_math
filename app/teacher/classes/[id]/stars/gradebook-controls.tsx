@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { AvailableClassroomAssessment, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek } from "@/lib/classroom-stars";
+import type { AvailableClassroomAssessment, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
 import styles from "./class-gradebook.module.css";
 
 function todayKey() {
@@ -120,4 +120,61 @@ export function ManualGradeCell({ classId, studentId, studentName, column, onSav
     <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => void save()} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setValue(grade ? String(grade.score) : ""); setDirty(false); event.currentTarget.blur(); } }} placeholder="—" step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
     <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%` : "Enter grade")}</small>
   </td>;
+}
+
+export function WorkColumnDialog({ classId, item, onClose, onSaved, onDeleted }: {
+  classId: string;
+  item: ClassroomWorkItem;
+  onClose: () => void;
+  onSaved: (item: ClassroomWorkItem) => void;
+  onDeleted: (itemId: string) => void;
+}) {
+  const [title, setTitle] = useState(item.title);
+  const [activityDate, setActivityDate] = useState(item.activityDate ?? "");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const code = `${item.kind === "homework" ? "HW" : "CW"}${item.position}`;
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/work-items/${item.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, activityDate: activityDate || null }) });
+      const result = await response.json() as { item?: { title: string; activityDate: string | null }; error?: string };
+      if (!response.ok || !result.item) throw new Error(result.error || "The column could not be saved.");
+      onSaved({ ...item, title: result.item.title, activityDate: result.item.activityDate });
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "The column could not be saved.");
+      setBusy(false);
+    }
+  }
+
+  async function deleteColumn() {
+    if (!window.confirm(`Delete the entire “${item.title}” ${code} column and every student status in it?`)) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/work-items/${item.id}`, { method: "DELETE" });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "The column could not be deleted.");
+      onDeleted(item.id);
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "The column could not be deleted.");
+      setBusy(false);
+    }
+  }
+
+  return <div className={styles.dialogBackdrop} role="presentation"><section aria-modal="true" className={styles.columnDialog} role="dialog">
+    <button aria-label="Close homework or classwork editor" className={styles.dialogClose} disabled={busy} onClick={onClose} type="button">×</button>
+    <p className={styles.dialogEyebrow}>{item.weekLabel} · {code}</p>
+    <h2>Edit {item.kind === "homework" ? "homework" : "classwork"} column</h2>
+    <p>The name and date appear in the table header for every student.</p>
+    <form className={styles.columnForm} onSubmit={submit}>
+      <label>Column name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
+      <label>Date<input onChange={(event) => setActivityDate(event.target.value)} type="date" value={activityDate} /></label>
+      {message ? <p className={styles.formError} role="alert">{message}</p> : null}
+      <div className={styles.dialogActions}><button className={styles.deleteColumnButton} disabled={busy} onClick={deleteColumn} type="button">Delete whole column</button><button disabled={busy || !title.trim()} type="submit">{busy ? "Saving…" : "Save column"}</button></div>
+    </form>
+  </section></div>;
 }
