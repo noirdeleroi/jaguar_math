@@ -18,8 +18,7 @@ type ImportPreview = {
   missingFromWorkbook: Array<{ studentName: string }>;
 };
 type UtilityOverlay =
-  | { kind: "randomizer"; phase: "spinning"; name: string; previousName: string; nextName: string; shuffleStep: number; names: string[] }
-  | { kind: "randomizer"; phase: "result"; name: string; names: string[] }
+  | { kind: "randomizer"; phase: "spinning" | "result"; name: string }
   | { kind: "teams"; phase: "mixing" | "result"; teams: string[][]; previewNames: string[] }
   | { kind: "timer" };
 type RewardEffect = { id: string; kind: "star" | "skull" | "death"; studentId: string; studentName: string };
@@ -197,32 +196,25 @@ function UtilityPopup({ overlay, timer, timerDuration, timerRunning, onClose, on
   onToggleTimer: () => void;
 }) {
   const timerStyle = { "--timer-progress": `${timerDuration ? Math.max(0, Math.min(1, timer / timerDuration)) * 360 : 0}deg` } as CSSProperties;
-  const tickerSource = overlay.kind === "randomizer" ? overlay.names.slice(0, 12) : [];
-  const tickerNames = [...tickerSource, ...tickerSource];
   return <div className={`${styles.popupBackdrop} ${styles[`${overlay.kind}Backdrop`]}`} role="presentation">
     <section aria-label={overlay.kind === "randomizer" ? "Random student picker" : overlay.kind === "teams" ? "Random teams" : "Ready for class timer"} aria-modal="true" className={`${styles.classroomPopup} ${styles[`${overlay.kind}Popup`]}`} role="dialog">
       <button aria-label="Close popup" className={styles.popupClose} onClick={onClose} type="button">×</button>
       {overlay.kind === "randomizer" ? <>
-        <div aria-hidden="true" className={`${styles.nicknameTicker} ${styles.nicknameTickerTop}`}><div>{tickerNames.map((name, index) => <span key={`top-${name}-${index}`}>{name}</span>)}</div></div>
-        <div aria-hidden="true" className={`${styles.nicknameTicker} ${styles.nicknameTickerBottom}`}><div>{[...tickerNames].reverse().map((name, index) => <span key={`bottom-${name}-${index}`}>{name}</span>)}</div></div>
         <div aria-hidden="true" className={styles.randomizerOrbit}><span>?</span><i /><i /><i /></div>
-        <p className={styles.popupEyebrow}>{overlay.phase === "spinning" ? "Live nickname draw · shuffling…" : "Nickname selected · you’re up!"}</p>
-        <div aria-live={overlay.phase === "result" ? "assertive" : "off"} className={`${styles.nicknameShuffleStage} ${overlay.phase === "result" ? styles.nicknameShuffleResult : ""}`}>
-          {overlay.phase === "spinning" ? <div className={styles.nicknameReel} key={overlay.shuffleStep}>
-            <span aria-hidden="true">{overlay.previousName}</span>
-            <strong>{overlay.name}</strong>
-            <span aria-hidden="true">{overlay.nextName}</span>
-          </div> : <><div aria-hidden="true" className={styles.winnerBurst}>{rewardParticles.slice(0, 12).map((particle) => <i key={particle} style={{ "--particle": particle } as CSSProperties}>✦</i>)}</div><strong className={`${styles.rouletteName} ${styles.rouletteWinner}`}>{overlay.name}</strong></>}
-        </div>
-        <p className={styles.popupHint}>{overlay.phase === "spinning" ? "Watch the reel slow down and land on one nickname." : "The classroom has spoken."}</p>
-        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onPickAgain} type="button">🎰 Shuffle again</button> : <div aria-label="Choosing a student" className={styles.pickerTrack} role="progressbar"><span /></div>}
+        <p className={styles.popupEyebrow}>{overlay.phase === "spinning" ? "The wheel is choosing…" : "You’re up!"}</p>
+        <strong className={`${styles.rouletteName} ${overlay.phase === "result" ? styles.rouletteWinner : ""}`}>{overlay.name}</strong>
+        <p className={styles.popupHint}>{overlay.phase === "spinning" ? "Every name has a chance." : "The classroom has spoken."}</p>
+        {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onPickAgain} type="button">🎲 Pick again</button> : <div aria-label="Choosing a student" className={styles.pickerTrack} role="progressbar"><span /></div>}
       </> : null}
       {overlay.kind === "teams" ? <>
         <div className={`${styles.teamMixer} ${overlay.phase === "mixing" ? styles.teamMixerActive : ""}`}>
-          {overlay.phase === "mixing" ? <div className={styles.mixingDeck} aria-label="Mixing teams">{overlay.previewNames.map((name, index) => <span key={`${name}-${index}`} style={{ "--mix-index": index } as CSSProperties}>{firstName(name)}</span>)}</div> : <div className={styles.teamResultGrid}>{overlay.teams.map((team, index) => <article key={index}><span>Team {index + 1}</span><strong>{team.map(firstName).join(" · ") || "—"}</strong></article>)}</div>}
+          {overlay.phase === "mixing" ? <div className={styles.teamMixingArena}>
+            <div aria-hidden="true" className={styles.teamDestinations}>{overlay.teams.map((_, index) => <span key={index} style={{ "--team-index": index } as CSSProperties}>Team {index + 1}</span>)}</div>
+            <div className={styles.mixingDeck} aria-label="Shuffling nicknames into teams">{overlay.previewNames.map((name, index) => <span key={`${name}-${index}`} style={{ "--mix-index": index } as CSSProperties}>{name}</span>)}</div>
+          </div> : <div aria-live="polite" className={styles.teamResultGrid}>{overlay.teams.map((team, index) => <article key={index} style={{ "--team-index": index } as CSSProperties}><span>Team {index + 1}</span><strong>{team.join(" · ") || "—"}</strong></article>)}</div>}
         </div>
-        <p className={styles.popupEyebrow}>{overlay.phase === "mixing" ? "Shuffling the class…" : "Teams are ready!"}</p>
-        <h2>{overlay.phase === "mixing" ? "Mix. Flip. Reveal." : `${overlay.teams.length} balanced teams`}</h2>
+        <p className={styles.popupEyebrow}>{overlay.phase === "mixing" ? "Shuffling nicknames…" : "Teams are ready!"}</p>
+        <h2>{overlay.phase === "mixing" ? "Mix. Fly. Team up." : `${overlay.teams.length} balanced teams`}</h2>
         {overlay.phase === "result" ? <button className={styles.popupAction} onClick={onRemix} type="button">↻ Mix again</button> : <div aria-label="Mixing teams" className={styles.pickerTrack} role="progressbar"><span /></div>}
       </> : null}
       {overlay.kind === "timer" ? <>
@@ -312,7 +304,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [importing, setImporting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const syncing = useRef(false);
-  const randomizerShuffleTimer = useRef<number | null>(null);
+  const utilityShuffleInterval = useRef<number | null>(null);
   const utilityRevealTimer = useRef<number | null>(null);
   const rewardTimer = useRef<number | null>(null);
   const sheetScrollerRef = useRef<HTMLDivElement>(null);
@@ -518,9 +510,9 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
+      if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
       if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
-      randomizerShuffleTimer.current = null;
+      utilityShuffleInterval.current = null;
       utilityRevealTimer.current = null;
       setUtilityOverlay(null);
       setWorkCreatorOpen(false);
@@ -534,15 +526,15 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }, [blockingOverlayOpen]);
 
   useEffect(() => () => {
-    if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
+    if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
     if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
     if (rewardTimer.current !== null) window.clearTimeout(rewardTimer.current);
   }, []);
 
   function clearUtilityAnimationTimers() {
-    if (randomizerShuffleTimer.current !== null) window.clearTimeout(randomizerShuffleTimer.current);
+    if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
     if (utilityRevealTimer.current !== null) window.clearTimeout(utilityRevealTimer.current);
-    randomizerShuffleTimer.current = null;
+    utilityShuffleInterval.current = null;
     utilityRevealTimer.current = null;
   }
 
@@ -788,34 +780,18 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     clearUtilityAnimationTimers();
     const order = shuffle(data.students);
     const winner = order[0];
-    const names = order.map((student) => student.nickname);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const steps = reducedMotion ? 2 : 24;
-    const frame = (step: number) => {
-      const index = step % order.length;
-      const previous = (index - 1 + order.length) % order.length;
-      const next = (index + 1) % order.length;
-      return { kind: "randomizer" as const, phase: "spinning" as const, name: order[index].nickname, previousName: order[previous].nickname, nextName: order[next].nickname, shuffleStep: step, names };
-    };
-    const revealWinner = () => {
-      randomizerShuffleTimer.current = null;
-      setUtilityOverlay({ kind: "randomizer", phase: "result", name: winner.nickname, names });
-      setUtilityMessage(`🎲 ${winner.nickname}`);
-    };
-    let step = 0;
-    setUtilityOverlay(frame(step));
-    const advance = () => {
-      step += 1;
-      if (step >= steps) {
-        utilityRevealTimer.current = window.setTimeout(revealWinner, reducedMotion ? 80 : 260);
-        return;
-      }
-      setUtilityOverlay(frame(step));
-      const progress = step / (steps - 1);
-      const delay = reducedMotion ? 80 : Math.round(58 + progress ** 3 * 235);
-      randomizerShuffleTimer.current = window.setTimeout(advance, delay);
-    };
-    randomizerShuffleTimer.current = window.setTimeout(advance, reducedMotion ? 80 : 58);
+    let index = 0;
+    setUtilityOverlay({ kind: "randomizer", phase: "spinning", name: order[0].fullName });
+    utilityShuffleInterval.current = window.setInterval(() => {
+      index = (index + 1) % order.length;
+      setUtilityOverlay((current) => current?.kind === "randomizer" ? { ...current, name: order[index].fullName } : current);
+    }, 85);
+    utilityRevealTimer.current = window.setTimeout(() => {
+      if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
+      utilityShuffleInterval.current = null;
+      setUtilityOverlay({ kind: "randomizer", phase: "result", name: winner.fullName });
+      setUtilityMessage(`🎲 ${winner.fullName}`);
+    }, 1900);
   }
 
   function makeTeams() {
@@ -824,12 +800,22 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const count = Math.max(2, Math.min(teamCount, data.students.length));
     const teams = Array.from({ length: count }, () => [] as string[]);
     const shuffled = shuffle(data.students);
-    shuffled.forEach((student, index) => teams[index % count].push(student.fullName));
-    setUtilityOverlay({ kind: "teams", phase: "mixing", teams, previewNames: shuffled.slice(0, 10).map((student) => student.fullName) });
+    const nicknames = shuffled.map((student) => student.nickname);
+    nicknames.forEach((nickname, index) => teams[index % count].push(nickname));
+    const previewNames = nicknames.slice(0, 12);
+    setUtilityOverlay({ kind: "teams", phase: "mixing", teams, previewNames });
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reducedMotion) {
+      utilityShuffleInterval.current = window.setInterval(() => {
+        setUtilityOverlay((current) => current?.kind === "teams" && current.phase === "mixing" ? { ...current, previewNames: shuffle(current.previewNames) } : current);
+      }, 130);
+    }
     utilityRevealTimer.current = window.setTimeout(() => {
+      if (utilityShuffleInterval.current !== null) window.clearInterval(utilityShuffleInterval.current);
+      utilityShuffleInterval.current = null;
       setUtilityOverlay({ kind: "teams", phase: "result", teams, previewNames: [] });
       setUtilityMessage(teams.map((team, index) => `Team ${index + 1}: ${team.join(", ")}`).join("\n"));
-    }, 1900);
+    }, reducedMotion ? 350 : 2200);
   }
 
   function sheetColumnsForWeek(weekLabel: string): SheetDatedColumn[] {
@@ -937,7 +923,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
 
   return <div className={`${styles.page} ${embedded ? styles.embeddedPage : ""}`}>
-    {embedded ? <section className={styles.embeddedHeading} id="weekly-classroom"><div><p className="eyebrow">Complete class gradebook</p><h2>Student list & class record</h2><p>Stars, skulls, HW, CW, and dated tests live together inside A1, A2, A3…</p></div><div className={styles.sheetTools}><button className={gradebookStyles.addTestButton} onClick={() => setGradeColumnDialog("new")} type="button">＋ Test / grade column</button><button onClick={() => setWorkCreatorOpen(true)} type="button">＋ HW / CW · {selectedWeek}</button><button className={styles.nicknameDrawButton} disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎰 Nickname draw</button><label>Teams<select aria-label="Number of teams" disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button><button onClick={openTimer} type="button">⏱ Timer</button><a className={styles.backupButton} href="/api/stars/export">Excel backup</a><button onClick={addWeek} type="button">＋ Week</button></div></section> : <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Stars</h1><p>Weekly rewards, homework and classwork records. Skulls sync securely with separate today and accumulated totals.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addWeek} type="button">＋ Add week</button></div></section>}
+    {embedded ? <section className={styles.embeddedHeading} id="weekly-classroom"><div><p className="eyebrow">Complete class gradebook</p><h2>Student list & class record</h2><p>Stars, skulls, HW, CW, and dated tests live together inside A1, A2, A3…</p></div><div className={styles.sheetTools}><button className={gradebookStyles.addTestButton} onClick={() => setGradeColumnDialog("new")} type="button">＋ Test / grade column</button><button onClick={() => setWorkCreatorOpen(true)} type="button">＋ HW / CW · {selectedWeek}</button><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Student</button><label>Teams<select aria-label="Number of teams" disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button><button onClick={openTimer} type="button">⏱ Timer</button><a className={styles.backupButton} href="/api/stars/export">Excel backup</a><button onClick={addWeek} type="button">＋ Week</button></div></section> : <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Stars</h1><p>Weekly rewards, homework and classwork records. Skulls sync securely with separate today and accumulated totals.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addWeek} type="button">＋ Add week</button></div></section>}
 
     <div className={`${styles.saveBanner} ${styles[saveState]}`} role="status"><span>{saveState === "saved" ? "✓" : saveState === "syncing" ? "↻" : "●"}</span><div><strong>{saveState === "saved" ? "Safe and saved" : saveState === "syncing" ? "Saving now" : "Browser safety copy active"}</strong><p>{saveMessage}</p></div>{queueSize(queue) > 0 && isOnline ? <button onClick={() => void flushQueue()} type="button">Retry now</button> : null}</div>
 
@@ -986,7 +972,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
               </section>
 
               <aside className={styles.sidebar}>
-                <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎰 Nickname draw</button><label>Teams<select disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
+                <section className={styles.utilityCard}><p className="eyebrow">Classroom utilities</p><h2>Quick tools</h2><div className={styles.utilityActions}><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Random student</button><label>Teams<select disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button></div><pre>{utilityMessage}</pre></section>
                 <section className={styles.timerCard}><span>Ready for Math</span><strong>{formatTimer(timer)}</strong><p>Backpacks away · laptops closed · notebook and pen out.</p><div><button onClick={openTimer} type="button">{timerRunning ? "Show timer" : "Open timer"}</button><button onClick={() => { setTimerRunning(false); setTimerDuration(60); setTimer(60); }} type="button">Reset</button></div></section>
               </aside>
             </div>
