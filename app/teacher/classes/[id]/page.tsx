@@ -24,6 +24,7 @@ type Assessment = { id: string; title: string; kind: string; status: "published"
 type Attempt = { id: string; assignment_id: string; student_id: string; status: "in_progress" | "submitted"; score: number | null; max_score: number | null; attempt_number: number; started_at: string; submitted_at: string | null };
 type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual"; assignment_id: string | null; max_score: number | null; created_at: string };
 type ManualGradeRow = { column_id: string; student_id: string; score: number };
+type GradebookRosterRow = { gradebook_code: string; gradebook_name: string; sort_order: number; student_id: string | null };
 type WorkSummary = { ok: number; notOk: number; late: number; recorded: number };
 type WeekAchievement = { stars: number; homework: WorkSummary; classwork: WorkSummary };
 type ManagerScore = { attemptId: string; score: number; maxScore: number; percent: number };
@@ -56,9 +57,10 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
 
   const admin = createAdminClient();
-  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, currentWeekLabel, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
+  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, currentWeekLabel, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
+    supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", id).order("sort_order"),
     supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", id).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, week_id, delta").eq("class_id", id),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: id }),
@@ -69,7 +71,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     hasGoogleGmailSendPermission(teacher.id),
     admin.from("google_classroom_courses").select("google_course_id").eq("class_id", id).eq("teacher_id", teacher.id).maybeSingle(),
   ]);
-  const dataError = memberError ?? studentError ?? weekError ?? starError ?? skullError ?? workItemError ?? linkError ?? gradeColumnError;
+  const dataError = memberError ?? studentError ?? gradebookRosterError ?? weekError ?? starError ?? skullError ?? workItemError ?? linkError ?? gradeColumnError;
   if (dataError) throw dataError;
 
   const studentsById = new Map(((allStudents ?? []) as Student[]).map((student) => [student.id, student]));
@@ -165,6 +167,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const skullsByStudent = new Map(((skullRows ?? []) as SkullTotalRow[]).map((row) => [row.student_id, { today: Number(row.skulls_today), total: Number(row.skulls_total) }]));
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
+    gradebookRoster: ((gradebookRosterRows ?? []) as GradebookRosterRow[]).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
     weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
     students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skullsToday: skullsByStudent.get(student.id)?.today ?? 0, skullsTotal: skullsByStudent.get(student.id)?.total ?? 0 })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
@@ -179,7 +182,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const classTitle = /\bmath(?:ematics)?\b/i.test(classroom.name) ? classroom.name : `${classroom.name} Math`;
 
   return <main className={`teacher-main ${styles.main}`}>
-    <header className={styles.hero}><div><p className="eyebrow">Class manager · {classroom.academic_year}</p><h1>{classTitle}</h1><p>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</p></div><nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#weekly-classroom">Open {currentWeekLabel} ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav></header>
+    <header className={styles.hero}><div><p className="eyebrow">Class manager · {classroom.academic_year}</p><h1>{classTitle}</h1><p>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</p></div><nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#weekly-classroom">Open {currentWeekLabel} ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Nickname wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav></header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{currentWeekLabel}</strong><div><strong>Current week · {currentCurriculum?.unit ?? "Curriculum"}</strong><span>{currentCurriculum?.topic ?? "Topic not set for this grade"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
     <section className={styles.kpis} aria-label="Class achievement summary"><article><span>Students</span><strong>{enrolled.length}</strong><small>Active roster</small></article><article><span>Total stars</span><strong>★ {classStars}</strong><small>All recorded weeks</small></article><article><span>Homework OK</span><strong>{percentage(homework.ok, homework.recorded)}</strong><small>{homework.ok} of {homework.recorded} records</small></article><article><span>Classwork OK</span><strong>{percentage(classwork.ok, classwork.recorded)}</strong><small>{classwork.ok} of {classwork.recorded} records</small></article><article><span>Assessment average</span><strong>{assessmentAverage}</strong><small>{gradeColumns.length} visible grade column{gradeColumns.length === 1 ? "" : "s"}</small></article></section>

@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
+import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
 import { GradeColumnDialog, ManualGradeCell, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
 import styles from "./stars.module.css";
@@ -291,6 +292,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [gradeColumns, setGradeColumns] = useState(initialGradeColumns);
   const [availableAssessments, setAvailableAssessments] = useState(initialAvailableAssessments);
   const [gradeColumnDialog, setGradeColumnDialog] = useState<ClassroomGradeColumn | "new" | null>(null);
+  const [copiedColumnId, setCopiedColumnId] = useState<string | null>(null);
   const [assignmentPopupId, setAssignmentPopupId] = useState<string | null>(null);
   const [assignmentsUpdatedAt, setAssignmentsUpdatedAt] = useState<Date | null>(null);
   const [cwRecords, setCwRecords] = useState(initialCwRecords);
@@ -873,16 +875,42 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     router.refresh();
   }
 
+  async function copyGradebookColumn(sheetColumn: SheetDatedColumn) {
+    const enrolledStudentIds = new Set(data.students.map((student) => student.id));
+    const text = gradebookColumnClipboardText(data.gradebookRoster, enrolledStudentIds, (studentId) => {
+      if (sheetColumn.type === "work") return workStatusGrade(sheetColumn.item.statuses[studentId]);
+      if (sheetColumn.type === "assignment") {
+        const result = sheetColumn.assignment.results[studentId];
+        return result?.status === "submitted" ? result.score : null;
+      }
+      return sheetColumn.column.scores[studentId]?.score;
+    });
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedColumnId(sheetColumn.id);
+      window.setTimeout(() => setCopiedColumnId((current) => current === sheetColumn.id ? null : current), 1800);
+    } catch {
+      setSaveState("error");
+      setSaveMessage("The grade column could not be copied. Allow clipboard access, then try again.");
+    }
+  }
+
+  function copyColumnButton(sheetColumn: SheetDatedColumn) {
+    const copied = copiedColumnId === sheetColumn.id;
+    return <button aria-label={`Copy ${sheetColumn.type === "work" ? sheetColumn.item.title : sheetColumn.type === "assignment" ? sheetColumn.assignment.title : sheetColumn.column.title} grades in official gradebook order`} className={gradebookStyles.copyColumnButton} disabled={!data.gradebookRoster.length} onClick={() => void copyGradebookColumn(sheetColumn)} title={data.gradebookRoster.length ? "Copy one spreadsheet-ready value per official gradebook row" : "Official gradebook roster is not available"} type="button">{copied ? "✓ Copied" : "Copy grades"}</button>;
+  }
+
   function sheetColumnHeader(sheetColumn: SheetDatedColumn) {
     if (sheetColumn.type === "work") {
       const { item } = sheetColumn;
-      return <th className={`${gradebookStyles.datedColumnHead} ${item.kind === "homework" ? gradebookStyles.homeworkHead : gradebookStyles.classworkHead}`} key={sheetColumn.id}><div><strong>{item.kind === "homework" ? "HW" : "CW"}{item.position}</strong><span>{item.title}</span><small>{item.activityDate ? shortDate(item.activityDate) : "No date"}</small><button aria-label={`Edit ${item.title} column`} onClick={() => setWorkColumnDialog(item)} type="button">Edit</button></div></th>;
+      return <th className={`${gradebookStyles.datedColumnHead} ${item.kind === "homework" ? gradebookStyles.homeworkHead : gradebookStyles.classworkHead}`} key={sheetColumn.id}><div><strong>{item.kind === "homework" ? "HW" : "CW"}{item.position}</strong><span>{item.title}</span><small>{item.activityDate ? shortDate(item.activityDate) : "No date"}</small><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}<button aria-label={`Edit ${item.title} column`} onClick={() => setWorkColumnDialog(item)} type="button">Edit</button></div></div></th>;
     }
     if (sheetColumn.type === "assignment") {
-      return <th className={`${gradebookStyles.datedColumnHead} ${gradebookStyles.assignmentHead}`} key={sheetColumn.id}><div><strong>Online HW</strong><span>{sheetColumn.assignment.title}</span><small>{sheetColumn.date ? shortDate(sheetColumn.date) : "No due date"} · {sheetColumn.assignment.status}</small></div></th>;
+      return <th className={`${gradebookStyles.datedColumnHead} ${gradebookStyles.assignmentHead}`} key={sheetColumn.id}><div><strong>Online HW</strong><span>{sheetColumn.assignment.title}</span><small>{sheetColumn.date ? shortDate(sheetColumn.date) : "No due date"} · {sheetColumn.assignment.status}</small><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}</div></div></th>;
     }
     const { column } = sheetColumn;
-    return <th className={gradebookStyles.assessmentHead} key={sheetColumn.id}><div>{column.assignmentId ? <a href={`/teacher/assignments/${column.assignmentId}`}><strong>{column.title}</strong></a> : <strong>{column.title}</strong>}<span>{shortDate(column.assessmentDate)} · {column.source === "manual" ? `Manual / ${column.maxScore}` : "Auto test"}</span><small>{column.average === null ? "No grades" : `Avg ${column.average}%`}</small><button aria-label={`Edit ${column.title} column`} onClick={() => setGradeColumnDialog(column)} type="button">Edit</button></div></th>;
+    return <th className={gradebookStyles.assessmentHead} key={sheetColumn.id}><div>{column.assignmentId ? <a href={`/teacher/assignments/${column.assignmentId}`}><strong>{column.title}</strong></a> : <strong>{column.title}</strong>}<span>{shortDate(column.assessmentDate)} · {column.source === "manual" ? `Manual / ${column.maxScore}` : "Auto test"}</span><small>{column.average === null ? "No grades" : `Avg ${column.average}%`}</small><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}<button aria-label={`Edit ${column.title} column`} onClick={() => setGradeColumnDialog(column)} type="button">Edit</button></div></div></th>;
   }
 
   function sheetColumnCell(sheetColumn: SheetDatedColumn, student: ClassroomStarState["students"][number]) {

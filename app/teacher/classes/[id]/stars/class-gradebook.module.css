@@ -109,6 +109,26 @@
   cursor: pointer;
 }
 
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+}
+
+.headerActions .copyColumnButton {
+  border-color: #31554b;
+  background: #31554b;
+  color: #fff;
+}
+
+.headerActions .copyColumnButton:disabled {
+  border-color: #a7b1ad;
+  background: #a7b1ad;
+  cursor: not-allowed;
+  opacity: .7;
+}
+
 .assessmentHead strong {
   color: #31554b;
   font-size: 10px;

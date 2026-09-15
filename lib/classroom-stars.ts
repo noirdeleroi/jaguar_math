@@ -16,6 +16,13 @@ export type ClassroomStudent = {
   skullsTotal: number;
 };
 
+export type GradebookRosterStudent = {
+  gradebookCode: string;
+  gradebookName: string;
+  sortOrder: number;
+  studentId: string | null;
+};
+
 export type WorkKind = "homework" | "classwork";
 export type WorkStatus = "ok" | "not_ok" | "late";
 
@@ -31,6 +38,7 @@ export type ClassroomWorkItem = {
 
 export type ClassroomStarState = {
   classroom: { id: string; name: string; gradeLevel: number; academicYear: string };
+  gradebookRoster: GradebookRosterStudent[];
   weeks: ClassroomWeek[];
   students: ClassroomStudent[];
   workItems: ClassroomWorkItem[];
