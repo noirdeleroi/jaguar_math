@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { sendExamActivity } from "../app/student/assignments/exam-activity-client.ts";
+import { flushExamActivityQueue, sendExamActivity } from "../app/student/assignments/exam-activity-client.ts";
 
 function createStorage() {
   const entries = new Map();
@@ -73,6 +73,51 @@ test("concurrent acknowledgements remove only their own queued event", async () 
     pending[0].resolve(Response.json({ focusViolations: 1, autoSubmitted: false }));
     await first;
     assert.equal(storage.getItem("jaguar-exam-events:attempt-2"), null);
+  } finally {
+    globalThis.fetch = previous.fetch;
+    globalThis.localStorage = previous.localStorage;
+    globalThis.window = previous.window;
+  }
+});
+
+test("routine offline churn cannot evict a queued violation snapshot", async () => {
+  const storage = createStorage();
+  const previous = { fetch: globalThis.fetch, localStorage: globalThis.localStorage, window: globalThis.window };
+  globalThis.localStorage = storage;
+  globalThis.window = globalThis;
+  globalThis.fetch = async () => { throw new Error("offline"); };
+  try {
+    const responses = [{ questionId: "question-1", answer: "final", revision: 999 }];
+    await sendExamActivity("attempt-churn", "fullscreen_exited", undefined, true, responses);
+    for (let index = 0; index < 100; index += 1) await sendExamActivity("attempt-churn", "window_focus");
+    const queued = JSON.parse(storage.getItem("jaguar-exam-events:attempt-churn"));
+    assert.equal(queued.length, 2);
+    assert.deepEqual(queued.find((event) => event.eventType === "fullscreen_exited").responses, responses);
+  } finally {
+    globalThis.fetch = previous.fetch;
+    globalThis.localStorage = previous.localStorage;
+    globalThis.window = previous.window;
+  }
+});
+
+test("concurrent reconnect signals share one queue flush", async () => {
+  const storage = createStorage();
+  const previous = { fetch: globalThis.fetch, localStorage: globalThis.localStorage, window: globalThis.window };
+  globalThis.localStorage = storage;
+  globalThis.window = globalThis;
+  globalThis.fetch = async () => { throw new Error("offline"); };
+  try {
+    await sendExamActivity("attempt-reconnect", "fullscreen_exited");
+    let requests = 0;
+    globalThis.fetch = async () => {
+      requests += 1;
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      return Response.json({ focusViolations: 1, autoSubmitted: false });
+    };
+    const [first, second] = await Promise.all([flushExamActivityQueue("attempt-reconnect"), flushExamActivityQueue("attempt-reconnect")]);
+    assert.deepEqual(first, second);
+    assert.equal(requests, 1);
+    assert.equal(storage.getItem("jaguar-exam-events:attempt-reconnect"), null);
   } finally {
     globalThis.fetch = previous.fetch;
     globalThis.localStorage = previous.localStorage;
