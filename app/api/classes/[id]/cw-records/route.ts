@@ -43,7 +43,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       supabase.from("classroom_weeks").select("id").eq("class_id", id).eq("label", weekLabel).maybeSingle(),
       supabase.from("class_members").select("student_id").eq("class_id", id).eq("student_id", studentId).maybeSingle(),
     ]);
-    if (!classroom || !week || !member) return NextResponse.json({ error: "That student or week is not available in this class." }, { status: 404 });
+    if (!classroom || !week || !member) return NextResponse.json({ error: "That student or topic is not available in this class." }, { status: 404 });
     const { data, error } = await supabase.from("classroom_cw_records").insert({ class_id: id, week_id: week.id, student_id: studentId, status: "not_ok", record_date: recordDate, reason, created_by: teacher.id }).select("id, student_id, record_date, reason").single();
     if (error) throw error;
     const record: ClassroomCwRecord = { id: data.id, studentId: data.student_id, weekLabel, recordDate: data.record_date, reason: data.reason };

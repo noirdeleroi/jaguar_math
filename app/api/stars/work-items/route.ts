@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/auth";
-import { isCurriculumWeek } from "@/lib/curriculum-weeks";
 import { createClient } from "@/lib/supabase/server";
 
 type WorkRequest = { scope?: unknown; weekLabel?: unknown; kind?: unknown; title?: unknown; activityDate?: unknown };
@@ -9,11 +8,11 @@ export async function POST(request: Request) {
   try {
     const teacher = await requireTeacher();
     const body = await request.json() as WorkRequest;
-    const weekLabel = typeof body.weekLabel === "string" ? body.weekLabel.trim().toUpperCase() : "";
+    const topicLabel = typeof body.weekLabel === "string" && /^T[1-9]\d*$/i.test(body.weekLabel.trim()) ? body.weekLabel.trim().toUpperCase() : "T1";
     const kind = body.kind === "homework" || body.kind === "classwork" ? body.kind : "";
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const activityDate = typeof body.activityDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.activityDate) ? body.activityDate : null;
-    if (!isCurriculumWeek(weekLabel) || !kind || !title || title.length > 120) return NextResponse.json({ error: "Check the week, type, and title." }, { status: 400 });
+    if (!kind || !title || title.length > 120) return NextResponse.json({ error: "Check the topic, type, and title." }, { status: 400 });
 
     const supabase = await createClient();
     const { data: classes, error: classError } = await supabase.from("classes").select("id").eq("teacher_id", teacher.id);
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase.rpc("create_classroom_work_items", {
       p_class_ids: classIds,
-      p_week_label: weekLabel,
+      p_week_label: topicLabel,
       p_kind: kind,
       p_title: title,
       p_activity_date: activityDate,

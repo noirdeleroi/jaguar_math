@@ -9,7 +9,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const teacher = await requireTeacher();
     const { id, columnId } = await context.params;
     const body = await request.json() as { weekLabel?: unknown; assessmentDate?: unknown; title?: unknown; maxScore?: unknown };
-    if (typeof body.weekLabel !== "string" || typeof body.assessmentDate !== "string" || !datePattern.test(body.assessmentDate)) return NextResponse.json({ error: "Choose a valid week and date." }, { status: 400 });
+    if (typeof body.weekLabel !== "string" || typeof body.assessmentDate !== "string" || !datePattern.test(body.assessmentDate)) return NextResponse.json({ error: "Choose a valid topic and date." }, { status: 400 });
     const supabase = await createClient();
     const [{ data: classroom }, { data: week }, { data: column }] = await Promise.all([
       supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle(),
@@ -17,7 +17,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       supabase.from("classroom_grade_columns").select("id, source, title, max_score").eq("id", columnId).eq("class_id", id).maybeSingle(),
     ]);
     if (!classroom || !column) return NextResponse.json({ error: "That test column was not found." }, { status: 404 });
-    if (!week) return NextResponse.json({ error: "That week does not belong to this class." }, { status: 400 });
+    if (!week) return NextResponse.json({ error: "That topic does not belong to this class." }, { status: 400 });
     const values: Record<string, unknown> = { week_id: week.id, assessment_date: body.assessmentDate };
     let title = column.title;
     let maxScore = column.max_score === null ? null : Number(column.max_score);

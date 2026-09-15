@@ -583,3 +583,115 @@
   .formPair { grid-template-columns: 1fr; }
   .columnForm fieldset { align-items: flex-start; flex-direction: column; }
 }
+
+.topicUmbrella {
+  overflow: hidden;
+  border: 1px solid #cfc3ae;
+  border-radius: 14px;
+  background: #fffaf0;
+  box-shadow: 0 14px 34px rgb(23 52 46 / 7%);
+}
+
+.topicUmbrella > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 22px 24px;
+  background: linear-gradient(125deg, #173f36, #276253);
+  color: #fffaf0;
+}
+
+.topicUmbrella > header h2 {
+  margin: 3px 0 2px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 500;
+  letter-spacing: -.055em;
+}
+
+.topicUmbrella > header p:last-child {
+  margin: 0;
+  color: #d9e9e2;
+  font-size: 14px;
+}
+
+.topicUmbrella > header :global(.eyebrow) {
+  margin: 0;
+  color: #f1c567;
+}
+
+.topicUmbrella > header > button {
+  flex: 0 0 auto;
+  border: 1px solid rgb(255 255 255 / 34%);
+  border-radius: 7px;
+  padding: 9px 13px;
+  background: rgb(255 255 255 / 7%);
+  color: #fffaf0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.topicUmbrella > header > button:hover {
+  background: rgb(255 255 255 / 14%);
+}
+
+.topicMetrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-bottom: 1px solid #ded5c8;
+}
+
+.topicMetrics article {
+  padding: 14px 18px;
+  border-right: 1px solid #e5ddd1;
+}
+
+.topicMetrics article:last-child {
+  border-right: 0;
+}
+
+.topicMetrics span,
+.topicMetrics strong,
+.topicMetrics small {
+  display: block;
+}
+
+.topicMetrics span {
+  color: #71867d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.topicMetrics strong {
+  margin: 4px 0 1px;
+  color: var(--green);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.topicMetrics article:nth-child(2) strong {
+  color: #a44836;
+}
+
+.topicMetrics small {
+  color: #7a8b84;
+  font-size: 9px;
+}
+
+.topicTools.topicTools {
+  max-width: none;
+  padding: 12px 14px;
+  background: #f5efe5;
+}
+
+@media (max-width: 700px) {
+  .topicUmbrella > header { align-items: flex-start; flex-direction: column; padding: 18px; }
+  .topicMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .topicMetrics article { border-bottom: 1px solid #e5ddd1; }
+}

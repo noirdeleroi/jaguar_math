@@ -258,3 +258,28 @@ export function importPayload(preview: WorkbookPreview) {
     }),
   };
 }
+
+export function consolidateImportIntoTopicOne(payload: ReturnType<typeof importPayload>) {
+  const topic = { label: "T1", sort_order: 1, title: "Topic 1", focus: "Algebra Foundations" };
+  const starsByStudent = new Map<string, number>();
+  for (const star of payload.starTotals) starsByStudent.set(star.student_id, (starsByStudent.get(star.student_id) ?? 0) + star.total);
+
+  const nextPosition: Record<WorkKind, number> = { homework: 0, classwork: 0 };
+  const positionByLegacyKey = new Map<string, number>();
+  const workItems = payload.workItems.map((item) => {
+    const position = ++nextPosition[item.kind];
+    positionByLegacyKey.set(`${item.week_label}|${item.kind}|${item.position}`, position);
+    return { ...item, week_label: topic.label, position };
+  });
+  const workStatuses = payload.workStatuses.flatMap((status) => {
+    const position = positionByLegacyKey.get(`${status.week_label}|${status.kind}|${status.position}`);
+    return position ? [{ ...status, week_label: topic.label, position }] : [];
+  });
+
+  return {
+    weeks: [topic],
+    starTotals: [...starsByStudent].map(([student_id, total]) => ({ student_id, week_label: topic.label, total })),
+    workItems,
+    workStatuses,
+  };
+}

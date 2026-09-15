@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/auth";
-import { importPayload, previewClassroomWorkbook } from "@/lib/classroom-star-import";
+import { consolidateImportIntoTopicOne, importPayload, previewClassroomWorkbook } from "@/lib/classroom-star-import";
 import { loadStudentMatchCandidates } from "@/lib/classroom-star-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,7 +32,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (mode === "preview") return NextResponse.json({ ok: true, preview: publicPreview }, { headers: { "Cache-Control": "no-store" } });
     if (!matched) return NextResponse.json({ error: "No Excel rows could be matched safely to existing students. Nothing was imported.", preview: publicPreview }, { status: 400 });
 
-    const payload = importPayload(preview);
+    const payload = consolidateImportIntoTopicOne(importPayload(preview));
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("import_classroom_star_workbook", {
       p_class_id: id,

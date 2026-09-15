@@ -97,8 +97,8 @@ export async function buildClassroomStarsWorkbook(states: ClassroomStarState[]) 
 
   for (const gradeLevel of [...new Set(states.map((state) => state.classroom.gradeLevel))].sort((first, second) => first - second)) {
     const reference = states.find((state) => state.classroom.gradeLevel === gradeLevel);
-    const weekRows: StyledCell[][] = [[header("Order"), header("Week"), header("Unit"), header("Focus")], ...(reference?.weeks ?? []).map((week) => [week.sortOrder, week.label, week.title ?? "", week.focus ?? ""] as StyledCell[])];
-    sheets.push({ data: weekRows, sheet: sheetName(`Grade ${gradeLevel} Weeks`, usedNames), columns: [{ width: 10 }, { width: 12 }, { width: 32 }, { width: 48 }], stickyRowsCount: 1, fontFamily: "Aptos", fontSize: 10 });
+    const weekRows: StyledCell[][] = [[header("Order"), header("Topic"), header("Title"), header("Focus")], ...(reference?.weeks ?? []).map((week) => [week.sortOrder, week.label, week.title ?? "", week.focus ?? ""] as StyledCell[])];
+    sheets.push({ data: weekRows, sheet: sheetName(`Grade ${gradeLevel} Topics`, usedNames), columns: [{ width: 10 }, { width: 12 }, { width: 32 }, { width: 48 }], stickyRowsCount: 1, fontFamily: "Aptos", fontSize: 10 });
   }
   return writeExcelFile(sheets).toBuffer();
 }

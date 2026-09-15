@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/auth";
-import { loadTeacherCurrentWeek } from "@/lib/classroom-star-data";
 import type { ClassroomHomeworkAssignment } from "@/lib/classroom-stars";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,9 +11,9 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     const teacher = await requireTeacher();
     const { id } = await context.params;
     const supabase = await createClient();
-    const [{ data: classroom }, currentWeekLabel] = await Promise.all([
+    const [{ data: classroom }, { data: activeTopic }] = await Promise.all([
       supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle(),
-      loadTeacherCurrentWeek(teacher.id),
+      supabase.from("classroom_weeks").select("label").eq("class_id", id).order("sort_order", { ascending: false }).limit(1).maybeSingle(),
     ]);
     if (!classroom) return NextResponse.json({ error: "That class is not available." }, { status: 404 });
 
@@ -49,7 +48,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       title: assignment.title,
       status: assignment.status,
       dueAt: assignment.due_at,
-      weekLabel: currentWeekLabel,
+      weekLabel: activeTopic?.label ?? "T1",
       results: Object.fromEntries(studentIds.map((studentId) => {
         const key = `${studentId}|${assignment.id}`;
         const activity = latestActivity.get(key);

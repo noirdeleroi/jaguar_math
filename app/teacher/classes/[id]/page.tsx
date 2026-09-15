@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
-import { loadTeacherCurrentWeek } from "@/lib/classroom-star-data";
 import type { AvailableClassroomAssessment, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
-import { curriculumTopic } from "@/lib/curriculum-weeks";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -41,7 +39,6 @@ function addWork(target: WorkSummary, status: string) {
   if (status === "late") target.late += 1;
 }
 function sumWork(target: WorkSummary, source: WorkSummary) { target.ok += source.ok; target.notOk += source.notOk; target.late += source.late; target.recorded += source.recorded; }
-function percentage(ok: number, recorded: number) { return recorded ? `${Math.round(ok / recorded * 100)}%` : "—"; }
 function normalizeWorkStatus(status: string): ClassroomWorkStatus | null {
   if (status === "ok" || status === "done") return "ok";
   if (status === "not_ok" || status === "missing") return "not_ok";
@@ -57,7 +54,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
 
   const admin = createAdminClient();
-  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, currentWeekLabel, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
+  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", id).order("sort_order"),
@@ -67,7 +64,6 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     supabase.from("classroom_work_items").select("id, week_id, kind, position, title, activity_date").eq("class_id", id),
     supabase.from("assignment_classes").select("assignment_id").eq("class_id", id),
     supabase.from("classroom_grade_columns").select("id, week_id, title, assessment_date, source, assignment_id, max_score, created_at").eq("class_id", id).order("assessment_date").order("created_at"),
-    loadTeacherCurrentWeek(teacher.id),
     hasGoogleGmailSendPermission(teacher.id),
     admin.from("google_classroom_courses").select("google_course_id").eq("class_id", id).eq("teacher_id", teacher.id).maybeSingle(),
   ]);
@@ -80,6 +76,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const enrolled = memberRows.flatMap((member): EnrolledStudent[] => { const student = studentsById.get(member.student_id); return student ? [{ ...student, nickname: member.nickname, nicknameIsCustom: member.nickname_is_custom }] : []; }).sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { sensitivity: "base" }));
   const available = ((allStudents ?? []) as Student[]).filter((student) => !memberIds.has(student.id)).sort((a, b) => firstName(a.full_name || a.email || "").localeCompare(firstName(b.full_name || b.email || ""), undefined, { sensitivity: "base" }));
   const weeks = (weekRows ?? []) as ClassroomWeek[];
+  const activeTopic = weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: "Topic 1", focus: "Algebra Foundations" };
   const workItems = (workItemRows ?? []) as WorkItem[];
   const workItemIds = workItems.map((item) => item.id);
   const assignmentIds = (assignmentLinks ?? []).map((link) => link.assignment_id);
@@ -154,7 +151,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     title: assessment.title,
     status: assessment.status,
     dueAt: assessment.due_at,
-    weekLabel: gradeWeekByAssignment.get(assessment.id) ?? currentWeekLabel,
+    weekLabel: gradeWeekByAssignment.get(assessment.id) ?? activeTopic.label,
     results: Object.fromEntries(enrolled.map((student) => {
       const key = `${student.id}|${assessment.id}`;
       const activity = latestActivity.get(key);
@@ -174,19 +171,13 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     eventIds: ((starEvents ?? []) as StarEvent[]).map((event) => event.id),
     skullEventIds: [],
   };
-  const currentCurriculum = curriculumTopic(classroom.grade_level, currentWeekLabel);
-  const classStars = managerStudents.reduce((sum, student) => sum + student.totalStars, 0); const homework = emptyWork(); const classwork = emptyWork();
-  managerStudents.forEach((student) => { sumWork(homework, student.homework); sumWork(classwork, student.classwork); });
-  const submittedScores = gradeColumns.flatMap((column) => column.average === null ? [] : [column.average]);
-  const assessmentAverage = submittedScores.length ? `${Math.round(submittedScores.reduce((sum, score) => sum + score, 0) / submittedScores.length)}%` : "—";
   const classTitle = /\bmath(?:ematics)?\b/i.test(classroom.name) ? classroom.name : `${classroom.name} Math`;
 
   return <main className={`teacher-main ${styles.main}`}>
-    <header className={styles.hero}><div><p className="eyebrow">Class manager · {classroom.academic_year}</p><h1>{classTitle}</h1><p>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</p></div><nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#weekly-classroom">Open {currentWeekLabel} ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav></header>
+    <header className={styles.hero}><div><p className="eyebrow">Class manager · {classroom.academic_year}</p><h1>{classTitle}</h1><p>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</p></div><nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#topic-gradebook">Open topic ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav></header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
-    <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{currentWeekLabel}</strong><div><strong>Current week · {currentCurriculum?.unit ?? "Curriculum"}</strong><span>{currentCurriculum?.topic ?? "Topic not set for this grade"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
-    <section className={styles.kpis} aria-label="Class achievement summary"><article><span>Students</span><strong>{enrolled.length}</strong><small>Active roster</small></article><article><span>Total stars</span><strong>★ {classStars}</strong><small>All recorded weeks</small></article><article><span>Homework OK</span><strong>{percentage(homework.ok, homework.recorded)}</strong><small>{homework.ok} of {homework.recorded} records</small></article><article><span>Classwork OK</span><strong>{percentage(classwork.ok, classwork.recorded)}</strong><small>{classwork.ok} of {classwork.recorded} records</small></article><article><span>Assessment average</span><strong>{assessmentAverage}</strong><small>{gradeColumns.length} visible grade column{gradeColumns.length === 1 ? "" : "s"}</small></article></section>
-    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={currentWeekLabel} embedded initialAssignments={classroomHomework} initialGradeColumns={gradeColumns} initialState={starState} key={`${currentWeekLabel}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}`} />
+    <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><strong>{activeTopic.title || "Topic 1"}</strong><span>{activeTopic.focus || "Algebra Foundations"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
+    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}`} />
     {!enrolled.length ? <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section> : null}
   </main>;
 }

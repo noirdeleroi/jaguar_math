@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import CurrentWeekSelector from "@/app/teacher/current-week-selector";
 import styles from "./stars-overview.module.css";
 
-type WeekOption = { label: string; sortOrder: number; trimester: string };
 type ClassSummary = { id: string; name: string; gradeLevel: number; academicYear: string; studentCount: number; unit: string; topic: string };
 type WorkKind = "homework" | "classwork";
 
@@ -15,22 +13,22 @@ function today() {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function automaticTitle(kind: WorkKind, week: string) {
-  return `${kind === "homework" ? "HW" : "CW"} ${week}`;
+function automaticTitle(kind: WorkKind) {
+  return `${kind === "homework" ? "HW" : "CW"} 1`;
 }
 
-export default function StarsOverview({ classes, currentWeek, weekOptions }: { classes: ClassSummary[]; currentWeek: string; weekOptions: WeekOption[] }) {
+export default function StarsOverview({ classes }: { classes: ClassSummary[] }) {
   const router = useRouter();
   const [scope, setScope] = useState("all");
   const [kind, setKind] = useState<WorkKind>("homework");
-  const [title, setTitle] = useState(() => automaticTitle("homework", currentWeek));
+  const [title, setTitle] = useState(() => automaticTitle("homework"));
   const [activityDate, setActivityDate] = useState(today);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
   function changeKind(nextKind: WorkKind) {
     setKind(nextKind);
-    setTitle(automaticTitle(nextKind, currentWeek));
+    setTitle(automaticTitle(nextKind));
   }
 
   async function createWork() {
@@ -38,7 +36,7 @@ export default function StarsOverview({ classes, currentWeek, weekOptions }: { c
     setSaving(true);
     setMessage(`Creating ${kind === "homework" ? "homework" : "classwork"} with OK selected for every student…`);
     try {
-      const response = await fetch("/api/stars/work-items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scope, weekLabel: currentWeek, kind, title, activityDate }) });
+      const response = await fetch("/api/stars/work-items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scope, weekLabel: "T1", kind, title, activityDate }) });
       const result = await response.json() as { error?: string; created?: { class_count?: number } };
       if (!response.ok) throw new Error(result.error || "The work record could not be created.");
       const count = result.created?.class_count ?? (scope === "all" ? classes.length : 1);
@@ -52,9 +50,9 @@ export default function StarsOverview({ classes, currentWeek, weekOptions }: { c
   }
 
   return <main className={`teacher-main ${styles.main}`}>
-    <section className={styles.heading}><div><p className="eyebrow">Classroom rewards</p><h1>Jaguar Stars</h1><p>One compact place for weekly stars, homework, classwork, and curriculum topics.</p></div><a className={styles.backup} href="/api/stars/export">Download Excel backup</a></section>
+    <section className={styles.heading}><div><p className="eyebrow">Classroom rewards</p><h1>Jaguar Stars</h1><p>Stars, skulls, homework, classwork, and tests organized around learning topics.</p></div><a className={styles.backup} href="/api/stars/export">Download Excel backup</a></section>
 
-    <section className={styles.weekPanel}><CurrentWeekSelector currentWeek={currentWeek} options={weekOptions} /><div><span>Active across Stars</span><strong>{currentWeek}</strong><small>Each grade keeps its own curriculum topic.</small></div></section>
+    <section className={styles.weekPanel}><div><span>Active topic</span><strong>Topic 1</strong><small>Algebra Foundations · all existing class records</small></div></section>
 
     <section className={styles.creator}>
       <div><p className="eyebrow">Add to one class or all</p><h2>New HW / CW</h2><p>Name and today’s date are filled automatically. You can change both before creating it.</p></div>
@@ -69,7 +67,7 @@ export default function StarsOverview({ classes, currentWeek, weekOptions }: { c
     </section>
 
     <section className={styles.classes}>
-      <div className={styles.sectionHeading}><div><p className="eyebrow">{currentWeek}</p><h2>Classes and topics</h2></div><span>{classes.length} classes</span></div>
+      <div className={styles.sectionHeading}><div><p className="eyebrow">Topic 1</p><h2>Classes and topics</h2></div><span>{classes.length} classes</span></div>
       {classes.length ? <div className={styles.classGrid}>{classes.map((classroom) => <Link href={`/teacher/classes/${classroom.id}/stars`} key={classroom.id}><header><div><strong>{classroom.name}</strong><span>Grade {classroom.gradeLevel} · {classroom.studentCount} students</span></div><b>Open →</b></header><p>{classroom.topic}</p><small>{classroom.unit}</small></Link>)}</div> : <div className="compact-empty"><h3>No classes yet.</h3><p>Create or sync a class before opening Jaguar Stars.</p></div>}
     </section>
   </main>;

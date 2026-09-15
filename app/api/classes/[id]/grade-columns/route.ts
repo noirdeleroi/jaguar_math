@@ -24,7 +24,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { id } = await context.params;
     const body = await request.json() as GradeColumnBody;
     if ((body.source !== "assessment" && body.source !== "manual") || typeof body.weekLabel !== "string" || !validDate(body.assessmentDate)) {
-      return NextResponse.json({ error: "Choose a valid week, date, and test type." }, { status: 400 });
+      return NextResponse.json({ error: "Choose a valid topic, date, and test type." }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -33,7 +33,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       supabase.from("classroom_weeks").select("id, label").eq("class_id", id).eq("label", body.weekLabel).maybeSingle(),
     ]);
     if (!classroom) return NextResponse.json({ error: "That class is not available." }, { status: 404 });
-    if (!week) return NextResponse.json({ error: "That week does not belong to this class." }, { status: 400 });
+    if (!week) return NextResponse.json({ error: "That topic does not belong to this class." }, { status: 400 });
 
     let values: Record<string, unknown>;
     if (body.source === "assessment") {
