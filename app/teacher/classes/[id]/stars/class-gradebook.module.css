@@ -50,7 +50,7 @@
 }
 
 .skullTotalCell {
-  padding: 8px;
+  padding: 4px 6px;
   background: #fff8f5 !important;
   text-align: center;
 }
@@ -157,7 +157,7 @@
 }
 
 .assessmentCell {
-  padding: 8px;
+  padding: 4px 6px;
   text-align: center;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .averageCell {
-  padding: 8px;
+  padding: 4px 6px;
   background: #eef5ef !important;
   text-align: center;
 }
@@ -202,13 +202,13 @@
 }
 
 .datedColumnHead {
-  height: 88px !important;
-  padding: 7px 9px;
+  height: 70px !important;
+  padding: 4px 7px;
   vertical-align: top !important;
 }
 
 .assessmentHead {
-  height: 88px !important;
+  height: 70px !important;
   vertical-align: top !important;
 }
 
@@ -284,7 +284,7 @@
 }
 
 .workStatusCell {
-  padding: 7px;
+  padding: 4px 6px;
   text-align: center;
 }
 
@@ -295,7 +295,7 @@
   width: 100%;
   border: 1px solid #d0d8d3;
   border-radius: 7px;
-  padding: 7px 8px;
+  padding: 5px 7px;
   background: #f7f8f6;
   color: #52665f;
   font: inherit;
@@ -587,49 +587,53 @@
 .topicUmbrella {
   overflow: hidden;
   border: 1px solid #cfc3ae;
-  border-radius: 14px;
+  border-radius: 10px;
   background: #fffaf0;
   box-shadow: 0 14px 34px rgb(23 52 46 / 7%);
 }
 
 .topicUmbrella > header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(210px, .85fr) minmax(520px, 1.7fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  padding: 22px 24px;
+  gap: 16px;
+  padding: 10px 12px;
   background: linear-gradient(125deg, #173f36, #276253);
   color: #fffaf0;
 }
 
 .topicUmbrella > header h2 {
-  margin: 3px 0 2px;
+  margin: 1px 0;
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(34px, 4vw, 48px);
+  font-size: clamp(25px, 2.5vw, 31px);
   font-weight: 500;
   letter-spacing: -.055em;
 }
 
 .topicUmbrella > header p:last-child {
   margin: 0;
+  overflow: hidden;
   color: #d9e9e2;
-  font-size: 14px;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topicUmbrella > header :global(.eyebrow) {
   margin: 0;
   color: #f1c567;
+  font-size: 8px;
 }
 
 .topicUmbrella > header > button {
   flex: 0 0 auto;
   border: 1px solid rgb(255 255 255 / 34%);
   border-radius: 7px;
-  padding: 9px 13px;
+  padding: 7px 9px;
   background: rgb(255 255 255 / 7%);
   color: #fffaf0;
   font: inherit;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 850;
   cursor: pointer;
 }
@@ -641,12 +645,12 @@
 .topicMetrics {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-bottom: 1px solid #ded5c8;
 }
 
 .topicMetrics article {
-  padding: 14px 18px;
-  border-right: 1px solid #e5ddd1;
+  min-width: 0;
+  padding: 2px 10px;
+  border-left: 1px solid rgb(255 255 255 / 18%);
 }
 
 .topicMetrics article:last-child {
@@ -660,18 +664,18 @@
 }
 
 .topicMetrics span {
-  color: #71867d;
-  font-size: 9px;
+  color: #c8dbd3;
+  font-size: 7px;
   font-weight: 900;
   letter-spacing: .09em;
   text-transform: uppercase;
 }
 
 .topicMetrics strong {
-  margin: 4px 0 1px;
-  color: var(--green);
+  margin: 1px 0 0;
+  color: #fffaf0;
   font-family: var(--font-display), Georgia, serif;
-  font-size: 25px;
+  font-size: 19px;
   font-weight: 500;
 }
 
@@ -680,18 +684,29 @@
 }
 
 .topicMetrics small {
-  color: #7a8b84;
-  font-size: 9px;
+  overflow: hidden;
+  color: #c8dbd3;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topicTools.topicTools {
   max-width: none;
-  padding: 12px 14px;
+  padding: 6px 8px;
   background: #f5efe5;
 }
 
 @media (max-width: 700px) {
-  .topicUmbrella > header { align-items: flex-start; flex-direction: column; padding: 18px; }
-  .topicMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .topicMetrics article { border-bottom: 1px solid #e5ddd1; }
+  .topicUmbrella > header { grid-template-columns: 1fr auto; align-items: center; padding: 10px; }
+  .topicIdentity { min-width: 0; }
+  .topicMetrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .topicMetrics { grid-column: 1 / -1; grid-row: 2; }
+  .topicMetrics article { padding: 5px 4px; border-top: 1px solid rgb(255 255 255 / 18%); }
+}
+
+@media (min-width: 701px) and (max-width: 1120px) {
+  .topicUmbrella > header { grid-template-columns: minmax(200px, 1fr) auto; }
+  .topicMetrics { grid-column: 1 / -1; grid-row: 2; }
+  .topicMetrics article { padding-block: 6px; border-top: 1px solid rgb(255 255 255 / 18%); }
 }

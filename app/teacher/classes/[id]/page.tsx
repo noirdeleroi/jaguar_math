@@ -174,7 +174,16 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const classTitle = /\bmath(?:ematics)?\b/i.test(classroom.name) ? classroom.name : `${classroom.name} Math`;
 
   return <main className={`teacher-main ${styles.main}`}>
-    <header className={styles.hero}><div><p className="eyebrow">Class manager · {classroom.academic_year}</p><h1>{classTitle}</h1><p>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</p></div><nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#topic-gradebook">Open topic ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav></header>
+    <header className={styles.hero}>
+      <div className={styles.heroIdentity}>
+        <Link className={styles.backToClasses} href="/teacher/classes">← Classes</Link>
+        <div>
+          <p className="eyebrow">Class manager · {classroom.academic_year}</p>
+          <div className={styles.titleLine}><h1>{classTitle}</h1><span>Grade {classroom.grade_level} · {enrolled.length} {enrolled.length === 1 ? "student" : "students"}</span></div>
+        </div>
+      </div>
+      <nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#topic-gradebook">Open record ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav>
+    </header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><strong>{activeTopic.title || "Topic 1"}</strong><span>{activeTopic.focus || "Algebra Foundations"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
     <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}`} />
