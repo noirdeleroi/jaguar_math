@@ -4,8 +4,7 @@
   overflow-y: visible;
 }
 
-.skullGroup,
-.assessmentGroup {
+.skullGroup {
   padding: 8px 12px;
   color: #31554b;
   font-size: 10px;
@@ -18,11 +17,6 @@
 .skullGroup {
   background: #f5ded8 !important;
   color: #8d3d2e;
-}
-
-.assessmentGroup {
-  background: #f3dfaa !important;
-  color: #6f5205;
 }
 
 .skullTotalSubhead,
@@ -64,7 +58,7 @@
   background: #fff4d2 !important;
 }
 
-.assessmentHead a {
+.assessmentHead > div {
   display: grid;
   gap: 2px;
 }
@@ -75,6 +69,19 @@
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.assessmentHead button {
+  justify-self: center;
+  margin-top: 3px;
+  border: 1px solid #c9aa5d;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: #fffdf6;
+  color: #725712;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .assessmentHead strong {
@@ -145,4 +152,231 @@
 .resetButton:disabled {
   cursor: not-allowed;
   opacity: 0.42;
+}
+
+.addTestButton.addTestButton {
+  border-color: #1e7561;
+  background: #1f806a;
+  color: #fff;
+}
+
+.dialogBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(16 36 31 / 58%);
+  backdrop-filter: blur(6px);
+}
+
+.columnDialog {
+  position: relative;
+  width: min(580px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid #d7e3dc;
+  border-radius: 22px;
+  padding: 28px;
+  background: #fffefa;
+  box-shadow: 0 28px 80px rgb(12 43 35 / 28%);
+}
+
+.columnDialog h2 {
+  margin: 3px 0 5px;
+  color: #234c41;
+  font-size: 25px;
+}
+
+.columnDialog > p:not(.dialogEyebrow) {
+  margin: 0 0 20px;
+  color: #687b74;
+  font-size: 13px;
+}
+
+.dialogEyebrow {
+  margin: 0;
+  color: #9a771c;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.dialogClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #edf3ef;
+  color: #31554b;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.columnForm,
+.columnForm label {
+  display: grid;
+  gap: 7px;
+}
+
+.columnForm {
+  gap: 16px;
+}
+
+.columnForm label {
+  color: #415f56;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.columnForm input:not([type="radio"]),
+.columnForm select {
+  width: 100%;
+  border: 1px solid #cbdad3;
+  border-radius: 10px;
+  padding: 10px 11px;
+  background: white;
+  color: #233e36;
+  font: inherit;
+  font-size: 13px;
+}
+
+.columnForm fieldset {
+  display: flex;
+  gap: 16px;
+  border: 1px solid #d9e3dd;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.columnForm fieldset legend {
+  padding: 0 5px;
+  color: #6a7d75;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.columnForm fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.formPair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sourceNotice {
+  display: grid;
+  gap: 3px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #edf5ef;
+}
+
+.sourceNotice strong {
+  color: #31594d;
+  font-size: 12px;
+}
+
+.sourceNotice span {
+  color: #61756e;
+  font-size: 10px;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.dialogActions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: #1f806a;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.dialogActions .deleteColumnButton {
+  border: 1px solid #e5b5ad;
+  background: #fff2ef;
+  color: #a83e30;
+}
+
+.dialogActions button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.formError {
+  margin: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff0ed;
+  color: #a03629;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.manualGradeCell > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.manualGradeCell input {
+  width: 58px;
+  border: 1px solid #bfcec7;
+  border-radius: 7px;
+  padding: 6px;
+  background: #fff;
+  color: #244c40;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.manualGradeCell div > span {
+  color: #76847f;
+  font-size: 9px;
+}
+
+.manualGradeCell button {
+  width: 21px;
+  height: 21px;
+  border: 0;
+  border-radius: 50%;
+  background: #f4ded9;
+  color: #9a4032;
+  cursor: pointer;
+}
+
+.manualGradeCell > small {
+  display: block;
+  margin-top: 3px;
+  color: #71827b;
+  font-size: 8px;
+}
+
+.manualGradeCell > .gradeError {
+  color: #aa382b;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .columnDialog { padding: 22px 18px; }
+  .formPair { grid-template-columns: 1fr; }
+  .columnForm fieldset { align-items: flex-start; flex-direction: column; }
 }

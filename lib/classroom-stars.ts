@@ -37,20 +37,31 @@ export type ClassroomStarState = {
   skullEventIds: string[];
 };
 
-export type ClassroomAssessmentGrade = {
-  attemptId: string;
+export type ClassroomGrade = {
+  attemptId: string | null;
   score: number;
   maxScore: number;
   percent: number;
 };
 
-export type ClassroomManagerAssessment = {
+export type ClassroomGradeColumn = {
+  id: string;
+  weekLabel: string;
+  title: string;
+  assessmentDate: string;
+  source: "assessment" | "manual";
+  assignmentId: string | null;
+  maxScore: number | null;
+  average: number | null;
+  scores: Record<string, ClassroomGrade>;
+};
+
+export type AvailableClassroomAssessment = {
   id: string;
   title: string;
   kind: string;
-  status: string;
-  average: number | null;
-  scores: Record<string, ClassroomAssessmentGrade>;
+  status: "published" | "closed";
+  dueAt: string | null;
 };
 
 export type ClassroomAssignmentResult = {
