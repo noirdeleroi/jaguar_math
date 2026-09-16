@@ -18,7 +18,7 @@ export function gradebookColumnValues(
     .map((entry) => {
       if (!entry.studentId || !enrolledStudentIds.has(entry.studentId)) return "-";
       const value = valueForStudent(entry.studentId);
-      return value === null || value === undefined || value === "" ? "-" : String(value);
+      return value === null || value === undefined || value === "" ? "0" : String(value);
     });
 }
 

@@ -120,6 +120,12 @@ export function evaluateTopicGradeFormula(formula: string, variables: TopicGrade
   return result;
 }
 
+export function clampTopicGrade(value: number, maximum: number) {
+  if (!Number.isFinite(value)) throw new Error("The final grade must be a finite number.");
+  if (!Number.isFinite(maximum) || maximum <= 0) throw new Error("The final-grade maximum must be greater than zero.");
+  return Math.min(maximum, Math.max(0, value));
+}
+
 export function normalizeTopicGradeFormula(formula: string) {
   const normalized = formula.trim().replace(/\s+/g, " ");
   if (normalized.length > 120) throw new Error("Keep the final-grade formula under 120 characters.");

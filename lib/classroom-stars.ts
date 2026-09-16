@@ -6,6 +6,7 @@ export type ClassroomWeek = {
   focus: string | null;
   isCurrent: boolean;
   finalGradeFormula: string;
+  finalGradeMax: number;
   summativeGradeColumnId: string | null;
 };
 

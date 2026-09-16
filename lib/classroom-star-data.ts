@@ -29,7 +29,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   const [{ data: memberships, error: membershipError }, { data: gradebookRoster, error: gradebookRosterError }, { data: weeks, error: weekError }, { data: events, error: eventError }, { data: workItems, error: workItemError }, { data: skullRows, error: skullError }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname").eq("class_id", classId),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", classId).order("sort_order"),
-    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, is_current, final_grade_formula, summative_grade_column_id").eq("class_id", classId).order("sort_order"),
+    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, is_current, final_grade_formula, final_grade_max, summative_grade_column_id").eq("class_id", classId).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, delta, classroom_weeks!inner(label)").eq("class_id", classId),
     supabase.from("classroom_work_items").select("id, kind, position, title, activity_date, classroom_weeks!inner(label)").eq("class_id", classId).order("position"),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: classId }),
@@ -72,7 +72,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: (gradebookRoster ?? []).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: (profiles ?? []).map((profile) => {
       const nickname = nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student";
       return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skulls: skullsByStudent.get(profile.id) ?? {} };

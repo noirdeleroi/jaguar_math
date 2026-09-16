@@ -9,7 +9,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const teacher = await requireTeacher();
     const { id, topicId } = await context.params;
-    const body = await request.json() as { title?: unknown; finalGradeFormula?: unknown; summativeGradeColumnId?: unknown; makeCurrent?: unknown };
+    const body = await request.json() as { title?: unknown; finalGradeFormula?: unknown; finalGradeMax?: unknown; summativeGradeColumnId?: unknown; makeCurrent?: unknown };
     const title = typeof body.title === "string" ? body.title.trim() : "";
     if (!title || title.length > 120) return NextResponse.json({ error: "Enter a topic name under 120 characters." }, { status: 400 });
 
@@ -18,6 +18,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       finalGradeFormula = normalizeTopicGradeFormula(typeof body.finalGradeFormula === "string" ? body.finalGradeFormula : "");
     } catch (cause) {
       return NextResponse.json({ error: cause instanceof Error ? cause.message : "Check the final-grade formula." }, { status: 400 });
+    }
+
+    const finalGradeMax = typeof body.finalGradeMax === "number" ? body.finalGradeMax : Number(body.finalGradeMax);
+    if (!Number.isFinite(finalGradeMax) || finalGradeMax <= 0 || finalGradeMax > 100000) {
+      return NextResponse.json({ error: "Enter a final-grade maximum between 0 and 100,000." }, { status: 400 });
     }
 
     const summativeGradeColumnId = body.summativeGradeColumnId === null || body.summativeGradeColumnId === "" ? null : body.summativeGradeColumnId;
@@ -43,10 +48,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
 
     const { data, error } = await supabase.from("classroom_weeks")
-      .update({ title, final_grade_formula: finalGradeFormula, summative_grade_column_id: summativeGradeColumnId })
+      .update({ title, final_grade_formula: finalGradeFormula, final_grade_max: finalGradeMax, summative_grade_column_id: summativeGradeColumnId })
       .eq("id", topicId)
       .eq("class_id", id)
-      .select("id, label, sort_order, title, focus, is_current, final_grade_formula, summative_grade_column_id")
+      .select("id, label, sort_order, title, focus, is_current, final_grade_formula, final_grade_max, summative_grade_column_id")
       .single();
     if (error) throw error;
 
@@ -59,6 +64,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         focus: data.focus,
         isCurrent: data.is_current,
         finalGradeFormula: data.final_grade_formula,
+        finalGradeMax: Number(data.final_grade_max),
         summativeGradeColumnId: data.summative_grade_column_id,
       },
     }, { headers: { "Cache-Control": "no-store" } });

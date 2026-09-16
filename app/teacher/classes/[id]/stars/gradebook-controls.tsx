@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AvailableClassroomAssessment, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
-import { evaluateTopicGradeFormula, normalizeTopicGradeFormula } from "@/lib/classroom-topic-grade";
+import { clampTopicGrade, evaluateTopicGradeFormula, normalizeTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import styles from "./class-gradebook.module.css";
 
 function todayKey() {
@@ -19,13 +19,14 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
 }) {
   const [title, setTitle] = useState(topic.title || `Topic ${topic.sortOrder}`);
   const [formula, setFormula] = useState(topic.finalGradeFormula);
+  const [finalGradeMax, setFinalGradeMax] = useState(String(topic.finalGradeMax));
   const [summativeGradeColumnId, setSummativeGradeColumnId] = useState(topic.summativeGradeColumnId ?? gradeColumns[0]?.id ?? "");
   const [makeCurrent, setMakeCurrent] = useState(topic.isCurrent);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   let preview = "";
   try {
-    preview = String(Math.round(evaluateTopicGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }) * 100) / 100);
+    preview = String(Math.round(clampTopicGrade(evaluateTopicGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }), Number(finalGradeMax)) * 100) / 100);
   } catch { /* The submit handler presents the precise validation message. */ }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -38,12 +39,17 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
       setMessage(cause instanceof Error ? cause.message : "Check the final-grade formula.");
       return;
     }
+    const maximum = Number(finalGradeMax);
+    if (!Number.isFinite(maximum) || maximum <= 0 || maximum > 100000) {
+      setMessage("Enter a final-grade maximum between 0 and 100,000.");
+      return;
+    }
     setBusy(true);
     try {
       const response = await fetch(`/api/classes/${classId}/topics/${topic.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, summativeGradeColumnId: summativeGradeColumnId || null, makeCurrent }),
+        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, finalGradeMax: maximum, summativeGradeColumnId: summativeGradeColumnId || null, makeCurrent }),
       });
       const result = await response.json() as { topic?: ClassroomWeek; error?: string };
       if (!response.ok || !result.topic) throw new Error(result.error || "The topic settings could not be saved.");
@@ -63,9 +69,9 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
       <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
       <label className={styles.currentTopicChoice}><input checked={makeCurrent} disabled={topic.isCurrent} onChange={(event) => setMakeCurrent(event.target.checked)} type="checkbox" /><span><strong>{topic.isCurrent ? "Current topic" : "Set as current topic"}</strong><small>{topic.isCurrent ? "This topic opens by default in the class manager." : "Make this the default open topic for this class."}</small></span></label>
       <label>Summative test (N)<select disabled={!gradeColumns.length} onChange={(event) => setSummativeGradeColumnId(event.target.value)} value={summativeGradeColumnId}><option value="">{gradeColumns.length ? "No summative test selected" : "Add a test column first"}</option>{gradeColumns.map((column) => <option key={column.id} value={column.id}>{column.title}{column.maxScore ? ` · out of ${column.maxScore}` : ""}</option>)}</select></label>
-      <label>Final-grade formula<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder="N + stars - skulls" required value={formula} /></label>
+      <div className={styles.formPair}><label>Final-grade formula<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder="N + stars - skulls" required value={formula} /></label><label>Maximum points<input max="100000" min="0.01" onChange={(event) => setFinalGradeMax(event.target.value)} required step="any" type="number" value={finalGradeMax} /></label></div>
       <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>topic skulls</span></div>
-      <p className={styles.formulaPreview}>{preview ? `Example: N 16 + 4 stars − 2 skulls = ${preview}` : "Enter a valid formula using N, stars, and skulls."}</p>
+      <p className={styles.formulaPreview}>{preview ? `Example: N 16 + 4 stars − 2 skulls = ${preview}. Results stay between 0 and ${finalGradeMax}.` : "Enter a valid formula and maximum using N, stars, and skulls."}</p>
       {message ? <p className={styles.formError} role="alert">{message}</p> : null}
       <div className={styles.dialogActions}><button disabled={busy || !title.trim()} type="submit">{busy ? "Saving…" : "Save topic"}</button></div>
     </form>
@@ -180,8 +186,8 @@ export function ManualGradeCell({ classId, studentId, studentName, column, onSav
   }
 
   return <td className={`${styles.assessmentCell} ${styles.manualGradeCell}`}>
-    <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => void save()} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setValue(grade ? String(grade.score) : ""); setDirty(false); event.currentTarget.blur(); } }} placeholder="—" step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
-    <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%` : "Enter grade")}</small>
+    <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => void save()} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setValue(grade ? String(grade.score) : ""); setDirty(false); event.currentTarget.blur(); } }} placeholder="Absent" step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
+    <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%` : "Absent")}</small>
   </td>;
 }
 

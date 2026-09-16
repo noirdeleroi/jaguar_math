@@ -8,9 +8,9 @@ const roster = [
   { gradebookCode: "30", gradebookName: "Missing Student", sortOrder: 3, studentId: null },
 ];
 
-test("gradebook column export follows official order and preserves missing students", () => {
+test("gradebook column export follows official order and copies absent grades as zero", () => {
   const values = gradebookColumnValues(roster, new Set(["student-1", "student-2"]), (studentId) => studentId === "student-1" ? 8.5 : null);
-  assert.deepEqual(values, ["8.5", "-", "-"]);
+  assert.deepEqual(values, ["8.5", "0", "-"]);
   assert.equal(gradebookColumnClipboardText(roster, new Set(["student-1", "student-2"]), () => 2), "2\n2\n-");
 });
 

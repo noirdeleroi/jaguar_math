@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DEFAULT_TOPIC_GRADE_FORMULA,
+  clampTopicGrade,
   evaluateTopicGradeFormula,
   normalizeTopicGradeFormula,
   topicGradeFormulaUsesVariable,
@@ -27,4 +28,10 @@ test("formula validation rejects unknown names and division by zero", () => {
 test("formula variables can be detected before a summative score exists", () => {
   assert.equal(topicGradeFormulaUsesVariable("stars - skulls", "N"), false);
   assert.equal(topicGradeFormulaUsesVariable(DEFAULT_TOPIC_GRADE_FORMULA, "N"), true);
+});
+
+test("final topic grades are clamped between zero and the teacher maximum", () => {
+  assert.equal(clampTopicGrade(24, 20), 20);
+  assert.equal(clampTopicGrade(-3, 20), 0);
+  assert.equal(clampTopicGrade(18.5, 20), 18.5);
 });
