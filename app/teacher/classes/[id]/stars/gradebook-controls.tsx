@@ -20,6 +20,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
   const [title, setTitle] = useState(topic.title || `Topic ${topic.sortOrder}`);
   const [formula, setFormula] = useState(topic.finalGradeFormula);
   const [summativeGradeColumnId, setSummativeGradeColumnId] = useState(topic.summativeGradeColumnId ?? gradeColumns[0]?.id ?? "");
+  const [makeCurrent, setMakeCurrent] = useState(topic.isCurrent);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   let preview = "";
@@ -42,7 +43,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
       const response = await fetch(`/api/classes/${classId}/topics/${topic.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, summativeGradeColumnId: summativeGradeColumnId || null }),
+        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, summativeGradeColumnId: summativeGradeColumnId || null, makeCurrent }),
       });
       const result = await response.json() as { topic?: ClassroomWeek; error?: string };
       if (!response.ok || !result.topic) throw new Error(result.error || "The topic settings could not be saved.");
@@ -60,6 +61,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
     <p>Choose the summative test used as <strong>N</strong>, then adjust the formula if this topic needs different grading.</p>
     <form className={styles.columnForm} onSubmit={submit}>
       <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
+      <label className={styles.currentTopicChoice}><input checked={makeCurrent} disabled={topic.isCurrent} onChange={(event) => setMakeCurrent(event.target.checked)} type="checkbox" /><span><strong>{topic.isCurrent ? "Current topic" : "Set as current topic"}</strong><small>{topic.isCurrent ? "This topic opens by default in the class manager." : "Make this the default open topic for this class."}</small></span></label>
       <label>Summative test (N)<select disabled={!gradeColumns.length} onChange={(event) => setSummativeGradeColumnId(event.target.value)} value={summativeGradeColumnId}><option value="">{gradeColumns.length ? "No summative test selected" : "Add a test column first"}</option>{gradeColumns.map((column) => <option key={column.id} value={column.id}>{column.title}{column.maxScore ? ` · out of ${column.maxScore}` : ""}</option>)}</select></label>
       <label>Final-grade formula<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder="N + stars - skulls" required value={formula} /></label>
       <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>topic skulls</span></div>

@@ -9,7 +9,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const teacher = await requireTeacher();
     const { id, topicId } = await context.params;
-    const body = await request.json() as { title?: unknown; finalGradeFormula?: unknown; summativeGradeColumnId?: unknown };
+    const body = await request.json() as { title?: unknown; finalGradeFormula?: unknown; summativeGradeColumnId?: unknown; makeCurrent?: unknown };
     const title = typeof body.title === "string" ? body.title.trim() : "";
     if (!title || title.length > 120) return NextResponse.json({ error: "Enter a topic name under 120 characters." }, { status: 400 });
 
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const supabase = await createClient();
     const [{ data: classroom }, { data: topic }] = await Promise.all([
       supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle(),
-      supabase.from("classroom_weeks").select("id, label, sort_order, focus").eq("id", topicId).eq("class_id", id).maybeSingle(),
+      supabase.from("classroom_weeks").select("id, label, sort_order, focus, is_current").eq("id", topicId).eq("class_id", id).maybeSingle(),
     ]);
     if (!classroom || !topic) return NextResponse.json({ error: "That topic was not found in this class." }, { status: 404 });
 
@@ -37,11 +37,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       if (!column) return NextResponse.json({ error: "The summative test must belong to this topic." }, { status: 400 });
     }
 
+    if (body.makeCurrent === true && !topic.is_current) {
+      const { error: currentTopicError } = await supabase.rpc("set_current_classroom_topic", { p_class_id: id, p_topic_id: topicId });
+      if (currentTopicError) throw currentTopicError;
+    }
+
     const { data, error } = await supabase.from("classroom_weeks")
       .update({ title, final_grade_formula: finalGradeFormula, summative_grade_column_id: summativeGradeColumnId })
       .eq("id", topicId)
       .eq("class_id", id)
-      .select("id, label, sort_order, title, focus, final_grade_formula, summative_grade_column_id")
+      .select("id, label, sort_order, title, focus, is_current, final_grade_formula, summative_grade_column_id")
       .single();
     if (error) throw error;
 
@@ -52,6 +57,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         sortOrder: data.sort_order,
         title: data.title,
         focus: data.focus,
+        isCurrent: data.is_current,
         finalGradeFormula: data.final_grade_formula,
         summativeGradeColumnId: data.summative_grade_column_id,
       },

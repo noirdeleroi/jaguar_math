@@ -4,6 +4,7 @@ export type ClassroomWeek = {
   sortOrder: number;
   title: string | null;
   focus: string | null;
+  isCurrent: boolean;
   finalGradeFormula: string;
   summativeGradeColumnId: string | null;
 };

@@ -633,6 +633,41 @@
   font-size: 10px;
 }
 
+.columnForm .currentTopicChoice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #c9ddd3;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #f0f7f2;
+  cursor: pointer;
+}
+
+.currentTopicChoice input {
+  width: 18px;
+  height: 18px;
+  accent-color: #1f806a;
+}
+
+.currentTopicChoice span,
+.currentTopicChoice strong,
+.currentTopicChoice small {
+  display: block;
+}
+
+.currentTopicChoice strong {
+  color: #245a47;
+  font-size: 12px;
+}
+
+.currentTopicChoice small {
+  margin-top: 2px;
+  color: #687d75;
+  font-size: 9px;
+  font-weight: 600;
+}
+
 .manualGradeCell > div {
   display: flex;
   align-items: center;

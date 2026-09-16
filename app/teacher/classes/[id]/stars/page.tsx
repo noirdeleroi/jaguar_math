@@ -12,7 +12,7 @@ export default async function ClassStarsPage({ params, searchParams }: { params:
   if (!state) notFound();
   const requested = await searchParams;
   const requestedWeek = typeof requested.week === "string" ? requested.week.trim().toUpperCase() : "";
-  const preferredWeek = state.weeks.some((week) => week.label === requestedWeek) ? requestedWeek : state.weeks.at(-1)?.label ?? "T1";
+  const preferredWeek = state.weeks.some((week) => week.label === requestedWeek) ? requestedWeek : state.weeks.find((week) => week.isCurrent)?.label ?? state.weeks.at(-1)?.label ?? "T1";
 
   return <main className={`teacher-main ${styles.main}`}>
     <Link className="back-link" href={`/teacher/classes/${id}`}>← {state.classroom.name}</Link>

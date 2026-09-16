@@ -121,7 +121,10 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
     eventIds: [...initial.eventIds],
     skullEventIds: [...initial.skullEventIds],
   };
-  for (const week of queue.weeks) if (!next.weeks.some((item) => item.label === week.label)) next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null });
+  for (const week of queue.weeks) if (!next.weeks.some((item) => item.label === week.label)) {
+    next.weeks = next.weeks.map((item) => ({ ...item, isCurrent: false }));
+    next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null, isCurrent: true, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null });
+  }
   const knownEvents = new Set(next.eventIds);
   for (const event of queue.starEvents) {
     if (knownEvents.has(event.id)) continue;
@@ -698,7 +701,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const topicName = window.prompt(`Name for Topic ${nextOrder}`, "New topic")?.trim();
     if (!topicName || data.weeks.some((week) => week.label === label)) return;
     const week = { id: crypto.randomUUID(), label, sort_order: nextOrder, title: topicName };
-    setData((current) => ({ ...current, weeks: [...current.weeks, { id: week.id, label, sortOrder: nextOrder, title: week.title, focus: null, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null }] }));
+    setData((current) => ({ ...current, weeks: [...current.weeks.map((topic) => ({ ...topic, isCurrent: false })), { id: week.id, label, sortOrder: nextOrder, title: week.title, focus: null, isCurrent: true, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null }] }));
     setSelectedWeek(label);
     setOpenWeek(label);
     setExpandedWeeks(new Set([label]));
@@ -949,7 +952,11 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
 
   function saveTopicSettings(topic: ClassroomStarState["weeks"][number]) {
-    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === topic.id ? topic : week) }));
+    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === topic.id ? topic : topic.isCurrent ? { ...week, isCurrent: false } : week) }));
+    if (topic.isCurrent) {
+      setSelectedWeek(topic.label);
+      setExpandedWeeks((current) => new Set([...current, topic.label]));
+    }
     setTopicSettingsDialog(null);
     router.refresh();
   }
