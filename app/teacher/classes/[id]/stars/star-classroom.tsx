@@ -3,8 +3,9 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
+import { DEFAULT_TOPIC_GRADE_FORMULA, evaluateTopicGradeFormula, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
-import { GradeColumnDialog, ManualGradeCell, WorkColumnDialog } from "./gradebook-controls";
+import { GradeColumnDialog, ManualGradeCell, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
 import styles from "./stars.module.css";
 
@@ -63,7 +64,7 @@ function readQueue(classId: string): ClassroomSyncPayload {
     return {
       weeks: Array.isArray(parsed.weeks) ? parsed.weeks : [],
       starEvents: parsed.starEvents,
-      skullEvents: Array.isArray(parsed.skullEvents) ? parsed.skullEvents : [],
+      skullEvents: Array.isArray(parsed.skullEvents) ? parsed.skullEvents.map((event) => ({ ...event, week_label: typeof event.week_label === "string" && event.week_label ? event.week_label : "T1" })) : [],
       workItems: Array.isArray(parsed.workItems) ? parsed.workItems : [],
       workStatuses: Array.isArray(parsed.workStatuses) ? parsed.workStatuses : [],
     };
@@ -115,12 +116,12 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
   const next: ClassroomStarState = {
     ...initial,
     weeks: initial.weeks.map((week) => ({ ...week })),
-    students: initial.students.map((student) => ({ ...student, totals: { ...student.totals } })),
+    students: initial.students.map((student) => ({ ...student, totals: { ...student.totals }, skulls: Object.fromEntries(Object.entries(student.skulls).map(([label, value]) => [label, { ...value }])) })),
     workItems: initial.workItems.map((item) => ({ ...item, statuses: { ...item.statuses } })),
     eventIds: [...initial.eventIds],
     skullEventIds: [...initial.skullEventIds],
   };
-  for (const week of queue.weeks) if (!next.weeks.some((item) => item.label === week.label)) next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null });
+  for (const week of queue.weeks) if (!next.weeks.some((item) => item.label === week.label)) next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null });
   const knownEvents = new Set(next.eventIds);
   for (const event of queue.starEvents) {
     if (knownEvents.has(event.id)) continue;
@@ -134,10 +135,12 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
     const student = next.students.find((item) => item.id === event.student_id);
     if (!student) continue;
     const occurredToday = bogotaDateKey(event.occurred_at) === today;
+    const topicSkulls = student.skulls[event.week_label] ?? { today: 0, total: 0 };
     if (event.action === "add") {
-      student.skullsTotal += 1;
-      if (occurredToday) student.skullsToday += 1;
-    } else if (occurredToday) student.skullsToday = 0;
+      topicSkulls.total += 1;
+      if (occurredToday) topicSkulls.today += 1;
+    } else if (occurredToday) topicSkulls.today = 0;
+    student.skulls[event.week_label] = topicSkulls;
     next.skullEventIds.push(event.id);
   }
   for (const item of queue.workItems) {
@@ -360,6 +363,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [gradeColumns, setGradeColumns] = useState(initialGradeColumns);
   const [availableAssessments, setAvailableAssessments] = useState(initialAvailableAssessments);
   const [gradeColumnDialog, setGradeColumnDialog] = useState<ClassroomGradeColumn | "new" | null>(null);
+  const [topicSettingsDialog, setTopicSettingsDialog] = useState<string | null>(null);
   const [copiedColumnId, setCopiedColumnId] = useState<string | null>(null);
   const [assignmentPopupId, setAssignmentPopupId] = useState<string | null>(null);
   const [assignmentsUpdatedAt, setAssignmentsUpdatedAt] = useState<Date | null>(null);
@@ -382,7 +386,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const sheetScrollerRef = useRef<HTMLDivElement>(null);
   const sheetTableRef = useRef<HTMLTableElement>(null);
   const frozenSheetHeaderRef = useRef<HTMLDivElement>(null);
-  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || gradeColumnDialog || workColumnDialog || rewardEffect?.kind === "death");
+  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || gradeColumnDialog || topicSettingsDialog || workColumnDialog || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -425,7 +429,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     let pending = readQueue(initialState.classroom.id);
     try {
       const legacy = JSON.parse(localStorage.getItem(legacySkullKey(initialState.classroom.id)) || "null") as Record<string, number> | null;
-      const legacyEvents: QueuedSkullEvent[] = Object.entries(legacy ?? {}).flatMap(([studentId, count]) => Array.from({ length: Math.max(0, Math.floor(Number(count) || 0)) }, (_, index) => ({ id: crypto.randomUUID(), student_id: studentId, action: "add" as const, source: navigator.onLine ? "classroom" as const : "offline_queue" as const, occurred_at: new Date(Date.now() + index).toISOString() })));
+      const legacyEvents: QueuedSkullEvent[] = Object.entries(legacy ?? {}).flatMap(([studentId, count]) => Array.from({ length: Math.max(0, Math.floor(Number(count) || 0)) }, (_, index) => ({ id: crypto.randomUUID(), student_id: studentId, week_label: "T1", action: "add" as const, source: navigator.onLine ? "classroom" as const : "offline_queue" as const, occurred_at: new Date(Date.now() + index).toISOString() })));
       if (legacyEvents.length) {
         pending = mergeQueue(pending, { skullEvents: legacyEvents });
         writeQueue(initialState.classroom.id, pending);
@@ -590,6 +594,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       setWorkCreatorOpen(false);
       setAssignmentPopupId(null);
       setCwPopup(null);
+      setTopicSettingsDialog(null);
       setRewardEffect(null);
     };
     document.body.style.overflow = "hidden";
@@ -659,30 +664,31 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     if (delta > 0) showReward("star", student.id, student.fullName);
   }
 
-  function addSkull(studentId: string) {
+  function addSkull(studentId: string, weekLabel = selectedWeek) {
     const student = data.students.find((item) => item.id === studentId);
-    if (!student || student.skullsToday >= 3) return;
-    const nextToday = student.skullsToday + 1;
-    const event: QueuedSkullEvent = { id: crypto.randomUUID(), student_id: studentId, action: "add", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: new Date().toISOString() };
-    setData((current) => ({ ...current, students: current.students.map((item) => item.id === studentId ? { ...item, skullsToday: item.skullsToday + 1, skullsTotal: item.skullsTotal + 1 } : item) }));
+    const currentSkulls = student?.skulls[weekLabel] ?? { today: 0, total: 0 };
+    if (!student || currentSkulls.today >= 3) return;
+    const nextToday = currentSkulls.today + 1;
+    const event: QueuedSkullEvent = { id: crypto.randomUUID(), student_id: studentId, week_label: weekLabel, action: "add", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: new Date().toISOString() };
+    setData((current) => ({ ...current, students: current.students.map((item) => item.id === studentId ? { ...item, skulls: { ...item.skulls, [weekLabel]: { today: (item.skulls[weekLabel]?.today ?? 0) + 1, total: (item.skulls[weekLabel]?.total ?? 0) + 1 } } } : item) }));
     enqueue({ skullEvents: [event] });
     showReward(nextToday === 3 ? "death" : "skull", student.id, student.fullName);
   }
 
-  function clearStudentSkullsToday(studentId: string) {
+  function clearStudentSkullsToday(studentId: string, weekLabel = selectedWeek) {
     const student = data.students.find((item) => item.id === studentId);
-    if (!student || student.skullsToday === 0) return;
-    const event: QueuedSkullEvent = { id: crypto.randomUUID(), student_id: studentId, action: "clear_today", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: new Date().toISOString() };
-    setData((current) => ({ ...current, students: current.students.map((item) => item.id === studentId ? { ...item, skullsToday: 0 } : item) }));
+    if (!student || (student.skulls[weekLabel]?.today ?? 0) === 0) return;
+    const event: QueuedSkullEvent = { id: crypto.randomUUID(), student_id: studentId, week_label: weekLabel, action: "clear_today", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: new Date().toISOString() };
+    setData((current) => ({ ...current, students: current.students.map((item) => item.id === studentId ? { ...item, skulls: { ...item.skulls, [weekLabel]: { today: 0, total: item.skulls[weekLabel]?.total ?? 0 } } } : item) }));
     enqueue({ skullEvents: [event] });
   }
 
-  function clearAllSkullsToday() {
-    const studentsWithSkulls = data.students.filter((student) => student.skullsToday > 0);
+  function clearAllSkullsToday(weekLabel = selectedWeek) {
+    const studentsWithSkulls = data.students.filter((student) => (student.skulls[weekLabel]?.today ?? 0) > 0);
     if (!studentsWithSkulls.length) return;
     const occurredAt = new Date().toISOString();
-    const events: QueuedSkullEvent[] = studentsWithSkulls.map((student) => ({ id: crypto.randomUUID(), student_id: student.id, action: "clear_today", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: occurredAt }));
-    setData((current) => ({ ...current, students: current.students.map((student) => ({ ...student, skullsToday: 0 })) }));
+    const events: QueuedSkullEvent[] = studentsWithSkulls.map((student) => ({ id: crypto.randomUUID(), student_id: student.id, week_label: weekLabel, action: "clear_today", source: navigator.onLine ? "classroom" : "offline_queue", occurred_at: occurredAt }));
+    setData((current) => ({ ...current, students: current.students.map((student) => ({ ...student, skulls: { ...student.skulls, [weekLabel]: { today: 0, total: student.skulls[weekLabel]?.total ?? 0 } } })) }));
     enqueue({ skullEvents: events });
   }
 
@@ -691,11 +697,11 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const label = `T${nextOrder}`;
     const topicName = window.prompt(`Name for Topic ${nextOrder}`, "New topic")?.trim();
     if (!topicName || data.weeks.some((week) => week.label === label)) return;
-    const week = { id: crypto.randomUUID(), label, sort_order: nextOrder, title: `Topic ${nextOrder}`, focus: topicName };
-    setData((current) => ({ ...current, weeks: [...current.weeks, { id: week.id, label, sortOrder: nextOrder, title: week.title, focus: week.focus }] }));
+    const week = { id: crypto.randomUUID(), label, sort_order: nextOrder, title: topicName };
+    setData((current) => ({ ...current, weeks: [...current.weeks, { id: week.id, label, sortOrder: nextOrder, title: week.title, focus: null, finalGradeFormula: DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: null }] }));
     setSelectedWeek(label);
     setOpenWeek(label);
-    setExpandedWeeks((current) => new Set([...current, label]));
+    setExpandedWeeks(new Set([label]));
     setActiveWorkId("");
     setNewWorkTitle(newWorkKind === "homework" ? "HW 1" : "CW 1");
     setNewWorkDate(localDateKey());
@@ -785,8 +791,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const weekItems = useMemo(() => data.workItems.filter((item) => item.weekLabel === selectedWeek).sort((first, second) => first.kind.localeCompare(second.kind) || first.position - second.position), [data.workItems, selectedWeek]);
   const activeWork = weekItems.find((item) => item.id === activeWorkId) ?? weekItems[0] ?? null;
   const classStars = data.students.reduce((sum, student) => sum + (student.totals[selectedWeek] ?? 0), 0);
-  const skullsTodayTotal = data.students.reduce((sum, student) => sum + student.skullsToday, 0);
-  const accumulatedSkullTotal = data.students.reduce((sum, student) => sum + student.skullsTotal, 0);
+  const skullsTodayTotal = data.students.reduce((sum, student) => sum + (student.skulls[selectedWeek]?.today ?? 0), 0);
+  const accumulatedSkullTotal = data.students.reduce((sum, student) => sum + (student.skulls[selectedWeek]?.total ?? 0), 0);
   const homeworkCount = data.workItems.filter((item) => item.weekLabel === selectedWeek && item.kind === "homework").length + assignments.filter((assignment) => assignment.weekLabel === selectedWeek).length;
   const classworkCount = data.workItems.filter((item) => item.weekLabel === selectedWeek && item.kind === "classwork").length;
   const testCount = gradeColumns.filter((column) => column.weekLabel === selectedWeek).length;
@@ -916,8 +922,45 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     return columns.sort((first, second) => (first.date ?? "9999-12-31").localeCompare(second.date ?? "9999-12-31") || first.id.localeCompare(second.id));
   }
 
+  function topicSummativeColumn(weekLabel: string) {
+    const topic = data.weeks.find((week) => week.label === weekLabel);
+    const topicColumns = gradeColumns.filter((column) => column.weekLabel === weekLabel);
+    return topicColumns.find((column) => column.id === topic?.summativeGradeColumnId) ?? topicColumns[0] ?? null;
+  }
+
+  function topicFinalGrade(weekLabel: string, studentId: string) {
+    const topic = data.weeks.find((week) => week.label === weekLabel);
+    if (!topic) return null;
+    const column = topicSummativeColumn(weekLabel);
+    const score = column?.scores[studentId]?.score;
+    if (topicGradeFormulaUsesVariable(topic.finalGradeFormula, "N") && score === undefined) return null;
+    const student = data.students.find((item) => item.id === studentId);
+    if (!student) return null;
+    try {
+      const result = evaluateTopicGradeFormula(topic.finalGradeFormula, {
+        N: score ?? 0,
+        stars: student.totals[weekLabel] ?? 0,
+        skulls: student.skulls[weekLabel]?.total ?? 0,
+      });
+      return Math.round(result * 100) / 100;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveTopicSettings(topic: ClassroomStarState["weeks"][number]) {
+    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === topic.id ? topic : week) }));
+    setTopicSettingsDialog(null);
+    router.refresh();
+  }
+
   function saveGradeColumn(savedColumn: ClassroomGradeColumn) {
     setGradeColumns((current) => current.some((column) => column.id === savedColumn.id) ? current.map((column) => column.id === savedColumn.id ? savedColumn : column) : [...current, savedColumn]);
+    setData((current) => ({ ...current, weeks: current.weeks.map((week) => {
+      if (week.summativeGradeColumnId === savedColumn.id && week.label !== savedColumn.weekLabel) return { ...week, summativeGradeColumnId: null };
+      if (week.label === savedColumn.weekLabel && !week.summativeGradeColumnId) return { ...week, summativeGradeColumnId: savedColumn.id };
+      return week;
+    }) }));
     if (savedColumn.assignmentId) setAvailableAssessments((current) => current.filter((assessment) => assessment.id !== savedColumn.assignmentId));
     setExpandedWeeks((current) => new Set([...current, savedColumn.weekLabel]));
     setGradeColumnDialog(null);
@@ -926,6 +969,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
 
   function deleteGradeColumn(columnId: string) {
     setGradeColumns((current) => current.filter((column) => column.id !== columnId));
+    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.summativeGradeColumnId === columnId ? { ...week, summativeGradeColumnId: null } : week) }));
     setGradeColumnDialog(null);
     router.refresh();
   }
@@ -975,6 +1019,20 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     }
   }
 
+  async function copyFinalGradeColumn(weekLabel: string) {
+    const enrolledStudentIds = new Set(data.students.map((student) => student.id));
+    const text = gradebookColumnClipboardText(data.gradebookRoster, enrolledStudentIds, (studentId) => topicFinalGrade(weekLabel, studentId));
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedColumnId(`final:${weekLabel}`);
+      window.setTimeout(() => setCopiedColumnId((current) => current === `final:${weekLabel}` ? null : current), 1800);
+    } catch {
+      setSaveState("error");
+      setSaveMessage("The final-grade column could not be copied. Allow clipboard access, then try again.");
+    }
+  }
+
   function copyColumnButton(sheetColumn: SheetDatedColumn) {
     const copied = copiedColumnId === sheetColumn.id;
     return <button aria-label={`Copy ${sheetColumn.type === "work" ? sheetColumn.item.title : sheetColumn.type === "assignment" ? sheetColumn.assignment.title : sheetColumn.column.title} grades in official gradebook order`} className={gradebookStyles.copyColumnButton} disabled={!data.gradebookRoster.length} onClick={() => void copyGradebookColumn(sheetColumn)} title={data.gradebookRoster.length ? "Copy one spreadsheet-ready value per official gradebook row" : "Official gradebook roster is not available"} type="button">{copied ? "✓ Copied" : "Copy grades"}</button>;
@@ -1011,23 +1069,24 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
 
   return <div className={`${styles.page} ${embedded ? styles.embeddedPage : ""}`}>
-    {embedded ? <section className={gradebookStyles.topicUmbrella} id="topic-gradebook"><header><div className={gradebookStyles.topicIdentity}><p className="eyebrow">{selectedTopic?.label ?? "T1"} · Open topic</p><h2>{selectedTopic?.title || "Topic 1"}</h2><p>{selectedTopic?.focus || "Algebra Foundations"}</p></div><div className={gradebookStyles.topicMetrics} aria-label="Topic totals"><article><span>Stars</span><strong>★ {classStars}</strong><small>All awarded</small></article><article><span>Skulls</span><strong>💀 {accumulatedSkullTotal}</strong><small>Accumulated</small></article><article><span>Homework</span><strong>{homeworkCount}</strong><small>{homeworkSummary.recorded ? `${homeworkSummary.ok}/${homeworkSummary.recorded} OK` : "No marks yet"}</small></article><article><span>Classwork</span><strong>{classworkCount}</strong><small>{classworkSummary.recorded ? `${classworkSummary.ok}/${classworkSummary.recorded} OK` : "No marks yet"}</small></article><article><span>Tests</span><strong>{testCount}</strong><small>{testAverage}</small></article></div><button onClick={addTopic} type="button">＋ New topic</button></header><div className={`${styles.sheetTools} ${gradebookStyles.topicTools}`}><button className={gradebookStyles.addTestButton} onClick={() => setGradeColumnDialog("new")} type="button">＋ Test / grade column</button><button onClick={() => setWorkCreatorOpen(true)} type="button">＋ HW / CW · {selectedWeek}</button><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Student</button><label>Teams<select aria-label="Number of teams" disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button><button onClick={openTimer} type="button">⏱ Timer</button><a className={styles.backupButton} href="/api/stars/export">Excel backup</a></div></section> : <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Topics</h1><p>Stars, skulls, homework, classwork, and tests organized by learning topic.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addTopic} type="button">＋ Add topic</button></div></section>}
+    {embedded ? <section className={gradebookStyles.topicUmbrella} id="topic-gradebook"><header><div className={gradebookStyles.topicIdentity}><p className="eyebrow">{selectedTopic?.label ?? "T1"} · {selectedWeek === currentWeekLabel ? "Current topic" : "Viewing topic"}</p><h2>{selectedTopic?.title || `Topic ${selectedTopic?.sortOrder ?? 1}`}</h2><p>{selectedTopic?.finalGradeFormula || DEFAULT_TOPIC_GRADE_FORMULA}</p></div><div className={gradebookStyles.topicMetrics} aria-label="Topic totals"><article><span>Stars</span><strong>★ {classStars}</strong><small>This topic</small></article><article><span>Skulls</span><strong>💀 {accumulatedSkullTotal}</strong><small>This topic</small></article><article><span>Homework</span><strong>{homeworkCount}</strong><small>{homeworkSummary.recorded ? `${homeworkSummary.ok}/${homeworkSummary.recorded} OK` : "No marks yet"}</small></article><article><span>Classwork</span><strong>{classworkCount}</strong><small>{classworkSummary.recorded ? `${classworkSummary.ok}/${classworkSummary.recorded} OK` : "No marks yet"}</small></article><article><span>Tests</span><strong>{testCount}</strong><small>{testAverage}</small></article></div><div className={gradebookStyles.topicHeaderActions}><button onClick={() => selectedTopic && setTopicSettingsDialog(selectedTopic.id)} type="button">⚙ Topic</button><button onClick={addTopic} type="button">＋ New topic</button></div></header><div className={`${styles.sheetTools} ${gradebookStyles.topicTools}`}><button className={gradebookStyles.addTestButton} onClick={() => setGradeColumnDialog("new")} type="button">＋ Test / grade column</button><button onClick={() => setWorkCreatorOpen(true)} type="button">＋ HW / CW · {selectedWeek}</button><button disabled={!data.students.length} onClick={chooseRandomStudent} type="button">🎲 Student</button><label>Teams<select aria-label="Number of teams" disabled={data.students.length < 2} onChange={(event) => setTeamCount(Number(event.target.value))} value={Math.min(teamCount, Math.max(2, data.students.length))}>{Array.from({ length: Math.max(1, Math.min(11, data.students.length) - 1) }, (_, index) => index + 2).map((count) => <option key={count}>{count}</option>)}</select></label><button disabled={data.students.length < 2} onClick={makeTeams} type="button">Mix teams</button><button onClick={openTimer} type="button">⏱ Timer</button><a className={styles.backupButton} href="/api/stars/export">Excel backup</a></div></section> : <section className={styles.heading}><div><p className="eyebrow">Teacher-only classroom tools</p><h1>{data.classroom.name} Topics</h1><p>Stars, skulls, homework, classwork, and tests organized by learning topic.</p></div><div className={styles.headingActions}><a className={styles.backupButton} href="/api/stars/export">Download Excel backup</a><button onClick={addTopic} type="button">＋ Add topic</button></div></section>}
 
     <div className={`${styles.saveBanner} ${styles[saveState]}`} role="status"><span>{saveState === "saved" ? "✓" : saveState === "syncing" ? "↻" : "●"}</span><div><strong>{saveState === "saved" ? "Safe and saved" : saveState === "syncing" ? "Saving now" : "Browser safety copy active"}</strong><p>{saveMessage}</p></div>{queueSize(queue) > 0 && isOnline ? <button onClick={() => void flushQueue()} type="button">Retry now</button> : null}</div>
 
     {embedded ? <section className={styles.sheetSection} aria-label="Topic class spreadsheet">
-      <div className={styles.sheetHint}><span>Click a topic to expand or collapse it</span><span><i /> Open topic</span><button className={gradebookStyles.resetButton} disabled={skullsTodayTotal === 0} onClick={clearAllSkullsToday} type="button">Reset today’s skulls</button></div>
+      <div className={styles.sheetHint}><span>Click a topic to show or hide all of its columns</span><span><i /> Current topic</span><button className={gradebookStyles.resetButton} disabled={skullsTodayTotal === 0} onClick={() => clearAllSkullsToday(selectedWeek)} type="button">Reset today’s {selectedWeek} skulls</button></div>
       <div className={`${styles.sheetScroller} ${gradebookStyles.pageScroller}`} ref={sheetScrollerRef}>
         <table className={styles.sheetTable} ref={sheetTableRef}>
-          <thead><tr><th className={styles.sheetStudentHead} rowSpan={2}>Student</th><th className={gradebookStyles.skullGroup} colSpan={2}>💀 Skulls</th>{data.weeks.map((week) => { const expanded = expandedWeeks.has(week.label); const columns = sheetColumnsForWeek(week.label); return <th className={`${styles.sheetWeekHead} ${week.label === currentWeekLabel ? styles.sheetCurrentWeek : ""} ${expanded ? styles.sheetExpandedWeek : ""}`} colSpan={1 + columns.length} key={week.id}><button aria-expanded={expanded} onClick={() => toggleSheetWeek(week.label)} title={week.focus || week.title || `Topic ${week.label}`} type="button"><strong>{week.title || week.label}</strong><span>{week.focus || `${columns.length} record column${columns.length === 1 ? "" : "s"}`}</span>{week.label === selectedWeek ? <small>Open topic</small> : null}</button></th>; })}{gradeColumns.length ? <th className={gradebookStyles.averageHead} rowSpan={2}>Test avg</th> : null}</tr>
-          <tr><th className={`${styles.sheetSubhead} ${styles.skullSubhead}`}>Today</th><th className={`${styles.sheetSubhead} ${gradebookStyles.skullTotalSubhead}`}>Accumulated</th>{data.weeks.map((week) => <Fragment key={week.id}><th className={`${styles.sheetSubhead} ${styles.starSubhead}`}>{expandedWeeks.has(week.label) ? "★ Stars" : "Totals"}</th>{sheetColumnsForWeek(week.label).map(sheetColumnHeader)}</Fragment>)}</tr></thead>
-          <tbody>{sortedStudents.map((student) => <tr key={student.id}><th className={styles.sheetStudentCell}><a href={`/teacher/students/${student.id}`}><span className={styles.sheetAvatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><span><strong>{student.fullName}</strong><small>{student.email || "Student profile"}</small></span></a></th><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell}`}><strong>💀 {student.skullsToday}/3</strong><div><button aria-label={`Clear today’s Skulls for ${student.fullName}`} disabled={student.skullsToday === 0} onClick={() => clearStudentSkullsToday(student.id)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName}`} className={styles.sheetSkullAdd} disabled={student.skullsToday >= 3} onClick={() => addSkull(student.id)} type="button">＋</button></div></td><td className={gradebookStyles.skullTotalCell}><strong>💀 {student.skullsTotal}</strong><small>All time</small></td>{data.weeks.map((week) => {
-            const homework = studentWeekWorkSummary(student.id, week.label, "homework");
-            const classwork = studentWeekWorkSummary(student.id, week.label, "classwork");
-            const datedCells = sheetColumnsForWeek(week.label).map((column) => sheetColumnCell(column, student));
-            if (!expandedWeeks.has(week.label)) return <Fragment key={week.id}><td className={`${styles.sheetCollapsedCell} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""}`}><strong>★ {student.totals[week.label] ?? 0}</strong><small>HW {homework.ok}/{homework.recorded} · CW {classwork.ok}/{classwork.recorded}</small></td>{datedCells}</Fragment>;
-            return <Fragment key={week.id}><td className={`${styles.sheetActionCell} ${styles.sheetStarCell}`}><strong>★ {student.totals[week.label] ?? 0}</strong><div><button aria-label={`Remove a Star from ${student.fullName} in ${week.label}`} disabled={(student.totals[week.label] ?? 0) <= 0} onClick={() => changeStars(student.id, -1, week.label)} type="button">−</button><button aria-label={`Add a Star to ${student.fullName} in ${week.label}`} className={styles.sheetStarAdd} onClick={() => changeStars(student.id, 1, week.label)} type="button">＋</button></div></td>{datedCells}</Fragment>;
-          })}{gradeColumns.length ? <td className={gradebookStyles.averageCell}>{(() => { const scores = gradeColumns.flatMap((column) => column.scores[student.id] ? [column.scores[student.id].percent] : []); return scores.length ? <strong>{Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length)}%</strong> : <span>—</span>; })()}</td> : null}</tr>)}</tbody>
+          <thead><tr><th className={styles.sheetStudentHead} rowSpan={2}>Student</th>{data.weeks.map((week) => { const expanded = expandedWeeks.has(week.label); const columns = sheetColumnsForWeek(week.label); return <th className={`${styles.sheetWeekHead} ${week.label === currentWeekLabel ? styles.sheetCurrentWeek : ""} ${expanded ? styles.sheetExpandedWeek : ""}`} colSpan={expanded ? 3 + columns.length : 1} key={week.id}><button aria-expanded={expanded} onClick={() => toggleSheetWeek(week.label)} title={`${expanded ? "Hide" : "Show"} ${week.title || week.label} columns`} type="button"><strong>{week.title || week.label}</strong><span>{week.label} · {expanded ? `${columns.length + 3} columns shown` : `${columns.length + 3} columns hidden`}</span>{week.label === currentWeekLabel ? <small>Current topic</small> : null}</button></th>; })}</tr>
+          <tr>{data.weeks.map((week) => { const expanded = expandedWeeks.has(week.label); if (!expanded) return <th className={`${styles.sheetSubhead} ${styles.starSubhead}`} key={week.id}>Summary</th>; const summative = topicSummativeColumn(week.label); return <Fragment key={week.id}><th className={`${styles.sheetSubhead} ${styles.starSubhead}`}>★ Stars</th><th className={`${styles.sheetSubhead} ${styles.skullSubhead}`}>💀 Skulls</th>{sheetColumnsForWeek(week.label).map(sheetColumnHeader)}<th className={gradebookStyles.finalGradeHead}><div><strong>Final grade</strong><span>{summative ? `N = ${summative.title}` : "Choose summative test"}</span><small>{week.finalGradeFormula}</small><div className={gradebookStyles.headerActions}><button onClick={() => setTopicSettingsDialog(week.id)} type="button">Edit formula</button><button className={gradebookStyles.copyColumnButton} disabled={!data.gradebookRoster.length} onClick={() => void copyFinalGradeColumn(week.label)} type="button">{copiedColumnId === `final:${week.label}` ? "✓ Copied" : "Copy grades"}</button></div></div></th></Fragment>; })}</tr></thead>
+          <tbody>{sortedStudents.map((student) => <tr key={student.id}><th className={styles.sheetStudentCell}><a href={`/teacher/students/${student.id}`}><span className={styles.sheetAvatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><span><strong>{student.fullName}</strong><small>{student.email || "Student profile"}</small></span></a></th>{data.weeks.map((week) => {
+             const homework = studentWeekWorkSummary(student.id, week.label, "homework");
+             const classwork = studentWeekWorkSummary(student.id, week.label, "classwork");
+             const topicSkulls = student.skulls[week.label] ?? { today: 0, total: 0 };
+             const finalGrade = topicFinalGrade(week.label, student.id);
+             if (!expandedWeeks.has(week.label)) return <td className={`${styles.sheetCollapsedCell} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""}`} key={week.id}><strong>★ {student.totals[week.label] ?? 0} · 💀 {topicSkulls.total}</strong><small>{finalGrade === null ? `HW ${homework.ok}/${homework.recorded} · CW ${classwork.ok}/${classwork.recorded}` : `Final ${finalGrade}`}</small></td>;
+             return <Fragment key={week.id}><td className={`${styles.sheetActionCell} ${styles.sheetStarCell}`}><strong>★ {student.totals[week.label] ?? 0}</strong><div><button aria-label={`Remove a Star from ${student.fullName} in ${week.label}`} disabled={(student.totals[week.label] ?? 0) <= 0} onClick={() => changeStars(student.id, -1, week.label)} type="button">−</button><button aria-label={`Add a Star to ${student.fullName} in ${week.label}`} className={styles.sheetStarAdd} onClick={() => changeStars(student.id, 1, week.label)} type="button">＋</button></div></td><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell}`}><strong>💀 {topicSkulls.total}</strong><small>Today {topicSkulls.today}/3</small><div><button aria-label={`Clear today’s Skulls for ${student.fullName} in ${week.label}`} disabled={topicSkulls.today === 0} onClick={() => clearStudentSkullsToday(student.id, week.label)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName} in ${week.label}`} className={styles.sheetSkullAdd} disabled={topicSkulls.today >= 3} onClick={() => addSkull(student.id, week.label)} type="button">＋</button></div></td>{sheetColumnsForWeek(week.label).map((column) => sheetColumnCell(column, student))}<td className={gradebookStyles.finalGradeCell}>{finalGrade === null ? <><strong>—</strong><small>Waiting for N</small></> : <><strong>{finalGrade}</strong><small>{week.finalGradeFormula}</small></>}</td></Fragment>;
+          })}</tr>)}</tbody>
         </table>
       </div>
       <div aria-hidden="true" className={gradebookStyles.frozenSheetHeader} hidden ref={frozenSheetHeaderRef} />
@@ -1051,12 +1110,12 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
 
             <div className={styles.workspace}>
               <section className={styles.studentPanel}>
-                <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars and skulls sync to Supabase. Skulls show today and accumulated totals separately.</p></div><button disabled={skullsTodayTotal === 0} onClick={clearAllSkullsToday} type="button">Reset today’s skulls</button></div>
-                <div className={styles.studentGrid}>{sortedStudents.map((student) => <article className={`${styles.studentCard} ${student.skullsToday > 0 ? styles.warned : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind === "star" ? styles.starAwarded : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind !== "star" ? styles.skullMarked : ""}`} key={student.id}>
+                <div className={styles.sectionHeader}><div><p className="eyebrow">{selectedWeek}</p><h2>Class roster</h2><p>Stars and skulls sync to Supabase. Skulls show today and accumulated totals separately.</p></div><button disabled={skullsTodayTotal === 0} onClick={() => clearAllSkullsToday(selectedWeek)} type="button">Reset today’s skulls</button></div>
+                <div className={styles.studentGrid}>{sortedStudents.map((student) => { const topicSkulls = student.skulls[selectedWeek] ?? { today: 0, total: 0 }; return <article className={`${styles.studentCard} ${topicSkulls.today > 0 ? styles.warned : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind === "star" ? styles.starAwarded : ""} ${rewardEffect?.studentId === student.id && rewardEffect.kind !== "star" ? styles.skullMarked : ""}`} key={student.id}>
                   <div className={styles.studentIdentity}><span className={styles.avatar}>{student.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</span><div><strong>{student.fullName}</strong><small>{studentWorkSummary(student.id, "homework")} · {studentWorkSummary(student.id, "classwork")}</small></div></div>
-                  <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 Today {student.skullsToday}/3 · Total {student.skullsTotal}</span></div>
-                  <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={student.skullsToday >= 3} onClick={() => addSkull(student.id)} type="button">＋ 💀</button>{student.skullsToday > 0 ? <button onClick={() => clearStudentSkullsToday(student.id)} type="button">Clear today 💀</button> : null}</div>
-                </article>)}</div>
+                  <div className={styles.studentScores}><b>⭐ {student.totals[selectedWeek] ?? 0}</b><span>💀 Today {topicSkulls.today}/3 · Topic {topicSkulls.total}</span></div>
+                  <div className={styles.studentActions}><button className={styles.starAdd} onClick={() => changeStars(student.id, 1)} type="button">＋ ⭐</button><button disabled={(student.totals[selectedWeek] ?? 0) <= 0} onClick={() => changeStars(student.id, -1)} type="button">− ⭐</button><button className={styles.skullAdd} disabled={topicSkulls.today >= 3} onClick={() => addSkull(student.id)} type="button">＋ 💀</button>{topicSkulls.today > 0 ? <button onClick={() => clearStudentSkullsToday(student.id)} type="button">Clear today 💀</button> : null}</div>
+                </article>; })}</div>
               </section>
 
               <aside className={styles.sidebar}>
@@ -1082,6 +1141,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       {importPreview ? <div className={styles.importReport}><div className={styles.reportStats}><article><span>Matched safely</span><strong>{importPreview.counts.matched}</strong></article><article><span>Needs review</span><strong>{importPreview.counts.ambiguous}</strong></article><article><span>Excel-only skipped</span><strong>{importPreview.counts.excelOnly}</strong></article><article><span>Jaguar-only</span><strong>{importPreview.counts.jaguarOnly}</strong></article></div><details open={importPreview.counts.ambiguous + importPreview.counts.excelOnly > 0}><summary>Matching report for {importPreview.sheetName}</summary><div className={styles.matchList}>{importPreview.matches.map((match) => <div className={styles[match.outcome]} key={match.excelName}><strong>{match.excelName}</strong><span>{match.outcome === "matched" ? `→ ${match.matchedStudentName} (${match.confidence}%)` : match.outcome === "ambiguous" ? `Needs review${match.suggestions?.length ? `: ${match.suggestions.join(" or ")}` : ""}` : "Not found in this Jaguar class — skipped"}</span><small>{match.reason}</small></div>)}{importPreview.missingFromWorkbook.map((student) => <div className={styles.jaguarOnly} key={student.studentName}><strong>{student.studentName}</strong><span>Existing Jaguar student, not found in Excel</span><small>Kept on the Stars page with no imported history.</small></div>)}</div></details></div> : null}
     </section>
     {gradeColumnDialog ? <GradeColumnDialog availableAssessments={availableAssessments} classId={data.classroom.id} column={gradeColumnDialog === "new" ? null : gradeColumnDialog} defaultWeek={selectedWeek || currentWeekLabel} onClose={() => setGradeColumnDialog(null)} onDeleted={deleteGradeColumn} onSaved={saveGradeColumn} weeks={data.weeks} /> : null}
+    {topicSettingsDialog && data.weeks.find((week) => week.id === topicSettingsDialog) ? <TopicSettingsDialog classId={data.classroom.id} gradeColumns={gradeColumns.filter((column) => column.weekLabel === data.weeks.find((week) => week.id === topicSettingsDialog)!.label)} onClose={() => setTopicSettingsDialog(null)} onSaved={saveTopicSettings} topic={data.weeks.find((week) => week.id === topicSettingsDialog)!} /> : null}
     {workColumnDialog ? <WorkColumnDialog classId={data.classroom.id} item={workColumnDialog} onClose={() => setWorkColumnDialog(null)} onDeleted={deleteWorkColumn} onSaved={saveWorkColumn} /> : null}
     {assignmentPopupId && assignments.find((assignment) => assignment.id === assignmentPopupId) ? <AssignmentResultsPopup assignment={assignments.find((assignment) => assignment.id === assignmentPopupId)!} onClose={() => setAssignmentPopupId(null)} students={sortedStudents} updatedAt={assignmentsUpdatedAt} /> : null}
     {cwPopup && cwPopupStudent ? <div className={`${styles.popupBackdrop} ${styles.cwBackdrop}`} role="presentation"><section aria-label={`Classwork records for ${cwPopupStudent.fullName} in ${cwPopup.weekLabel}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.cwPopup}`} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setCwPopup(null)} type="button">×</button><header><p className={styles.popupEyebrow}>Topic {cwPopup.weekLabel} · Classwork</p><h2>{cwPopupStudent.fullName}</h2><p>Add a dated Not OK record for this student only. The CW cell stays compact and shows the saved notes.</p></header><form onSubmit={(event) => { event.preventDefault(); void addCwRecord(); }}><label><span>Date</span><input onChange={(event) => setCwRecordDate(event.target.value)} required type="date" value={cwRecordDate} /></label><label><span>Reason / note</span><textarea autoFocus maxLength={500} onChange={(event) => setCwReason(event.target.value)} placeholder="Why was this classwork Not OK?" required rows={3} value={cwReason} /></label><div><span className={styles.cwNotOkPill}>Not OK CW</span><button disabled={cwBusy || !cwReason.trim()} type="submit">{cwBusy ? "Saving…" : "Save record"}</button></div></form>{cwMessage ? <p className={styles.cwMessage} role="status">{cwMessage}</p> : null}<section className={styles.cwRecordList}><div><strong>Saved records</strong><span>{cwPopupRecords.length}</span></div>{cwPopupRecords.length ? cwPopupRecords.map((record) => <article key={record.id}><time dateTime={record.recordDate}>{record.recordDate}</time><p>{record.reason}</p><button aria-label={`Delete classwork note from ${record.recordDate}`} disabled={cwBusy} onClick={() => void deleteCwRecord(record)} type="button">Delete</button></article>) : <p>No classwork notes for this student in this topic yet.</p>}</section></section></div> : null}

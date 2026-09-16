@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import type { ClassroomStarState, ClassroomWorkItem, WorkStatus } from "@/lib/classroom-stars";
 import type { StudentMatchCandidate } from "@/lib/classroom-star-import";
 import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
+import { DEFAULT_TOPIC_GRADE_FORMULA } from "@/lib/classroom-topic-grade";
 
-type SkullTotalRow = { student_id: string; skulls_today: number; skulls_total: number };
+type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
 
 function firstName(value: string) {
   return value.trim().split(/\s+/)[0] ?? value;
@@ -28,7 +29,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   const [{ data: memberships, error: membershipError }, { data: gradebookRoster, error: gradebookRosterError }, { data: weeks, error: weekError }, { data: events, error: eventError }, { data: workItems, error: workItemError }, { data: skullRows, error: skullError }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname").eq("class_id", classId),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", classId).order("sort_order"),
-    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", classId).order("sort_order"),
+    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, final_grade_formula, summative_grade_column_id").eq("class_id", classId).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, delta, classroom_weeks!inner(label)").eq("class_id", classId),
     supabase.from("classroom_work_items").select("id, kind, position, title, activity_date, classroom_weeks!inner(label)").eq("class_id", classId).order("position"),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: classId }),
@@ -61,15 +62,20 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
     values[status.student_id] = status.status as WorkStatus;
     statusesByItem.set(status.work_item_id, values);
   }
-  const skullsByStudent = new Map(((skullRows ?? []) as SkullTotalRow[]).map((row) => [row.student_id, { today: Number(row.skulls_today), total: Number(row.skulls_total) }]));
+  const skullsByStudent = new Map<string, Record<string, { today: number; total: number }>>();
+  for (const row of (skullRows ?? []) as SkullTotalRow[]) {
+    const values = skullsByStudent.get(row.student_id) ?? {};
+    values[row.week_label] = { today: Number(row.skulls_today), total: Number(row.skulls_total) };
+    skullsByStudent.set(row.student_id, values);
+  }
 
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: (gradebookRoster ?? []).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
+    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: week.summative_grade_column_id })),
     students: (profiles ?? []).map((profile) => {
       const nickname = nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student";
-      return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skullsToday: skullsByStudent.get(profile.id)?.today ?? 0, skullsTotal: skullsByStudent.get(profile.id)?.total ?? 0 };
+      return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skulls: skullsByStudent.get(profile.id) ?? {} };
     }).sort((first, second) => firstName(first.fullName).localeCompare(firstName(second.fullName), undefined, { sensitivity: "base" }) || first.fullName.localeCompare(second.fullName, undefined, { sensitivity: "base" })),
     workItems: (workItems ?? []).map((item): ClassroomWorkItem => {
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;

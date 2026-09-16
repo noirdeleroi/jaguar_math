@@ -4,6 +4,8 @@ export type ClassroomWeek = {
   sortOrder: number;
   title: string | null;
   focus: string | null;
+  finalGradeFormula: string;
+  summativeGradeColumnId: string | null;
 };
 
 export type ClassroomStudent = {
@@ -12,8 +14,7 @@ export type ClassroomStudent = {
   nickname: string;
   email: string | null;
   totals: Record<string, number>;
-  skullsToday: number;
-  skullsTotal: number;
+  skulls: Record<string, { today: number; total: number }>;
 };
 
 export type GradebookRosterStudent = {
@@ -119,6 +120,7 @@ export type QueuedStarEvent = {
 export type QueuedSkullEvent = {
   id: string;
   student_id: string;
+  week_label: string;
   action: "add" | "clear_today";
   source: "classroom" | "offline_queue";
   occurred_at: string;

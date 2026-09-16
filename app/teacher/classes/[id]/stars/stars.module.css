@@ -63,3 +63,5 @@
 
 @media(max-width:900px){.embeddedPage .sheetStudentHead,.embeddedPage .sheetStudentCell{min-width:175px;max-width:175px}}
 @media(max-width:560px){.embeddedPage .sheetTools{grid-template-columns:repeat(3,minmax(0,1fr))}.embeddedPage .sheetTools button,.embeddedPage .sheetTools a,.embeddedPage .sheetTools select{padding-inline:4px;font-size:8.5px}.embeddedPage .saveBanner{grid-template-columns:auto minmax(0,1fr) auto}.embeddedPage .saveBanner p{display:none}.embeddedPage .sheetStudentHead,.embeddedPage .sheetStudentCell{min-width:145px;max-width:145px}.embeddedPage .sheetStudentCell strong{font-size:13px}}
+
+.sheetActionCell>small{display:block;margin-top:2px;color:#7a8883;font-size:8px}

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/screen-wake-lock.test.mjs tests/attempt-draft.test.mjs tests/exam-activity-client.test.mjs tests/auth-return.test.mjs tests/auth-check.test.mjs tests/student-randomizer.test.mjs tests/test-question-release.test.mjs tests/homework-pdf.test.mjs tests/gradebook-column-export.test.mjs",
+    "test": "node --experimental-strip-types --test tests/fullscreen-api.test.mjs tests/screen-wake-lock.test.mjs tests/attempt-draft.test.mjs tests/exam-activity-client.test.mjs tests/auth-return.test.mjs tests/auth-check.test.mjs tests/student-randomizer.test.mjs tests/test-question-release.test.mjs tests/homework-pdf.test.mjs tests/gradebook-column-export.test.mjs tests/classroom-topic-grade.test.mjs",
     "generate:skill-seed": "node scripts/generate-skill-seed.mjs",
     "validate:skills": "node scripts/generate-skill-seed.mjs"
   },

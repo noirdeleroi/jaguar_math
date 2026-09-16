@@ -2,11 +2,72 @@
 
 import { useState } from "react";
 import type { AvailableClassroomAssessment, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
+import { evaluateTopicGradeFormula, normalizeTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import styles from "./class-gradebook.module.css";
 
 function todayKey() {
   const date = new Date();
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onSaved }: {
+  classId: string;
+  topic: ClassroomWeek;
+  gradeColumns: ClassroomGradeColumn[];
+  onClose: () => void;
+  onSaved: (topic: ClassroomWeek) => void;
+}) {
+  const [title, setTitle] = useState(topic.title || `Topic ${topic.sortOrder}`);
+  const [formula, setFormula] = useState(topic.finalGradeFormula);
+  const [summativeGradeColumnId, setSummativeGradeColumnId] = useState(topic.summativeGradeColumnId ?? gradeColumns[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  let preview = "";
+  try {
+    preview = String(Math.round(evaluateTopicGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }) * 100) / 100);
+  } catch { /* The submit handler presents the precise validation message. */ }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage("");
+    let normalizedFormula: string;
+    try {
+      normalizedFormula = normalizeTopicGradeFormula(formula);
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Check the final-grade formula.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/classes/${classId}/topics/${topic.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, summativeGradeColumnId: summativeGradeColumnId || null }),
+      });
+      const result = await response.json() as { topic?: ClassroomWeek; error?: string };
+      if (!response.ok || !result.topic) throw new Error(result.error || "The topic settings could not be saved.");
+      onSaved(result.topic);
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "The topic settings could not be saved.");
+      setBusy(false);
+    }
+  }
+
+  return <div className={styles.dialogBackdrop} role="presentation"><section aria-modal="true" className={styles.columnDialog} role="dialog">
+    <button aria-label="Close topic settings" className={styles.dialogClose} disabled={busy} onClick={onClose} type="button">×</button>
+    <p className={styles.dialogEyebrow}>{topic.label} · Topic settings</p>
+    <h2>Final topic grade</h2>
+    <p>Choose the summative test used as <strong>N</strong>, then adjust the formula if this topic needs different grading.</p>
+    <form className={styles.columnForm} onSubmit={submit}>
+      <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
+      <label>Summative test (N)<select disabled={!gradeColumns.length} onChange={(event) => setSummativeGradeColumnId(event.target.value)} value={summativeGradeColumnId}><option value="">{gradeColumns.length ? "No summative test selected" : "Add a test column first"}</option>{gradeColumns.map((column) => <option key={column.id} value={column.id}>{column.title}{column.maxScore ? ` · out of ${column.maxScore}` : ""}</option>)}</select></label>
+      <label>Final-grade formula<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder="N + stars - skulls" required value={formula} /></label>
+      <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>topic skulls</span></div>
+      <p className={styles.formulaPreview}>{preview ? `Example: N 16 + 4 stars − 2 skulls = ${preview}` : "Enter a valid formula using N, stars, and skulls."}</p>
+      {message ? <p className={styles.formError} role="alert">{message}</p> : null}
+      <div className={styles.dialogActions}><button disabled={busy || !title.trim()} type="submit">{busy ? "Saving…" : "Save topic"}</button></div>
+    </form>
+  </section></div>;
 }
 
 export function GradeColumnDialog({ classId, weeks, availableAssessments, defaultWeek, column, onClose, onSaved, onDeleted }: {

@@ -5,6 +5,7 @@ import type { AvailableClassroomAssessment, ClassroomGradeColumn, ClassroomHomew
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_TOPIC_GRADE_FORMULA } from "@/lib/classroom-topic-grade";
 import ClassManagerDialogs from "./class-manager-dialogs";
 import ManageStudentCredentials from "./manage-student-credentials";
 import StarClassroom from "./stars/star-classroom";
@@ -13,11 +14,11 @@ import styles from "./class-manager.module.css";
 type Student = { id: string; full_name: string | null; email: string | null; grade_level: number | null };
 type Member = { student_id: string; nickname: string; nickname_is_custom: boolean };
 type EnrolledStudent = Student & { nickname: string; nicknameIsCustom: boolean };
-type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null };
+type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null; final_grade_formula: string; summative_grade_column_id: string | null };
 type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork"; position: number; title: string; activity_date: string | null };
 type WorkStatus = { work_item_id: string; student_id: string; status: string };
 type StarEvent = { id: string; student_id: string; week_id: string; delta: number };
-type SkullTotalRow = { student_id: string; skulls_today: number; skulls_total: number };
+type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
 type Assessment = { id: string; title: string; kind: string; status: "published" | "closed"; due_at: string | null };
 type Attempt = { id: string; assignment_id: string; student_id: string; status: "in_progress" | "submitted"; score: number | null; max_score: number | null; attempt_number: number; started_at: string; submitted_at: string | null };
 type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual"; assignment_id: string | null; max_score: number | null; created_at: string };
@@ -58,7 +59,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", id).order("sort_order"),
-    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus").eq("class_id", id).order("sort_order"),
+    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, final_grade_formula, summative_grade_column_id").eq("class_id", id).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, week_id, delta").eq("class_id", id),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: id }),
     supabase.from("classroom_work_items").select("id, week_id, kind, position, title, activity_date").eq("class_id", id),
@@ -76,7 +77,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const enrolled = memberRows.flatMap((member): EnrolledStudent[] => { const student = studentsById.get(member.student_id); return student ? [{ ...student, nickname: member.nickname, nicknameIsCustom: member.nickname_is_custom }] : []; }).sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { sensitivity: "base" }));
   const available = ((allStudents ?? []) as Student[]).filter((student) => !memberIds.has(student.id)).sort((a, b) => firstName(a.full_name || a.email || "").localeCompare(firstName(b.full_name || b.email || ""), undefined, { sensitivity: "base" }));
   const weeks = (weekRows ?? []) as ClassroomWeek[];
-  const activeTopic = weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: "Topic 1", focus: "Algebra Foundations" };
+  const activeTopic = weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: classroom.grade_level === 12 ? "Arithmetic Foundations" : "Algebra Foundations", focus: null, final_grade_formula: DEFAULT_TOPIC_GRADE_FORMULA, summative_grade_column_id: null };
   const workItems = (workItemRows ?? []) as WorkItem[];
   const workItemIds = workItems.map((item) => item.id);
   const assignmentIds = (assignmentLinks ?? []).map((link) => link.assignment_id);
@@ -161,12 +162,17 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
       return [student.id, { attemptId: submitted?.id ?? activity?.id ?? null, status: activity?.status ?? "not_started", score, maxScore, percentage: score !== null && maxScore && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
     })),
   }));
-  const skullsByStudent = new Map(((skullRows ?? []) as SkullTotalRow[]).map((row) => [row.student_id, { today: Number(row.skulls_today), total: Number(row.skulls_total) }]));
+  const skullsByStudent = new Map<string, Record<string, { today: number; total: number }>>();
+  for (const row of (skullRows ?? []) as SkullTotalRow[]) {
+    const values = skullsByStudent.get(row.student_id) ?? {};
+    values[row.week_label] = { today: Number(row.skulls_today), total: Number(row.skulls_total) };
+    skullsByStudent.set(row.student_id, values);
+  }
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: ((gradebookRosterRows ?? []) as GradebookRosterRow[]).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus })),
-    students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skullsToday: skullsByStudent.get(student.id)?.today ?? 0, skullsTotal: skullsByStudent.get(student.id)?.total ?? 0 })),
+    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, summativeGradeColumnId: week.summative_grade_column_id })),
+    students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skulls: skullsByStudent.get(student.id) ?? {} })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
     eventIds: ((starEvents ?? []) as StarEvent[]).map((event) => event.id),
     skullEventIds: [],
@@ -185,7 +191,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
       <nav aria-label={`${classTitle} tools`} className={styles.heroActions}><a href="#topic-gradebook">Open record ↓</a><Link href={`/teacher/classes/${id}/randomizer`}>Name wheel →</Link><Link href={`/teacher/classes/${id}/sitting`}>Seating chart →</Link>{googleCourse ? <Link href={`/teacher/google-classroom?course=${encodeURIComponent(googleCourse.google_course_id)}`}>Google Classroom →</Link> : null}</nav>
     </header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
-    <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><strong>{activeTopic.title || "Topic 1"}</strong><span>{activeTopic.focus || "Algebra Foundations"}</span></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
+    <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><span>Current topic</span><strong>{activeTopic.title || `Topic ${activeTopic.sort_order}`}</strong></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
     <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}`} />
     {!enrolled.length ? <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section> : null}
   </main>;
