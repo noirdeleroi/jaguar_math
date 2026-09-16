@@ -1,0 +1,2216 @@
+{
+  "questions": [
+    {
+      "prompt": "In the expression $5x^2-3x+8$, which statement correctly identifies its parts?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The variable is $x$; the coefficients are $2$ and $3$; the constant term is $8$."
+        },
+        {
+          "id": "B",
+          "text": "The variable is $x$; the coefficients are $5$ and $-3$; the constant term is $8$."
+        },
+        {
+          "id": "C",
+          "text": "The variable is $x^2$; the coefficients are $5$ and $3$; the constant term is $-8$."
+        },
+        {
+          "id": "D",
+          "text": "The variable is $x$; the only coefficient is $5$; the constant term is $-3$."
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The variable is $x$. The numerical factors multiplying $x^2$ and $x$ are $5$ and $-3$, and the term without a variable is $8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which description best defines a term in an algebraic expression?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "A number, a variable, or a product of numbers and variables separated from other terms by addition or subtraction"
+        },
+        {
+          "id": "B",
+          "text": "Only a number that has no variable"
+        },
+        {
+          "id": "C",
+          "text": "Any two expressions joined by an equals sign"
+        },
+        {
+          "id": "D",
+          "text": "The answer obtained after solving an equation"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Terms are the addends of an expression. For example, the terms of $4x^2-7x+3$ are $4x^2$, $-7x$, and $3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which pair consists of like terms?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5x$ and $5x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$3a$ and $3b$"
+        },
+        {
+          "id": "C",
+          "text": "$4$ and $4y$"
+        },
+        {
+          "id": "D",
+          "text": "$7x$ and $-2x$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Like terms have exactly the same variable part, including exponents. Both $7x$ and $-2x$ have variable part $x$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which choice is an equation rather than an expression?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$4x-9$"
+        },
+        {
+          "id": "B",
+          "text": "$3(a+2)$"
+        },
+        {
+          "id": "C",
+          "text": "$2y+5=17$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{x}{3}+8$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "An equation states that two expressions are equal, so it contains an equals sign. Only $2y+5=17$ is an equation.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A taxi ride costs $C=2.50m+6$, where $m$ is the number of miles. What does the coefficient $2.50$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every ride begins with a $2.50$ dollar fee."
+        },
+        {
+          "id": "B",
+          "text": "The ride costs $2.50$ dollars per mile."
+        },
+        {
+          "id": "C",
+          "text": "The taxi travels $2.50$ miles in total."
+        },
+        {
+          "id": "D",
+          "text": "The maximum ride cost is $2.50$ dollars."
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The coefficient of $m$ is the change in cost for each additional mile, so the rate is $2.50$ dollars per mile.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A taxi ride costs $C=2.50m+6$, where $m$ is the number of miles. What does the constant $6$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The initial fee before any miles are traveled"
+        },
+        {
+          "id": "B",
+          "text": "The cost of each mile"
+        },
+        {
+          "id": "C",
+          "text": "The number of miles in the ride"
+        },
+        {
+          "id": "D",
+          "text": "A discount applied after $6$ miles"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "When $m=0$, $C=6$. Therefore, $6$ is the initial or fixed fee.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The formula $A=\\frac{1}{2}bh$ gives the area of a triangle. In this formula, which quantity is isolated?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$b$"
+        },
+        {
+          "id": "B",
+          "text": "$h$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{1}{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$A$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$A$ is alone on one side of the equals sign, so the formula is solved for, or isolated for, $A$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "If $a=-2$ and $b=3$, what is the value of $2a^2-3b$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-1",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute carefully: $2(-2)^2-3(3)=2(4)-9=8-9=-1$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $7x+4-3x+9$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10x+13$"
+        },
+        {
+          "id": "B",
+          "text": "$4x-5$"
+        },
+        {
+          "id": "C",
+          "text": "$4x+13$"
+        },
+        {
+          "id": "D",
+          "text": "$13x$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Combine like terms: $7x-3x=4x$ and $4+9=13$, giving $4x+13$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $5a^2+3a-2a^2+7a-4$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3a^2-4a-4$"
+        },
+        {
+          "id": "B",
+          "text": "$3a^2+10a-4$"
+        },
+        {
+          "id": "C",
+          "text": "$7a^2+10a-4$"
+        },
+        {
+          "id": "D",
+          "text": "$13a^2-4$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$5a^2-2a^2=3a^2$ and $3a+7a=10a$. The constant remains $-4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $4(2x-3)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$8x-12$"
+        },
+        {
+          "id": "B",
+          "text": "$8x-3$"
+        },
+        {
+          "id": "C",
+          "text": "$6x-12$"
+        },
+        {
+          "id": "D",
+          "text": "$8x+12$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Distribute $4$ to both terms: $4(2x)-4(3)=8x-12$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $-2(3x-5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$-6x-10$"
+        },
+        {
+          "id": "B",
+          "text": "$6x+10$"
+        },
+        {
+          "id": "C",
+          "text": "$-6x+5$"
+        },
+        {
+          "id": "D",
+          "text": "$-6x+10$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$-2(3x)=-6x$ and $-2(-5)=10$, so the result is $-6x+10$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $0.5(6x+8)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3x+8$"
+        },
+        {
+          "id": "B",
+          "text": "$6x+4$"
+        },
+        {
+          "id": "C",
+          "text": "$3x+4$"
+        },
+        {
+          "id": "D",
+          "text": "$30x+40$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply each term by $0.5$: $0.5(6x)=3x$ and $0.5(8)=4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $3(2x-5)+4(x+1)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10x-19$"
+        },
+        {
+          "id": "B",
+          "text": "$10x-11$"
+        },
+        {
+          "id": "C",
+          "text": "$7x-11$"
+        },
+        {
+          "id": "D",
+          "text": "$10x+11$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$3(2x-5)+4(x+1)=6x-15+4x+4=10x-11$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $\\frac{3}{4}(8x-12)-\\frac{1}{2}(2x+6)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5x-12$"
+        },
+        {
+          "id": "B",
+          "text": "$5x-6$"
+        },
+        {
+          "id": "C",
+          "text": "$7x-12$"
+        },
+        {
+          "id": "D",
+          "text": "$5x+12$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{4}(8x-12)=6x-9$ and $\\frac{1}{2}(2x+6)=x+3$. Thus $6x-9-(x+3)=5x-12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $1.2(5x-3)-0.4(10x+5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x-1.6$"
+        },
+        {
+          "id": "B",
+          "text": "$10x-5.6$"
+        },
+        {
+          "id": "C",
+          "text": "$2x+5.6$"
+        },
+        {
+          "id": "D",
+          "text": "$2x-5.6$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$1.2(5x-3)=6x-3.6$ and $0.4(10x+5)=4x+2$. Subtracting gives $2x-5.6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $3x^2(2x^3-5x+4)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6x^6-15x^3+12x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$6x^5-5x^3+4x^2$"
+        },
+        {
+          "id": "C",
+          "text": "$6x^5-15x^3+12x^2$"
+        },
+        {
+          "id": "D",
+          "text": "$6x^5-15x^2+12$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Distribute $3x^2$ and add exponents when multiplying like bases: $6x^5-15x^3+12x^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $(x+3)(x-5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^2+2x-15$"
+        },
+        {
+          "id": "B",
+          "text": "$x^2-2x-15$"
+        },
+        {
+          "id": "C",
+          "text": "$x^2-8x-15$"
+        },
+        {
+          "id": "D",
+          "text": "$x^2-15$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply each term: $x^2-5x+3x-15=x^2-2x-15$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $(2x-1)^2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$4x^2-4x+1$"
+        },
+        {
+          "id": "B",
+          "text": "$4x^2+1$"
+        },
+        {
+          "id": "C",
+          "text": "$4x^2-2x+1$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^2-4x+1$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Use $(a-b)^2=a^2-2ab+b^2$: $(2x)^2-2(2x)(1)+1^2=4x^2-4x+1$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A large square has side length $3x$. A smaller square with side length $x$ is cut out. Which expression gives the remaining area?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$8x$"
+        },
+        {
+          "id": "C",
+          "text": "$9x^2$"
+        },
+        {
+          "id": "D",
+          "text": "$8x^2$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the square areas: $(3x)^2-x^2=9x^2-x^2=8x^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "In $7^3$, what is the base?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3$"
+        },
+        {
+          "id": "B",
+          "text": "$21$"
+        },
+        {
+          "id": "C",
+          "text": "$7$"
+        },
+        {
+          "id": "D",
+          "text": "$343$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The base is the repeated factor. In $7^3=7\\cdot7\\cdot7$, the base is $7$ and the exponent is $3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Simplify $x^3\\cdot x^5$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^{15}$"
+        },
+        {
+          "id": "B",
+          "text": "$x^8$"
+        },
+        {
+          "id": "C",
+          "text": "$2x^8$"
+        },
+        {
+          "id": "D",
+          "text": "$x^2$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "When multiplying powers with the same base, add the exponents: $x^{3+5}=x^8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{a^9}{a^4}$ for $a\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$a^5$"
+        },
+        {
+          "id": "B",
+          "text": "$a^{13}$"
+        },
+        {
+          "id": "C",
+          "text": "$a^{\\frac{9}{4}}$"
+        },
+        {
+          "id": "D",
+          "text": "$a^{-5}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "When dividing powers with the same nonzero base, subtract exponents: $a^{9-4}=a^5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(m^2)^4$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$m^6$"
+        },
+        {
+          "id": "B",
+          "text": "$m^{16}$"
+        },
+        {
+          "id": "C",
+          "text": "$4m^2$"
+        },
+        {
+          "id": "D",
+          "text": "$m^8$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "For a power raised to a power, multiply the exponents: $(m^2)^4=m^{2\\cdot4}=m^8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(3x^2)^2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6x^4$"
+        },
+        {
+          "id": "B",
+          "text": "$9x^2$"
+        },
+        {
+          "id": "C",
+          "text": "$9x^4$"
+        },
+        {
+          "id": "D",
+          "text": "$3x^4$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Apply the exponent to every factor: $3^2(x^2)^2=9x^4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify completely $\\frac{(2x^2y^3)^2}{4xy^2}$ for $x\\ne0$ and $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^2y^3$"
+        },
+        {
+          "id": "B",
+          "text": "$x^3y^4$"
+        },
+        {
+          "id": "C",
+          "text": "$4x^3y^4$"
+        },
+        {
+          "id": "D",
+          "text": "$x^4y^6$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The numerator is $4x^4y^6$. Dividing by $4xy^2$ gives $x^{4-1}y^{6-2}=x^3y^4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "For $x\\ne0$, which expression is equivalent to $x^0+2x^3$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$1+2x^3$"
+        },
+        {
+          "id": "B",
+          "text": "$2x^3$"
+        },
+        {
+          "id": "C",
+          "text": "$3x^3$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^4$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Any nonzero base raised to the zero power equals $1$, so $x^0+2x^3=1+2x^3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Rewrite $\\frac{x^{-3}y^5}{y^2}$ using only positive exponents, where $x\\ne0$ and $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^3y^3$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{x^3}{y^3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{y^7}{x^3}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{y^3}{x^3}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$y^5/y^2=y^3$, and $x^{-3}=1/x^3$. Therefore the expression is $y^3/x^3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Rewrite $\\frac{4a^{-2}b^3}{2b^{-1}}$ using only positive exponents, where $a\\ne0$ and $b\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2b^2}{a^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$2a^2b^4$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{2b^4}{a^2}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{2}{a^2b^4}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$4/2=2$, $b^3/b^{-1}=b^{3-(-1)}=b^4$, and $a^{-2}=1/a^2$. Thus the result is $2b^4/a^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\left(\\frac{2x^3}{y^2}\\right)^2$, where $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2x^6}{y^4}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{4x^6}{y^4}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{4x^5}{y^4}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{4x^6}{y^2}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Square the numerator and denominator: $(2x^3)^2/(y^2)^2=4x^6/y^4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^5}{x^{-2}}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^7$"
+        },
+        {
+          "id": "B",
+          "text": "$x^3$"
+        },
+        {
+          "id": "C",
+          "text": "$x^{-7}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{x^7}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the denominator exponent: $x^{5-(-2)}=x^7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the value of $16^{-\\frac{1}{2}}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$-4$"
+        },
+        {
+          "id": "B",
+          "text": "$4$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{1}{8}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{4}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$16^{1/2}=\\sqrt{16}=4$. A negative exponent takes the reciprocal, so $16^{-1/2}=1/4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the value of $27^{\\frac{2}{3}}$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "9",
+      "numeric_tolerance": 0,
+      "explanation": "$27^{2/3}=(\\sqrt[3]{27})^2=3^2=9$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which radical expression is equivalent to $a^{\\frac{3}{2}}$ for $a\\ge0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\sqrt[3]{a^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{\\sqrt{a}}{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\sqrt{a^3}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\sqrt{3a}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The denominator $2$ is the root index and the numerator $3$ is the power: $a^{3/2}=\\sqrt{a^3}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{121}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "11",
+      "numeric_tolerance": 0,
+      "explanation": "The radical symbol denotes the principal, nonnegative square root. Since $11^2=121$, $\\sqrt{121}=11$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{48}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3\\sqrt{4}$"
+        },
+        {
+          "id": "B",
+          "text": "$4\\sqrt{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$2\\sqrt{6}$"
+        },
+        {
+          "id": "D",
+          "text": "$16\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$48=16\\cdot3$, so $\\sqrt{48}=\\sqrt{16}\\sqrt3=4\\sqrt3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{12}+\\sqrt{27}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5\\sqrt{3}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\sqrt{39}$"
+        },
+        {
+          "id": "C",
+          "text": "$3\\sqrt{13}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{12}=2\\sqrt3$ and $\\sqrt{27}=3\\sqrt3$. Add like radicals to get $5\\sqrt3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $2\\sqrt{18}+\\sqrt{8}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5\\sqrt{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$3\\sqrt{26}$"
+        },
+        {
+          "id": "C",
+          "text": "$10\\sqrt{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$8\\sqrt{2}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{18}=3\\sqrt2$ and $\\sqrt8=2\\sqrt2$. Thus $2(3\\sqrt2)+2\\sqrt2=8\\sqrt2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(3\\sqrt{2})(2\\sqrt{6})$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6\\sqrt{8}$"
+        },
+        {
+          "id": "B",
+          "text": "$12\\sqrt{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$12\\sqrt{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply coefficients and radicands: $6\\sqrt{12}=6(2\\sqrt3)=12\\sqrt3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{\\sqrt{48}}{\\sqrt{3}}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{48}/\\sqrt3=\\sqrt{48/3}=\\sqrt{16}=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $2\\sqrt{3}(3+\\sqrt{3})$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6\\sqrt{3}+3$"
+        },
+        {
+          "id": "B",
+          "text": "$6\\sqrt{3}+6$"
+        },
+        {
+          "id": "C",
+          "text": "$12\\sqrt{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{6}+6$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$2\\sqrt3(3)=6\\sqrt3$ and $2\\sqrt3(\\sqrt3)=2(3)=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which expression is equivalent to $\\sqrt{50}+3\\sqrt{8}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$11\\sqrt{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$8\\sqrt{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$4\\sqrt{58}$"
+        },
+        {
+          "id": "D",
+          "text": "$5\\sqrt{10}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{50}=5\\sqrt2$ and $3\\sqrt8=3(2\\sqrt2)=6\\sqrt2$. Their sum is $11\\sqrt2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{5x+7}{6x^2}+\\frac{x-7}{6x^2}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{6x}{12x^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{1}{x^2}$"
+        },
+        {
+          "id": "C",
+          "text": "$1$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{x}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "The denominators match, so add numerators: $(5x+7)+(x-7)=6x$. Then $6x/(6x^2)=1/x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{7y+3}{4y}-\\frac{3y+3}{4y}$ for $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{5}{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$y$"
+        },
+        {
+          "id": "C",
+          "text": "$1$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{4y+6}{4y}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the entire second numerator: $(7y+3)-(3y+3)=4y$. Therefore $4y/(4y)=1$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^2-9}{x+3}$, where $x\\ne-3$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x+3$"
+        },
+        {
+          "id": "B",
+          "text": "$x-3$"
+        },
+        {
+          "id": "C",
+          "text": "$x-6$"
+        },
+        {
+          "id": "D",
+          "text": "$1$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Factor the difference of squares: $x^2-9=(x-3)(x+3)$. Cancel $x+3$ to get $x-3$, while retaining $x\\ne-3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{6x^2+12x}{3x}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x+4$"
+        },
+        {
+          "id": "B",
+          "text": "$2x+12$"
+        },
+        {
+          "id": "C",
+          "text": "$6x+4$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^2+4x$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Factor the numerator: $6x^2+12x=6x(x+2)$. Dividing by $3x$ gives $2(x+2)=2x+4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{3}{x}\\cdot\\frac{2x^2}{9}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2x^2}{3}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{6}{9x}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{2}{3x}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{2x}{3}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{x}\\cdot\\frac{2x^2}{9}=\\frac{6x^2}{9x}$. Cancel common factors to obtain $2x/3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^2-4}{x^2+x-6}$, where the original denominator is nonzero.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{x-2}{x-3}$, where $x\\ne-2,3$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{x+2}{x+3}$, where $x\\ne-3$ only"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{x+2}{x+3}$, where $x\\ne2,-3$"
+        },
+        {
+          "id": "D",
+          "text": "$1$, where $x\\ne2,-3$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Factor: $(x-2)(x+2)/[(x-2)(x+3)]$. Cancel $x-2$ to get $(x+2)/(x+3)$, but preserve both original restrictions $x\\ne2,-3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Solve $4x-7=21$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Add $7$ to get $4x=28$, then divide by $4$: $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3(x-2)+5=2x+9$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "10",
+      "numeric_tolerance": 0,
+      "explanation": "Expand: $3x-6+5=2x+9$, so $3x-1=2x+9$. Subtract $2x$ and add $1$ to get $x=10$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $5-2(3x+1)=15$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "$5-6x-2=15$, so $3-6x=15$. Then $-6x=12$ and $x=-2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x}{3}+\\frac{5}{6}=\\frac{3}{2}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $5/6$: $x/3=9/6-5/6=4/6=2/3$. Multiply by $3$ to get $x=2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $0.4x+1.2=3.6$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $1.2$ to obtain $0.4x=2.4$. Divide by $0.4$: $x=6$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{2(x-3)}{5}=\\frac{x+4}{3}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "38",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $15$: $6(x-3)=5(x+4)$. Then $6x-18=5x+20$, so $x=38$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "How many solutions does $4(x+2)=4x+8$ have?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "Infinitely many solutions"
+        },
+        {
+          "id": "C",
+          "text": "Exactly one solution: $x=0$"
+        },
+        {
+          "id": "D",
+          "text": "Exactly one solution: $x=2$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding the left side gives $4x+8=4x+8$, which is true for every real value of $x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "How many solutions does $3(x-1)=3x+5$ have?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "Infinitely many solutions"
+        },
+        {
+          "id": "C",
+          "text": "Exactly one solution: $x=-\\frac{8}{3}$"
+        },
+        {
+          "id": "D",
+          "text": "Exactly one solution: $x=\\frac{8}{3}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding gives $3x-3=3x+5$. Subtracting $3x$ would require $-3=5$, a contradiction, so there is no solution.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "The formula $d=rt$ relates distance, rate, and time. Which formula is solved for $t$, assuming $r\\ne0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$t=dr$"
+        },
+        {
+          "id": "B",
+          "text": "$t=\\frac{r}{d}$"
+        },
+        {
+          "id": "C",
+          "text": "$t=d-r$"
+        },
+        {
+          "id": "D",
+          "text": "$t=\\frac{d}{r}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Divide both sides of $d=rt$ by the nonzero rate $r$: $t=d/r$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The area of a triangle is $A=\\frac{1}{2}bh$. Which formula is solved for $b$, assuming $h\\ne0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$b=\\frac{A}{2h}$"
+        },
+        {
+          "id": "B",
+          "text": "$b=2Ah$"
+        },
+        {
+          "id": "C",
+          "text": "$b=\\frac{2A}{h}$"
+        },
+        {
+          "id": "D",
+          "text": "$b=\\frac{h}{2A}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply $A=bh/2$ by $2$ to get $2A=bh$, then divide by $h$: $b=2A/h$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The perimeter of a rectangle is $P=2l+2w$. Which formula is solved for $w$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$w=P-2l$"
+        },
+        {
+          "id": "B",
+          "text": "$w=\\frac{P-2l}{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$w=\\frac{P}{2l}$"
+        },
+        {
+          "id": "D",
+          "text": "$w=\\frac{2l-P}{2}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $2l$ from both sides: $P-2l=2w$. Divide by $2$ to get $w=(P-2l)/2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The temperature formulas satisfy $F=\\frac{9}{5}C+32$. Which expression gives $C$ in terms of $F$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$C=\\frac{5}{9}(F-32)$"
+        },
+        {
+          "id": "B",
+          "text": "$C=\\frac{9}{5}(F-32)$"
+        },
+        {
+          "id": "C",
+          "text": "$C=\\frac{5}{9}F-32$"
+        },
+        {
+          "id": "D",
+          "text": "$C=\\frac{5F}{9}+32$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $32$: $F-32=(9/5)C$. Multiply by $5/9$ to obtain $C=(5/9)(F-32)$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3x+2y=12$ for $y$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=12-3x$"
+        },
+        {
+          "id": "B",
+          "text": "$y=\\frac{3}{2}x-6$"
+        },
+        {
+          "id": "C",
+          "text": "$y=6-3x$"
+        },
+        {
+          "id": "D",
+          "text": "$y=6-\\frac{3}{2}x$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $3x$: $2y=12-3x$. Divide every term by $2$: $y=6-(3/2)x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A gym charges a $25$ dollar sign-up fee and $15$ dollars per month. If the total cost is $100$ dollars, for how many months was the membership used?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Let $m$ be the number of months. Solve $25+15m=100$: $15m=75$, so $m=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A rectangle has width $x$ and length $x+3$. Its perimeter is $30$. What is the width?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "$2x+2(x+3)=30$, so $4x+6=30$. Then $4x=24$ and $x=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Two consecutive integers have a sum of $73$. What is the smaller integer?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "36",
+      "numeric_tolerance": 0,
+      "explanation": "Let the smaller integer be $n$; the next is $n+1$. Then $n+(n+1)=73$, so $2n=72$ and $n=36$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Three-fifths of a number plus $7$ equals $25$. What is the number?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "30",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $(3/5)x+7=25$. Then $(3/5)x=18$, so $x=18(5/3)=30$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A cinema ticket costs $p$ dollars, and one order has a one-time booking fee of $4$ dollars. Which expression gives the total cost of $3$ tickets in one order?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3(p+4)$"
+        },
+        {
+          "id": "B",
+          "text": "$p+12$"
+        },
+        {
+          "id": "C",
+          "text": "$3p+4$"
+        },
+        {
+          "id": "D",
+          "text": "$4p+3$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Three tickets cost $3p$. Because the $4$ dollar fee is charged once per order, the total is $3p+4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The ratio of red counters to blue counters is $3:5$. If there are $3n$ red counters, how many blue counters are there?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$8n$"
+        },
+        {
+          "id": "B",
+          "text": "$5n$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{5}{3}n$"
+        },
+        {
+          "id": "D",
+          "text": "$15n$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The $3$ ratio parts for red correspond to $3n$, so one part is $n$. Blue has $5$ parts, or $5n$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A jacket costs $p$ dollars. Its price is reduced by $\\frac{1}{4}$ and then the reduced price is increased by $20\\%$. Which expression gives the final price?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$0.9p$"
+        },
+        {
+          "id": "B",
+          "text": "$0.95p$"
+        },
+        {
+          "id": "C",
+          "text": "$1.05p$"
+        },
+        {
+          "id": "D",
+          "text": "$1.2p-\\frac{1}{4}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "After a $25\\%$ reduction, the price is $0.75p$. Increasing that by $20\\%$ multiplies it by $1.20$: $1.20(0.75p)=0.9p$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A school orders $4n$ notebooks at $2.50$ dollars each and receives a $20\\%$ discount on the entire order. Which expression gives the final cost in dollars?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10n$"
+        },
+        {
+          "id": "B",
+          "text": "$2n$"
+        },
+        {
+          "id": "C",
+          "text": "$8n-0.20$"
+        },
+        {
+          "id": "D",
+          "text": "$8n$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Before the discount, the cost is $4n(2.50)=10n$. Paying $80\\%$ after the discount gives $0.8(10n)=8n$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A fundraiser has already collected $45$ dollars and then collects $18$ dollars per hour. The total after $h$ hours is $W=18h+45$. Which statement is true?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The coefficient $18$ is the starting amount, and the constant $45$ is the hourly rate."
+        },
+        {
+          "id": "B",
+          "text": "Both $18$ and $45$ represent hourly rates."
+        },
+        {
+          "id": "C",
+          "text": "The coefficient $18$ is the hourly rate, and the constant $45$ is the starting amount."
+        },
+        {
+          "id": "D",
+          "text": "The expression shows that the fundraiser loses $18$ dollars per hour."
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The multiplier of $h$ is the change per hour, so $18$ is the hourly rate. At $h=0$, $W=45$, so $45$ is the starting amount.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    }
+  ]
+}
