@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { AvailableClassroomAssessment, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
+import { FINAL_GRADE_COMMENT_MAX_LENGTH, normalizeFinalGradeOverride } from "@/lib/classroom-final-grade";
+import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
 import { clampTopicGrade, evaluateTopicFinalGradeFormula, normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import styles from "./class-gradebook.module.css";
 
@@ -189,6 +190,99 @@ export function ManualGradeCell({ classId, studentId, studentName, column, class
   return <td className={`${styles.assessmentCell} ${styles.manualGradeCell} ${className}`}>
     <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => void save()} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setValue(grade ? String(grade.score) : ""); setDirty(false); event.currentTarget.blur(); } }} placeholder="—" title="Absent" step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
     <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%` : "—")}</small>
+  </td>;
+}
+
+export function FinalGradeCell({ classId, topic, studentId, studentName, calculatedGrade, override, className = "", onSaved }: {
+  classId: string;
+  topic: ClassroomWeek;
+  studentId: string;
+  studentName: string;
+  calculatedGrade: number | null;
+  override: ClassroomFinalGradeOverride | null;
+  className?: string;
+  onSaved: (override: ClassroomFinalGradeOverride | null) => void;
+}) {
+  const visibleOverride = topic.finalGradeFormula ? override : null;
+  const finalGrade = topic.finalGradeFormula ? visibleOverride?.score ?? calculatedGrade : null;
+  const [editing, setEditing] = useState(false);
+  const [score, setScore] = useState(finalGrade === null ? "" : String(finalGrade));
+  const [comment, setComment] = useState(override?.comment ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const editable = Boolean(topic.finalGradeFormula);
+  const commentTooltip = visibleOverride?.comment || "Manually changed grade (no comment)";
+
+  function startEditing() {
+    if (!editable || busy) return;
+    setScore(finalGrade === null ? "" : String(finalGrade));
+    setComment(visibleOverride?.comment ?? "");
+    setError("");
+    setEditing(true);
+  }
+
+  async function save(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    let normalized: ClassroomFinalGradeOverride;
+    try {
+      normalized = normalizeFinalGradeOverride(score, comment, topic.finalGradeMax);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Check the final grade.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/topics/${topic.id}/final-grades/${studentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(normalized),
+      });
+      const result = await response.json() as { override?: ClassroomFinalGradeOverride; error?: string };
+      if (!response.ok || !result.override) throw new Error(result.error || "The final grade was not saved.");
+      onSaved(result.override);
+      setEditing(false);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The final grade was not saved.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreCalculatedGrade() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/topics/${topic.id}/final-grades/${studentId}`, { method: "DELETE" });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "The calculated grade was not restored.");
+      onSaved(null);
+      setEditing(false);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The calculated grade was not restored.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (editing) return <td className={`${styles.finalGradeCell} ${styles.finalGradeEditor} ${className}`}>
+    <form onSubmit={save}>
+      <label><span>Grade / {topic.finalGradeMax}</span><input autoFocus disabled={busy} max={topic.finalGradeMax} min="0" onChange={(event) => setScore(event.target.value)} required step="any" type="number" value={score} /></label>
+      <label><span>Comment (optional)</span><input disabled={busy} maxLength={FINAL_GRADE_COMMENT_MAX_LENGTH} onChange={(event) => setComment(event.target.value)} placeholder="Reason for change" type="text" value={comment} /></label>
+      {error ? <small className={styles.gradeError} role="alert">{error}</small> : null}
+      <div><button disabled={busy} type="submit">{busy ? "Saving…" : "Save"}</button>{visibleOverride ? <button className={styles.restoreGradeButton} disabled={busy} onClick={() => void restoreCalculatedGrade()} type="button">Reset</button> : null}<button disabled={busy} onClick={() => setEditing(false)} type="button">Cancel</button></div>
+    </form>
+  </td>;
+
+  return <td
+    aria-label={`${topic.label} final grade for ${studentName}${visibleOverride ? ", manually changed" : ""}`}
+    className={`${styles.finalGradeCell} ${editable ? styles.finalGradeEditable : ""} ${className}`}
+    onDoubleClick={startEditing}
+    onKeyDown={(event) => { if (editable && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); startEditing(); } }}
+    tabIndex={editable ? 0 : undefined}
+    title={visibleOverride ? commentTooltip : editable ? "Double-click to change this final grade" : "Configure the topic final grade first"}
+  >
+    {finalGrade === null ? <><strong>—</strong><small>{editable ? "Waiting · double-click to enter" : "Not configured"}</small></> : <><strong>{finalGrade} / {topic.finalGradeMax}{visibleOverride ? <sup aria-label={`Manually changed: ${commentTooltip}`} className={styles.finalGradeManualMarker} title={commentTooltip}>*</sup> : null}</strong><small>{finalGrade / topic.finalGradeMax >= 0.65 ? "Passed · 65%+" : "Below 65%"}{editable ? " · double-click to edit" : ""}</small></>}
   </td>;
 }
 

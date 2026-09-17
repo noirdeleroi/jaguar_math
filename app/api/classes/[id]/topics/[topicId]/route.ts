@@ -42,6 +42,18 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       if (!column) return NextResponse.json({ error: "The summative test must belong to this topic." }, { status: 400 });
     }
 
+    const { data: overrideAboveMaximum, error: overrideError } = await supabase.from("classroom_final_grade_overrides")
+      .select("score")
+      .eq("week_id", topicId)
+      .gt("score", finalGradeMax)
+      .order("score", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (overrideError) throw overrideError;
+    if (overrideAboveMaximum) {
+      return NextResponse.json({ error: `The maximum cannot be below the manually changed grade ${Number(overrideAboveMaximum.score)}.` }, { status: 400 });
+    }
+
     if (body.makeCurrent === true && !topic.is_current) {
       const { error: currentTopicError } = await supabase.rpc("set_current_classroom_topic", { p_class_id: id, p_topic_id: topicId });
       if (currentTopicError) throw currentTopicError;

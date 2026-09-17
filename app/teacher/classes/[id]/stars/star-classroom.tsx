@@ -2,10 +2,10 @@
 
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
+import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import { clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
-import { GradeColumnDialog, ManualGradeCell, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
+import { FinalGradeCell, GradeColumnDialog, ManualGradeCell, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
 import styles from "./stars.module.css";
 
@@ -120,6 +120,7 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
     weeks: initial.weeks.map((week) => ({ ...week })),
     students: initial.students.map((student) => ({ ...student, totals: { ...student.totals }, skulls: Object.fromEntries(Object.entries(student.skulls).map(([label, value]) => [label, { ...value }])) })),
     workItems: initial.workItems.map((item) => ({ ...item, statuses: { ...item.statuses } })),
+    finalGradeOverrides: Object.fromEntries(Object.entries(initial.finalGradeOverrides).map(([label, overrides]) => [label, { ...overrides }])),
     eventIds: [...initial.eventIds],
     skullEventIds: [...initial.skullEventIds],
   };
@@ -927,7 +928,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     return topicColumns.find((column) => column.id === topic?.summativeGradeColumnId) ?? null;
   }
 
-  function topicFinalGrade(weekLabel: string, studentId: string) {
+  function topicCalculatedGrade(weekLabel: string, studentId: string) {
     const topic = data.weeks.find((week) => week.label === weekLabel);
     if (!topic?.finalGradeFormula) return null;
     const column = topicSummativeColumn(weekLabel);
@@ -945,6 +946,12 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     } catch {
       return null;
     }
+  }
+
+  function topicFinalGrade(weekLabel: string, studentId: string) {
+    const topic = data.weeks.find((week) => week.label === weekLabel);
+    if (!topic?.finalGradeFormula) return null;
+    return data.finalGradeOverrides[weekLabel]?.[studentId]?.score ?? topicCalculatedGrade(weekLabel, studentId);
   }
 
   function topicFinalGradeSummary(weekLabel: string) {
@@ -1000,6 +1007,15 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       const values = Object.values(scores).map((score) => score.percent);
       return { ...column, scores, average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null };
     }));
+  }
+
+  function saveFinalGradeOverride(weekLabel: string, studentId: string, override: ClassroomFinalGradeOverride | null) {
+    setData((current) => {
+      const topicOverrides = { ...(current.finalGradeOverrides[weekLabel] ?? {}) };
+      if (override) topicOverrides[studentId] = override;
+      else delete topicOverrides[studentId];
+      return { ...current, finalGradeOverrides: { ...current.finalGradeOverrides, [weekLabel]: topicOverrides } };
+    });
   }
 
   function saveWorkColumn(item: ClassroomWorkItem) {
@@ -1110,10 +1126,12 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
              const topicPaletteClass = topicPaletteClasses[topicIndex % topicPaletteClasses.length];
              const topicStartClass = topicIndex > 0 ? styles.topicStart : "";
              const topicSkulls = student.skulls[week.label] ?? { today: 0, total: 0 };
-             const finalGrade = topicFinalGrade(week.label, student.id);
-             if (!expandedWeeks.has(week.label)) return <td className={`${styles.sheetCollapsedCell} ${topicPaletteClass} ${topicStartClass} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""} ${selectedColumnClass(`${week.label}:summary`)}`} key={week.id}><strong>★ {student.totals[week.label] ?? 0} · 💀 {topicSkulls.total}</strong><small>{finalGrade === null ? "Final —" : `Final ${finalGrade}/${week.finalGradeMax}`}</small></td>;
+             const finalGradeOverride = data.finalGradeOverrides[week.label]?.[student.id] ?? null;
+             const calculatedGrade = topicCalculatedGrade(week.label, student.id);
+             const finalGrade = week.finalGradeFormula ? finalGradeOverride?.score ?? calculatedGrade : null;
+             if (!expandedWeeks.has(week.label)) return <td className={`${styles.sheetCollapsedCell} ${topicPaletteClass} ${topicStartClass} ${week.label === currentWeekLabel ? styles.sheetCurrentCell : ""} ${selectedColumnClass(`${week.label}:summary`)}`} key={week.id}><strong>★ {student.totals[week.label] ?? 0} · 💀 {topicSkulls.total}</strong><small>{finalGrade === null ? "Final —" : <>Final {finalGrade}/{week.finalGradeMax}{finalGradeOverride ? <sup title={finalGradeOverride.comment || "Manually changed grade (no comment)"}>*</sup> : null}</>}</small></td>;
              const passing = finalGrade !== null && isPassingTopicGrade(finalGrade, week.finalGradeMax);
-             return <Fragment key={week.id}><td className={`${styles.sheetActionCell} ${styles.sheetStarCell} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(`${week.label}:stars`)}`}><strong>★ {student.totals[week.label] ?? 0}</strong><div><button aria-label={`Remove a Star from ${student.fullName} in ${week.label}`} disabled={(student.totals[week.label] ?? 0) <= 0} onClick={() => changeStars(student.id, -1, week.label)} type="button">−</button><button aria-label={`Add a Star to ${student.fullName} in ${week.label}`} className={styles.sheetStarAdd} onClick={() => changeStars(student.id, 1, week.label)} type="button">＋</button></div></td><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell} ${topicPaletteClass} ${selectedColumnClass(`${week.label}:skulls`)}`}><strong>💀 {topicSkulls.total}</strong><small>Today {topicSkulls.today}/3</small><div><button aria-label={`Clear today’s Skulls for ${student.fullName} in ${week.label}`} disabled={topicSkulls.today === 0} onClick={() => clearStudentSkullsToday(student.id, week.label)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName} in ${week.label}`} className={styles.sheetSkullAdd} disabled={topicSkulls.today >= 3} onClick={() => addSkull(student.id, week.label)} type="button">＋</button></div></td>{sheetColumnsForWeek(week.label).map((column) => sheetColumnCell(column, student, topicPaletteClass))}<td className={`${gradebookStyles.finalGradeCell} ${topicPaletteClass} ${finalGrade === null ? "" : passing ? gradebookStyles.finalGradePassed : gradebookStyles.finalGradeFailed} ${selectedColumnClass(`${week.label}:final`)}`}>{finalGrade === null ? <><strong title="No final grade">—</strong><small>{week.finalGradeFormula ? "Waiting for grades" : "Not configured"}</small></> : <><strong>{finalGrade} / {week.finalGradeMax}</strong><small>{passing ? "Passed · 65%+" : "Below 65%"}</small></>}</td></Fragment>;
+             return <Fragment key={week.id}><td className={`${styles.sheetActionCell} ${styles.sheetStarCell} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(`${week.label}:stars`)}`}><strong>★ {student.totals[week.label] ?? 0}</strong><div><button aria-label={`Remove a Star from ${student.fullName} in ${week.label}`} disabled={(student.totals[week.label] ?? 0) <= 0} onClick={() => changeStars(student.id, -1, week.label)} type="button">−</button><button aria-label={`Add a Star to ${student.fullName} in ${week.label}`} className={styles.sheetStarAdd} onClick={() => changeStars(student.id, 1, week.label)} type="button">＋</button></div></td><td className={`${styles.sheetActionCell} ${styles.sheetSkullCell} ${topicPaletteClass} ${selectedColumnClass(`${week.label}:skulls`)}`}><strong>💀 {topicSkulls.total}</strong><small>Today {topicSkulls.today}/3</small><div><button aria-label={`Clear today’s Skulls for ${student.fullName} in ${week.label}`} disabled={topicSkulls.today === 0} onClick={() => clearStudentSkullsToday(student.id, week.label)} type="button">Clear</button><button aria-label={`Add a Skull to ${student.fullName} in ${week.label}`} className={styles.sheetSkullAdd} disabled={topicSkulls.today >= 3} onClick={() => addSkull(student.id, week.label)} type="button">＋</button></div></td>{sheetColumnsForWeek(week.label).map((column) => sheetColumnCell(column, student, topicPaletteClass))}<FinalGradeCell calculatedGrade={calculatedGrade} classId={data.classroom.id} className={`${topicPaletteClass} ${finalGrade === null ? "" : passing ? gradebookStyles.finalGradePassed : gradebookStyles.finalGradeFailed} ${selectedColumnClass(`${week.label}:final`)}`} onSaved={(savedOverride) => saveFinalGradeOverride(week.label, student.id, savedOverride)} override={finalGradeOverride} studentId={student.id} studentName={student.fullName} topic={week} /></Fragment>;
           })}</tr>)}</tbody>
         </table>
       </div>

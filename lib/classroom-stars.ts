@@ -39,12 +39,18 @@ export type ClassroomWorkItem = {
   statuses: Record<string, WorkStatus>;
 };
 
+export type ClassroomFinalGradeOverride = {
+  score: number;
+  comment: string;
+};
+
 export type ClassroomStarState = {
   classroom: { id: string; name: string; gradeLevel: number; academicYear: string };
   gradebookRoster: GradebookRosterStudent[];
   weeks: ClassroomWeek[];
   students: ClassroomStudent[];
   workItems: ClassroomWorkItem[];
+  finalGradeOverrides: Record<string, Record<string, ClassroomFinalGradeOverride>>;
   eventIds: string[];
   skullEventIds: string[];
 };

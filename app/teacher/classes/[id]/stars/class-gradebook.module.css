@@ -175,6 +175,92 @@
   line-height: 1;
 }
 
+.finalGradeEditable {
+  cursor: pointer;
+  outline: none;
+}
+
+.finalGradeEditable:hover,
+.finalGradeEditable:focus-visible {
+  box-shadow: inset 0 0 0 2px rgb(50 131 100 / 42%);
+}
+
+.finalGradeManualMarker {
+  display: inline;
+  margin-left: 2px;
+  color: #b4552f;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  vertical-align: super;
+}
+
+.finalGradeEditor {
+  min-width: 205px;
+  padding: 5px 7px;
+}
+
+.finalGradeEditor form {
+  display: grid;
+  gap: 4px;
+}
+
+.finalGradeEditor label {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  color: #526c63;
+  font-size: 7px;
+  font-weight: 850;
+  text-align: left;
+}
+
+.finalGradeEditor input {
+  min-width: 0;
+  border: 1px solid #aebfb7;
+  border-radius: 5px;
+  padding: 3px 5px;
+  background: #fff;
+  color: #244c40;
+  font: inherit;
+  font-size: 9px;
+}
+
+.finalGradeEditor form > div {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.finalGradeEditor button {
+  border: 1px solid #4d8a72;
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: #fff;
+  color: #275f4d;
+  font-size: 7px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.finalGradeEditor button[type="submit"] {
+  background: #2c765d;
+  color: #fff;
+}
+
+.finalGradeEditor .restoreGradeButton {
+  border-color: #bd7667;
+  color: #9a4032;
+}
+
+.finalGradeEditor .gradeError {
+  color: #aa382b;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
 .finalGradeCell small {
   margin-top: 1px;
   color: #668078;

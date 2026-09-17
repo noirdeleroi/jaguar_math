@@ -7,6 +7,7 @@ import type { StudentMatchCandidate } from "@/lib/classroom-star-import";
 import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
 
 type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
+type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
 
 function firstName(value: string) {
   return value.trim().split(/\s+/)[0] ?? value;
@@ -37,13 +38,15 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   if (firstError) throw firstError;
 
   const studentIds = (memberships ?? []).map((membership) => membership.student_id);
+  const weekIds = (weeks ?? []).map((week) => week.id);
   const nicknameByStudentId = new Map((memberships ?? []).map((membership) => [membership.student_id, membership.nickname]));
   const workItemIds = (workItems ?? []).map((item) => item.id);
-  const [{ data: profiles, error: profileError }, { data: statuses, error: statusError }] = await Promise.all([
+  const [{ data: profiles, error: profileError }, { data: statuses, error: statusError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }] = await Promise.all([
     studentIds.length ? supabase.from("profiles").select("id, full_name, email").in("id", studentIds).eq("role", "student").order("full_name") : Promise.resolve({ data: [], error: null }),
     workItemIds.length ? supabase.from("classroom_work_statuses").select("work_item_id, student_id, status").in("work_item_id", workItemIds) : Promise.resolve({ data: [], error: null }),
+    weekIds.length && studentIds.length ? supabase.from("classroom_final_grade_overrides").select("week_id, student_id, score, comment").in("week_id", weekIds).in("student_id", studentIds) : Promise.resolve({ data: [] as FinalGradeOverrideRow[], error: null }),
   ]);
-  if (profileError || statusError) throw profileError ?? statusError;
+  if (profileError || statusError || finalGradeOverrideError) throw profileError ?? statusError ?? finalGradeOverrideError;
 
   const totals = new Map<string, Record<string, number>>();
   for (const event of events ?? []) {
@@ -67,6 +70,16 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
     values[row.week_label] = { today: Number(row.skulls_today), total: Number(row.skulls_total) };
     skullsByStudent.set(row.student_id, values);
   }
+  const weekLabelById = new Map((weeks ?? []).map((week) => [week.id, week.label]));
+  const finalGradeOverrides: ClassroomStarState["finalGradeOverrides"] = {};
+  for (const row of (finalGradeOverrideRows ?? []) as FinalGradeOverrideRow[]) {
+    const weekLabel = weekLabelById.get(row.week_id);
+    if (!weekLabel) continue;
+    finalGradeOverrides[weekLabel] = {
+      ...(finalGradeOverrides[weekLabel] ?? {}),
+      [row.student_id]: { score: Number(row.score), comment: row.comment },
+    };
+  }
 
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
@@ -80,6 +93,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
       const relation = Array.isArray(item.classroom_weeks) ? item.classroom_weeks[0] : item.classroom_weeks;
       return { id: item.id, weekLabel: relation?.label ?? "", kind: item.kind as ClassroomWorkItem["kind"], position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} };
     }).filter((item) => item.weekLabel),
+    finalGradeOverrides,
     eventIds: (events ?? []).map((event) => event.id),
     skullEventIds: [],
   };
