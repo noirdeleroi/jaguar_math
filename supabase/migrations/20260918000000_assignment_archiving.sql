@@ -77,4 +77,3 @@ revoke all on function public.archive_owned_assignment(uuid) from public;
 revoke all on function public.unarchive_owned_assignment(uuid) from public;
 grant execute on function public.archive_owned_assignment(uuid) to authenticated;
 grant execute on function public.unarchive_owned_assignment(uuid) to authenticated;
-

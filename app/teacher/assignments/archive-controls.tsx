@@ -17,4 +17,3 @@ export default function ArchiveControls({ assignmentId, archived, compact = fals
   if (archived) return <form action={unarchiveAssignment} className={compact ? "assignment-archive-form" : undefined}><input name="assignment_id" type="hidden" value={assignmentId} /><RestoreButton compact={compact} /></form>;
   return <form action={archiveAssignment} className={compact ? "assignment-archive-form" : undefined} onSubmit={(event) => { if (!window.confirm("Archive this assignment? It will be closed immediately and students will no longer be able to save or submit active attempts.")) event.preventDefault(); }}><input name="assignment_id" type="hidden" value={assignmentId} /><ArchiveButton compact={compact} /></form>;
 }
-
