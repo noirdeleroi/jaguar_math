@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/auth";
-import { normalizeTopicGradeFormula } from "@/lib/classroom-topic-grade";
+import { normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import { createClient } from "@/lib/supabase/server";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -13,9 +13,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const title = typeof body.title === "string" ? body.title.trim() : "";
     if (!title || title.length > 120) return NextResponse.json({ error: "Enter a topic name under 120 characters." }, { status: 400 });
 
-    let finalGradeFormula: string;
+    let finalGradeFormula: string | null;
     try {
-      finalGradeFormula = normalizeTopicGradeFormula(typeof body.finalGradeFormula === "string" ? body.finalGradeFormula : "");
+      finalGradeFormula = normalizeOptionalTopicGradeFormula(typeof body.finalGradeFormula === "string" ? body.finalGradeFormula : "");
     } catch (cause) {
       return NextResponse.json({ error: cause instanceof Error ? cause.message : "Check the final-grade formula." }, { status: 400 });
     }

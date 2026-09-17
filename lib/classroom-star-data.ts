@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { ClassroomStarState, ClassroomWorkItem, WorkStatus } from "@/lib/classroom-stars";
 import type { StudentMatchCandidate } from "@/lib/classroom-star-import";
 import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
-import { DEFAULT_TOPIC_GRADE_FORMULA } from "@/lib/classroom-topic-grade";
 
 type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
 
@@ -72,7 +71,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: (gradebookRoster ?? []).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: (profiles ?? []).map((profile) => {
       const nickname = nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student";
       return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skulls: skullsByStudent.get(profile.id) ?? {} };

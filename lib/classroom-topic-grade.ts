@@ -133,6 +133,14 @@ export function normalizeTopicGradeFormula(formula: string) {
   return normalized;
 }
 
+export function normalizeOptionalTopicGradeFormula(formula: string) {
+  return formula.trim() ? normalizeTopicGradeFormula(formula) : null;
+}
+
+export function isPassingTopicGrade(grade: number, maximum: number) {
+  return Number.isFinite(grade) && Number.isFinite(maximum) && maximum > 0 && grade / maximum >= 0.65;
+}
+
 export function topicGradeFormulaUsesVariable(formula: string, variable: keyof TopicGradeVariables) {
   const normalizedVariable = variable.toLowerCase();
   return tokenize(formula).some((token) => token.type === "variable" && token.value.toLowerCase() === normalizedVariable);

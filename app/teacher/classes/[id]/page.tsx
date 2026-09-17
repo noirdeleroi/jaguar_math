@@ -5,7 +5,6 @@ import type { AvailableClassroomAssessment, ClassroomGradeColumn, ClassroomHomew
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_TOPIC_GRADE_FORMULA } from "@/lib/classroom-topic-grade";
 import ClassManagerDialogs from "./class-manager-dialogs";
 import ManageStudentCredentials from "./manage-student-credentials";
 import StarClassroom from "./stars/star-classroom";
@@ -14,7 +13,7 @@ import styles from "./class-manager.module.css";
 type Student = { id: string; full_name: string | null; email: string | null; grade_level: number | null };
 type Member = { student_id: string; nickname: string; nickname_is_custom: boolean };
 type EnrolledStudent = Student & { nickname: string; nicknameIsCustom: boolean };
-type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null; is_current: boolean; final_grade_formula: string; final_grade_max: number; summative_grade_column_id: string | null };
+type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null; is_current: boolean; final_grade_formula: string | null; final_grade_max: number; summative_grade_column_id: string | null };
 type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork"; position: number; title: string; activity_date: string | null };
 type WorkStatus = { work_item_id: string; student_id: string; status: string };
 type StarEvent = { id: string; student_id: string; week_id: string; delta: number };
@@ -77,7 +76,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const enrolled = memberRows.flatMap((member): EnrolledStudent[] => { const student = studentsById.get(member.student_id); return student ? [{ ...student, nickname: member.nickname, nicknameIsCustom: member.nickname_is_custom }] : []; }).sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { sensitivity: "base" }));
   const available = ((allStudents ?? []) as Student[]).filter((student) => !memberIds.has(student.id)).sort((a, b) => firstName(a.full_name || a.email || "").localeCompare(firstName(b.full_name || b.email || ""), undefined, { sensitivity: "base" }));
   const weeks = (weekRows ?? []) as ClassroomWeek[];
-  const activeTopic = weeks.find((topic) => topic.is_current) ?? weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: classroom.grade_level === 12 ? "Arithmetic Foundations" : "Algebra Foundations", focus: null, is_current: true, final_grade_formula: DEFAULT_TOPIC_GRADE_FORMULA, final_grade_max: 20, summative_grade_column_id: null };
+  const activeTopic = weeks.find((topic) => topic.is_current) ?? weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: classroom.grade_level === 12 ? "Arithmetic Foundations" : "Algebra Foundations", focus: null, is_current: true, final_grade_formula: null, final_grade_max: 20, summative_grade_column_id: null };
   const workItems = (workItemRows ?? []) as WorkItem[];
   const workItemIds = workItems.map((item) => item.id);
   const assignmentIds = (assignmentLinks ?? []).map((link) => link.assignment_id);
@@ -171,7 +170,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: ((gradebookRosterRows ?? []) as GradebookRosterRow[]).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula || DEFAULT_TOPIC_GRADE_FORMULA, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skulls: skullsByStudent.get(student.id) ?? {} })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
     eventIds: ((starEvents ?? []) as StarEvent[]).map((event) => event.id),

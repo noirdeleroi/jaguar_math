@@ -4,6 +4,8 @@ import {
   DEFAULT_TOPIC_GRADE_FORMULA,
   clampTopicGrade,
   evaluateTopicGradeFormula,
+  isPassingTopicGrade,
+  normalizeOptionalTopicGradeFormula,
   normalizeTopicGradeFormula,
   topicGradeFormulaUsesVariable,
 } from "../lib/classroom-topic-grade.ts";
@@ -20,6 +22,11 @@ test("formula normalization accepts the common sculls misspelling", () => {
   assert.equal(normalizeTopicGradeFormula(" N + stars - sculls "), "N + stars - sculls");
 });
 
+test("an empty optional formula means the topic has no final grade", () => {
+  assert.equal(normalizeOptionalTopicGradeFormula("   "), null);
+  assert.equal(normalizeOptionalTopicGradeFormula(" N + stars "), "N + stars");
+});
+
 test("formula validation rejects unknown names and division by zero", () => {
   assert.throws(() => normalizeTopicGradeFormula("N + bonus"), /Unknown value/);
   assert.throws(() => normalizeTopicGradeFormula("N / (stars - stars)"), /divide by zero/);
@@ -34,4 +41,9 @@ test("final topic grades are clamped between zero and the teacher maximum", () =
   assert.equal(clampTopicGrade(24, 20), 20);
   assert.equal(clampTopicGrade(-3, 20), 0);
   assert.equal(clampTopicGrade(18.5, 20), 18.5);
+});
+
+test("65 percent is the inclusive passing threshold", () => {
+  assert.equal(isPassingTopicGrade(13, 20), true);
+  assert.equal(isPassingTopicGrade(12.99, 20), false);
 });

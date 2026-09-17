@@ -130,8 +130,25 @@
 
 .finalGradeCell {
   padding: 5px 9px;
-  background: #edf7f0 !important;
+  background: #f3f1eb !important;
   text-align: center;
+}
+
+.finalGradePassed {
+  background: #e3f3e7 !important;
+}
+
+.finalGradePassed strong {
+  color: #1e684f;
+}
+
+.finalGradeFailed {
+  background: #fde8e4 !important;
+}
+
+.finalGradeFailed strong,
+.finalGradeFailed small {
+  color: #a13e31;
 }
 
 .finalGradeCell strong,

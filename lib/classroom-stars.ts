@@ -5,7 +5,7 @@ export type ClassroomWeek = {
   title: string | null;
   focus: string | null;
   isCurrent: boolean;
-  finalGradeFormula: string;
+  finalGradeFormula: string | null;
   finalGradeMax: number;
   summativeGradeColumnId: string | null;
 };
