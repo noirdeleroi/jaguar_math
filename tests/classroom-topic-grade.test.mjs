@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DEFAULT_TOPIC_GRADE_FORMULA,
+  calculateHomeworkCompletionPercentage,
   clampTopicGrade,
   evaluateTopicFinalGradeFormula,
   evaluateTopicGradeFormula,
@@ -11,19 +12,25 @@ import {
   topicGradeFormulaUsesVariable,
 } from "../lib/classroom-topic-grade.ts";
 
-test("default topic grade adds raw summative points and stars, then subtracts skulls", () => {
-  assert.equal(evaluateTopicGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 4, skulls: 2 }), 18);
+test("default topic grade protects test points and adds the homework bonus", () => {
+  assert.equal(evaluateTopicGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 4, skulls: 2, HW: 50 }), 20);
 });
 
-test("final topic grades let skulls cancel stars without lowering the base grade", () => {
-  const formula = "N + stars - skulls + 2";
-  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }), 20);
-  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 2, skulls: 5 }), 18);
-  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 0, skulls: 5 }), 18);
+test("visible formula conditions prevent skull penalties and require 10 percent homework completion", () => {
+  assert.equal(evaluateTopicFinalGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 2, skulls: 5, HW: 80 }), 18);
+  assert.equal(evaluateTopicFinalGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 4, skulls: 2, HW: 9 }), 18);
+  assert.equal(evaluateTopicFinalGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 4, skulls: 2, HW: 10 }), 20);
+  assert.equal(evaluateTopicFinalGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 0, skulls: 5, HW: 0 }), 16);
 });
 
-test("custom topic grade formulas support constants, precedence, and parentheses", () => {
-  assert.equal(evaluateTopicGradeFormula("(N + stars - skulls) / 2 + 2", { N: 18, stars: 3, skulls: 1 }), 12);
+test("custom topic grade formulas support constants, precedence, functions, comparisons, and parentheses", () => {
+  assert.equal(evaluateTopicGradeFormula("(N + min(stars, 2)) / 2 + if(HW < 10, 0, 2)", { N: 18, stars: 3, skulls: 1, HW: 75 }), 12);
+});
+
+test("homework completion is a percentage and missing homework is zero", () => {
+  assert.equal(calculateHomeworkCompletionPercentage(0, 0), 0);
+  assert.equal(calculateHomeworkCompletionPercentage(1, 10), 10);
+  assert.equal(calculateHomeworkCompletionPercentage(2, 3), 66.67);
 });
 
 test("formula normalization accepts the common sculls misspelling", () => {
@@ -43,6 +50,7 @@ test("formula validation rejects unknown names and division by zero", () => {
 test("formula variables can be detected before a summative score exists", () => {
   assert.equal(topicGradeFormulaUsesVariable("stars - skulls", "N"), false);
   assert.equal(topicGradeFormulaUsesVariable(DEFAULT_TOPIC_GRADE_FORMULA, "N"), true);
+  assert.equal(topicGradeFormulaUsesVariable(DEFAULT_TOPIC_GRADE_FORMULA, "HW"), true);
 });
 
 test("final topic grades are clamped between zero and the teacher maximum", () => {

@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
-import { clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
+import { calculateHomeworkCompletionPercentage, clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
 import { FinalGradeCell, GradeColumnDialog, ManualGradeCell, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
@@ -928,6 +928,14 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     return topicColumns.find((column) => column.id === topic?.summativeGradeColumnId) ?? null;
   }
 
+  function topicHomeworkCompletion(weekLabel: string, studentId: string) {
+    const manualHomework = data.workItems.filter((item) => item.weekLabel === weekLabel && item.kind === "homework");
+    const onlineHomework = assignments.filter((assignment) => assignment.weekLabel === weekLabel);
+    const completedManual = manualHomework.filter((item) => item.statuses[studentId] === "ok" || item.statuses[studentId] === "late").length;
+    const completedOnline = onlineHomework.filter((assignment) => assignment.results[studentId]?.status === "submitted").length;
+    return calculateHomeworkCompletionPercentage(completedManual + completedOnline, manualHomework.length + onlineHomework.length);
+  }
+
   function topicCalculatedGrade(weekLabel: string, studentId: string) {
     const topic = data.weeks.find((week) => week.label === weekLabel);
     if (!topic?.finalGradeFormula) return null;
@@ -941,6 +949,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
         N: score ?? 0,
         stars: student.totals[weekLabel] ?? 0,
         skulls: student.skulls[weekLabel]?.total ?? 0,
+        HW: topicHomeworkCompletion(weekLabel, studentId),
       });
       return Math.round(clampTopicGrade(result, topic.finalGradeMax) * 100) / 100;
     } catch {

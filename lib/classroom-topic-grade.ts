@@ -1,15 +1,20 @@
-export const DEFAULT_TOPIC_GRADE_FORMULA = "N + stars - skulls";
+export const DEFAULT_TOPIC_GRADE_FORMULA = "N + max(stars - skulls, 0) + if(HW >= 10, 2, 0)";
 
 export type TopicGradeVariables = {
   N: number;
   stars: number;
   skulls: number;
+  HW: number;
 };
+
+type FormulaFunction = "max" | "min" | "if";
+type FormulaOperator = "+" | "-" | "*" | "/" | "(" | ")" | "," | ">" | ">=" | "<" | "<=" | "==" | "!=";
 
 type Token =
   | { type: "number"; value: number }
   | { type: "variable"; value: keyof TopicGradeVariables }
-  | { type: "operator"; value: "+" | "-" | "*" | "/" | "(" | ")" };
+  | { type: "function"; value: FormulaFunction }
+  | { type: "operator"; value: FormulaOperator };
 
 function tokenize(formula: string): Token[] {
   const tokens: Token[] = [];
@@ -36,13 +41,22 @@ function tokenize(formula: string): Token[] {
       if (normalized === "n") tokens.push({ type: "variable", value: "N" });
       else if (normalized === "stars" || normalized === "star") tokens.push({ type: "variable", value: "stars" });
       else if (normalized === "skulls" || normalized === "skull" || normalized === "sculls" || normalized === "scull") tokens.push({ type: "variable", value: "skulls" });
-      else throw new Error(`Unknown value “${identifier[0]}”. Use N, stars, or skulls.`);
+      else if (normalized === "hw" || normalized === "homework") tokens.push({ type: "variable", value: "HW" });
+      else if (normalized === "max" || normalized === "min" || normalized === "if") tokens.push({ type: "function", value: normalized });
+      else throw new Error(`Unknown value “${identifier[0]}”. Use N, stars, skulls, HW, max, min, or if.`);
       position += identifier[0].length;
       continue;
     }
 
-    const operator = remaining[0];
-    if (operator === "+" || operator === "-" || operator === "*" || operator === "/" || operator === "(" || operator === ")") {
+    const doubleOperator = remaining.slice(0, 2);
+    if (doubleOperator === ">=" || doubleOperator === "<=" || doubleOperator === "==" || doubleOperator === "!=") {
+      tokens.push({ type: "operator", value: doubleOperator });
+      position += 2;
+      continue;
+    }
+
+    const operator = remaining[0] as FormulaOperator;
+    if (["+", "-", "*", "/", "(", ")", ",", ">", "<"].includes(operator)) {
       tokens.push({ type: "operator", value: operator });
       position += 1;
       continue;
@@ -70,9 +84,32 @@ export function evaluateTopicGradeFormula(formula: string, variables: TopicGrade
       position += 1;
       return variables[token.value];
     }
+    if (token.type === "function") {
+      position += 1;
+      const opening = tokens[position];
+      if (opening?.type !== "operator" || opening.value !== "(") throw new Error(`Add parentheses after ${token.value}.`);
+      position += 1;
+      const argumentsList: number[] = [];
+      const immediateClosing = tokens[position];
+      if (immediateClosing?.type !== "operator" || immediateClosing.value !== ")") {
+        argumentsList.push(comparison());
+        while (tokens[position]?.type === "operator" && tokens[position].value === ",") {
+          position += 1;
+          argumentsList.push(comparison());
+        }
+      }
+      const closing = tokens[position];
+      if (closing?.type !== "operator" || closing.value !== ")") throw new Error(`Close the ${token.value} function with a parenthesis.`);
+      position += 1;
+      if ((token.value === "max" || token.value === "min") && argumentsList.length !== 2) throw new Error(`${token.value} needs exactly two values.`);
+      if (token.value === "if" && argumentsList.length !== 3) throw new Error("if needs a condition, a true value, and a false value.");
+      if (token.value === "max") return Math.max(argumentsList[0], argumentsList[1]);
+      if (token.value === "min") return Math.min(argumentsList[0], argumentsList[1]);
+      return argumentsList[0] !== 0 ? argumentsList[1] : argumentsList[2];
+    }
     if (token.value === "(") {
       position += 1;
-      const value = expression();
+      const value = comparison();
       const closing = tokens[position];
       if (closing?.type !== "operator" || closing.value !== ")") throw new Error("Close every parenthesis in the formula.");
       position += 1;
@@ -114,17 +151,35 @@ export function evaluateTopicGradeFormula(formula: string, variables: TopicGrade
     return value;
   }
 
-  const result = expression();
+  function comparison(): number {
+    const left = expression();
+    const token = tokens[position];
+    if (token?.type !== "operator" || ![">", ">=", "<", "<=", "==", "!="].includes(token.value)) return left;
+    position += 1;
+    const right = expression();
+    if (token.value === ">") return left > right ? 1 : 0;
+    if (token.value === ">=") return left >= right ? 1 : 0;
+    if (token.value === "<") return left < right ? 1 : 0;
+    if (token.value === "<=") return left <= right ? 1 : 0;
+    if (token.value === "==") return left === right ? 1 : 0;
+    return left !== right ? 1 : 0;
+  }
+
+  const result = comparison();
   if (position !== tokens.length) throw new Error("Check the order of values and operators in the formula.");
   if (!Number.isFinite(result)) throw new Error("The formula must produce a finite number.");
   return result;
 }
 
 export function evaluateTopicFinalGradeFormula(formula: string, variables: TopicGradeVariables) {
-  return evaluateTopicGradeFormula(formula, {
-    ...variables,
-    skulls: Math.max(0, Math.min(variables.skulls, variables.stars)),
-  });
+  return evaluateTopicGradeFormula(formula, variables);
+}
+
+export function calculateHomeworkCompletionPercentage(completed: number, assigned: number) {
+  if (!Number.isFinite(completed) || !Number.isFinite(assigned) || completed < 0 || assigned < 0 || completed > assigned) {
+    throw new Error("Homework completion totals are invalid.");
+  }
+  return assigned === 0 ? 0 : Math.round(completed / assigned * 10000) / 100;
 }
 
 export function clampTopicGrade(value: number, maximum: number) {
@@ -136,7 +191,7 @@ export function clampTopicGrade(value: number, maximum: number) {
 export function normalizeTopicGradeFormula(formula: string) {
   const normalized = formula.trim().replace(/\s+/g, " ");
   if (normalized.length > 120) throw new Error("Keep the final-grade formula under 120 characters.");
-  evaluateTopicGradeFormula(normalized, { N: 20, stars: 3, skulls: 1 });
+  evaluateTopicGradeFormula(normalized, { N: 20, stars: 3, skulls: 1, HW: 80 });
   return normalized;
 }
 

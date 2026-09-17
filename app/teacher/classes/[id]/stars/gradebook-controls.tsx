@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FINAL_GRADE_COMMENT_MAX_LENGTH, normalizeFinalGradeOverride } from "@/lib/classroom-final-grade";
 import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
-import { clampTopicGrade, evaluateTopicFinalGradeFormula, normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
+import { DEFAULT_TOPIC_GRADE_FORMULA, clampTopicGrade, evaluateTopicFinalGradeFormula, normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import styles from "./class-gradebook.module.css";
 
 function todayKey() {
@@ -27,7 +27,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
   const [message, setMessage] = useState("");
   let preview = "";
   try {
-    if (formula.trim()) preview = String(Math.round(clampTopicGrade(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }), Number(finalGradeMax)) * 100) / 100);
+    if (formula.trim()) preview = String(Math.round(clampTopicGrade(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2, HW: 75 }), Number(finalGradeMax)) * 100) / 100);
   } catch { /* The submit handler presents the precise validation message. */ }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -70,9 +70,9 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
       <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
       <label className={styles.currentTopicChoice}><input checked={makeCurrent} disabled={topic.isCurrent} onChange={(event) => setMakeCurrent(event.target.checked)} type="checkbox" /><span><strong>{topic.isCurrent ? "Current topic" : "Set as current topic"}</strong><small>{topic.isCurrent ? "This topic opens by default in the class manager." : "Make this the default open topic for this class."}</small></span></label>
       <label>Summative test (N)<select disabled={!gradeColumns.length} onChange={(event) => setSummativeGradeColumnId(event.target.value)} value={summativeGradeColumnId}><option value="">{gradeColumns.length ? "No summative test selected" : "Add a test column first"}</option>{gradeColumns.map((column) => <option key={column.id} value={column.id}>{column.title}{column.maxScore ? ` · out of ${column.maxScore}` : ""}</option>)}</select></label>
-      <div className={styles.formPair}><label>Final-grade formula (optional)<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder="N + stars - skulls" value={formula} /></label><label>Maximum points<input max="100000" min="0.01" onChange={(event) => setFinalGradeMax(event.target.value)} required step="any" type="number" value={finalGradeMax} /></label></div>
-      <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>cancel stars only (never lower N)</span></div>
-      <p className={styles.formulaPreview}>{preview ? `Example: N 16 + 4 stars − 2 skulls = ${preview}. Results stay between 0 and ${finalGradeMax}.` : "Leave the formula empty to keep final grades off for this topic."}</p>
+      <div className={styles.formPair}><label>Final-grade formula (optional)<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder={DEFAULT_TOPIC_GRADE_FORMULA} value={formula} /></label><label>Maximum points<input max="100000" min="0.01" onChange={(event) => setFinalGradeMax(event.target.value)} required step="any" type="number" value={finalGradeMax} /></label></div>
+      <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>topic skulls</span><code>HW</code><span>homework completed %</span></div>
+      <p className={styles.formulaPreview}>{preview ? `Example: N 16, 4 stars, 2 skulls, HW 75% → ${preview}. Use max(a, b) and if(condition, yes, no); results stay between 0 and ${finalGradeMax}.` : "Leave the formula empty to keep final grades off for this topic."}</p>
       {message ? <p className={styles.formError} role="alert">{message}</p> : null}
       <div className={styles.dialogActions}><button disabled={busy || !title.trim()} type="submit">{busy ? "Saving…" : "Save topic"}</button></div>
     </form>
