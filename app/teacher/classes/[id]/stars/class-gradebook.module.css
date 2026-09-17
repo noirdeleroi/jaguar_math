@@ -140,7 +140,7 @@
 }
 
 .finalGradeCell {
-  padding: 5px 9px;
+  padding: 2px 8px;
   background: #f3f1eb !important;
   text-align: center;
 }
@@ -170,14 +170,16 @@
 .finalGradeCell strong {
   color: #1e684f;
   font-family: var(--font-display), Georgia, serif;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 600;
+  line-height: 1;
 }
 
 .finalGradeCell small {
-  margin-top: 2px;
+  margin-top: 1px;
   color: #668078;
-  font-size: 8px;
+  font-size: 7px;
+  line-height: 1;
 }
 
 .assessmentHead {
@@ -260,15 +262,15 @@
 }
 
 .assessmentCell {
-  padding: 4px 6px;
+  padding: 2px 5px;
   text-align: center;
 }
 
 .assessmentCell > a {
   display: inline-grid;
-  gap: 2px;
+  gap: 1px;
   border-radius: 6px;
-  padding: 5px 10px;
+  padding: 3px 9px;
   background: #eaf3eb;
 }
 
@@ -387,7 +389,7 @@
 }
 
 .workStatusCell {
-  padding: 4px 6px;
+  padding: 2px 5px;
   text-align: center;
 }
 
@@ -398,7 +400,7 @@
   width: 100%;
   border: 1px solid #d0d8d3;
   border-radius: 7px;
-  padding: 5px 7px;
+  padding: 3px 7px;
   background: #f7f8f6;
   color: #52665f;
   font: inherit;
@@ -707,7 +709,7 @@
   width: 58px;
   border: 1px solid #bfcec7;
   border-radius: 7px;
-  padding: 6px;
+  padding: 3px 6px;
   background: #fff;
   color: #244c40;
   font-size: 13px;
@@ -732,7 +734,7 @@
 
 .manualGradeCell > small {
   display: block;
-  margin-top: 3px;
+  margin-top: 1px;
   color: #71827b;
   font-size: 8px;
 }

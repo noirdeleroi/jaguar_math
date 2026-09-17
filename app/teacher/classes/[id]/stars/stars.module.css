@@ -51,15 +51,20 @@
 .embeddedPage .sheetWeekHead>button{padding:4px 8px}
 .embeddedPage .sheetWeekHead strong{font-size:17px}
 .embeddedPage .sheetSubhead{padding:4px 7px;font-size:8px}
-.embeddedPage .sheetStudentCell{min-width:220px;max-width:220px;padding:5px 9px}
-.embeddedPage .sheetStudentCell>a{gap:7px}
-.embeddedPage .sheetStudentCell strong{font-size:15px;letter-spacing:-.015em;line-height:1.1}
-.embeddedPage .sheetStudentCell small{margin-top:1px;font-size:8px}
-.embeddedPage .sheetAvatar{flex-basis:25px;width:25px;height:25px;font-size:7px}
-.embeddedPage .sheetCollapsedCell{padding:5px 7px}
-.embeddedPage .sheetActionCell{padding:4px 6px}
-.embeddedPage .sheetActionCell>div{gap:3px;margin-top:3px}
-.embeddedPage .sheetActionCell button{min-width:26px;padding:3px 5px;font-size:8px}
+.embeddedPage .sheetTable tbody tr{height:46px}
+.embeddedPage .sheetStudentCell{min-width:220px;max-width:220px;padding:2px 8px}
+.embeddedPage .sheetStudentCell>a{gap:5px}
+.embeddedPage .sheetStudentCell strong{font-size:14px;letter-spacing:-.015em;line-height:1}
+.embeddedPage .sheetStudentCell small{margin-top:0;font-size:7px;line-height:1.1}
+.embeddedPage .sheetAvatar{flex-basis:22px;width:22px;height:22px;font-size:6px}
+.embeddedPage .sheetStudentProfile{width:21px;height:21px;font-size:9px}
+.embeddedPage .sheetCollapsedCell{padding:2px 7px}
+.embeddedPage .sheetCollapsedCell span,.embeddedPage .sheetCollapsedCell small{margin-top:1px}
+.embeddedPage .sheetActionCell{padding:2px 5px}
+.embeddedPage .sheetActionCell>strong{font-size:12px;line-height:1}
+.embeddedPage .sheetActionCell>small{margin-top:1px;font-size:7px;line-height:1}
+.embeddedPage .sheetActionCell>div{gap:3px;margin-top:2px}
+.embeddedPage .sheetActionCell button{min-width:24px;padding:2px 4px;font-size:8px;line-height:1.15}
 
 @media(max-width:900px){.embeddedPage .sheetStudentHead,.embeddedPage .sheetStudentCell{min-width:175px;max-width:175px}}
 @media(max-width:560px){.embeddedPage .sheetTools{grid-template-columns:repeat(3,minmax(0,1fr))}.embeddedPage .sheetTools button,.embeddedPage .sheetTools a,.embeddedPage .sheetTools select{padding-inline:4px;font-size:8.5px}.embeddedPage .saveBanner{grid-template-columns:auto minmax(0,1fr) auto}.embeddedPage .saveBanner p{display:none}.embeddedPage .sheetStudentHead,.embeddedPage .sheetStudentCell{min-width:145px;max-width:145px}.embeddedPage .sheetStudentCell strong{font-size:13px}}
