@@ -77,5 +77,20 @@
 .sheetStudentSelect:focus-visible{border-radius:4px;outline:2px solid #436f9f;outline-offset:2px}
 .sheetStudentProfile{display:inline-grid!important;place-items:center!important;width:23px;height:23px;margin-left:3px;border:1px solid #c7d2cc;border-radius:50%;background:#fff;color:#45675c;font-size:10px;vertical-align:middle}
 .sheetTable .sheetSelectedColumn{box-shadow:inset 0 0 0 3px #4c79aa,inset 0 0 0 9999px rgb(86 133 187 / 13%)!important}
-.sheetSelectedRow>th,.sheetSelectedRow>td{box-shadow:inset 0 0 0 9999px rgb(86 133 187 / 14%)}
-.sheetSelectedRow>.sheetStudentCell{box-shadow:inset 4px 0 #4c79aa,inset 0 0 0 9999px rgb(86 133 187 / 18%)}
+.sheetSelectedRow>th,.sheetSelectedRow>td{box-shadow:inset 0 0 0 9999px rgb(86 133 187 / 14%)!important}
+.sheetSelectedRow>.sheetStudentCell{box-shadow:inset 4px 0 #4c79aa,inset 0 0 0 9999px rgb(86 133 187 / 18%)!important}
+
+/* Each topic reads as its own table while retaining grade/status colors. */
+.topicPaletteGreen{--topic-header:#245f51;--topic-accent:#2f8a70;--topic-meta:#d2e9e0;--topic-wash:rgb(47 138 112 / 4%)}
+.topicPaletteBlue{--topic-header:#355b78;--topic-accent:#4b87b4;--topic-meta:#d9eaf5;--topic-wash:rgb(75 135 180 / 4%)}
+.topicPaletteTerracotta{--topic-header:#87513f;--topic-accent:#c17355;--topic-meta:#f6ded4;--topic-wash:rgb(193 115 85 / 4%)}
+.topicPalettePlum{--topic-header:#655176;--topic-accent:#9277a8;--topic-meta:#eadff0;--topic-wash:rgb(146 119 168 / 4%)}
+.sheetTable .sheetWeekHead.topicPaletteGreen,.sheetTable .sheetWeekHead.topicPaletteBlue,.sheetTable .sheetWeekHead.topicPaletteTerracotta,.sheetTable .sheetWeekHead.topicPalettePlum{background:var(--topic-header)!important;box-shadow:inset 0 -4px var(--topic-accent)}
+.sheetTable .sheetWeekHead.sheetCurrentWeek{box-shadow:inset 0 5px #f0c84d,inset 0 -4px var(--topic-accent)}
+.sheetWeekHead.topicPaletteGreen strong,.sheetWeekHead.topicPaletteBlue strong,.sheetWeekHead.topicPaletteTerracotta strong,.sheetWeekHead.topicPalettePlum strong{color:#fffdf8}
+.sheetWeekHead.topicPaletteGreen span,.sheetWeekHead.topicPaletteBlue span,.sheetWeekHead.topicPaletteTerracotta span,.sheetWeekHead.topicPalettePlum span{color:var(--topic-meta)}
+.sheetWeekHead.topicPaletteGreen small,.sheetWeekHead.topicPaletteBlue small,.sheetWeekHead.topicPaletteTerracotta small,.sheetWeekHead.topicPalettePlum small{color:#ffe18a}
+.sheetWeekHead.topicPaletteGreen>button:hover,.sheetWeekHead.topicPaletteBlue>button:hover,.sheetWeekHead.topicPaletteTerracotta>button:hover,.sheetWeekHead.topicPalettePlum>button:hover{background:rgb(255 255 255 / 10%)}
+.sheetTable thead tr:nth-child(2)>th.topicPaletteGreen,.sheetTable thead tr:nth-child(2)>th.topicPaletteBlue,.sheetTable thead tr:nth-child(2)>th.topicPaletteTerracotta,.sheetTable thead tr:nth-child(2)>th.topicPalettePlum{border-top:4px solid var(--topic-accent)}
+.sheetTable tbody .topicPaletteGreen,.sheetTable tbody .topicPaletteBlue,.sheetTable tbody .topicPaletteTerracotta,.sheetTable tbody .topicPalettePlum{box-shadow:inset 0 0 0 9999px var(--topic-wash)}
+.sheetTable .topicStart{border-left:12px solid #e8dfd1!important}
