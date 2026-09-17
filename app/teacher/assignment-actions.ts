@@ -110,6 +110,28 @@ export async function reopenAssignment(formData: FormData) {
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); redirect(message(path, "success", "Assignment reopened."));
 }
 
+const safeArchiveError = (error: { code: string; message: string } | null, action: "archive" | "restore") => {
+  if (error?.code === "42501") return `You are not authorized to ${action} this assignment.`;
+  if (error?.code === "P0001" && ["Assignment is not available to archive", "Assignment is not available to restore"].includes(error.message)) return `This assignment is no longer available to ${action}.`;
+  return `The assignment could not be ${action === "archive" ? "archived" : "restored"}. Please try again.`;
+};
+
+export async function archiveAssignment(formData: FormData) {
+  await requireTeacher(); const id = text(formData.get("assignment_id"));
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient(); const { error } = await supabase.rpc("archive_owned_assignment", { p_assignment_id: id });
+  if (error) { console.error(`archive_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(`/teacher/assignments/${id}`, "error", safeArchiveError(error, "archive"))); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(`/teacher/assignments/${id}`); revalidatePath("/student"); redirect("/teacher/assignments");
+}
+
+export async function unarchiveAssignment(formData: FormData) {
+  await requireTeacher(); const id = text(formData.get("assignment_id"));
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient(); const { error } = await supabase.rpc("unarchive_owned_assignment", { p_assignment_id: id });
+  if (error) { console.error(`unarchive_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); redirect(message(`/teacher/assignments/${id}`, "error", safeArchiveError(error, "restore"))); }
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(`/teacher/assignments/${id}`); revalidatePath("/student"); redirect("/teacher/assignments");
+}
+
 export async function setAssignmentResultVisibility(formData: FormData) {
   await requireTeacher();
   const id = text(formData.get("assignment_id")); const visibility = text(formData.get("visibility")); const path = `/teacher/assignments/${id}`;
