@@ -4,7 +4,7 @@ import LogoutButton from "@/app/student/logout-button";
 import { requireTeacher } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-const links = [{ href: "/teacher", label: "Dashboard" }, { href: "/teacher/classes", label: "Classes" }, { href: "/teacher/stars", label: "Stars" }, { href: "/teacher/students", label: "Students" }, { href: "/teacher/assignments", label: "Assignments" }, { href: "/teacher/questions", label: "Question Bank" }, { href: "/teacher/google-classroom", label: "Google Classroom" }];
+const links = [{ href: "/teacher", label: "Dashboard" }, { href: "/teacher/classes", label: "Classes" }, { href: "/teacher/notes", label: "Notes" }, { href: "/teacher/stars", label: "Stars" }, { href: "/teacher/students", label: "Students" }, { href: "/teacher/assignments", label: "Assignments" }, { href: "/teacher/questions", label: "Question Bank" }, { href: "/teacher/google-classroom", label: "Google Classroom" }];
 const classManagerLabels = ["11A", "11B", "11C", "12A", "12B", "12C"] as const;
 
 async function TeacherName() {
