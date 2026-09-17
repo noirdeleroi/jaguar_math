@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, WorkKind, WorkStatus } from "@/lib/classroom-stars";
-import { clampTopicGrade, evaluateTopicGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
+import { clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
 import { GradeColumnDialog, ManualGradeCell, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
@@ -936,7 +936,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const student = data.students.find((item) => item.id === studentId);
     if (!student) return null;
     try {
-      const result = evaluateTopicGradeFormula(topic.finalGradeFormula, {
+      const result = evaluateTopicFinalGradeFormula(topic.finalGradeFormula, {
         N: score ?? 0,
         stars: student.totals[weekLabel] ?? 0,
         skulls: student.skulls[weekLabel]?.total ?? 0,

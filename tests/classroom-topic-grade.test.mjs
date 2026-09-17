@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   DEFAULT_TOPIC_GRADE_FORMULA,
   clampTopicGrade,
+  evaluateTopicFinalGradeFormula,
   evaluateTopicGradeFormula,
   isPassingTopicGrade,
   normalizeOptionalTopicGradeFormula,
@@ -12,6 +13,13 @@ import {
 
 test("default topic grade adds raw summative points and stars, then subtracts skulls", () => {
   assert.equal(evaluateTopicGradeFormula(DEFAULT_TOPIC_GRADE_FORMULA, { N: 16, stars: 4, skulls: 2 }), 18);
+});
+
+test("final topic grades let skulls cancel stars without lowering the base grade", () => {
+  const formula = "N + stars - skulls + 2";
+  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2 }), 20);
+  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 2, skulls: 5 }), 18);
+  assert.equal(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 0, skulls: 5 }), 18);
 });
 
 test("custom topic grade formulas support constants, precedence, and parentheses", () => {

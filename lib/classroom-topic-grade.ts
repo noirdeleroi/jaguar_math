@@ -120,6 +120,13 @@ export function evaluateTopicGradeFormula(formula: string, variables: TopicGrade
   return result;
 }
 
+export function evaluateTopicFinalGradeFormula(formula: string, variables: TopicGradeVariables) {
+  return evaluateTopicGradeFormula(formula, {
+    ...variables,
+    skulls: Math.max(0, Math.min(variables.skulls, variables.stars)),
+  });
+}
+
 export function clampTopicGrade(value: number, maximum: number) {
   if (!Number.isFinite(value)) throw new Error("The final grade must be a finite number.");
   if (!Number.isFinite(maximum) || maximum <= 0) throw new Error("The final-grade maximum must be greater than zero.");
