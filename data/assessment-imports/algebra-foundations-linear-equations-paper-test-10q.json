@@ -89,12 +89,29 @@
       "icfes_competency": "FORMULACION_EJECUCION"
     },
     {
-      "prompt": "Simplify $\\sqrt{8}$ in the form $a\\sqrt{b}$, where $a$ and $b$ are positive integers and $b$ has no square factor greater than $1$. Enter the numerical value of $a+b$.",
-      "type": "numeric",
-      "options": null,
-      "correct_answer": "4",
+      "prompt": "Simplify $\\sqrt{8}+\\sqrt{12}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2\\sqrt{2}+2\\sqrt{3}$"
+        },
+        {
+          "id": "B",
+          "text": "$4\\sqrt{5}$"
+        },
+        {
+          "id": "C",
+          "text": "$2\\sqrt{20}$"
+        },
+        {
+          "id": "D",
+          "text": "$4\\sqrt{6}$"
+        }
+      ],
+      "correct_answer": "A",
       "numeric_tolerance": 0,
-      "explanation": "$\\sqrt{8}=\\sqrt{4\\cdot2}=2\\sqrt{2}$, so $a=2$, $b=2$, and $a+b=4$.",
+      "explanation": "$\\sqrt{8}=2\\sqrt{2}$ and $\\sqrt{12}=2\\sqrt{3}$. The radicals are unlike, so the simplified result is $2\\sqrt{2}+2\\sqrt{3}$.",
       "difficulty": 2,
       "points": 1,
       "skills": [

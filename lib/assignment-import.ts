@@ -81,7 +81,7 @@ export function validateAssignmentImport(value: unknown): ValidationResult {
     if (!root.questions.length) return { errors: ["The JSON must contain a non-empty questions array."] };
     questionGroups = validateQuestions(root.questions, (index) => `Question ${index + 1}`, errors).map((question) => [question]);
   } else if (Array.isArray(root.versions)) {
-    if (root.versions.length < 2 || root.versions.length > 3) errors.push("versions must contain two or three complete tests.");
+    if (root.versions.length < 2 || root.versions.length > 4) errors.push("versions must contain two to four complete tests.");
     const versions = root.versions.map((rawVersion, versionIndex) => {
       const version = record(rawVersion);
       const rawQuestions = Array.isArray(rawVersion) ? rawVersion : version?.questions;
@@ -97,14 +97,14 @@ export function validateAssignmentImport(value: unknown): ValidationResult {
   } else if (Array.isArray(root.question_groups)) {
     if (!root.question_groups.length) return { errors: ["question_groups must not be empty."] };
     const expectedVersions = Array.isArray(root.question_groups[0]) ? root.question_groups[0].length : 0;
-    if (expectedVersions < 1 || expectedVersions > 3) errors.push("Each question group must contain one to three variants.");
+    if (expectedVersions < 1 || expectedVersions > 4) errors.push("Each question group must contain one to four variants.");
     questionGroups = root.question_groups.map((rawGroup, groupIndex) => {
       if (!Array.isArray(rawGroup) || !rawGroup.length) { errors.push(`Question group ${groupIndex + 1} must contain variants.`); return []; }
       if (rawGroup.length !== expectedVersions) errors.push("Every question group must contain the same number of variants.");
       return validateQuestions(rawGroup, (variantIndex) => `Question ${groupIndex + 1}, version ${variantIndex + 1}`, errors);
     });
   } else {
-    return { errors: ["The JSON must contain questions, question_groups, or two to three complete versions."] };
+    return { errors: ["The JSON must contain questions, question_groups, or two to four complete versions."] };
   }
 
   if (questionGroups.length > 200) errors.push("An assessment can contain at most 200 question slots.");
