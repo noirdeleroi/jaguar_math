@@ -5,5 +5,5 @@ export type TestQuestionRelease = {
 };
 
 export function testQuestionsAreReleased({ kind, teacherControlledQuestionRelease, questionsReleasedAt }: TestQuestionRelease) {
-  return kind !== "test" || !teacherControlledQuestionRelease || Boolean(questionsReleasedAt);
+  return (kind !== "test" && kind !== "paper") || !teacherControlledQuestionRelease || Boolean(questionsReleasedAt);
 }

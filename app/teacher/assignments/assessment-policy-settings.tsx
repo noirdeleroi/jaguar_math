@@ -4,7 +4,7 @@ import { useState } from "react";
 import ExamModeSettings from "./exam-mode-settings";
 import styles from "./assessment-policy-settings.module.css";
 
-export type AssignmentKind = "homework" | "test";
+export type AssignmentKind = "homework" | "test" | "paper";
 type StoredAssignmentKind = AssignmentKind | "quiz";
 
 export type AssessmentPolicyInitial = {
@@ -40,15 +40,22 @@ const PRESETS: Record<AssignmentKind, Policy> = {
     shuffleQuestions: true, shuffleOptions: true, examMode: true, examRequireFullscreen: true,
     examTrackFocusExits: true, examAllowedFocusExits: 1, examViolationAction: "warn", teacherControlledQuestionRelease: true,
   },
+  paper: {
+    kind: "paper", durationMinutes: null, maxAttempts: 1, questionDisplayMode: "all_at_once",
+    showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
+    shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
+    examTrackFocusExits: false, examAllowedFocusExits: 0, examViolationAction: "warn", teacherControlledQuestionRelease: true,
+  },
 };
 
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
   homework: { eyebrow: "Learning mode", title: "Homework", description: "Practice with support, retries, and immediate learning feedback.", note: "Students can learn while they work. Browser monitoring is disabled." },
   test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
+  paper: { eyebrow: "Paper mode", title: "Paper test", description: "Students solve a printed version and enter only their answers in Jaguar.", note: "Jaguar assigns one complete paper version, autosaves the answer sheet, grades it, and keeps results private until you release them." },
 };
 
 function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
-  const kind = initial.kind === "test" ? "test" : "homework";
+  const kind = initial.kind === "test" || initial.kind === "paper" ? initial.kind : "homework";
   return { ...PRESETS[kind], ...initial, kind } as Policy;
 }
 
@@ -57,6 +64,8 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
   const test = policy.kind === "test";
+  const paper = policy.kind === "paper";
+  const assessment = test || paper;
   const resultVisibility = policy.showAnswersAfterSubmit ? "full_review" : policy.showScoreAfterSubmit ? "score_only" : "private";
   const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); onKindChange?.(kind); };
   const set = <K extends keyof Policy>(key: K, value: Policy[K]) => setPolicy((current) => ({ ...current, [key]: value }));
@@ -64,7 +73,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   return <div className={styles.wrapper}>
     <fieldset className={styles.kindPicker}>
       <legend>Choose how students will use this work</legend>
-      <div className={styles.kindGrid}>{(["homework", "test"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
+      <div className={styles.kindGrid}>{(["homework", "test", "paper"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
         <input checked={policy.kind === kind} name="kind" onChange={() => chooseKind(kind)} type="radio" value={kind} />
         <span>{COPY[kind].eyebrow}</span><strong>{COPY[kind].title}</strong><small>{COPY[kind].description}</small>
       </label>)}</div>
@@ -75,9 +84,9 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
     </section>
 
     <div className="assessment-fields">
-      <label>Duration in minutes<input min="1" name="duration_minutes" onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} placeholder={policy.kind === "homework" ? "No timer" : undefined} required={secure} type="number" value={policy.durationMinutes ?? ""} /></label>
-      <label>Maximum attempts{test && <small className={styles.lockedLabel}>Locked for tests</small>}<input disabled={test} min="1" name={test ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{test && <input name="max_attempts" type="hidden" value="1" />}</label>
-      <label>Question display{secure && <small className={styles.lockedLabel}>Locked for tests</small>}<select disabled={secure} name={secure ? undefined : "question_display_mode"} onChange={(event) => set("questionDisplayMode", event.target.value as Policy["questionDisplayMode"])} value={policy.questionDisplayMode}><option value="one_at_a_time">One question at a time</option><option value="all_at_once">All questions on one page</option></select>{secure && <input name="question_display_mode" type="hidden" value="one_at_a_time" />}</label>
+      <label>Duration in minutes<input disabled={paper} min="1" name={paper ? undefined : "duration_minutes"} onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} placeholder={policy.kind === "homework" || paper ? "No timer" : undefined} required={secure} type="number" value={policy.durationMinutes ?? ""} />{paper && <small className={styles.lockedLabel}>Paper answer sheets are untimed in Jaguar</small>}</label>
+      <label>Maximum attempts{assessment && <small className={styles.lockedLabel}>Locked for assessments</small>}<input disabled={assessment} min="1" name={assessment ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{assessment && <input name="max_attempts" type="hidden" value="1" />}</label>
+      <label>Question display{assessment && <small className={styles.lockedLabel}>Locked for this mode</small>}<select disabled={assessment} name={assessment ? undefined : "question_display_mode"} onChange={(event) => set("questionDisplayMode", event.target.value as Policy["questionDisplayMode"])} value={policy.questionDisplayMode}><option value="one_at_a_time">One question at a time</option><option value="all_at_once">All questions on one page</option></select>{assessment && <input name="question_display_mode" type="hidden" value={policy.questionDisplayMode} />}</label>
     </div>
 
     <div className={styles.policyGroups}>
@@ -94,19 +103,19 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
             </select>
             <small>{resultVisibility === "private" ? "Students see only that the assessment was submitted." : resultVisibility === "score_only" ? "Students see their score, but no questions, answers, or correctness." : "Students see questions, their answers, correct answers, score, and improvement guidance."}</small>
           </label>}
-          <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={test} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for tests"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
+          <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={assessment} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for assessments"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
         </div>
       </section>
       <section><h3>Form variation</h3><p>Each attempt receives a stable form code and server-saved order.</p>
         <div className="assignment-toggles">
-          <PolicyToggle checked={policy.shuffleQuestions} disabled={secure} label="Shuffle question order" name="shuffle_questions" onChange={(value) => set("shuffleQuestions", value)} />
-          <PolicyToggle checked={policy.shuffleOptions} disabled={secure} label="Shuffle multiple-choice options" name="shuffle_options" onChange={(value) => set("shuffleOptions", value)} />
+          <PolicyToggle checked={policy.shuffleQuestions} disabled={assessment} label={paper ? "Question order follows the printed paper" : "Shuffle question order"} name="shuffle_questions" onChange={(value) => set("shuffleQuestions", value)} />
+          <PolicyToggle checked={policy.shuffleOptions} disabled={assessment} label={paper ? "Choice letters follow the printed paper" : "Shuffle multiple-choice options"} name="shuffle_options" onChange={(value) => set("shuffleOptions", value)} />
         </div>
       </section>
     </div>
 
-    {policy.kind === "homework" ? <section className={styles.homeworkGuard}><strong>No Exam Mode for homework</strong><p>Homework is for practice. Students may leave the page and use learning resources without being flagged.</p></section> : <ExamModeSettings forcedEnabled={secure} initial={{ enabled: policy.examMode, requireFullscreen: policy.examRequireFullscreen, trackFocusExits: policy.examTrackFocusExits, allowedFocusExits: policy.examAllowedFocusExits, violationAction: policy.examViolationAction }} key={`${policy.kind}-${presetVersion}`} />}
-    {secure && <section className={styles.releaseSetting}><div><strong>Teacher-controlled question release</strong>{questionReleaseLocked && <small className={styles.lockedLabel}>Locked after publishing</small>}<p>Students can enter fullscreen and read the instructions, but their timer and questions stay locked until you release the test.</p></div><label><input checked={policy.teacherControlledQuestionRelease} disabled={questionReleaseLocked} name={questionReleaseLocked ? undefined : "teacher_controlled_question_release"} onChange={(event) => set("teacherControlledQuestionRelease", event.target.checked)} type="checkbox" /> Wait for me to release the questions{questionReleaseLocked && policy.teacherControlledQuestionRelease && <input name="teacher_controlled_question_release" type="hidden" value="on" />}</label></section>}
+    {policy.kind === "homework" ? <section className={styles.homeworkGuard}><strong>No Exam Mode for homework</strong><p>Homework is for practice. Students may leave the page and use learning resources without being flagged.</p></section> : paper ? <section className={styles.homeworkGuard}><strong>Printed questions stay off the student page</strong><p>Students see one answer sheet with question numbers, multiple-choice letters, and numerical fields. Their assigned paper version is shown at the top.</p></section> : <ExamModeSettings forcedEnabled={secure} initial={{ enabled: policy.examMode, requireFullscreen: policy.examRequireFullscreen, trackFocusExits: policy.examTrackFocusExits, allowedFocusExits: policy.examAllowedFocusExits, violationAction: policy.examViolationAction }} key={`${policy.kind}-${presetVersion}`} />}
+    {assessment && <section className={styles.releaseSetting}><div><strong>Teacher-controlled {paper ? "answer-page" : "question"} release</strong>{(questionReleaseLocked || paper) && <small className={styles.lockedLabel}>Required for {paper ? "paper tests" : "published tests"}</small>}<p>{paper ? "Students see a waiting page until you open the answer sheet. Starting assigns one complete paper version." : "Students can enter fullscreen and read the instructions, but their timer and questions stay locked until you release the test."}</p></div><label><input checked={policy.teacherControlledQuestionRelease} disabled={questionReleaseLocked || paper} name={questionReleaseLocked || paper ? undefined : "teacher_controlled_question_release"} onChange={(event) => set("teacherControlledQuestionRelease", event.target.checked)} type="checkbox" /> Wait for me to release the {paper ? "answer page" : "questions"}{(questionReleaseLocked || paper) && policy.teacherControlledQuestionRelease && <input name="teacher_controlled_question_release" type="hidden" value="on" />}</label></section>}
   </div>;
 }
 

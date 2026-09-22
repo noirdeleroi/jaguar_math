@@ -8,7 +8,7 @@ type Visibility = "private" | "score_only" | "full_review";
 
 const COPY: Record<Visibility, { label: string; description: string }> = {
   private: { label: "Confirmation only", description: "Scores, questions, responses, answer keys, and improvement guidance are hidden." },
-  score_only: { label: "Score only", description: "Students see the score, but the test questions and answers stay private." },
+  score_only: { label: "Score only", description: "Students see the score, but assessment questions and answers stay private." },
   full_review: { label: "Full review released", description: "Students can see every question, their response, the correct answer, score, and improvement guidance." },
 };
 
@@ -25,7 +25,7 @@ export default function ResultReleaseControls({ assignmentId, kind, visibility }
 
 function VisibilityForm({ assignmentId, label, primary = false, visibility }: { assignmentId: string; label: string; primary?: boolean; visibility: Visibility }) {
   return <form action={setAssignmentResultVisibility} onSubmit={(event) => {
-    if (visibility === "full_review" && !window.confirm("Reveal all results now? Students will immediately be able to see the test questions, their answers, correct answers, scores, and improvement guidance.")) event.preventDefault();
+    if (visibility === "full_review" && !window.confirm("Reveal all results now? Students will immediately be able to see the assessment questions, their answers, correct answers, scores, and improvement guidance.")) event.preventDefault();
   }}>
     <input name="assignment_id" type="hidden" value={assignmentId} />
     <input name="visibility" type="hidden" value={visibility} />
