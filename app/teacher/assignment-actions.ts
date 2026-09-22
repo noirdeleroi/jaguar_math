@@ -225,7 +225,7 @@ const refreshTestManager = (assignmentId: string) => {
 
 export async function forceSubmitTestAttempt(formData: FormData) {
   await requireTeacher();
-  const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const path = `/teacher/assignments/${assignmentId}`;
+  const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const assignmentPath = `/teacher/assignments/${assignmentId}`; const path = checked(formData.get("return_to_attempt")) && uuid(attemptId) ? `${assignmentPath}/attempts/${attemptId}` : assignmentPath;
   if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid active Test attempt."));
   const supabase = await createClient();
   const { error } = await supabase.rpc("force_submit_owned_test_attempt", { p_assignment_id: assignmentId, p_attempt_id: attemptId });
@@ -234,7 +234,7 @@ export async function forceSubmitTestAttempt(formData: FormData) {
     redirect(message(path, "error", "That Test attempt could not be submitted. It may have already changed."));
   }
   refreshTestManager(assignmentId);
-  redirect(message(path, "success", "The student's saved Test responses were submitted and graded."));
+  redirect(message(path, "success", "The student's saved Test responses were submitted and scored."));
 }
 
 export async function unsubmitTestAttempt(formData: FormData) {

@@ -20,8 +20,12 @@ function assignmentPriority(assignment: DashboardAssignment) {
 
 export async function getStudentAssignments() {
   const supabase = await createClient();
-  const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts");
-  if (finalizationError) console.error(`[student-assignments] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  const [{ error: homeworkFinalizationError }, { error: testFinalizationError }] = await Promise.all([
+    supabase.rpc("finalize_overdue_homework_attempts"),
+    supabase.rpc("finalize_expired_test_attempts"),
+  ]);
+  if (homeworkFinalizationError) console.error(`[student-assignments] overdue homework finalization failed: code=${homeworkFinalizationError.code}; message=${homeworkFinalizationError.message}`);
+  if (testFinalizationError) console.error(`[student-assignments] expired Test finalization failed: code=${testFinalizationError.code}; message=${testFinalizationError.message}`);
   const [{ data: classes }, { data: memberships }, { data: assignments }, { data: attempts }] = await Promise.all([
     supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").order("grade_level").order("name"),
     supabase.from("class_members").select("class_id, nickname"),

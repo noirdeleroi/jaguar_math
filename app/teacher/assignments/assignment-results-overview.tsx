@@ -10,6 +10,9 @@ export default async function AssignmentResultsOverview({ assignmentId, assignme
   if (assignmentKind === "homework") {
     const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: assignmentId });
     if (finalizationError) console.error(`[assignment-results] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  } else if (assignmentKind === "test") {
+    const { error: finalizationError } = await supabase.rpc("finalize_expired_test_attempts", { p_assignment_id: assignmentId });
+    if (finalizationError) console.error(`[assignment-results] expired Test finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
   }
   const { data, error } = await supabase.rpc("get_assignment_results_overview", { p_assignment_id: assignmentId, p_class_id: selectedClassId ?? null });
   if (error || !data) return <section className="teacher-section results-section"><h2>Results overview</h2><p className="form-note">Results are not available right now. Refresh the page and try again.</p></section>;

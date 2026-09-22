@@ -146,6 +146,7 @@
 .teacher-attempt-score .eyebrow{margin-bottom:8px;color:var(--gold)}
 .teacher-attempt-score h2{margin:0;font-family:var(--font-display),Georgia,serif;font-size:clamp(62px,8vw,88px);font-weight:500;letter-spacing:-.075em;line-height:.82}
 .teacher-attempt-score>p:last-child{margin:14px 0 0;color:#dcebe4;font-size:14px}
+.teacher-attempt-score-form{display:grid;justify-items:start;gap:7px;margin-top:18px}.teacher-attempt-score-form button{border:1px solid #f0ca70;border-radius:6px;padding:11px 14px;background:var(--gold);color:#17342e;font-weight:900;cursor:pointer}.teacher-attempt-score-form button:hover{background:#f0c65b}.teacher-attempt-score-form small{max-width:290px;color:#dcebe4;font-size:11px;line-height:1.4}
 .teacher-attempt-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;align-content:center}
 .teacher-attempt-summary article{padding:15px 13px;border:1px solid #ffffff20;border-radius:7px;background:#fffaf0;color:var(--ink)}
 .teacher-attempt-summary span,.teacher-attempt-summary strong{display:block}

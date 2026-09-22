@@ -42,6 +42,9 @@ export default async function StudentAssignmentPage({ params }: AssignmentPagePr
   if (assignment.kind === "homework") {
     const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: id });
     if (finalizationError) console.error(`[student-assignment] overdue homework finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
+  } else if (assignment.kind === "test") {
+    const { error: finalizationError } = await supabase.rpc("finalize_expired_test_attempts", { p_assignment_id: id });
+    if (finalizationError) console.error(`[student-assignment] expired Test finalization failed: code=${finalizationError.code}; message=${finalizationError.message}`);
   }
 
   const { data: attemptData, error: attemptsError } = await supabase.rpc("get_my_assignment_attempts", { p_assignment_id: id });
