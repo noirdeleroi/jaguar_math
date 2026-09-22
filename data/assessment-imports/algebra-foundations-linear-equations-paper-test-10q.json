@@ -1,0 +1,252 @@
+{
+  "questions": [
+    {
+      "prompt": "Simplify $9x+4-3x+2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6x+6$"
+        },
+        {
+          "id": "B",
+          "text": "$6x+2$"
+        },
+        {
+          "id": "C",
+          "text": "$12x+6$"
+        },
+        {
+          "id": "D",
+          "text": "$6x^2+6$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Combine like terms: $9x-3x=6x$ and $4+2=6$, giving $6x+6$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "If $a=-2$ and $b=5$, what is the value of $3a+b$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-1",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute the values: $3(-2)+5=-6+5=-1$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $m^2\\cdot m^5$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$m^{10}$"
+        },
+        {
+          "id": "B",
+          "text": "$2m^7$"
+        },
+        {
+          "id": "C",
+          "text": "$m^7$"
+        },
+        {
+          "id": "D",
+          "text": "$m^3$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "When multiplying powers with the same base, add the exponents: $m^{2+5}=m^7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the value of $\\sqrt{81}$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "9",
+      "numeric_tolerance": 0,
+      "explanation": "$9^2=81$, so the principal square root is $9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $2(x+3)+3x$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5x+3$"
+        },
+        {
+          "id": "B",
+          "text": "$5x+6$"
+        },
+        {
+          "id": "C",
+          "text": "$6x+5$"
+        },
+        {
+          "id": "D",
+          "text": "$5x+9$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Distribute and combine like terms: $2x+6+3x=5x+6$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $4x+1=25$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $1$ to get $4x=24$, then divide by $4$: $x=6$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3(x+2)=21$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Divide by $3$ to get $x+2=7$, then subtract $2$: $x=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $5x-4=2x+17$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $2x$ and add $4$ to get $3x=21$, so $x=7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Make $h$ the subject of $A=\\frac{1}{2}h(b+c)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$h=\\frac{A}{2(b+c)}$"
+        },
+        {
+          "id": "B",
+          "text": "$h=\\frac{2A}{b+c}$"
+        },
+        {
+          "id": "C",
+          "text": "$h=\\frac{A(b+c)}{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$h=2A(b+c)$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $2$ to get $2A=h(b+c)$, then divide by $b+c$: $h=\\frac{2A}{b+c}$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x-1}{3}+\\frac{x+2}{6}=5$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "10",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply every term by $6$: $2(x-1)+(x+2)=30$. This simplifies to $3x=30$, so $x=10$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    }
+  ]
+}
