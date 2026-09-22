@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import MathText from "@/app/components/math-text";
+import { teacherCanReviewAttempt } from "@/lib/teacher-attempt-review";
 import { forceSubmitTestAttempt, grantTestExtraTime, unsubmitTestAttempt } from "../assignment-actions";
 import styles from "./test-manager-controls.module.css";
 
@@ -73,7 +74,7 @@ export default function ResultsOverviewClient({ assignmentId, overview, examMode
       const answered = Number(student.answered_count ?? 0); const total = Number(student.total_questions ?? overview.questions.length); const progress = total > 0 ? Math.min(100, Math.round(100 * answered / total)) : 0; const timeLeft = student.status === "in_progress" ? remainingTime(student.expires_at, now) : "—"; const timeEnded = timeLeft === "Time ended";
       return <tr key={student.student_id}>
         {examMode && live && <td className={styles.selectionCell}><input aria-label={`Select ${student.student_name} for extra time`} checked={selectedStudents.includes(student.student_id)} form="test-extra-time-form" name="student_ids" onChange={() => toggleStudent(student.student_id)} type="checkbox" value={student.student_id} /></td>}
-        <th>{student.status === "submitted" && student.attempt_id ? <Link href={`/teacher/assignments/${assignmentId}/attempts/${student.attempt_id}`}>{student.student_name}</Link> : student.student_name}</th>
+        <th>{teacherCanReviewAttempt(student) ? <Link href={`/teacher/assignments/${assignmentId}/attempts/${student.attempt_id}`} prefetch={student.status === "submitted" ? undefined : false}>{student.student_name}</Link> : student.student_name}</th>
         {examMode && <><td>{student.form_code ?? "—"}</td><td><div className={styles.progressCell}><strong>{answered} / {total} saved</strong><span className={styles.progressTrack}><i style={{ width: `${progress}%` }} /></span><small>{student.last_activity_at ? `Last save ${new Date(student.last_activity_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : student.status === "not_started" ? "Waiting to start" : "No answers saved"}</small></div></td><td><div className={styles.timeCell}><strong className={timeEnded ? styles.timeEnded : ""}>{timeLeft}</strong>{Boolean(student.extra_time_minutes) && <small>+{student.extra_time_minutes}m granted</small>}</div></td></>}
         <td>{student.score !== null && student.max_score !== null ? `${student.score}/${student.max_score}` : "—"}</td><td>{percent(student.percentage)}</td><td>{submittedAt(student.submitted_at)}</td><td>{duration(student.completion_seconds)}</td>
         {examMode && <><td className={(student.focus_violations ?? 0) > allowedFocusExits ? "exam-focus-high" : ""}>{student.focus_violations ?? 0}{(student.focus_violations ?? 0) > allowedFocusExits ? " ⚠" : ""}</td><td className={student.offline_recovery_used ? "exam-focus-high" : ""}>{student.offline_recovery_used ? `Wi-Fi · ${student.offline_recovery_seconds}s` : "—"}</td></>}
