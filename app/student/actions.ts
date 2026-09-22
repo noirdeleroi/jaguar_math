@@ -6,6 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 
 const notificationUuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 
+function revalidateAssignmentViews(assignmentId: string) {
+  revalidatePath("/student");
+  revalidatePath("/student/assessments");
+  revalidatePath(`/student/assignments/${assignmentId}`);
+  revalidatePath(`/teacher/assignments/${assignmentId}`);
+}
+
 export async function markStudentNotificationRead(notificationId: string): Promise<{ ok: true } | { error: string }> {
   const student = await requireStudent();
   if (!notificationUuid.test(notificationId)) return { error: "That notification is not available." };
@@ -30,7 +37,9 @@ export async function startOrContinueAssignment(assignmentId: string) {
   const { data: active } = await supabase.from("attempts").select("id").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
   if (active) return { attemptId: active.id };
   const { data, error } = await supabase.rpc("start_attempt", { p_assignment_id: assignmentId });
-  return error || !data ? { error: "This assignment is no longer available to start." } : { attemptId: data.id as string };
+  if (error || !data) return { error: "This assignment is no longer available to start." };
+  revalidateAssignmentViews(assignmentId);
+  return { attemptId: data.id as string };
 }
 
 export async function startOrContinueExamAssignment(assignmentId: string) {
@@ -38,7 +47,9 @@ export async function startOrContinueExamAssignment(assignmentId: string) {
   const { data: active } = await supabase.from("attempts").select("id, expires_at, form_code").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();
   if (active) return { attemptId: active.id, expiresAt: active.expires_at, formCode: active.form_code };
   const { data, error } = await supabase.rpc("start_exam_attempt", { p_assignment_id: assignmentId });
-  return error || !data ? { error: "This Exam Mode assignment is no longer available to start." } : { attemptId: data.id as string, expiresAt: data.expires_at as string | null, formCode: data.form_code as string | null };
+  if (error || !data) return { error: "This Exam Mode assignment is no longer available to start." };
+  revalidateAssignmentViews(assignmentId);
+  return { attemptId: data.id as string, expiresAt: data.expires_at as string | null, formCode: data.form_code as string | null };
 }
 
 export async function saveStudentResponse(attemptId: string, questionId: string, answer: string) {
@@ -53,13 +64,17 @@ export async function saveStudentResponseWithFeedback(attemptId: string, questio
 }
 
 export async function submitStudentAttempt(attemptId: string) {
-  await requireStudent(); const supabase = await createClient(); const { error } = await supabase.rpc("submit_attempt", { p_attempt_id: attemptId });
-  return error ? { error: "Your attempt could not be submitted." } : { ok: true };
+  await requireStudent(); const supabase = await createClient(); const { data, error } = await supabase.rpc("submit_attempt", { p_attempt_id: attemptId });
+  if (error || !data) return { error: "Your attempt could not be submitted." };
+  revalidateAssignmentViews(data.assignment_id as string);
+  return { ok: true };
 }
 
 export async function submitExamAttempt(attemptId: string) {
-  await requireStudent(); const supabase = await createClient(); const { error } = await supabase.rpc("submit_exam_attempt", { p_attempt_id: attemptId });
-  return error ? { error: "Your attempt could not be submitted." } : { ok: true };
+  await requireStudent(); const supabase = await createClient(); const { data, error } = await supabase.rpc("submit_exam_attempt", { p_attempt_id: attemptId });
+  if (error || !data) return { error: "Your attempt could not be submitted." };
+  revalidateAssignmentViews(data.assignment_id as string);
+  return { ok: true };
 }
 
 type SubmissionResponse = { questionId: string; answer: string; revision: number };
@@ -72,6 +87,7 @@ export async function submitAttemptSnapshot(attemptId: string, responses: Submis
   const payload = responses.map((response) => ({ question_id: response.questionId, student_answer: response.answer, client_revision: response.revision }));
   const { data, error } = await supabase.rpc("submit_attempt_snapshot", { p_attempt_id: attemptId, p_responses: payload, p_client_submitted_at: clientSubmittedAt, p_timed: timed });
   if (error || !data) return { error: error?.message.includes("recovery window") ? "The offline recovery window has closed. Ask your teacher for help." : "Your assessment could not be submitted. Keep this page open and try again." };
+  revalidateAssignmentViews(data.assignment_id as string);
   return { ok: true, recovered: Boolean(data.offline_recovery_used) };
 }
 

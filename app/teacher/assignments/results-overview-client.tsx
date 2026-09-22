@@ -48,8 +48,8 @@ export default function ResultsOverviewClient({ assignmentId, overview, examMode
   }, [examMode]);
 
   useEffect(() => {
-    if (!monitored || !live) return;
-    const timer = window.setInterval(() => router.refresh(), 5000);
+    if (!live) return;
+    const timer = window.setInterval(() => router.refresh(), monitored ? 5000 : 10000);
     return () => window.clearInterval(timer);
   }, [live, monitored, router]);
 

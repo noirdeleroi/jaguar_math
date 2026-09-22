@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { assignmentResultStatus } from "@/lib/assignment-completion";
 import { requireTeacher } from "@/lib/auth";
 import type { AvailableClassroomAssessment, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
@@ -160,7 +161,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
       const submitted = latestSubmitted.get(key);
       const maxScore = submitted?.max_score === null || submitted?.max_score === undefined ? null : Number(submitted.max_score);
       const score = submitted?.score === null || submitted?.score === undefined ? null : Number(submitted.score);
-      return [student.id, { attemptId: submitted?.id ?? activity?.id ?? null, status: activity?.status ?? "not_started", score, maxScore, percentage: score !== null && maxScore && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
+      return [student.id, { attemptId: submitted?.id ?? activity?.id ?? null, status: assignmentResultStatus(activity?.status, Boolean(submitted)), score, maxScore, percentage: score !== null && maxScore && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
     })),
   }));
   const skullsByStudent = new Map<string, Record<string, { today: number; total: number }>>();

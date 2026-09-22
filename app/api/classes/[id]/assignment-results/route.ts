@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/auth";
+import { assignmentResultStatus } from "@/lib/assignment-completion";
 import type { ClassroomHomeworkAssignment } from "@/lib/classroom-stars";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,7 +56,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
         const submitted = latestSubmitted.get(key);
         const maxScore = submitted?.max_score === null || submitted?.max_score === undefined ? null : Number(submitted.max_score);
         const score = submitted?.score === null || submitted?.score === undefined ? null : Number(submitted.score);
-        return [studentId, { attemptId: submitted?.id ?? activity?.id ?? null, status: activity?.status ?? "not_started", score, maxScore, percentage: score !== null && maxScore !== null && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
+        return [studentId, { attemptId: submitted?.id ?? activity?.id ?? null, status: assignmentResultStatus(activity?.status, Boolean(submitted)), score, maxScore, percentage: score !== null && maxScore !== null && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
       })),
     }));
     return NextResponse.json({ assignments: payload }, { headers: { "Cache-Control": "no-store" } });
