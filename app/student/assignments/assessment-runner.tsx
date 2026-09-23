@@ -17,11 +17,11 @@ type ExamMode = { requireFullscreen: boolean; trackFocusExits: boolean; allowedF
 type Feedback = { isCorrect: boolean; pointsAwarded: number };
 type SyncState = "saved" | "saving" | "offline" | "error";
 type WakeLockState = "idle" | "requesting" | "active" | "unavailable";
-type AttemptStatus = { status: "in_progress" | "submitted"; expiresAt: string | null; assignmentStatus: "published" | "closed"; examMode: Omit<ExamMode, "focusViolations"> | null };
+type AttemptStatus = { serverNow: string; status: "in_progress" | "submitted"; expiresAt: string | null; assignmentStatus: "published" | "closed"; examMode: Omit<ExamMode, "focusViolations"> | null };
 
 const draftKey = (attemptId: string) => `jaguar-attempt-draft:${attemptId}`;
 
-export default function AssessmentRunner({ attemptId, expiresAt, formCode, questions, responsesClosed = false, examMode, paperMode = false, questionDisplayMode, showFeedbackAfterEachQuestion }: { attemptId: string; expiresAt: string | null; formCode: string | null; questions: Question[]; responsesClosed?: boolean; examMode?: ExamMode; paperMode?: boolean; questionDisplayMode: "one_at_a_time" | "all_at_once"; showFeedbackAfterEachQuestion: boolean }) {
+export default function AssessmentRunner({ attemptId, expiresAt, formCode, questions, responsesClosed = false, examMode, paperMode = false, questionDisplayMode, serverNow, showFeedbackAfterEachQuestion }: { attemptId: string; expiresAt: string | null; formCode: string | null; questions: Question[]; responsesClosed?: boolean; examMode?: ExamMode; paperMode?: boolean; questionDisplayMode: "one_at_a_time" | "all_at_once"; serverNow?: string; showFeedbackAfterEachQuestion: boolean }) {
   const router = useRouter();
   const initialAnswers = useMemo(() => Object.fromEntries(questions.map((question) => [question.id, question.answer ?? ""])), [questions]);
   const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers);
@@ -59,7 +59,8 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const submissionComplete = useRef(false);
   const submissionRef = useRef<SubmissionSnapshot | null>(null);
   const deadline = expiresAt ? new Date(expiresAt).getTime() : null;
-  const [remaining, setRemaining] = useState(() => deadline ? Math.max(0, deadline - Date.now()) : 0);
+  const [serverOffset, setServerOffset] = useState(() => serverNow ? new Date(serverNow).getTime() - Date.now() : 0);
+  const [remaining, setRemaining] = useState(() => deadline ? Math.max(0, deadline - (Date.now() + (serverNow ? new Date(serverNow).getTime() - Date.now() : 0))) : 0);
 
   const persistDraft = useCallback(() => {
     if (submissionComplete.current) return;
@@ -172,9 +173,10 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
 
   useEffect(() => {
     if (!deadline) return;
-    const timer = window.setInterval(() => setRemaining(Math.max(0, deadline - Date.now())), 1000);
+    const update = () => setRemaining(Math.max(0, deadline - (Date.now() + serverOffset)));
+    const timer = window.setInterval(update, 250);
     return () => window.clearInterval(timer);
-  }, [deadline]);
+  }, [deadline, serverOffset]);
 
   useEffect(() => {
     if (!examMode || responsesClosed || autoSubmitted) return;
@@ -266,15 +268,17 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
         if (response.status === 401) { setAuthRequired(true); setNotice("Your session needs to be renewed. Your answers remain safe on this device."); return; }
         if (!response.ok) return;
         const status = await response.json() as AttemptStatus;
+        setServerOffset(new Date(status.serverNow).getTime() - Date.now());
         setAuthRequired(false);
         if (status.status !== "in_progress" || status.assignmentStatus !== "published" || status.expiresAt !== expiresAt || !status.examMode || status.examMode.requireFullscreen !== examMode.requireFullscreen || status.examMode.trackFocusExits !== examMode.trackFocusExits || status.examMode.allowedFocusExits !== examMode.allowedFocusExits || status.examMode.violationAction !== examMode.violationAction) router.refresh();
       } catch { /* Autosave owns the visible connection state; status polling is best-effort. */ }
       finally { window.clearTimeout(timeout); }
     };
-    const timer = window.setInterval(() => void refreshIfChanged(), 15_000);
+    void refreshIfChanged();
+    const timer = window.setInterval(() => void refreshIfChanged(), paperMode ? 2_000 : 15_000);
     window.addEventListener("online", refreshIfChanged);
     return () => { window.clearInterval(timer); window.removeEventListener("online", refreshIfChanged); };
-  }, [attemptId, examMode, expiresAt, router]);
+  }, [attemptId, examMode, expiresAt, paperMode, router]);
 
   useEffect(() => {
     if (!examMode || responsesClosed || autoSubmitted) return;
@@ -418,7 +422,15 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   if (paperMode) {
     const answeredCount = questions.filter((question) => answers[question.id]?.trim()).length;
     const version = formCode?.replace(/^Version\s+/i, "") ?? "—";
-    return <section className={`runner ${paperStyles.sheet}`}><div className="runner-header"><div><p className="eyebrow">Paper answer sheet</p><h2>{questions.length} answers</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span><span>{answeredCount} / {questions.length} entered</span></div></div></div><section className={paperStyles.intro}><div><p className="eyebrow">Use your printed test</p><h3>Enter answers only.</h3><p>Keep the printed questions beside you. Jaguar does not show them here. Check that the version on your paper matches the assigned version before answering.</p></div><div className={paperStyles.version}><span>Assigned paper</span><strong>Version {version}</strong></div></section>{responsesClosed && <p className="form-note lifecycle-note">Answers can no longer be changed. Ask your teacher if you need help.</p>}<div className={paperStyles.grid}>{questions.map((question, index) => <article className={paperStyles.answer} key={question.id}><span className={paperStyles.number}>{index + 1}</span>{question.type === "multiple_choice" ? <div aria-label={`Question ${index + 1} choices`} className={paperStyles.choices}>{question.options?.map((option, optionIndex) => { const label = String.fromCharCode(65 + optionIndex); return <label aria-label={`Question ${index + 1}, choice ${label}`} key={option.id}><input checked={answers[question.id] === option.id} disabled={inputDisabled} name={question.id} onChange={() => save(question.id, option.id)} type="radio" /><span>{label}</span></label>; })}</div> : <label className={paperStyles.numeric}>{question.type === "numeric" ? "Numerical answer" : "Answer"}<input aria-label={`Answer for question ${index + 1}`} disabled={inputDisabled} inputMode={question.type === "numeric" ? "decimal" : undefined} onChange={(event) => save(question.id, event.target.value)} value={answers[question.id] ?? ""} /></label>}</article>)}</div><div className={paperStyles.footer}><p>Review the paper and every field before submitting. Submission is final unless your teacher reopens it.</p><button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting…" : "Submit paper answers"} <span aria-hidden="true">→</span></button></div>{notice && <p className={syncState === "offline" ? styles.connectionNotice : "notice notice-error"} role="status">{notice}{authRequired && <> <a href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}>Sign in again and return to this answer sheet.</a></>}</p>}</section>;
+    return <section className={`runner ${paperStyles.sheet} ${interactionBlocked ? styles.runnerBlocked : ""}`}>
+      <div className="runner-header"><div><p className="eyebrow">Paper answer entry · Version {version}</p><h2>Enter answers in order.</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span><span>{answeredCount} / {questions.length} entered</span><span>Fullscreen exits: {focusViolations}</span></div></div><div className={styles.meta}>{deadline && <strong className={timeEnded ? "timer-expired" : ""}>Answer time: {clock}</strong>}</div></div>
+      <section className={paperStyles.intro}><div><p className="eyebrow">Use your printed test</p><h3>One number. One answer.</h3><p>Work straight down this page. Every change saves automatically, including during a brief connection problem.</p></div><div className={paperStyles.version}><span>Assigned paper</span><strong>Version {version}</strong></div></section>
+      {responsesClosed && <p className="form-note lifecycle-note">Answers can no longer be changed. Ask your teacher if you need help.</p>}
+      <div className={paperStyles.grid}>{questions.map((question, index) => <article className={paperStyles.answer} key={question.id}><span className={paperStyles.number}>{index + 1}</span>{question.type === "multiple_choice" ? <div aria-label={`Question ${index + 1} choices`} className={paperStyles.choices}>{question.options?.map((option, optionIndex) => { const label = String.fromCharCode(65 + optionIndex); return <label aria-label={`Question ${index + 1}, choice ${label}`} key={option.id}><input checked={answers[question.id] === option.id} disabled={inputDisabled} name={question.id} onChange={() => save(question.id, option.id)} type="radio" /><span>{label}</span></label>; })}</div> : <label className={paperStyles.numeric}>{question.type === "numeric" ? "Numerical answer" : "Answer"}<input aria-label={`Answer for question ${index + 1}`} disabled={inputDisabled} inputMode={question.type === "numeric" ? "decimal" : undefined} onChange={(event) => save(question.id, event.target.value)} value={answers[question.id] ?? ""} /></label>}</article>)}</div>
+      <div className={paperStyles.footer}><p>You may submit early. Otherwise Jaguar submits the latest saved answer snapshot automatically when the timer reaches zero.</p><button className="teacher-button" disabled={submitting || interactionBlocked} onClick={() => submit(false)} type="button">{submitting ? "Submitting…" : "Submit paper answers"} <span aria-hidden="true">→</span></button></div>
+      {notice && <p className={syncState === "offline" ? styles.connectionNotice : "notice notice-error"} role="status">{notice}{authRequired && <> <a href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}>Sign in again and return to this answer sheet.</a></>}</p>}
+      {interactionBlocked && <section aria-live="assertive" className={`${styles.blockOverlay} ${(fullscreenBlocked || (examMode?.requireFullscreen && !fullscreenActive)) && !timeEnded && !autoSubmitted ? styles.fullscreenAlert : ""}`} role="alert">{autoSubmitted ? <><p className="eyebrow">Answers submitted</p><h2>Your paper answers were submitted.</h2><p>Your latest saved answer snapshot is secure.</p></> : (fullscreenBlocked || (examMode?.requireFullscreen && !fullscreenActive)) && !timeEnded ? <><span aria-hidden="true" className={styles.alertIcon}>!</span><p className="eyebrow">Fullscreen exit recorded</p><h2>Return to fullscreen.</h2><p>Answer entry is locked while fullscreen is off. This interruption is visible to your teacher.</p><button className="teacher-button" disabled={verifyingExit} onClick={restoreFullscreen} ref={restoreButtonRef} type="button">{verifyingExit ? online ? "Checking…" : "Waiting for connection…" : "Return to fullscreen"} <span aria-hidden="true">→</span></button></> : <><p className="eyebrow">Answer time is up</p><h2>{submitting ? "Submitting your answers…" : online ? "Finalizing your answers…" : "Waiting for Wi-Fi"}</h2><p>{online ? "Jaguar is submitting your latest answer snapshot." : "Keep this page open. Your answers are safe on this device and will submit after reconnection."}</p></>}</section>}
+    </section>;
   }
 
   return <section className={`runner ${interactionBlocked ? styles.runnerBlocked : ""}`}><div className="runner-header"><div><p className="eyebrow">{examMode ? "Secure mode · Exam Mode" : "Active attempt"}</p><h2>{questions.length} questions</h2><div className={styles.runnerStatus}><span className={`${styles.syncStatus} ${styles[syncState]}`}>{syncLabel}</span>{formCode && <span>Form {formCode}</span>}{examMode && <><span>Focus exits: {focusViolations} · allowance {examMode.allowedFocusExits}</span><span>{wakeLockState === "active" ? "Screen sleep blocked" : wakeLockState === "requesting" ? "Blocking screen sleep…" : "Keep laptop awake manually"}</span></>}</div></div><div className={styles.meta}>{deadline && <strong className={timeEnded ? "timer-expired" : ""}>Time remaining: {clock}</strong>}</div></div>{examWarning && !interactionBlocked && <section className={styles.warning} role="status"><strong>Exam Mode activity</strong><p>{examWarning}</p></section>}{responsesClosed && <p className="form-note lifecycle-note">Overdue. Answers can no longer be changed. {deadline ? "Your final browser snapshot will be submitted through the offline recovery window." : "Submitting now grades only work already synchronized to the server."}</p>}

@@ -1,9 +1,10 @@
 import QuestionReleaseControls from "./question-release-controls";
+import PaperSessionControls from "./paper-session-controls";
 import ResultReleaseControls from "./result-release-controls";
 
 type Visibility = "private" | "score_only" | "full_review";
 
-export default function AssignmentControlCenter({ assignmentId, controlled, kind, questionsReleasedAt, status, visibility }: { assignmentId: string; controlled: boolean; kind: string; questionsReleasedAt: string | null; status: string; visibility: Visibility }) {
+export default function AssignmentControlCenter({ assignmentId, controlled, kind, questionsReleasedAt, status, visibility, durationMinutes = 60, paperStartedAt = null, paperWritingEndsAt = null, paperAnswerDurationSeconds = 90, serverNow }: { assignmentId: string; controlled: boolean; kind: string; questionsReleasedAt: string | null; status: string; visibility: Visibility; durationMinutes?: number | null; paperStartedAt?: string | null; paperWritingEndsAt?: string | null; paperAnswerDurationSeconds?: number; serverNow: string }) {
   const testLike = kind === "test" || kind === "paper";
   const started = !testLike || !controlled || Boolean(questionsReleasedAt);
   const closed = status === "closed";
@@ -18,7 +19,7 @@ export default function AssignmentControlCenter({ assignmentId, controlled, kind
       <li className={stepClass(resultsReleased, closed && !resultsReleased)}><span>{testLike ? 4 : 3}</span><div><strong>Release results</strong><small>{visibility === "full_review" ? "Full review visible" : visibility === "score_only" ? "Scores visible" : "Hidden from students"}</small></div></li>
     </ol>
     <div className="assignment-control-actions">
-      {testLike && status === "published" && <QuestionReleaseControls assignmentId={assignmentId} controlled={controlled} kind={kind} releasedAt={questionsReleasedAt} />}
+      {kind === "paper" && status === "published" ? <PaperSessionControls answerDurationSeconds={paperAnswerDurationSeconds} answersReleasedAt={questionsReleasedAt} assignmentId={assignmentId} durationMinutes={durationMinutes ?? 60} serverNow={serverNow} writingEndsAt={paperWritingEndsAt} writingStartedAt={paperStartedAt} /> : testLike && status === "published" && <QuestionReleaseControls assignmentId={assignmentId} controlled={controlled} kind={kind} releasedAt={questionsReleasedAt} />}
       <ResultReleaseControls assignmentId={assignmentId} kind={kind} visibility={visibility} />
     </div>
   </section>;

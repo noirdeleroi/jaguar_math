@@ -38,13 +38,14 @@ export type DraftQuestionActionState = { error?: string; success?: boolean } | n
 
 function settings(formData: FormData) {
   const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
-  if (!title || !["homework", "test", "paper"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || !maxAttempts || maxAttempts < 1 || due === undefined) return null;
+  const paperAnswerDurationSeconds = kind === "paper" ? integer(formData.get("paper_answer_duration_seconds"), 90) : 90;
+  if (!title || !["homework", "test", "paper"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || (kind === "paper" && duration === null) || !maxAttempts || maxAttempts < 1 || due === undefined || paperAnswerDurationSeconds === null || paperAnswerDurationSeconds < 30 || paperAnswerDurationSeconds > 3600) return null;
   const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), kind === "test" ? 1 : 2) : 2; const exam_violation_action = text(formData.get("exam_violation_action")) || "warn"; const question_display_mode = text(formData.get("question_display_mode")) || "one_at_a_time"; const resultVisibility = text(formData.get("student_result_visibility"));
   if (exam_allowed_focus_exits === null || exam_allowed_focus_exits < 0 || !["warn", "auto_submit"].includes(exam_violation_action) || !["one_at_a_time", "all_at_once"].includes(question_display_mode)) return null;
   if (resultVisibility && !["private", "score_only", "full_review"].includes(resultVisibility)) return null;
   const showAnswersAfterSubmit = resultVisibility ? resultVisibility === "full_review" : checked(formData.get("show_answers_after_submit"));
   const showScoreAfterSubmit = showAnswersAfterSubmit || (resultVisibility ? resultVisibility === "score_only" : checked(formData.get("show_score_after_submit")));
-  return { title, description, kind, due_at: due, duration_minutes: duration, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), include_in_class_manager: checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release: (kind === "test" || kind === "paper") && checked(formData.get("teacher_controlled_question_release")) };
+  return { title, description, kind, due_at: due, duration_minutes: duration, paper_answer_duration_seconds: paperAnswerDurationSeconds, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), include_in_class_manager: checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release: (kind === "test" || kind === "paper") && checked(formData.get("teacher_controlled_question_release")) };
 }
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
@@ -63,7 +64,7 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   const createParameters = { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_questions: rpcQuestions, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question };
   const { data, error } = values.kind === "paper" ? await supabase.rpc("create_paper_assignment_draft_ready", createParameters) : await supabase.rpc("create_assignment_draft_ready", createParameters);
   if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
-  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", data).eq("created_by", teacher.id);
+  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release, paper_answer_duration_seconds: values.paper_answer_duration_seconds }).eq("id", data).eq("created_by", teacher.id);
   if (managerError) redirect(message(`/teacher/assignments/${data}`, "error", "The draft was saved, but its class-manager grade setting could not be saved."));
   if (createIntent === "publish") {
     const { error: publishError } = await supabase.rpc("publish_owned_assignment", { p_assignment_id: data });
@@ -79,7 +80,7 @@ export async function updateAssignment(formData: FormData) {
   const supabase = await createClient(); const updateParameters = { p_assignment_id: id, p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question };
   const { error } = values.kind === "paper" ? await supabase.rpc("update_owned_paper_assignment_ready", updateParameters) : await supabase.rpc("update_owned_assignment_ready", updateParameters);
   if (error) redirect(message(path, "error", "The assignment could not be updated."));
-  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager }).eq("id", id).eq("created_by", teacher.id);
+  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, paper_answer_duration_seconds: values.paper_answer_duration_seconds }).eq("id", id).eq("created_by", teacher.id);
   if (managerError) redirect(message(path, "error", "The assignment was saved, but its class-manager grade setting could not be updated."));
   const { error: releaseSettingError } = await supabase.from("assignments").update({ teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", id).eq("created_by", teacher.id).eq("status", "draft");
   if (releaseSettingError) redirect(message(path, "error", "The assignment was saved, but its test-start setting could not be updated."));
@@ -162,6 +163,28 @@ export async function releaseTestQuestions(formData: FormData) {
   redirect(message(path, "success", "The assessment is now open for waiting students."));
 }
 
+export async function startPaperSession(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("start_owned_paper_session", { p_assignment_id: id });
+  if (error) { console.error(`start_owned_paper_session failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "The paper writing timer could not be started.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", "The synchronized paper writing timer is running."));
+}
+
+export async function releasePaperAnswers(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("release_owned_paper_answers", { p_assignment_id: id });
+  if (error) { console.error(`release_owned_paper_answers failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", error.message.includes("writing timer") ? "Wait for the writing timer to end before opening answer entry." : "The paper answer window could not be opened.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", "Answer entry is open and all waiting students are switching automatically."));
+}
+
 export async function setHomeworkPdfRelease(formData: FormData) {
   await requireTeacher();
   const id = text(formData.get("assignment_id")); const released = text(formData.get("released")); const path = `/teacher/assignments/${id}`;
@@ -233,15 +256,27 @@ const refreshTestManager = (assignmentId: string) => {
 export async function forceSubmitTestAttempt(formData: FormData) {
   await requireTeacher();
   const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const assignmentPath = `/teacher/assignments/${assignmentId}`; const path = checked(formData.get("return_to_attempt")) && uuid(attemptId) ? `${assignmentPath}/attempts/${attemptId}` : assignmentPath;
-  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid active Test attempt."));
+  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid active assessment attempt."));
   const supabase = await createClient();
   const { error } = await supabase.rpc("force_submit_owned_test_attempt", { p_assignment_id: assignmentId, p_attempt_id: attemptId });
   if (error) {
     console.error(`force_submit_owned_test_attempt failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
-    redirect(message(path, "error", "That Test attempt could not be submitted. It may have already changed."));
+    redirect(message(path, "error", "That assessment attempt could not be submitted. It may have already changed."));
   }
   refreshTestManager(assignmentId);
-  redirect(message(path, "success", "The student's saved Test responses were submitted and scored."));
+  redirect(message(path, "success", "The student's latest saved responses were submitted and scored."));
+}
+
+export async function forceSubmitAllAssessmentAttempts(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const path = `/teacher/assignments/${assignmentId}`;
+  if (!uuid(assignmentId)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("force_submit_all_owned_assessment_attempts", { p_assignment_id: assignmentId });
+  if (error) { console.error(`force_submit_all_owned_assessment_attempts failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "Active attempts could not be submitted.")); }
+  refreshTestManager(assignmentId);
+  const count = Number(data ?? 0);
+  redirect(message(path, "success", `${count} active attempt${count === 1 ? "" : "s"} submitted from the latest saved answers.`));
 }
 
 export async function unsubmitTestAttempt(formData: FormData) {
@@ -273,6 +308,20 @@ export async function grantTestExtraTime(formData: FormData) {
   refreshTestManager(assignmentId);
   const updated = Number(data);
   redirect(message(path, "success", `${extraMinutes} extra minute${extraMinutes === 1 ? "" : "s"} added for ${updated} student${updated === 1 ? "" : "s"}.`));
+}
+
+export async function adjustPaperAnswerTime(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const path = `/teacher/assignments/${assignmentId}`;
+  const studentIds = formData.getAll("student_ids").filter((value): value is string => typeof value === "string" && uuid(value));
+  const seconds = integer(formData.get("seconds"), 0); const direction = text(formData.get("direction"));
+  const delta = seconds && direction === "decrease" ? -seconds : seconds;
+  if (!uuid(assignmentId) || !studentIds.length || new Set(studentIds).size !== studentIds.length || !seconds || seconds < 1 || seconds > 3600 || !["increase", "decrease"].includes(direction)) redirect(message(path, "error", "Select students and enter 1–3600 seconds to add or remove."));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("adjust_owned_paper_answer_time", { p_assignment_id: assignmentId, p_student_ids: studentIds, p_delta_seconds: delta });
+  if (error || !data) { if (error) console.error(`adjust_owned_paper_answer_time failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "Paper answer time could not be adjusted. At least 10 seconds must remain in each student's configured window.")); }
+  refreshTestManager(assignmentId);
+  redirect(message(path, "success", `${seconds} second${seconds === 1 ? "" : "s"} ${direction === "decrease" ? "removed from" : "added for"} ${Number(data)} student${Number(data) === 1 ? "" : "s"}.`));
 }
 
 const safeDraftQuestionError = (error: { code: string; message: string } | null) => {

@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   const { data: assignment } = await supabase.from("assignments").select("status, exam_mode, exam_require_fullscreen, exam_track_focus_exits, exam_allowed_focus_exits, exam_violation_action").eq("id", attempt.assignment_id).maybeSingle();
   if (!assignment) return NextResponse.json({ error: "The assignment is not available." }, { status: 404 });
   return NextResponse.json({
+    serverNow: new Date().toISOString(),
     status: attempt.status,
     expiresAt: attempt.expires_at,
     assignmentStatus: assignment.status,
