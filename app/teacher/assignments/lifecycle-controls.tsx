@@ -5,7 +5,7 @@ import { closeAssignment, reopenAssignment } from "../assignment-actions";
 
 function CloseButton() {
   const { pending } = useFormStatus();
-  return <button aria-live="polite" className="teacher-button" disabled={pending} type="submit">{pending ? "Closing..." : "Close assignment"}</button>;
+  return <button aria-live="polite" className="secondary-inline-button assignment-close-button" disabled={pending} type="submit">{pending ? "Closing…" : "Close assignment"}</button>;
 }
 
 function ReopenButton() {

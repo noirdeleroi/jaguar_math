@@ -14,7 +14,7 @@ const COPY: Record<Visibility, { label: string; description: string }> = {
 
 export default function ResultReleaseControls({ assignmentId, kind, visibility }: { assignmentId: string; kind: string; visibility: Visibility }) {
   return <section className={styles.panel}>
-    <div><p className="eyebrow">Student result access</p><h2>{COPY[visibility].label}</h2><p>{COPY[visibility].description}</p>{kind !== "homework" && visibility !== "full_review" && <small>Keep results private while any students are still taking this assessment.</small>}</div>
+    <div><p className="eyebrow">{kind === "homework" ? "Release results" : "Step 4 · Release results"}</p><h2>{COPY[visibility].label}</h2><p>{COPY[visibility].description}</p>{kind !== "homework" && visibility !== "full_review" && <small>Keep results private while students are still taking this assessment.</small>}</div>
     <div className={styles.actions}>
       {visibility !== "private" && <VisibilityForm assignmentId={assignmentId} label="Hide all results" visibility="private" />}
       {visibility !== "score_only" && <VisibilityForm assignmentId={assignmentId} label="Release score only" visibility="score_only" />}

@@ -49,6 +49,7 @@ function settings(formData: FormData) {
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
   const teacher = await requireTeacher(); const values = settings(formData); const rawQuestions = text(formData.get("questions_json"));
+  const createIntent = text(formData.get("create_intent")) === "publish" ? "publish" : "draft";
   console.info("createAssignment invoked", { teacherId: teacher.id, hasSettings: Boolean(values), classCount: values?.class_ids.length ?? 0, questionPayloadLength: rawQuestions.length });
   if (!values || values.class_ids.length === 0) return { error: "Complete the assignment settings and select at least one class." };
   let parsed: unknown; try { parsed = JSON.parse(rawQuestions); } catch { return { error: "Validate the question import before saving." }; }
@@ -64,8 +65,12 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
   const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", data).eq("created_by", teacher.id);
   if (managerError) redirect(message(`/teacher/assignments/${data}`, "error", "The draft was saved, but its class-manager grade setting could not be saved."));
+  if (createIntent === "publish") {
+    const { error: publishError } = await supabase.rpc("publish_owned_assignment", { p_assignment_id: data });
+    if (publishError) redirect(message(`/teacher/assignments/${data}`, "error", "The assignment was created as a draft, but it could not be published. Review it and try Publish now again."));
+  }
   for (const classId of values.class_ids) revalidatePath(`/teacher/classes/${classId}`);
-  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); redirect(`/teacher/assignments/${data}`);
+  revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath("/student"); redirect(message(`/teacher/assignments/${data}`, "success", createIntent === "publish" ? "Assignment created and published." : "Private draft saved."));
 }
 
 export async function updateAssignment(formData: FormData) {
