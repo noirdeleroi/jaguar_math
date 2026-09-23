@@ -465,6 +465,62 @@
   color: #2e628e;
 }
 
+.cwEventHead,
+.cwEventCell {
+  min-width: 118px;
+  max-width: 138px;
+}
+
+.cwEventHead {
+  background: #e2edf7 !important;
+  box-shadow: inset 0 3px #6091bb;
+  color: #2e628e;
+}
+
+.cwEventCell {
+  padding: 3px 6px;
+  text-align: center;
+}
+
+.cwEventCell > button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  border: 1px solid #a9c1d5;
+  border-radius: 7px;
+  padding: 7px 6px;
+  background: #edf4fa;
+  color: #315f84;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cwEventCell > button:hover,
+.cwEventCell > button:focus-visible {
+  border-color: #4e82aa;
+  box-shadow: 0 0 0 2px rgb(96 145 187 / 20%);
+  outline: 0;
+}
+
+.cwEventCell strong,
+.cwEventCell span {
+  display: block;
+}
+
+.cwEventCell strong {
+  font-size: 10px;
+}
+
+.cwEventCell span {
+  font-size: 8px;
+}
+
+.cwEventMissing > button {
+  border-color: #d59686;
+  background: #fde9e4;
+  color: #943e2e;
+}
+
 .assignmentHead {
   background: #e8eef8 !important;
   box-shadow: inset 0 3px #738ebd;
@@ -525,16 +581,6 @@
 .workStatusCell .work_clear {
   border-style: dashed;
   color: #8a9893;
-}
-
-.cwNoteButton {
-  margin-top: 4px;
-  border: 0;
-  background: transparent;
-  color: #426f94;
-  font-size: 8px;
-  font-weight: 850;
-  cursor: pointer;
 }
 
 .onlineHomeworkCell > button {

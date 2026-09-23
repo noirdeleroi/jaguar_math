@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { assignmentResultStatus } from "@/lib/assignment-completion";
 import { requireTeacher } from "@/lib/auth";
-import type { AvailableClassroomAssessment, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
+import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -24,6 +24,7 @@ type Attempt = { id: string; assignment_id: string; student_id: string; status: 
 type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual"; assignment_id: string | null; max_score: number | null; created_at: string };
 type ManualGradeRow = { column_id: string; student_id: string; score: number };
 type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
+type CwRecordRow = { id: string; week_id: string; student_id: string; record_date: string; reason: string };
 type GradebookRosterRow = { gradebook_code: string; gradebook_name: string; sort_order: number; student_id: string | null };
 type WorkSummary = { ok: number; notOk: number; late: number; recorded: number };
 type WeekAchievement = { stars: number; homework: WorkSummary; classwork: WorkSummary };
@@ -56,7 +57,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
 
   const admin = createAdminClient();
-  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
+  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: cwRecordRows, error: cwRecordError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", id).order("sort_order"),
@@ -64,12 +65,13 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     supabase.from("classroom_star_events").select("id, student_id, week_id, delta").eq("class_id", id),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: id }),
     supabase.from("classroom_work_items").select("id, week_id, kind, position, title, activity_date").eq("class_id", id),
+    supabase.from("classroom_cw_records").select("id, week_id, student_id, record_date, reason").eq("class_id", id).order("record_date", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("assignment_classes").select("assignment_id").eq("class_id", id),
     supabase.from("classroom_grade_columns").select("id, week_id, title, assessment_date, source, assignment_id, max_score, created_at").eq("class_id", id).order("assessment_date").order("created_at"),
     hasGoogleGmailSendPermission(teacher.id),
     admin.from("google_classroom_courses").select("google_course_id").eq("class_id", id).eq("teacher_id", teacher.id).maybeSingle(),
   ]);
-  const dataError = memberError ?? studentError ?? gradebookRosterError ?? weekError ?? starError ?? skullError ?? workItemError ?? linkError ?? gradeColumnError;
+  const dataError = memberError ?? studentError ?? gradebookRosterError ?? weekError ?? starError ?? skullError ?? workItemError ?? cwRecordError ?? linkError ?? gradeColumnError;
   if (dataError) throw dataError;
 
   const studentsById = new Map(((allStudents ?? []) as Student[]).map((student) => [student.id, student]));
@@ -164,6 +166,10 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
       return [student.id, { attemptId: submitted?.id ?? activity?.id ?? null, status: assignmentResultStatus(activity?.status, Boolean(submitted)), score, maxScore, percentage: score !== null && maxScore && maxScore > 0 ? Math.round(score / maxScore * 100) : null }];
     })),
   }));
+  const cwRecords: ClassroomCwRecord[] = ((cwRecordRows ?? []) as CwRecordRow[]).flatMap((record) => {
+    const week = weekById.get(record.week_id);
+    return week && memberIds.has(record.student_id) ? [{ id: record.id, studentId: record.student_id, weekLabel: week.label, recordDate: record.record_date, reason: record.reason }] : [];
+  });
   const skullsByStudent = new Map<string, Record<string, { today: number; total: number }>>();
   for (const row of (skullRows ?? []) as SkullTotalRow[]) {
     const values = skullsByStudent.get(row.student_id) ?? {};
@@ -204,7 +210,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     </header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><span>Current topic</span><strong>{activeTopic.title || `Topic ${activeTopic.sort_order}`}</strong></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
-    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}`} />
+    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialCwRecords={cwRecords} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}:${cwRecords.length}`} />
     {!enrolled.length ? <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section> : null}
   </main>;
 }
