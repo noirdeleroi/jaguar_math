@@ -6,6 +6,7 @@ const migration = readFileSync(new URL("../supabase/migrations/20260922150000_pa
 const resultsMigration = readFileSync(new URL("../supabase/migrations/20260922153000_versioned_assignment_results.sql", import.meta.url), "utf8");
 const fourVersionsMigration = readFileSync(new URL("../supabase/migrations/20260922170000_four_assessment_versions.sql", import.meta.url), "utf8");
 const synchronizedSessionMigration = readFileSync(new URL("../supabase/migrations/20260923150000_synchronized_paper_sessions.sql", import.meta.url), "utf8");
+const teacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924130000_teacher_paper_answer_entry.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -13,6 +14,7 @@ const studentPage = readFileSync(new URL("../app/student/assignments/[id]/page.t
 const runner = readFileSync(new URL("../app/student/assignments/assessment-runner.tsx", import.meta.url), "utf8");
 const waitingRoom = readFileSync(new URL("../app/student/assignments/paper-assessment-gate.tsx", import.meta.url), "utf8");
 const teacherManager = readFileSync(new URL("../app/teacher/assignments/results-overview-client.tsx", import.meta.url), "utf8");
+const teacherEntry = readFileSync(new URL("../app/teacher/assignments/paper-answer-entry.tsx", import.meta.url), "utf8");
 
 test("paper attempts receive one coherent version in printed order", () => {
   assert.match(migration, /v_paper_version := 1 \+ mod/);
@@ -63,6 +65,18 @@ test("the teacher paper manager can adjust, submit, and monitor individual attem
   assert.match(teacherManager, /Add \(\{selectedAssignedStudents\.length\}\)/);
   assert.match(teacherManager, /Remove \(\{selectedAssignedStudents\.length\}\)/);
   assert.match(teacherManager, /Submit now/);
+});
+
+test("teachers can key in and score a paper sheet for every assigned student", () => {
+  assert.match(teacherEntryMigration, /create function public\.prepare_owned_paper_answer_entry/);
+  assert.match(teacherEntryMigration, /member\.student_id = p_student_id/);
+  assert.match(teacherEntryMigration, /set form_code = 'Version ' \|\| v_paper_version/);
+  assert.match(teacherEntryMigration, /create function public\.save_owned_paper_answers/);
+  assert.match(teacherEntryMigration, /public\.finalize_attempt_unchecked/);
+  assert.match(teacherManager, /Enter answers/);
+  assert.match(teacherEntry, /Save draft/);
+  assert.match(teacherEntry, /Save & score/);
+  assert.match(teacherEntry, /Save & rescore/);
 });
 
 test("teacher results aggregate variants by logical slot and expose paper progress", () => {

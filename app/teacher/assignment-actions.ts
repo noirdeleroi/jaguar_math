@@ -324,6 +324,76 @@ export async function adjustPaperAnswerTime(formData: FormData) {
   redirect(message(path, "success", `${seconds} second${seconds === 1 ? "" : "s"} ${direction === "decrease" ? "removed from" : "added for"} ${Number(data)} student${Number(data) === 1 ? "" : "s"}.`));
 }
 
+export type PaperAnswerEntryQuestion = {
+  id: string;
+  number: number;
+  type: "multiple_choice" | "numeric" | "short_text";
+  optionIds: string[];
+  answer: string;
+};
+
+export type PaperAnswerEntrySheet = {
+  attemptId: string;
+  formCode: string;
+  status: "in_progress" | "submitted";
+  questions: PaperAnswerEntryQuestion[];
+};
+
+export async function loadOwnedPaperAnswerEntry(assignmentId: string, studentId: string): Promise<{ sheet: PaperAnswerEntrySheet } | { error: string }> {
+  await requireTeacher();
+  if (!uuid(assignmentId) || !uuid(studentId)) return { error: "Choose a valid student." };
+  const supabase = await createClient();
+  const { data: prepared, error: prepareError } = await supabase.rpc("prepare_owned_paper_answer_entry", { p_assignment_id: assignmentId, p_student_id: studentId });
+  if (prepareError || !prepared) {
+    if (prepareError) console.error(`prepare_owned_paper_answer_entry failed: code=${prepareError.code}; message=${prepareError.message}`);
+    return { error: "This student's paper answer sheet could not be opened." };
+  }
+  const attempt = (Array.isArray(prepared) ? prepared[0] : prepared) as { id?: unknown; form_code?: unknown; status?: unknown };
+  if (typeof attempt.id !== "string" || !uuid(attempt.id)) return { error: "This student's paper answer sheet could not be opened." };
+  const [{ data: composition, error: compositionError }, { data: responses, error: responsesError }] = await Promise.all([
+    supabase.from("attempt_questions").select("question_id, position, option_order").eq("attempt_id", attempt.id).order("position"),
+    supabase.from("responses").select("question_id, student_answer").eq("attempt_id", attempt.id),
+  ]);
+  if (compositionError || responsesError || !composition?.length) {
+    console.error(`paper answer entry load failed: composition=${compositionError?.message ?? "ok"}; responses=${responsesError?.message ?? "ok"}`);
+    return { error: "This student's paper answer sheet could not be loaded." };
+  }
+  const questionIds = composition.map((item) => item.question_id);
+  const { data: questions, error: questionsError } = await supabase.from("questions").select("id, type, options").in("id", questionIds);
+  if (questionsError) {
+    console.error(`paper answer questions load failed: code=${questionsError.code}; message=${questionsError.message}`);
+    return { error: "This student's paper answer sheet could not be loaded." };
+  }
+  const questionById = new Map((questions ?? []).map((question) => [question.id, question]));
+  const responseByQuestion = new Map((responses ?? []).map((response) => [response.question_id, response.student_answer ?? ""]));
+  const entryQuestions: PaperAnswerEntryQuestion[] = composition.flatMap((item) => {
+    const question = questionById.get(item.question_id);
+    if (!question || !["multiple_choice", "numeric", "short_text"].includes(question.type)) return [];
+    const rawOptions = Array.isArray(question.options) ? question.options.filter((option): option is { id: string } => Boolean(option) && typeof option === "object" && "id" in option && typeof option.id === "string") : [];
+    const rawIds = rawOptions.map((option) => option.id); const ordered = Array.isArray(item.option_order) && item.option_order.length ? item.option_order.filter((id): id is string => typeof id === "string" && rawIds.includes(id)) : rawIds;
+    return [{ id: item.question_id, number: Number(item.position), type: question.type as PaperAnswerEntryQuestion["type"], optionIds: ordered, answer: responseByQuestion.get(item.question_id) ?? "" }];
+  });
+  if (entryQuestions.length !== composition.length) return { error: "One or more paper questions could not be loaded." };
+  return { sheet: { attemptId: attempt.id, formCode: typeof attempt.form_code === "string" ? attempt.form_code : "Version —", status: attempt.status === "submitted" ? "submitted" : "in_progress", questions: entryQuestions } };
+}
+
+type PaperAnswerInput = { questionId: string; answer: string };
+
+export async function saveOwnedPaperAnswers(assignmentId: string, studentId: string, responses: PaperAnswerInput[], submit: boolean): Promise<{ ok: true; status: "in_progress" | "submitted"; score: number | null; maxScore: number | null } | { error: string }> {
+  await requireTeacher();
+  if (!uuid(assignmentId) || !uuid(studentId) || !Array.isArray(responses) || responses.length < 1 || responses.length > 200 || responses.some((response) => !response || !uuid(response.questionId) || typeof response.answer !== "string" || response.answer.length > 20_000) || new Set(responses.map((response) => response.questionId)).size !== responses.length) return { error: "The paper answers are invalid." };
+  const supabase = await createClient();
+  const payload = responses.map((response) => ({ question_id: response.questionId, student_answer: response.answer }));
+  const { data, error } = await supabase.rpc("save_owned_paper_answers", { p_assignment_id: assignmentId, p_student_id: studentId, p_responses: payload, p_submit: Boolean(submit) });
+  if (error || !data) {
+    if (error) console.error(`save_owned_paper_answers failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}`);
+    return { error: "The paper answers could not be saved. Keep this window open and try again." };
+  }
+  const attempt = (Array.isArray(data) ? data[0] : data) as { status?: unknown; score?: unknown; max_score?: unknown };
+  refreshTestManager(assignmentId);
+  return { ok: true, status: attempt.status === "submitted" ? "submitted" : "in_progress", score: attempt.score === null || attempt.score === undefined ? null : Number(attempt.score), maxScore: attempt.max_score === null || attempt.max_score === undefined ? null : Number(attempt.max_score) };
+}
+
 const safeDraftQuestionError = (error: { code: string; message: string } | null) => {
   if (error?.code === "42501") return "You are not authorized to change this draft question.";
   const known = new Set(["Only draft questions managed by this teacher can be edited", "Only draft questions managed by this teacher can be removed", "Only drafts managed by this teacher can be reordered", "Question is not part of this draft", "Question cannot be moved further"]);

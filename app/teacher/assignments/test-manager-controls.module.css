@@ -185,6 +185,13 @@
   color: #8b3e2e;
 }
 
+.rowActions .enterAnswersAction {
+  border-color: #315f7a;
+  background: #315f7a;
+  color: #fff;
+  white-space: nowrap;
+}
+
 @media (max-width: 850px) {
   .managerToolbar {
     align-items: stretch;
