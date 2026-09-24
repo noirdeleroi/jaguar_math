@@ -8,6 +8,7 @@ const fourVersionsMigration = readFileSync(new URL("../supabase/migrations/20260
 const synchronizedSessionMigration = readFileSync(new URL("../supabase/migrations/20260923150000_synchronized_paper_sessions.sql", import.meta.url), "utf8");
 const teacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924130000_teacher_paper_answer_entry.sql", import.meta.url), "utf8");
 const closedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924160000_closed_paper_answer_entry.sql", import.meta.url), "utf8");
+const publishedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924170000_published_paper_teacher_entry.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -80,7 +81,10 @@ test("teachers can key in and score a paper sheet for every assigned student", (
   assert.match(teacherEntry, /Save & rescore/);
   assert.match(closedTeacherEntryMigration, /status in \('published', 'closed'\)/);
   assert.match(closedTeacherEntryMigration, /status = 'closed' or questions_released_at is not null/);
-  assert.match(teacherManager, /paperAnswersReleased \|\| closed/);
+  assert.match(publishedTeacherEntryMigration, /status in \('published', 'closed'\)/);
+  assert.doesNotMatch(publishedTeacherEntryMigration, /questions_released_at is not null/);
+  assert.match(teacherManager, /paperMode && \(live \|\| closed\)/);
+  assert.match(teacherManager, /openPaperAnswerEntry \? overview\.students\[0\]/);
 });
 
 test("teacher results aggregate variants by logical slot and expose paper progress", () => {
