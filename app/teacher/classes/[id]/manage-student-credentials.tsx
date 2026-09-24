@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState, type FormEvent } from "react";
+import { useActionState, useEffect, useId, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { resetClassStudentPasswords, type BulkResetPasswordState } from "../../actions";
 import CredentialActions from "../../google-classroom/credential-actions";
 
@@ -9,13 +10,25 @@ const initial: BulkResetPasswordState = {};
 
 export default function ManageStudentCredentials({ classId, gmailSendEnabled, students }: { classId: string; gmailSendEnabled: boolean; students: Student[] }) {
   const [open, setOpen] = useState(false); const [selected, setSelected] = useState<Set<string>>(new Set()); const [selectionError, setSelectionError] = useState("");
+  const titleId = useId();
   const [state, action, pending] = useActionState(resetClassStudentPasswords, initial); const allSelected = students.length > 0 && selected.size === students.length;
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function closeOnEscape(event: KeyboardEvent) { if (event.key === "Escape") setOpen(false); }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", closeOnEscape); };
+  }, [open]);
   function toggleStudent(studentId: string, checked: boolean) { setSelected((current) => { const next = new Set(current); if (checked) next.add(studentId); else next.delete(studentId); return next; }); setSelectionError(""); }
   function toggleAll(checked: boolean) { setSelected(checked ? new Set(students.map((student) => student.id)) : new Set()); setSelectionError(""); }
   function confirmReset(event: FormEvent<HTMLFormElement>) { if (!selected.size) { event.preventDefault(); setSelectionError("Select at least one student."); return; } if (!window.confirm("This will replace the selected students' current passwords. Continue?")) event.preventDefault(); }
   return <div className="class-credentials">
-    <button className="secondary-inline-button" onClick={() => setOpen((current) => !current)} type="button">{open ? "Close credential manager" : "Manage credentials"}</button>
-    {open && <div className="credential-manager">
+    <button aria-expanded={open} aria-haspopup="dialog" className="secondary-inline-button" onClick={() => setOpen(true)} type="button">Manage credentials</button>
+    {open && createPortal(<div className="credential-manager-backdrop" onMouseDown={(event) => { if (event.currentTarget === event.target) setOpen(false); }}>
+      <div aria-labelledby={titleId} aria-modal="true" className="credential-manager" role="dialog">
+      <div className="credential-manager-header"><h2 id={titleId}>Credential manager</h2><button aria-label="Close credential manager" autoFocus className="credential-manager-close" onClick={() => setOpen(false)} type="button">×</button></div>
+      <div className="credential-manager-body">
       <p className="credential-warning"><strong>Warning:</strong> This will replace the selected students&apos; current passwords.</p>
       {!gmailSendEnabled && <p className="credential-email-notice">Reconnect Google to enable email sending. <a href="/api/google/connect">Reconnect Google</a></p>}
       <form action={action} onSubmit={confirmReset}>
@@ -26,6 +39,8 @@ export default function ManageStudentCredentials({ classId, gmailSendEnabled, st
       </form>
       {selectionError && <p className="form-error" role="alert">{selectionError}</p>}{state.error && <p className="form-error" role="alert">{state.error}</p>}
       {state.credentials?.length ? <div className="credential-results"><h3>New one-time credentials</h3><p>Download or print these now. Temporary passwords are not saved.</p><div className="credential-result-list">{state.credentials.map((credential) => <div key={credential.emailAddress}><strong>{credential.fullName}</strong><span>{credential.emailAddress}</span><code>{credential.temporaryPassword}</code>{credential.emailDelivery && <small className={credential.emailDelivery === "sent" ? "credential-email-sent" : "credential-email-failed"}>{credential.emailDelivery === "sent" ? "✓ Sent" : "⚠ Email failed"}</small>}</div>)}</div><CredentialActions credentials={state.credentials} /></div> : null}
-    </div>}
+      </div>
+      </div>
+    </div>, document.body)}
   </div>;
 }
