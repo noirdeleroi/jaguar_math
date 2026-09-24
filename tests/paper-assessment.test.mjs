@@ -9,6 +9,7 @@ const synchronizedSessionMigration = readFileSync(new URL("../supabase/migration
 const teacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924130000_teacher_paper_answer_entry.sql", import.meta.url), "utf8");
 const closedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924160000_closed_paper_answer_entry.sql", import.meta.url), "utf8");
 const publishedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924170000_published_paper_teacher_entry.sql", import.meta.url), "utf8");
+const fullPaperManagerMigration = readFileSync(new URL("../supabase/migrations/20260924180000_paper_manager_full_control.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -67,6 +68,19 @@ test("the teacher paper manager can adjust, submit, and monitor individual attem
   assert.match(teacherManager, /Add \(\{selectedAssignedStudents\.length\}\)/);
   assert.match(teacherManager, /Remove \(\{selectedAssignedStudents\.length\}\)/);
   assert.match(teacherManager, /Submit now/);
+});
+
+test("the paper manager keeps full teacher controls before release and after close", () => {
+  assert.match(teacherManager, /Full paper test controls/);
+  assert.match(teacherManager, /Select all students/);
+  assert.match(teacherManager, /\+30s/);
+  assert.match(teacherManager, /−30s/);
+  assert.match(teacherManager, /Unsubmit/);
+  assert.match(fullPaperManagerMigration, /status in \('published', 'closed'\)/);
+  assert.match(fullPaperManagerMigration, /create or replace function public\.unsubmit_owned_test_attempt/);
+  assert.match(fullPaperManagerMigration, /assignment\.kind = 'paper'/);
+  assert.match(fullPaperManagerMigration, /create or replace function public\.force_submit_owned_test_attempt/);
+  assert.doesNotMatch(fullPaperManagerMigration, /questions_released_at is not null/);
 });
 
 test("teachers can key in and score a paper sheet for every assigned student", () => {

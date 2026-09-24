@@ -282,15 +282,15 @@ export async function forceSubmitAllAssessmentAttempts(formData: FormData) {
 export async function unsubmitTestAttempt(formData: FormData) {
   await requireTeacher();
   const assignmentId = text(formData.get("assignment_id")); const attemptId = text(formData.get("attempt_id")); const path = `/teacher/assignments/${assignmentId}`;
-  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid submitted Test attempt."));
+  if (!uuid(assignmentId) || !uuid(attemptId)) redirect(message(path, "error", "Choose a valid submitted assessment attempt."));
   const supabase = await createClient();
   const { error } = await supabase.rpc("unsubmit_owned_test_attempt", { p_assignment_id: assignmentId, p_attempt_id: attemptId });
   if (error) {
     console.error(`unsubmit_owned_test_attempt failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
-    redirect(message(path, "error", "That Test attempt could not be unsubmitted. It may have already changed."));
+    redirect(message(path, "error", "That assessment attempt could not be unsubmitted. It may have already changed."));
   }
   refreshTestManager(assignmentId);
-  redirect(message(path, "success", "The Test attempt is open again. Its answers were kept and its grade was cleared; add extra time if its timer has ended."));
+  redirect(message(path, "success", "The attempt is open again. Its answers were kept and its grade was cleared; adjust its time if needed."));
 }
 
 export async function grantTestExtraTime(formData: FormData) {

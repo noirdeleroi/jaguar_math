@@ -45,6 +45,14 @@
   content: "";
 }
 
+.closedStatus {
+  color: #8b4c38;
+}
+
+.closedStatus::before {
+  background: #a75e49;
+}
+
 .selectionActions {
   display: flex;
   align-items: end;
@@ -160,7 +168,30 @@
 .rowActions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
+}
+
+.quickTimeActions {
+  display: inline-flex;
+  gap: 3px;
+  padding: 2px;
+  border-radius: 6px;
+  background: #edf5ef;
+}
+
+.quickTimeActions form {
+  display: flex;
+}
+
+.quickTimeActions button {
+  border-color: transparent;
+  padding-inline: 6px;
+  background: transparent;
+}
+
+.quickTimeActions button:hover {
+  background: #fffdf7;
 }
 
 .rowActions button {
