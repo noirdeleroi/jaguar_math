@@ -137,12 +137,18 @@ test("the four paper forms stay aligned and retain the reviewed answer keys", ()
     "Simplify $\\sqrt{12}+\\sqrt{27}$ into the form $a\\sqrt{b}$, where $a$ and $b$ are positive integers and $b$ has no square factor greater than $1$. What is $a+b$?",
     "Simplify $\\sqrt{20}+\\sqrt{45}$ into the form $a\\sqrt{b}$, where $a$ and $b$ are positive integers and $b$ has no square factor greater than $1$. What is $a+b$?",
   ]);
+  assert.deepEqual(fourVersionAssessment.question_groups[6].map((question) => question.prompt), [
+    "Solve $2(3x-4)+(x+4)=3(x+2)+2(x-1)$.",
+    "Solve $3(2x+1)-2(x+4)=2(x+1)+(x-2)$.",
+    "Solve $4(2x-1)-(x+3)=3(x+1)+2(x-2)$.",
+    "Solve $3(3x-2)-2(x+1)=4(x-1)+(x+8)$.",
+  ]);
   assert.deepEqual(fourVersionAssessment.question_groups.filter((group) => group[0].type === "numeric").map((group) => group.map((question) => question.correct_answer)), [
     ["-1", "-2", "-1", "-3"],
     ["9", "9", "8", "10"],
     ["2.9", "3.1", "3.7", "3.2"],
     ["5", "5", "5", "6"],
-    ["7", "6", "8", "5"],
+    ["4", "5", "3", "6"],
     ["10", "9", "7", "8"],
     ["6", "5", "7", "7"],
   ]);
