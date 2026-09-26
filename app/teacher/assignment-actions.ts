@@ -324,6 +324,22 @@ export async function adjustPaperAnswerTime(formData: FormData) {
   redirect(message(path, "success", `${seconds} second${seconds === 1 ? "" : "s"} ${direction === "decrease" ? "removed from" : "added for"} ${Number(data)} student${Number(data) === 1 ? "" : "s"}.`));
 }
 
+export async function releasePaperAnswersForStudents(formData: FormData) {
+  await requireTeacher();
+  const assignmentId = text(formData.get("assignment_id")); const path = `/teacher/assignments/${assignmentId}`;
+  const studentIds = formData.getAll("student_ids").filter((value): value is string => typeof value === "string" && uuid(value));
+  if (!uuid(assignmentId) || !studentIds.length || new Set(studentIds).size !== studentIds.length) redirect(message(path, "error", "Select one or more students to open answer entry."));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("release_owned_paper_answers_for_students", { p_assignment_id: assignmentId, p_student_ids: studentIds });
+  if (error) {
+    console.error(`release_owned_paper_answers_for_students failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    redirect(message(path, "error", "Answer entry could not be opened for the selected students."));
+  }
+  refreshTestManager(assignmentId);
+  const opened = Number(data ?? 0);
+  redirect(message(path, "success", opened ? `Answer entry opened for ${opened} student${opened === 1 ? "" : "s"}. Their timer is running now.` : "The selected students already have answer entry open."));
+}
+
 export type PaperAnswerEntryQuestion = {
   id: string;
   number: number;

@@ -10,6 +10,7 @@ const teacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260
 const closedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924160000_closed_paper_answer_entry.sql", import.meta.url), "utf8");
 const publishedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924170000_published_paper_teacher_entry.sql", import.meta.url), "utf8");
 const fullPaperManagerMigration = readFileSync(new URL("../supabase/migrations/20260924180000_paper_manager_full_control.sql", import.meta.url), "utf8");
+const studentPaperReleaseMigration = readFileSync(new URL("../supabase/migrations/20260925120000_student_paper_answer_release.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -81,6 +82,16 @@ test("the paper manager keeps full teacher controls before release and after clo
   assert.match(fullPaperManagerMigration, /assignment\.kind = 'paper'/);
   assert.match(fullPaperManagerMigration, /create or replace function public\.force_submit_owned_test_attempt/);
   assert.doesNotMatch(fullPaperManagerMigration, /questions_released_at is not null/);
+});
+
+test("teachers can end the waiting phase for selected paper students with synchronized timers", () => {
+  assert.match(teacherManager, /Open answers \(\{selectedAssignedStudents\.length\}\)/);
+  assert.match(teacherManager, /Open for student/);
+  assert.match(studentPaperReleaseMigration, /add column if not exists answers_released_at timestamptz/);
+  assert.match(studentPaperReleaseMigration, /release_owned_paper_answers_for_students/);
+  assert.match(studentPaperReleaseMigration, /greatest\(10, assignment\.paper_answer_duration_seconds \+ coalesce\(adjustment\.adjustment_seconds, 0\)\)/);
+  assert.match(studentPaperReleaseMigration, /coalesce\(adjustment\.answers_released_at, assignment\.questions_released_at\)/);
+  assert.match(studentPaperReleaseMigration, /perform public\.prepare_owned_paper_answer_entry/);
 });
 
 test("teachers can key in and score a paper sheet for every assigned student", () => {

@@ -84,6 +84,14 @@
   color: white;
 }
 
+.selectionActions .releaseAnswersAction,
+.rowActions .releaseAnswersAction {
+  border-color: #b77514;
+  background: #b77514;
+  color: #fff;
+  white-space: nowrap;
+}
+
 .selectionActions button:disabled {
   cursor: not-allowed;
   opacity: .55;
