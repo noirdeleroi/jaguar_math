@@ -11,6 +11,7 @@ const closedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations
 const publishedTeacherEntryMigration = readFileSync(new URL("../supabase/migrations/20260924170000_published_paper_teacher_entry.sql", import.meta.url), "utf8");
 const fullPaperManagerMigration = readFileSync(new URL("../supabase/migrations/20260924180000_paper_manager_full_control.sql", import.meta.url), "utf8");
 const studentPaperReleaseMigration = readFileSync(new URL("../supabase/migrations/20260925120000_student_paper_answer_release.sql", import.meta.url), "utf8");
+const teacherSessionControlsMigration = readFileSync(new URL("../supabase/migrations/20260928160000_paper_session_teacher_controls.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -19,6 +20,7 @@ const runner = readFileSync(new URL("../app/student/assignments/assessment-runne
 const waitingRoom = readFileSync(new URL("../app/student/assignments/paper-assessment-gate.tsx", import.meta.url), "utf8");
 const teacherManager = readFileSync(new URL("../app/teacher/assignments/results-overview-client.tsx", import.meta.url), "utf8");
 const teacherEntry = readFileSync(new URL("../app/teacher/assignments/paper-answer-entry.tsx", import.meta.url), "utf8");
+const teacherSessionControls = readFileSync(new URL("../app/teacher/assignments/paper-session-controls.tsx", import.meta.url), "utf8");
 
 test("paper attempts receive one coherent version in printed order", () => {
   assert.match(migration, /v_paper_version := 1 \+ mod/);
@@ -52,6 +54,21 @@ test("paper writing and answer timers are synchronized from server timestamps", 
   assert.match(waitingRoom, /router\.refresh\(\)/);
   assert.match(runner, /setServerOffset\(new Date\(status\.serverNow\)/);
   assert.match(runner, /paperMode \? 2_000 : 15_000/);
+});
+
+test("teachers can pause, edit, resume, and end the synchronized paper timer", () => {
+  assert.match(teacherSessionControlsMigration, /add column if not exists paper_writing_paused_at timestamptz/);
+  assert.match(teacherSessionControlsMigration, /pause_owned_paper_session/);
+  assert.match(teacherSessionControlsMigration, /resume_owned_paper_session/);
+  assert.match(teacherSessionControlsMigration, /set_owned_paper_writing_time/);
+  assert.match(teacherSessionControlsMigration, /finish_owned_paper_writing_and_release_answers/);
+  assert.match(teacherSessionControlsMigration, /paper_writing_ends_at = paper_writing_ends_at \+ \(now\(\) - paper_writing_paused_at\)/);
+  assert.match(teacherSessionControls, /Pause timer/);
+  assert.match(teacherSessionControls, /Resume timer/);
+  assert.match(teacherSessionControls, /Set time left/);
+  assert.match(teacherSessionControls, /End writing & open answers/);
+  assert.match(teacherSessionControls, /Submit all & finish test/);
+  assert.match(waitingRoom, /Writing is paused\./);
 });
 
 test("paper waiting and answer entry enforce fullscreen with recorded exits", () => {

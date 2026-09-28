@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     serverNow: row.server_now,
     writingStartedAt: row.writing_started_at,
     writingEndsAt: row.writing_ends_at,
+    writingPausedAt: row.writing_paused_at,
     answersReleasedAt: row.answers_released_at,
     answerEndsAt: row.answer_ends_at,
     answerDurationSeconds: Number(row.answer_duration_seconds ?? 90),

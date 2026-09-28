@@ -174,6 +174,53 @@ export async function startPaperSession(formData: FormData) {
   redirect(message(path, "success", "The synchronized paper writing timer is running."));
 }
 
+export async function pausePaperSession(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("pause_owned_paper_session", { p_assignment_id: id });
+  if (error) { console.error(`pause_owned_paper_session failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "The paper writing timer could not be paused.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", "Writing time is paused for every student."));
+}
+
+export async function resumePaperSession(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("resume_owned_paper_session", { p_assignment_id: id });
+  if (error) { console.error(`resume_owned_paper_session failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "The paper writing timer could not be resumed.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", "Writing time is running again for every student."));
+}
+
+export async function setPaperWritingTime(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  const minutes = integer(formData.get("remaining_minutes"), null);
+  const seconds = integer(formData.get("remaining_seconds"), null);
+  const remainingSeconds = minutes === null || seconds === null ? null : minutes * 60 + seconds;
+  if (!uuid(id) || minutes === null || seconds === null || minutes < 0 || minutes > 1440 || seconds < 0 || seconds > 59 || remainingSeconds === null || remainingSeconds < 1 || remainingSeconds > 86400) redirect(message(path, "error", "Enter a time between 00:01 and 24:00:00."));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_owned_paper_writing_time", { p_assignment_id: id, p_remaining_seconds: remainingSeconds });
+  if (error) { console.error(`set_owned_paper_writing_time failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "The remaining writing time could not be changed.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", `Writing time changed to ${minutes}:${String(seconds).padStart(2, "0")}.`));
+}
+
+export async function finishPaperWritingAndReleaseAnswers(formData: FormData) {
+  await requireTeacher();
+  const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
+  if (!uuid(id)) redirect("/teacher/assignments");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("finish_owned_paper_writing_and_release_answers", { p_assignment_id: id });
+  if (error) { console.error(`finish_owned_paper_writing_and_release_answers failed: code=${error.code}; message=${error.message}`); redirect(message(path, "error", "Writing could not be ended or answer entry opened.")); }
+  refreshTestManager(id);
+  redirect(message(path, "success", "Writing ended. Answer entry is open and students are switching automatically."));
+}
+
 export async function releasePaperAnswers(formData: FormData) {
   await requireTeacher();
   const id = text(formData.get("assignment_id")); const path = `/teacher/assignments/${id}`;
