@@ -5,7 +5,7 @@ import type { AssignmentResultsOverview } from "../../results-overview-client";
 const uuid = (value: string | null) => Boolean(value && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value));
 const csvCell = (value: string | number | null | undefined) => `"${String(value ?? "").replace(/"/g, '""')}"`;
 const safeFilePart = (value: string) => value.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_").replace(/\s+/g, "_").replace(/^[_\.]+|[_\.]+$/g, "").slice(0, 80) || "assignment";
-const statusLabel = (status: "submitted" | "in_progress" | "not_started") => status === "submitted" ? "Submitted" : status === "in_progress" ? "In progress" : "Not submitted";
+const statusLabel = (status: "submitted" | "in_progress" | "not_started", homework: boolean) => status === "submitted" ? homework ? "Closed at deadline" : "Submitted" : status === "in_progress" ? "In progress" : homework ? "Not started" : "Not submitted";
 const completion = (seconds: number | null) => seconds === null ? "" : `${Math.max(0, Math.round(Number(seconds) / 60))}m`;
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -40,10 +40,11 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     if (className) classesByStudent.set(membership.student_id, [...(classesByStudent.get(membership.student_id) ?? []), className]);
   }
   const overview = overviewData as AssignmentResultsOverview;
-  const header = ["Student Name", "Student Email", "Class", "Status", "Score Earned", "Score Possible", "Percentage", "Submitted At", "Completion Time"];
+  const homework = assignment.kind === "homework";
+  const header = ["Student Name", "Student Email", "Class", "Status", "Score Earned", "Score Possible", "Percentage", homework ? "Closed At" : "Submitted At", "Completion Time"];
   const rows = overview.students.map((student) => {
     const submitted = student.status === "submitted";
-    return [student.student_name, student.email, (classesByStudent.get(student.student_id) ?? []).sort().join("; "), statusLabel(student.status), submitted ? student.score : "", submitted ? student.max_score : "", submitted && student.percentage !== null ? `${Number(student.percentage).toFixed(2)}%` : "", submitted && student.submitted_at ? new Date(student.submitted_at).toISOString() : "", submitted ? completion(student.completion_seconds) : ""];
+    return [student.student_name, student.email, (classesByStudent.get(student.student_id) ?? []).sort().join("; "), statusLabel(student.status, homework), submitted ? student.score : "", submitted ? student.max_score : "", submitted && student.percentage !== null ? `${Number(student.percentage).toFixed(2)}%` : "", submitted && student.submitted_at ? new Date(student.submitted_at).toISOString() : "", submitted ? completion(student.completion_seconds) : ""];
   });
   const body = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
   const classPart = selectedClassId ? `_${safeFilePart(classById.get(selectedClassId) ?? "class")}` : "";

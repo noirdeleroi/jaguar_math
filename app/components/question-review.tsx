@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import MathText from "./math-text";
+import { attemptReviewLabel, attemptReviewState } from "@/lib/attempt-review";
 
 type Option = { id: string; text: string };
 
@@ -7,7 +8,7 @@ export default function QuestionReview({ number, prompt, type, options, studentA
   const selectedOption = type === "multiple_choice" ? options?.find((option) => option.id === studentAnswer) : undefined;
   const correctOption = correctAnswer && type === "multiple_choice" ? options?.find((option) => option.id === correctAnswer) : undefined;
   const optionLabel = (optionId: string) => { const index = options?.findIndex((option) => option.id === optionId) ?? -1; return index >= 0 ? String.fromCharCode(65 + index) : optionId; };
-  const state = isCorrect === true ? "Correct" : isCorrect === false ? "Incorrect" : "Not yet scored";
+  const state = attemptReviewLabel(attemptReviewState(studentAnswer, isCorrect));
   const answer = selectedOption ? <><b>{optionLabel(selectedOption.id)}.</b> <MathText>{selectedOption.text}</MathText></> : <MathText>{studentAnswer || "No response"}</MathText>;
   const authorizedAnswer = correctOption ? <><b>{optionLabel(correctOption.id)}.</b> <MathText>{correctOption.text}</MathText></> : correctAnswer ? <MathText>{correctAnswer}</MathText> : null;
 

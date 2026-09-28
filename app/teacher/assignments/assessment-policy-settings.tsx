@@ -50,7 +50,7 @@ const PRESETS: Record<AssignmentKind, Policy> = {
 };
 
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
-  homework: { eyebrow: "Learning mode", title: "Homework", description: "Practice with support, retries, and immediate learning feedback.", note: "Students can learn while they work. Browser monitoring is disabled." },
+  homework: { eyebrow: "Learning mode", title: "Homework", description: "Autosaved practice that closes at the due date and then opens as a read-only review.", note: "There is no homework submit button. Students work until the deadline, then see their color-coded results." },
   test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
   paper: { eyebrow: "Paper mode", title: "Paper test", description: "Students solve a printed version, then enter answers in a short synchronized window.", note: "Jaguar runs the shared writing timer in fullscreen, assigns a paper version, autosaves answer entry, and keeps results private until you release them." },
 };
@@ -85,7 +85,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
     </section>
 
     <div className="assessment-fields">
-      <label>{paper ? "Writing time in minutes" : "Duration in minutes"}<input min="1" name="duration_minutes" onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} placeholder={policy.kind === "homework" ? "No timer" : undefined} required={secure || paper} type="number" value={policy.durationMinutes ?? ""} />{paper && <small className={styles.lockedLabel}>One synchronized timer for the whole class</small>}</label>
+      {policy.kind === "homework" ? <label>Homework closes<input disabled type="text" value="At the assignment due date" /><input name="duration_minutes" type="hidden" value="" /><small className={styles.lockedLabel}>No separate attempt timer and no early submission</small></label> : <label>{paper ? "Writing time in minutes" : "Duration in minutes"}<input min="1" name="duration_minutes" onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} required={secure || paper} type="number" value={policy.durationMinutes ?? ""} />{paper && <small className={styles.lockedLabel}>One synchronized timer for the whole class</small>}</label>}
       {paper && <label>Answer-entry time in seconds<input max="3600" min="30" name="paper_answer_duration_seconds" onChange={(event) => set("paperAnswerDurationSeconds", Number(event.target.value))} required type="number" value={policy.paperAnswerDurationSeconds} /><small className={styles.lockedLabel}>90 seconds by default</small></label>}
       <label>Maximum attempts{assessment && <small className={styles.lockedLabel}>Locked for assessments</small>}<input disabled={assessment} min="1" name={assessment ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{assessment && <input name="max_attempts" type="hidden" value="1" />}</label>
       <label>Question display{assessment && <small className={styles.lockedLabel}>Locked for this mode</small>}<select disabled={assessment} name={assessment ? undefined : "question_display_mode"} onChange={(event) => set("questionDisplayMode", event.target.value as Policy["questionDisplayMode"])} value={policy.questionDisplayMode}><option value="one_at_a_time">One question at a time</option><option value="all_at_once">All questions on one page</option></select>{assessment && <input name="question_display_mode" type="hidden" value={policy.questionDisplayMode} />}</label>
@@ -94,10 +94,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
     <div className={styles.policyGroups}>
       <section><h3>Student feedback</h3><p>{policy.kind === "homework" ? "Help students learn during practice." : "Keep answer information protected during assessment."}</p>
         <div className="assignment-toggles">
-          {policy.kind === "homework" ? <>
-            <PolicyToggle checked={policy.showScoreAfterSubmit} label="Show score after submit" name="show_score_after_submit" onChange={(value) => set("showScoreAfterSubmit", value)} />
-            <PolicyToggle checked={policy.showAnswersAfterSubmit} label="Show answer review after submit" name="show_answers_after_submit" onChange={(value) => { set("showAnswersAfterSubmit", value); if (value) set("showScoreAfterSubmit", true); }} />
-          </> : <label className={styles.resultVisibility}>What students see after submitting
+          {policy.kind === "homework" ? <><input name="show_score_after_submit" type="hidden" value="on" /><input name="show_answers_after_submit" type="hidden" value="on" /><div className={styles.homeworkResultPolicy}><strong>Results open automatically at the deadline</strong><small>Students see their score and every question: gray means not answered, green means correct, and red means wrong.</small></div></> : <label className={styles.resultVisibility}>What students see after submitting
             <select name="student_result_visibility" onChange={(event) => { const value = event.target.value; setPolicy((current) => ({ ...current, showScoreAfterSubmit: value !== "private", showAnswersAfterSubmit: value === "full_review" })); }} value={resultVisibility}>
               <option value="private">Confirmation only — reveal nothing</option>
               <option value="score_only">Score only — keep questions private</option>

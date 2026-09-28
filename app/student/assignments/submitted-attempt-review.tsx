@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import QuestionReview from "@/app/components/question-review";
+import { attemptReviewLabel, attemptReviewState } from "@/lib/attempt-review";
 
 type Option = { id: string; text: string };
 
@@ -19,32 +20,24 @@ type ReviewQuestion = {
   explanation?: string | null;
 };
 
-function reviewState(isCorrect: boolean | null) {
-  return isCorrect === true ? "correct" : isCorrect === false ? "incorrect" : "unscored";
-}
-
-function reviewLabel(isCorrect: boolean | null) {
-  return isCorrect === true ? "Correct" : isCorrect === false ? "Incorrect" : "Not yet scored";
-}
-
 export default function SubmittedAttemptReview({ questions }: { questions: ReviewQuestion[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const question = questions[currentIndex];
 
   if (!question) return null;
 
-  const state = reviewState(question.isCorrect);
+  const state = attemptReviewState(question.studentAnswer, question.isCorrect);
 
   return <section className={`submitted-review ${state}`}>
     <header className="submitted-review-header">
       <div><p className="eyebrow">Question breakdown</p><h3>Question {question.number} of {questions.length}</h3></div>
-      <span className={`submitted-review-result ${state}`}>{reviewLabel(question.isCorrect)} · {question.earnedPoints ?? 0}/{question.points}</span>
+      <span className={`submitted-review-result ${state}`}>{attemptReviewLabel(state)} · {question.earnedPoints ?? 0}/{question.points}</span>
     </header>
     <nav aria-label="Submitted question navigation" className="submitted-review-navigation">
       {questions.map((item, index) => {
-        const itemState = reviewState(item.isCorrect);
+        const itemState = attemptReviewState(item.studentAnswer, item.isCorrect);
         const isCurrent = index === currentIndex;
-        return <button aria-current={isCurrent ? "step" : undefined} aria-label={`Question ${item.number}: ${reviewLabel(item.isCorrect)}`} className={`submitted-review-question ${itemState}${isCurrent ? " is-current" : ""}`} key={item.id} onClick={() => setCurrentIndex(index)} type="button">{item.number}</button>;
+        return <button aria-current={isCurrent ? "step" : undefined} aria-label={`Question ${item.number}: ${attemptReviewLabel(itemState)}`} className={`submitted-review-question ${itemState}${isCurrent ? " is-current" : ""}`} key={item.id} onClick={() => setCurrentIndex(index)} type="button">{item.number}</button>;
       })}
     </nav>
     <div className="submitted-review-stage">
