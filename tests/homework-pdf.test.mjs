@@ -2,14 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { PDFDocument } from "pdf-lib";
 import { assignmentPdfFilename, buildAssignmentAnswerKeyPdf, pdfPlainText } from "../lib/assignment-pdf.ts";
-import { homeworkPdfIsAvailable } from "../lib/homework-pdf-release.ts";
+import { assignmentPdfIsAvailable } from "../lib/homework-pdf-release.ts";
 
-test("releases only homework PDFs whose teacher release and deadline have passed", () => {
+test("automatically releases homework PDFs at the deadline", () => {
   const now = Date.parse("2026-09-14T18:00:00.000Z");
-  assert.equal(homeworkPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T17:59:00.000Z", releasedAt: "2026-09-13T18:00:00.000Z" }, now), true);
-  assert.equal(homeworkPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T18:01:00.000Z", releasedAt: "2026-09-13T18:00:00.000Z" }, now), false);
-  assert.equal(homeworkPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T17:59:00.000Z", releasedAt: null }, now), false);
-  assert.equal(homeworkPdfIsAvailable({ kind: "test", dueAt: "2026-09-14T17:59:00.000Z", releasedAt: "2026-09-13T18:00:00.000Z" }, now), false);
+  assert.equal(assignmentPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T18:00:00.000Z", releasedAt: null }, now), true);
+  assert.equal(assignmentPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T18:01:00.000Z", releasedAt: null }, now), false);
+});
+
+test("allows a teacher release for any assessment immediately", () => {
+  const now = Date.parse("2026-09-14T18:00:00.000Z");
+  assert.equal(assignmentPdfIsAvailable({ kind: "homework", dueAt: "2026-09-14T18:01:00.000Z", releasedAt: "2026-09-14T17:59:00.000Z" }, now), true);
+  assert.equal(assignmentPdfIsAvailable({ kind: "test", dueAt: "2026-09-15T18:00:00.000Z", releasedAt: "2026-09-14T17:59:00.000Z" }, now), true);
+  assert.equal(assignmentPdfIsAvailable({ kind: "quiz", dueAt: null, releasedAt: "2026-09-14T17:59:00.000Z" }, now), true);
+  assert.equal(assignmentPdfIsAvailable({ kind: "paper", dueAt: "2026-09-14T17:59:00.000Z", releasedAt: null }, now), false);
 });
 
 test("normalizes common math notation and creates a safe download name", () => {

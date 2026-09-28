@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { setHomeworkPdfRelease } from "../assignment-actions";
+import { setAssignmentPdfRelease } from "../assignment-actions";
 import styles from "./result-release-controls.module.css";
 
 type Props = {
@@ -9,30 +9,38 @@ type Props = {
   dueAt: string | null;
   kind: string;
   releasedAt: string | null;
+  serverNow: string;
   status: string;
 };
 
-export default function AssignmentPdfControls({ assignmentId, dueAt, kind, releasedAt, status }: Props) {
+export default function AssignmentPdfControls({ assignmentId, dueAt, kind, releasedAt, serverNow, status }: Props) {
   const isHomework = kind === "homework";
-  const released = Boolean(releasedAt);
-  const canRelease = isHomework && status !== "draft" && Boolean(dueAt);
-  const heading = !isHomework ? "Teacher PDF copy" : released ? "Released after the deadline" : "Teacher PDF copy";
-  const description = !isHomework
-    ? "Download the complete question paper and answer key. Student PDF release is available for homework."
-    : released
-      ? "Students can download the question paper and answer key from Assessments after the deadline, even while this homework remains open."
-      : "Download your copy now, or release it so students can download it after the homework deadline.";
+  const deadlinePassed = Boolean(dueAt && new Date(dueAt).getTime() <= new Date(serverNow).getTime());
+  const automaticRelease = isHomework && deadlinePassed;
+  const manuallyReleased = Boolean(releasedAt);
+  const available = automaticRelease || manuallyReleased;
+  const canChangeRelease = status !== "draft" && !automaticRelease;
+  const heading = automaticRelease ? "Released automatically" : manuallyReleased ? "Released to students" : "Teacher PDF copy";
+  const description = automaticRelease
+    ? "The homework deadline has passed. Students can no longer take it and can download the questions and answers as a PDF."
+    : manuallyReleased
+      ? "Students can download the complete questions and answers now."
+      : isHomework && dueAt
+        ? "Students will automatically get the PDF at the homework deadline. You can also release it immediately."
+        : isHomework
+          ? "Add a due date for automatic release, or publish the homework and release the PDF manually."
+          : "Download your copy, or release the complete questions and answers to students at any time.";
 
   return <section className={styles.panel}>
-    <div><p className="eyebrow">Printable questions &amp; answers</p><h2>{heading}</h2><p>{description}</p>{isHomework && status === "draft" && <small>Publish the homework before releasing the PDF.</small>}{isHomework && status !== "draft" && !dueAt && <small>Add a due date before releasing the PDF.</small>}</div>
+    <div><p className="eyebrow">Printable questions &amp; answers</p><h2>{heading}</h2><p>{description}</p>{status === "draft" && <small>Publish the assessment before releasing the PDF to students.</small>}</div>
     <div className={styles.actions}>
       <a className="secondary-inline-button" download href={`/api/assignments/${assignmentId}/answer-key.pdf`}>Download PDF</a>
-      {canRelease && <form action={setHomeworkPdfRelease} onSubmit={(event) => {
-        if (!released && !window.confirm("Release the questions and answer key for student download after the deadline?")) event.preventDefault();
+      {canChangeRelease && <form action={setAssignmentPdfRelease} onSubmit={(event) => {
+        if (!manuallyReleased && !window.confirm("Release the complete questions and answers for students to download now?")) event.preventDefault();
       }}>
         <input name="assignment_id" type="hidden" value={assignmentId} />
-        <input name="released" type="hidden" value={released ? "false" : "true"} />
-        <ReleaseButton released={released} />
+        <input name="released" type="hidden" value={manuallyReleased ? "false" : "true"} />
+        <ReleaseButton released={available} />
       </form>}
     </div>
   </section>;

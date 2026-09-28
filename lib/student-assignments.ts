@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { homeworkPdfIsAvailable } from "@/lib/homework-pdf-release";
+import { assignmentPdfIsAvailable } from "@/lib/homework-pdf-release";
 
 export type DashboardAssignment = { id: string; title: string; description: string | null; kind: string; dueAt: string | null; classNames: string[]; status: "Not started" | "In progress" | "Submitted" | "Completed" | "Overdue" | "Closed"; questionCount: number; answeredCount: number; score: number | null; maxScore: number | null; showScore: boolean; submittedAt: string | null; action: "start" | "continue" | "review" | "view" | null; actionable: boolean; completed: boolean; overdue: boolean; pdfAvailable: boolean };
 export type StudentClassroom = { id: string; name: string; gradeLevel: number; teacherId: string; nickname: string | null };
@@ -52,7 +52,7 @@ export async function getStudentAssignments() {
     else if (submitted) { status = "Completed"; action = "review"; }
     else if (overdue) { status = "Overdue"; action = "view"; }
     else { status = "Not started"; action = "start"; actionable = true; }
-    return { id: assignment.id, title: assignment.title, description: assignment.description, kind: assignment.kind, dueAt: assignment.due_at, classNames: [...(classesByAssignment.get(assignment.id) ?? [])].filter(Boolean), status, questionCount, answeredCount: active ? answeredByAttempt.get(active.id) ?? 0 : 0, score: submitted?.score ?? null, maxScore: submitted?.max_score ?? null, showScore: assignment.show_score_after_submit, submittedAt: submitted?.submitted_at ?? null, action, actionable, completed: Boolean(submitted), overdue, pdfAvailable: homeworkPdfIsAvailable({ kind: assignment.kind, dueAt: assignment.due_at, releasedAt: assignment.homework_pdf_released_at }, now) };
+    return { id: assignment.id, title: assignment.title, description: assignment.description, kind: assignment.kind, dueAt: assignment.due_at, classNames: [...(classesByAssignment.get(assignment.id) ?? [])].filter(Boolean), status, questionCount, answeredCount: active ? answeredByAttempt.get(active.id) ?? 0 : 0, score: submitted?.score ?? null, maxScore: submitted?.max_score ?? null, showScore: assignment.show_score_after_submit, submittedAt: submitted?.submitted_at ?? null, action, actionable, completed: Boolean(submitted), overdue, pdfAvailable: assignmentPdfIsAvailable({ kind: assignment.kind, dueAt: assignment.due_at, releasedAt: assignment.homework_pdf_released_at }, now) };
   });
   dashboardAssignments.sort((left, right) => {
     if (left.actionable !== right.actionable) return left.actionable ? -1 : 1;

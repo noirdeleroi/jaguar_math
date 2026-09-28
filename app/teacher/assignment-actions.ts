@@ -185,19 +185,19 @@ export async function releasePaperAnswers(formData: FormData) {
   redirect(message(path, "success", "Answer entry is open and all waiting students are switching automatically."));
 }
 
-export async function setHomeworkPdfRelease(formData: FormData) {
+export async function setAssignmentPdfRelease(formData: FormData) {
   await requireTeacher();
   const id = text(formData.get("assignment_id")); const released = text(formData.get("released")); const path = `/teacher/assignments/${id}`;
-  if (!uuid(id) || !["true", "false"].includes(released)) redirect(message(path, "error", "Choose a valid homework PDF setting."));
+  if (!uuid(id) || !["true", "false"].includes(released)) redirect(message(path, "error", "Choose a valid assessment PDF setting."));
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_owned_homework_pdf_release", { p_assignment_id: id, p_released: released === "true" });
+  const { error } = await supabase.rpc("set_owned_assignment_pdf_release", { p_assignment_id: id, p_released: released === "true" });
   if (error) {
-    console.error(`set_owned_homework_pdf_release failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
-    const safeError = error.message.includes("deadline") ? "Add a homework deadline before releasing the PDF." : error.message.includes("Publish") ? "Publish the homework before releasing the PDF." : "Student PDF access could not be updated.";
+    console.error(`set_owned_assignment_pdf_release failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
+    const safeError = error.message.includes("Publish") ? "Publish the assessment before releasing the PDF." : "Student PDF access could not be updated.";
     redirect(message(path, "error", safeError));
   }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(path); revalidatePath("/student"); revalidatePath("/student/assessments"); revalidatePath(`/student/assignments/${id}`);
-  redirect(message(path, "success", released === "true" ? "The PDF will be available to students after the homework deadline." : "The homework PDF is hidden from students."));
+  redirect(message(path, "success", released === "true" ? "The PDF is available for students to download now." : "Manual PDF access was removed. Homework still releases automatically at its deadline."));
 }
 
 const safeDuplicateError = (error: { code: string; message: string } | null) => {
