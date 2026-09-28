@@ -42,6 +42,19 @@ export async function startOrContinueAssignment(assignmentId: string) {
   return { attemptId: data.id as string };
 }
 
+export async function startOrContinuePaperAssignment(assignmentId: string, paperVersion: number) {
+  await requireStudent();
+  if (!notificationUuid.test(assignmentId) || !Number.isInteger(paperVersion) || paperVersion < 1 || paperVersion > 4) return { error: "Enter the version number printed on your paper." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("start_my_paper_attempt", { p_assignment_id: assignmentId, p_version: paperVersion });
+  if (error || !data) {
+    console.error(`start_my_paper_attempt failed: code=${error?.code ?? "unknown"}; message=${error?.message ?? "no data"}`);
+    return { error: error?.message.includes("between 1 and") ? error.message : error?.message.includes("answers are saved") ? "Ask your teacher to correct the paper version because answers are already saved." : "That paper version is not available. Check the number printed on your paper." };
+  }
+  revalidateAssignmentViews(assignmentId);
+  return { attemptId: data.id as string, formCode: data.form_code as string };
+}
+
 export async function startOrContinueExamAssignment(assignmentId: string) {
   const student = await requireStudent(); const supabase = await createClient();
   const { data: active } = await supabase.from("attempts").select("id, expires_at, form_code").eq("assignment_id", assignmentId).eq("student_id", student.id).eq("status", "in_progress").maybeSingle();

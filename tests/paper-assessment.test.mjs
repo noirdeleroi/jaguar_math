@@ -12,6 +12,7 @@ const publishedTeacherEntryMigration = readFileSync(new URL("../supabase/migrati
 const fullPaperManagerMigration = readFileSync(new URL("../supabase/migrations/20260924180000_paper_manager_full_control.sql", import.meta.url), "utf8");
 const studentPaperReleaseMigration = readFileSync(new URL("../supabase/migrations/20260925120000_student_paper_answer_release.sql", import.meta.url), "utf8");
 const teacherSessionControlsMigration = readFileSync(new URL("../supabase/migrations/20260928160000_paper_session_teacher_controls.sql", import.meta.url), "utf8");
+const studentSelectedVersionMigration = readFileSync(new URL("../supabase/migrations/20260928170000_student_selected_paper_version.sql", import.meta.url), "utf8");
 const importParser = readFileSync(new URL("../lib/assignment-import.ts", import.meta.url), "utf8");
 const assignmentBuilder = readFileSync(new URL("../app/teacher/assignments/assignment-builder.tsx", import.meta.url), "utf8");
 const fourVersionAssessment = JSON.parse(readFileSync(new URL("../data/assessment-imports/algebra-foundations-linear-equations-paper-test-10q-4v.json", import.meta.url), "utf8"));
@@ -27,6 +28,18 @@ test("paper attempts receive one coherent version in printed order", () => {
   assert.match(migration, /candidate\.variant_index = v_paper_version/);
   assert.match(migration, /set form_code = 'Version ' \|\| v_paper_version/);
   assert.match(migration, /order by question\.position/);
+});
+
+test("students choose the version printed on their paper and grading follows that form", () => {
+  assert.match(studentSelectedVersionMigration, /create function public\.start_my_paper_attempt/);
+  assert.match(studentSelectedVersionMigration, /paper_version_confirmed_at timestamptz/);
+  assert.match(studentSelectedVersionMigration, /set form_code = 'Version ' \|\| p_version::text/);
+  assert.match(studentSelectedVersionMigration, /where candidate\.variant_index = p_version/);
+  assert.match(studentSelectedVersionMigration, /insert into public\.attempt_questions/);
+  assert.match(studentSelectedVersionMigration, /The paper version cannot change after answers are saved/);
+  assert.match(waitingRoom, /Enter your paper version\./);
+  assert.match(waitingRoom, /startOrContinuePaperAssignment/);
+  assert.match(waitingRoom, /paperVersionConfirmed/);
 });
 
 test("active paper attempts expose answer metadata without prompt or option text", () => {

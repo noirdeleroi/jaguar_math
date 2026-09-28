@@ -21,6 +21,8 @@ export async function GET(request: Request) {
     answersReleasedAt: row.answers_released_at,
     answerEndsAt: row.answer_ends_at,
     answerDurationSeconds: Number(row.answer_duration_seconds ?? 90),
+    paperVersionCount: Number(row.paper_version_count ?? 1),
+    paperVersionConfirmed: Boolean(row.paper_version_confirmed),
     attemptId: row.attempt_id,
     attemptStatus: row.attempt_status,
     formCode: row.form_code,
