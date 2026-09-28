@@ -3,9 +3,11 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { attemptReviewLabel, attemptReviewState, homeworkResultsAreAvailable } from "../lib/attempt-review.ts";
 
-const migration = readFileSync(new URL("../supabase/migrations/20260928140000_deadline_only_homework.sql", import.meta.url), "utf8");
+const deadlineMigration = readFileSync(new URL("../supabase/migrations/20260928140000_deadline_only_homework.sql", import.meta.url), "utf8");
+const attemptHistoryMigration = readFileSync(new URL("../supabase/migrations/20260928150000_homework_attempt_history.sql", import.meta.url), "utf8");
 const runner = readFileSync(new URL("../app/student/assignments/assessment-runner.tsx", import.meta.url), "utf8");
 const assignmentPage = readFileSync(new URL("../app/student/assignments/[id]/page.tsx", import.meta.url), "utf8");
+const dashboardData = readFileSync(new URL("../lib/student-assignments.ts", import.meta.url), "utf8");
 
 test("unanswered homework questions remain gray instead of being presented as wrong", () => {
   assert.equal(attemptReviewState(null, false), "unanswered");
@@ -23,16 +25,25 @@ test("homework results become available at the exact due timestamp", () => {
   assert.equal(homeworkResultsAreAvailable("homework", null, Date.now()), false);
 });
 
-test("the database rejects manual or early homework finalization", () => {
-  assert.match(migration, /Homework does not accept manual submission/);
-  assert.match(migration, /Homework cannot close before its deadline/);
-  assert.match(migration, /new\.duration_minutes := null/);
-  assert.match(migration, /new\.show_answers_after_submit := true/);
+test("homework keeps deadline fallback while secure snapshot submission is restored", () => {
+  assert.match(deadlineMigration, /new\.duration_minutes := null/);
+  assert.match(deadlineMigration, /new\.show_answers_after_submit := true/);
+  assert.match(attemptHistoryMigration, /submit_attempt_snapshot_before_deadline_only_homework/);
+  assert.match(attemptHistoryMigration, /grant execute on function public\.submit_attempt_snapshot/);
 });
 
-test("the runner removes homework submission controls and confirms assessment submission", () => {
-  assert.match(runner, /There is no submit button for homework/);
-  assert.match(runner, /questionDisplayMode === "all_at_once" && !deadlineOnly/);
+test("the runner confirms homework submissions and retains deadline auto-close", () => {
+  assert.match(runner, /Submit homework attempt/);
+  assert.match(runner, /Jaguar will close and grade the latest saved work at the deadline/);
   assert.match(runner, /window\.confirm\(`Submit your \$\{subject\} now\?/);
   assert.doesNotMatch(assignmentPage, /assignment\.kind === "homework"\) \{\s*const \{ error: finalizationError \} = await supabase\.rpc\("finalize_overdue_homework_attempts"/);
+});
+
+test("active homework progress is not merged with an earlier completed score", () => {
+  assert.match(dashboardData, /const displayedResult = activeIsCurrent \? undefined : submitted/);
+  assert.match(dashboardData, /completed: Boolean\(submitted && !activeIsCurrent\)/);
+  assert.match(assignmentPage, /const submittedAttempts = attempts\.filter/);
+  assert.match(assignmentPage, /requestedAttemptId/);
+  assert.match(assignmentPage, /Saved separately/);
+  assert.match(assignmentPage, /SubmittedAttemptReview questions=\{submittedReviewQuestions\}/);
 });
