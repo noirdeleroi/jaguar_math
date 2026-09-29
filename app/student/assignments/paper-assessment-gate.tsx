@@ -48,6 +48,8 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
   const [, setTick] = useState(0);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
   const exitTracker = useRef(createFullscreenExitTracker());
+  const statusRequestInFlight = useRef(false);
+  const terminalRefreshRequested = useRef(false);
   const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isSecureTestFullscreenActive(), () => false);
   const storageKey = `jaguar-paper-waiting-room:${assignmentId}`;
 
@@ -146,19 +148,26 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
     if (!waitingRoomOpen) return;
     let active = true;
     const refresh = async () => {
-      if (!navigator.onLine || document.visibilityState !== "visible") return;
+      if (!navigator.onLine || document.visibilityState !== "visible" || statusRequestInFlight.current) return;
+      statusRequestInFlight.current = true;
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 6_000);
       try {
-        const response = await fetch(`/api/paper-session-status?assignmentId=${encodeURIComponent(assignmentId)}`, { cache: "no-store", credentials: "same-origin" });
-        if (!response.ok) return;
+        const response = await fetch(`/api/paper-session-status?assignmentId=${encodeURIComponent(assignmentId)}`, { cache: "no-store", credentials: "same-origin", signal: controller.signal });
+        if (!response.ok) throw new Error(`Paper status failed: ${response.status}`);
         const state = await response.json() as StatusResponse;
         if (!active) return;
         setServerOffset(new Date(state.serverNow).getTime() - Date.now());
         setSession(state);
         setFocusViolations((current) => Math.max(current, state.focusViolations));
-        if (state.assignmentStatus === "closed" || state.attemptStatus === "submitted" || state.answersReleasedAt) router.refresh();
+        if ((state.assignmentStatus === "closed" || state.attemptStatus === "submitted") && !terminalRefreshRequested.current) {
+          terminalRefreshRequested.current = true;
+          router.refresh();
+        }
       } catch { /* The visible timer continues from its last server synchronization. */ }
+      finally { window.clearTimeout(timeout); statusRequestInFlight.current = false; }
     };
-    const timer = window.setInterval(() => void refresh(), 2_000);
+    const timer = window.setInterval(() => void refresh(), 4_000);
     window.addEventListener("online", refresh);
     void refresh();
     return () => { active = false; window.clearInterval(timer); window.removeEventListener("online", refresh); };

@@ -56,6 +56,7 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const revisionRef = useRef(0);
   const timedSubmitStarted = useRef(false);
   const timedSubmissionPending = useRef(false);
+  const statusRefreshInFlight = useRef(false);
   const submissionComplete = useRef(false);
   const submissionRef = useRef<SubmissionSnapshot | null>(null);
   const deadline = expiresAt ? new Date(expiresAt).getTime() : null;
@@ -260,7 +261,8 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   useEffect(() => {
     if (!examMode) return;
     const refreshIfChanged = async () => {
-      if (document.visibilityState !== "visible" || !navigator.onLine) return;
+      if (document.visibilityState !== "visible" || !navigator.onLine || statusRefreshInFlight.current) return;
+      statusRefreshInFlight.current = true;
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 8_000);
       try {
@@ -272,10 +274,10 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
         setAuthRequired(false);
         if (status.status !== "in_progress" || status.assignmentStatus !== "published" || status.expiresAt !== expiresAt || !status.examMode || status.examMode.requireFullscreen !== examMode.requireFullscreen || status.examMode.trackFocusExits !== examMode.trackFocusExits || status.examMode.allowedFocusExits !== examMode.allowedFocusExits || status.examMode.violationAction !== examMode.violationAction) router.refresh();
       } catch { /* Autosave owns the visible connection state; status polling is best-effort. */ }
-      finally { window.clearTimeout(timeout); }
+      finally { window.clearTimeout(timeout); statusRefreshInFlight.current = false; }
     };
     void refreshIfChanged();
-    const timer = window.setInterval(() => void refreshIfChanged(), paperMode ? 2_000 : 15_000);
+    const timer = window.setInterval(() => void refreshIfChanged(), paperMode ? 5_000 : 15_000);
     window.addEventListener("online", refreshIfChanged);
     return () => { window.clearInterval(timer); window.removeEventListener("online", refreshIfChanged); };
   }, [attemptId, examMode, expiresAt, paperMode, router]);

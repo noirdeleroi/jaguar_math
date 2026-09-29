@@ -68,7 +68,10 @@ test("paper writing and answer timers are synchronized from server timestamps", 
   assert.match(waitingRoom, /paper-session-status/);
   assert.match(waitingRoom, /router\.refresh\(\)/);
   assert.match(runner, /setServerOffset\(new Date\(status\.serverNow\)/);
-  assert.match(runner, /paperMode \? 2_000 : 15_000/);
+  assert.match(runner, /paperMode \? 5_000 : 15_000/);
+  assert.match(waitingRoom, /statusRequestInFlight/);
+  assert.match(waitingRoom, /window\.setInterval\(\(\) => void refresh\(\), 4_000\)/);
+  assert.doesNotMatch(waitingRoom, /state\.answersReleasedAt\) router\.refresh\(\)/);
 });
 
 test("teachers can pause, edit, resume, and end the synchronized paper timer", () => {
@@ -82,6 +85,9 @@ test("teachers can pause, edit, resume, and end the synchronized paper timer", (
   assert.match(teacherSessionControls, /Resume timer/);
   assert.match(teacherSessionControls, /Set time left/);
   assert.match(teacherSessionControls, /End writing & open answers/);
+  assert.match(teacherSessionControls, /finish_owned_paper_writing_and_release_answers/);
+  assert.match(teacherSessionControls, /abortSignal\(controller\.signal\)/);
+  assert.match(teacherSessionControls, /Retry opening answers/);
   assert.match(teacherSessionControls, /Submit all & finish test/);
   assert.match(waitingRoom, /Writing is paused\./);
 });
