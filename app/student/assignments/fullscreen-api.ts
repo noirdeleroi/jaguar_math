@@ -6,6 +6,13 @@ type WebKitElement = HTMLElement & {
   webkitRequestFullscreen?: () => Promise<void> | void;
 };
 
+type FullscreenNavigator = Pick<Navigator, "maxTouchPoints" | "platform" | "userAgent">;
+
+export function isIPadOS(navigatorTarget: FullscreenNavigator = navigator) {
+  return /iPad/i.test(navigatorTarget.userAgent)
+    || (navigatorTarget.platform === "MacIntel" && navigatorTarget.maxTouchPoints > 1);
+}
+
 export function createFullscreenExitTracker() {
   let exitOpen = false;
   return {
@@ -29,6 +36,18 @@ export function isFullscreenActive(documentTarget: Document = document) {
   return Boolean(getFullscreenElement(documentTarget));
 }
 
+// iPadOS may temporarily discard WebKit's fullscreen element while opening the
+// software keyboard or reconciling a client-side page update. In iPad test mode
+// visibility is the stable security boundary: switching tabs/apps still hides
+// the document, while typing and live updates keep it visible.
+export function isSecureTestFullscreenActive(
+  documentTarget: Document = document,
+  navigatorTarget: FullscreenNavigator = navigator,
+) {
+  if (isIPadOS(navigatorTarget)) return documentTarget.visibilityState !== "hidden";
+  return isFullscreenActive(documentTarget);
+}
+
 export function subscribeToFullscreen(callback: () => void, documentTarget: Document = document) {
   documentTarget.addEventListener("fullscreenchange", callback);
   documentTarget.addEventListener("webkitfullscreenchange", callback);
@@ -41,6 +60,13 @@ export function subscribeToFullscreen(callback: () => void, documentTarget: Docu
 export function canRequestFullscreen(element: HTMLElement = document.documentElement) {
   const compatibleElement = element as WebKitElement;
   return typeof element.requestFullscreen === "function" || typeof compatibleElement.webkitRequestFullscreen === "function";
+}
+
+export function canEnterSecureTestFullscreen(
+  element: HTMLElement = document.documentElement,
+  navigatorTarget: FullscreenNavigator = navigator,
+) {
+  return isIPadOS(navigatorTarget) || canRequestFullscreen(element);
 }
 
 export async function requestAppFullscreen(element: HTMLElement = document.documentElement) {
@@ -66,4 +92,20 @@ export async function requestAppFullscreen(element: HTMLElement = document.docum
     const timeout = window.setTimeout(finish, 800);
   });
   return isFullscreenActive(element.ownerDocument);
+}
+
+export async function requestSecureTestFullscreen(
+  element: HTMLElement = document.documentElement,
+  navigatorTarget: FullscreenNavigator = navigator,
+) {
+  if (!isIPadOS(navigatorTarget)) return requestAppFullscreen(element);
+  const documentIsVisible = () => element.ownerDocument.visibilityState !== "hidden";
+  if (!documentIsVisible()) return false;
+
+  // Use native fullscreen when WebKit supports it, but do not make iPad test
+  // mode depend on an API that is unstable around the on-screen keyboard.
+  if (canRequestFullscreen(element) && !isFullscreenActive(element.ownerDocument)) {
+    try { await requestAppFullscreen(element); } catch { /* Visible iPad test mode remains available. */ }
+  }
+  return documentIsVisible();
 }

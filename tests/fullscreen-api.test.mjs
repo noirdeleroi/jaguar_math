@@ -2,10 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   canRequestFullscreen,
+  canEnterSecureTestFullscreen,
   createFullscreenExitTracker,
   getFullscreenElement,
+  isIPadOS,
   isFullscreenActive,
+  isSecureTestFullscreenActive,
   requestAppFullscreen,
+  requestSecureTestFullscreen,
   subscribeToFullscreen,
 } from "../app/student/assignments/fullscreen-api.ts";
 import { canStartExamFromWaitingRoom, resolveExamRunnerAttempt, restoreFullscreenBeforeVerification } from "../app/student/assignments/exam-mode-attempt.ts";
@@ -62,6 +66,24 @@ test("requests fullscreen through the WebKit fallback used by iPad Safari", asyn
   assert.equal(canRequestFullscreen(element), true);
   assert.equal(await requestAppFullscreen(element), true);
   assert.equal(isFullscreenActive(documentTarget), true);
+});
+
+test("recognizes iPadOS including desktop-class iPad user agents", () => {
+  assert.equal(isIPadOS({ userAgent: "Mozilla/5.0 (iPad; CPU OS 18_0)", platform: "iPad", maxTouchPoints: 5 }), true);
+  assert.equal(isIPadOS({ userAgent: "Mozilla/5.0 (Macintosh)", platform: "MacIntel", maxTouchPoints: 5 }), true);
+  assert.equal(isIPadOS({ userAgent: "Mozilla/5.0 (Macintosh)", platform: "MacIntel", maxTouchPoints: 0 }), false);
+});
+
+test("keeps visible iPad test mode active through keyboard fullscreen churn", async () => {
+  const ipad = { userAgent: "Mozilla/5.0 (Macintosh)", platform: "MacIntel", maxTouchPoints: 5 };
+  const documentTarget = { fullscreenElement: null, webkitFullscreenElement: null, visibilityState: "visible" };
+  const element = { ownerDocument: documentTarget };
+  assert.equal(canEnterSecureTestFullscreen(element, ipad), true);
+  assert.equal(await requestSecureTestFullscreen(element, ipad), true);
+  assert.equal(isSecureTestFullscreenActive(documentTarget, ipad), true);
+  documentTarget.visibilityState = "hidden";
+  assert.equal(isSecureTestFullscreenActive(documentTarget, ipad), false);
+  assert.equal(await requestSecureTestFullscreen(element, ipad), false);
 });
 
 test("restores fullscreen before waiting for network verification", async () => {

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { useRouter } from "next/navigation";
 import { selectPaperVersionForAnswerEntry, startOrContinueAssignment } from "../actions";
 import { flushExamActivityQueue, sendExamActivity } from "./exam-activity-client";
-import { canRequestFullscreen, createFullscreenExitTracker, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
+import { canEnterSecureTestFullscreen, createFullscreenExitTracker, isIPadOS, isSecureTestFullscreenActive, requestSecureTestFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import styles from "./paper-session.module.css";
 
 export type PaperSessionState = {
@@ -48,7 +48,7 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
   const [, setTick] = useState(0);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
   const exitTracker = useRef(createFullscreenExitTracker());
-  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isFullscreenActive(), () => false);
+  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isSecureTestFullscreenActive(), () => false);
   const storageKey = `jaguar-paper-waiting-room:${assignmentId}`;
 
   const applyActivity = useCallback((result: Awaited<ReturnType<typeof sendExamActivity>> | null) => {
@@ -67,8 +67,8 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
     if (joining) return;
     setJoining(true); setNotice("");
     try {
-      if (!isFullscreenActive()) {
-        if (!canRequestFullscreen() || !(await requestAppFullscreen())) throw new Error("fullscreen");
+      if (isIPadOS() || !isSecureTestFullscreenActive()) {
+        if (!canEnterSecureTestFullscreen() || !(await requestSecureTestFullscreen())) throw new Error("fullscreen");
       }
       const result = await startOrContinueAssignment(assignmentId);
       if ("error" in result) { setNotice("The secure paper waiting room is not available yet. Ask your teacher for help."); return; }
@@ -87,11 +87,11 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
     if (joining || !attemptId) return;
     setJoining(true); setNotice("");
     try {
-      if (!canRequestFullscreen() || !(await requestAppFullscreen())) throw new Error("fullscreen");
+      if (!canEnterSecureTestFullscreen() || !(await requestSecureTestFullscreen())) throw new Error("fullscreen");
       exitTracker.current.markRestored();
       const queued = await flushExamActivityQueue(attemptId); applyActivity(queued);
       const restored = await sendExamActivity(attemptId, "fullscreen_restored"); applyActivity(restored);
-      if (isFullscreenActive()) setFullscreenBlocked(false);
+      if (isSecureTestFullscreenActive()) setFullscreenBlocked(false);
     } catch { setNotice("Fullscreen could not be restored. Try again to continue."); }
     finally { setJoining(false); }
   };
@@ -127,14 +127,17 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
 
   useEffect(() => {
     if (!waitingRoomOpen || !attemptId) return;
-    const fullscreen = () => { if (!isFullscreenActive()) recordExit(); };
+    const iPadMode = isIPadOS();
+    const fullscreen = () => { if (!isSecureTestFullscreenActive()) recordExit(); };
     const visibility = () => { if (document.visibilityState === "hidden") recordExit(true); };
-    const blur = () => { if (document.visibilityState === "visible" && !isFullscreenActive()) recordExit(true); };
+    const blur = () => { if (document.visibilityState === "visible" && !isSecureTestFullscreenActive()) recordExit(true); };
     const pageHide = () => recordExit(true);
-    if (!isFullscreenActive()) window.setTimeout(recordExit, 0);
+    if (!isSecureTestFullscreenActive()) window.setTimeout(recordExit, 0);
     document.addEventListener("visibilitychange", visibility);
-    window.addEventListener("blur", blur);
-    window.addEventListener("pagehide", pageHide);
+    if (!iPadMode) {
+      window.addEventListener("blur", blur);
+      window.addEventListener("pagehide", pageHide);
+    }
     const unsubscribe = subscribeToFullscreen(fullscreen);
     return () => { document.removeEventListener("visibilitychange", visibility); window.removeEventListener("blur", blur); window.removeEventListener("pagehide", pageHide); unsubscribe(); };
   }, [attemptId, recordExit, waitingRoomOpen]);

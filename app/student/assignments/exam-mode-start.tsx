@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { startOrContinueExamAssignment } from "../actions";
 import { flushExamActivityQueue, sendExamActivity } from "./exam-activity-client";
 import { canStartExamFromWaitingRoom } from "./exam-mode-attempt";
-import { canRequestFullscreen, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
+import { canEnterSecureTestFullscreen, isIPadOS, isSecureTestFullscreenActive, requestSecureTestFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import styles from "./exam-mode.module.css";
 
 export type ExamAttempt = { id: string; expiresAt: string | null; formCode: string | null; focusViolations: number };
@@ -31,7 +31,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
   const [waitingRoomViolation, setWaitingRoomViolation] = useState(false);
   const startingRef = useRef(false);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
-  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isFullscreenActive(), () => false);
+  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isSecureTestFullscreenActive(), () => false);
   const resume = Boolean(attempt);
   const waitingRoomStorageKey = `jaguar-test-waiting-room:${assignmentId}`;
   const fullscreenBlocked = waitingRoomOpen && requireFullscreen && (!fullscreenActive || waitingRoomViolation);
@@ -42,14 +42,14 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
   }, [waitingRoomStorageKey]);
 
   const stopIfFullscreenWasLost = useCallback((attemptId: string) => {
-    if (!requireFullscreen || isFullscreenActive()) return false;
+    if (!requireFullscreen || isSecureTestFullscreenActive()) return false;
     setNotice("You left fullscreen before the assessment was ready. The exit was recorded. Return to fullscreen to continue.");
     void sendExamActivity(attemptId, "fullscreen_exited", undefined, true);
     return true;
   }, [requireFullscreen]);
 
   const activateAttempt = useCallback(async () => {
-    if (startingRef.current || !questionsReleased || waitingRoomViolation || (requireFullscreen && !isFullscreenActive())) return;
+    if (startingRef.current || !questionsReleased || waitingRoomViolation || (requireFullscreen && !isSecureTestFullscreenActive())) return;
     startingRef.current = true;
     setEntering(true);
     setLaunching(true);
@@ -101,9 +101,9 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     if (entering || startingRef.current) return;
     setEntering(true);
     setNotice("");
-    if (requireFullscreen && !isFullscreenActive()) {
-      if (!canRequestFullscreen()) { setNotice("Fullscreen is not supported by this browser. Ask your teacher how to continue."); setEntering(false); return; }
-      try { if (!(await requestAppFullscreen())) throw new Error("not-entered"); } catch { setNotice("The browser could not enter fullscreen. Close any permission prompt and try again."); setEntering(false); return; }
+    if (requireFullscreen && (isIPadOS() || !isSecureTestFullscreenActive())) {
+      if (!canEnterSecureTestFullscreen()) { setNotice("Fullscreen is not supported by this browser. Ask your teacher how to continue."); setEntering(false); return; }
+      try { if (!(await requestSecureTestFullscreen())) throw new Error("not-entered"); } catch { setNotice("The browser could not enter fullscreen. Close any permission prompt and try again."); setEntering(false); return; }
     }
     setWaitingRoomViolation(false);
     try { sessionStorage.setItem(waitingRoomStorageKey, "armed"); } catch { /* The in-memory lock remains active. */ }
@@ -116,7 +116,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
     setEntering(true);
     setNotice("");
     try {
-      if (!canRequestFullscreen() || !(await requestAppFullscreen())) throw new Error("not-entered");
+      if (!canEnterSecureTestFullscreen() || !(await requestSecureTestFullscreen())) throw new Error("not-entered");
       setWaitingRoomViolation(false);
     } catch {
       setNotice("Fullscreen could not be restored. You cannot start or continue the test until you return to fullscreen.");
@@ -135,16 +135,19 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
 
   useEffect(() => {
     if (!waitingRoomOpen || !requireFullscreen) return;
+    const iPadMode = isIPadOS();
     const blockWaitingRoom = () => setWaitingRoomViolation(true);
-    const fullscreen = () => { if (!isFullscreenActive()) blockWaitingRoom(); };
+    const fullscreen = () => { if (!isSecureTestFullscreenActive()) blockWaitingRoom(); };
     const visibility = () => { if (document.visibilityState === "hidden") blockWaitingRoom(); };
 
     // Waiting-room incidents lock the UI locally but are intentionally not
     // sent to exam activity because the timed attempt has not started.
-    const initialCheck = !isFullscreenActive() ? window.setTimeout(blockWaitingRoom, 0) : undefined;
+    const initialCheck = !isSecureTestFullscreenActive() ? window.setTimeout(blockWaitingRoom, 0) : undefined;
     document.addEventListener("visibilitychange", visibility);
-    window.addEventListener("blur", blockWaitingRoom);
-    window.addEventListener("pagehide", blockWaitingRoom);
+    if (!iPadMode) {
+      window.addEventListener("blur", blockWaitingRoom);
+      window.addEventListener("pagehide", blockWaitingRoom);
+    }
     const unsubscribeFullscreen = subscribeToFullscreen(fullscreen);
     return () => {
       if (initialCheck !== undefined) window.clearTimeout(initialCheck);

@@ -6,7 +6,7 @@ import MathText from "@/app/components/math-text";
 import { saveStudentResponseWithFeedback, submitAttemptSnapshot, submitExamAttempt, submitStudentAttempt } from "../actions";
 import { flushExamActivityQueue, sendExamActivity, type ExamActivityEvent, type ExamResponseSnapshot } from "./exam-activity-client";
 import { restoreFullscreenBeforeVerification } from "./exam-mode-attempt";
-import { canRequestFullscreen, createFullscreenExitTracker, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
+import { canEnterSecureTestFullscreen, createFullscreenExitTracker, isIPadOS, isSecureTestFullscreenActive, requestSecureTestFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import { requestScreenWakeLock, type ScreenWakeLockHandle } from "./screen-wake-lock";
 import { acknowledgePendingAnswers, createStoredDraft, readStoredSubmission, type PendingAnswer, type StoredDraft, type SubmissionSnapshot } from "./attempt-draft";
 import styles from "./exam-mode.module.css";
@@ -41,7 +41,7 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
   const [fullscreenBlocked, setFullscreenBlocked] = useState(false);
   const [verifyingExit, setVerifyingExit] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
-  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isFullscreenActive(), () => false);
+  const fullscreenActive = useSyncExternalStore(subscribeToFullscreen, () => isSecureTestFullscreenActive(), () => false);
   const awayAt = useRef<number | null>(null);
   const fullscreenExitTracker = useRef(createFullscreenExitTracker());
   const restoringFullscreen = useRef(false);
@@ -288,7 +288,7 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
       void logActivity("fullscreen_exited", undefined, true, keepalive);
     };
     const enforceFullscreen = (keepalive = false) => {
-      if (examMode.requireFullscreen && !isFullscreenActive()) recordFullscreenExit(keepalive);
+      if (examMode.requireFullscreen && !isSecureTestFullscreenActive()) recordFullscreenExit(keepalive);
     };
     const visibility = () => {
       if (document.visibilityState === "hidden") {
@@ -308,11 +308,12 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
     const pageHide = () => { sendPendingBeacon(); if (examMode.requireFullscreen) recordFullscreenExit(true); };
     const fullscreen = () => enforceFullscreen();
 
-    if (examMode.requireFullscreen && !isFullscreenActive()) window.setTimeout(recordFullscreenExit, 0);
+    const iPadMode = isIPadOS();
+    if (examMode.requireFullscreen && !isSecureTestFullscreenActive()) window.setTimeout(recordFullscreenExit, 0);
     document.addEventListener("visibilitychange", visibility);
-    window.addEventListener("blur", blur);
+    if (!iPadMode) window.addEventListener("blur", blur);
     window.addEventListener("focus", focus);
-    window.addEventListener("pagehide", pageHide);
+    if (!iPadMode) window.addEventListener("pagehide", pageHide);
     const unsubscribeFullscreen = subscribeToFullscreen(fullscreen);
     return () => {
       document.removeEventListener("visibilitychange", visibility);
@@ -342,27 +343,27 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
     restoringFullscreen.current = true;
     setVerifyingExit(true);
     try {
-      if (!canRequestFullscreen()) throw new Error("unsupported");
+      if (!canEnterSecureTestFullscreen()) throw new Error("unsupported");
       const recovery = await restoreFullscreenBeforeVerification(
-        () => requestAppFullscreen(),
+        () => requestSecureTestFullscreen(),
         () => { fullscreenExitTracker.current.markRestored(); return flushExamActivityQueue(attemptId); },
       );
       if (!recovery.restored) throw new Error("not-entered");
       const queuedResult = recovery.result; applyActivityResult(queuedResult);
       if (queuedResult && "error" in queuedResult) {
-        if (examMode?.violationAction === "warn" && isFullscreenActive()) { setFullscreenBlocked(false); setExamWarning("This interruption is safely queued on this device and will synchronize when the connection returns."); }
+        if (examMode?.violationAction === "warn" && isSecureTestFullscreenActive()) { setFullscreenBlocked(false); setExamWarning("This interruption is safely queued on this device and will synchronize when the connection returns."); }
         return;
       }
       if (autoSubmitKnown.current) return;
       const restoredResult = await sendExamActivity(attemptId, "fullscreen_restored"); applyActivityResult(restoredResult);
-      if (restoredResult && !("error" in restoredResult) && !autoSubmitKnown.current && isFullscreenActive()) { setFullscreenBlocked(false); setExamWarning(""); }
+      if (restoredResult && !("error" in restoredResult) && !autoSubmitKnown.current && isSecureTestFullscreenActive()) { setFullscreenBlocked(false); setExamWarning(""); }
     }
     catch { setVerifyingExit(false); await logActivity("fullscreen_unavailable"); setExamWarning("Fullscreen could not be restored. Try again to continue the assessment."); }
     finally { restoringFullscreen.current = false; }
   };
 
   const checkFeedback = async (questionId: string, answer: string) => {
-    if (examMode?.requireFullscreen && (fullscreenBlocked || !isFullscreenActive())) { setFullscreenBlocked(true); return; }
+    if (examMode?.requireFullscreen && (fullscreenBlocked || !isSecureTestFullscreenActive())) { setFullscreenBlocked(true); return; }
     setCheckingQuestionId(questionId);
     try {
       if (!(await syncPending())) { setNotice("Feedback will be available after this answer synchronizes."); setCheckingQuestionId(null); return; }
@@ -372,10 +373,10 @@ export default function AssessmentRunner({ attemptId, expiresAt, formCode, quest
     } catch { setNotice("Feedback is waiting for a connection. Your answer remains saved on this device."); }
     setCheckingQuestionId(null);
   };
-  const save = (questionId: string, answer: string, checkImmediately = false) => { if (responsesClosed || fullscreenBlocked || (examMode?.requireFullscreen && !isFullscreenActive()) || autoSubmitted || (deadline !== null && remaining === 0)) { if (examMode?.requireFullscreen && !isFullscreenActive()) setFullscreenBlocked(true); return; } queueAnswer(questionId, answer); if (checkImmediately) void checkFeedback(questionId, answer); };
+  const save = (questionId: string, answer: string, checkImmediately = false) => { if (responsesClosed || fullscreenBlocked || (examMode?.requireFullscreen && !isSecureTestFullscreenActive()) || autoSubmitted || (deadline !== null && remaining === 0)) { if (examMode?.requireFullscreen && !isSecureTestFullscreenActive()) setFullscreenBlocked(true); return; } queueAnswer(questionId, answer); if (checkImmediately) void checkFeedback(questionId, answer); };
 
   const submit = useCallback((timed = false) => {
-    if (submitting || autoSubmitted || (!timed && !responsesClosed && (fullscreenBlocked || (examMode?.requireFullscreen && !isFullscreenActive())))) { if (!timed && examMode?.requireFullscreen && !isFullscreenActive()) setFullscreenBlocked(true); return; }
+    if (submitting || autoSubmitted || (!timed && !responsesClosed && (fullscreenBlocked || (examMode?.requireFullscreen && !isSecureTestFullscreenActive())))) { if (!timed && examMode?.requireFullscreen && !isSecureTestFullscreenActive()) setFullscreenBlocked(true); return; }
     if (timed) timedSubmissionPending.current = true;
     if (!submissionRef.current && (!responsesClosed || (timed && deadline !== null))) submissionRef.current = {
       responses: responseSnapshot(),
