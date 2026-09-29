@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { startOrContinuePaperAssignment } from "../actions";
+import { selectPaperVersionForAnswerEntry, startOrContinueAssignment } from "../actions";
 import { flushExamActivityQueue, sendExamActivity } from "./exam-activity-client";
 import { canRequestFullscreen, createFullscreenExitTracker, isFullscreenActive, requestAppFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import styles from "./paper-session.module.css";
@@ -39,6 +39,7 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
   const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
   const [fullscreenBlocked, setFullscreenBlocked] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [selectingVersion, setSelectingVersion] = useState(false);
   const [notice, setNotice] = useState("");
   const [paperVersion, setPaperVersion] = useState(() => initialSession.paperVersionCount === 1 ? "1" : "");
   const [online, setOnline] = useState(true);
@@ -64,20 +65,14 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
 
   const joinWaitingRoom = async () => {
     if (joining) return;
-    const selectedVersion = Number(paperVersion);
-    if (!Number.isInteger(selectedVersion) || selectedVersion < 1 || selectedVersion > session.paperVersionCount) {
-      setNotice(`Enter the version number printed on your paper (1–${session.paperVersionCount}).`);
-      return;
-    }
     setJoining(true); setNotice("");
     try {
       if (!isFullscreenActive()) {
         if (!canRequestFullscreen() || !(await requestAppFullscreen())) throw new Error("fullscreen");
       }
-      const result = await startOrContinuePaperAssignment(assignmentId, selectedVersion);
-      if ("error" in result) { setNotice(result.error ?? "That paper version is not available."); return; }
+      const result = await startOrContinueAssignment(assignmentId);
+      if ("error" in result) { setNotice("The secure paper waiting room is not available yet. Ask your teacher for help."); return; }
       setAttemptId(result.attemptId);
-      setSession((current) => ({ ...current, attemptId: result.attemptId, formCode: result.formCode, paperVersionConfirmed: true }));
       try { sessionStorage.setItem(storageKey, "armed"); } catch { /* In-memory state still protects this visit. */ }
       setWaitingRoomOpen(true);
       exitTracker.current.markRestored();
@@ -101,13 +96,28 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
     finally { setJoining(false); }
   };
 
+  const confirmPaperVersion = async () => {
+    if (selectingVersion) return;
+    const selectedVersion = Number(paperVersion);
+    if (!Number.isInteger(selectedVersion) || selectedVersion < 1 || selectedVersion > session.paperVersionCount) {
+      setNotice(`Enter the version number printed on your paper (1–${session.paperVersionCount}).`);
+      return;
+    }
+    setSelectingVersion(true); setNotice("");
+    const result = await selectPaperVersionForAnswerEntry(assignmentId, selectedVersion);
+    if ("error" in result) { setNotice(result.error ?? "That paper version is not available."); setSelectingVersion(false); return; }
+    setAttemptId(result.attemptId);
+    setSession((current) => ({ ...current, attemptId: result.attemptId, formCode: result.formCode, paperVersionConfirmed: true }));
+    router.refresh();
+  };
+
   useEffect(() => {
     try {
-      if (!attemptId || !session.paperVersionConfirmed || sessionStorage.getItem(storageKey) !== "armed") return;
+      if (!attemptId || sessionStorage.getItem(storageKey) !== "armed") return;
       const timer = window.setTimeout(() => setWaitingRoomOpen(true), 0);
       return () => window.clearTimeout(timer);
     } catch { /* A fresh click can reopen the room. */ }
-  }, [attemptId, session.paperVersionConfirmed, storageKey]);
+  }, [attemptId, storageKey]);
 
   useEffect(() => {
     const sync = () => setOnline(navigator.onLine);
@@ -173,7 +183,9 @@ export default function PaperAssessmentGate({ assignmentId, durationMinutes, ini
   const writingEnded = Boolean(session.writingStartedAt && !writingPaused && writingLeft === 0);
   const version = session.formCode?.replace(/^Version\s+/i, "") ?? "—";
 
-  if (!waitingRoomOpen) return <section className={styles.entry}><p className="eyebrow">Paper test · Secure waiting room</p><h2>Enter your paper version.</h2><p>Find the version number printed on your paper. Jaguar will use that version&apos;s answer key when marking your answers.</p><form className={styles.versionForm} onSubmit={(event) => { event.preventDefault(); void joinWaitingRoom(); }}><label htmlFor={`paper-version-${assignmentId}`}>Version number <small>Printed on your test · 1–{session.paperVersionCount}</small></label><input autoComplete="off" id={`paper-version-${assignmentId}`} inputMode="numeric" max={session.paperVersionCount} min={1} name="paper_version" onChange={(event) => setPaperVersion(event.target.value)} pattern="[0-9]*" required type="number" value={paperVersion} /><button className="teacher-button" disabled={joining} type="submit">{joining ? "Opening waiting room…" : "Confirm version & enter fullscreen"} <span aria-hidden="true">→</span></button></form>{notice && <p className="notice notice-error" role="status">{notice}</p>}</section>;
+  if (!waitingRoomOpen) return <section className={styles.entry}><p className="eyebrow">Paper test · Secure waiting room</p><h2>Enter fullscreen before the test begins.</h2><p>Your synchronized class timer will appear inside the waiting room. You will enter the version printed on your paper when the final answer page opens.</p><button className="teacher-button" disabled={joining} onClick={() => void joinWaitingRoom()} type="button">{joining ? "Opening waiting room…" : "Enter fullscreen waiting room"} <span aria-hidden="true">→</span></button>{notice && <p className="notice notice-error" role="status">{notice}</p>}</section>;
 
-  return <section aria-live="polite" className={styles.secureShell}><div className={styles.topline}><span>Jaguar Math · Paper test</span><span className={online ? styles.online : styles.offline}>{online ? "Connected" : writingPaused ? "Offline · timer remains paused" : "Offline · timer continues"}</span></div><div className={styles.waitingCard}><p className="eyebrow">Secure paper waiting room</p><h1>{writingPaused ? "Writing is paused." : writing ? "Work on your printed test." : writingEnded ? "Pens down." : "Waiting for your teacher."}</h1><p className={styles.lead}>{writingPaused ? "Stop writing. Your teacher has paused the class timer; it will continue from the same time when resumed." : writing ? "Answer on paper only. The online answer sheet stays locked until writing time ends." : writingEnded ? "Stop writing and keep this page open. Your teacher will release the answer-entry window next." : "Stay in fullscreen. The class timer will start here for everyone at the same time."}</p><div className={styles.sessionGrid}><article><span>{writingPaused ? "Writing time paused" : writing ? "Writing time left" : writingEnded ? "Writing time" : "Writing time"}</span><strong>{writing || writingPaused ? clock(writingLeft) : writingEnded ? "00:00" : `${durationMinutes} min`}</strong></article><article><span>Assigned paper</span><strong>Version {version}</strong></article><article><span>Answer entry</span><strong>{session.answerDurationSeconds} sec</strong></article></div><div className={`${styles.phaseStatus} ${writingEnded || writingPaused ? styles.ready : ""}`}><i aria-hidden="true" /><div><strong>{writingPaused ? "Timer paused · stop writing" : writing ? "Writing timer is running" : writingEnded ? "Waiting for answer entry" : "Waiting for the teacher to start"}</strong><span>This page updates automatically. Do not leave fullscreen or refresh.</span></div></div><p className={styles.focusNote}>Fullscreen exits recorded: <strong>{focusViolations}</strong></p></div>{fullscreenBlocked || !fullscreenActive ? <section className={styles.blockOverlay} role="alert"><span aria-hidden="true">!</span><p className="eyebrow">Fullscreen exit recorded</p><h2>Return to fullscreen now.</h2><p>The secure waiting room is locked because fullscreen was exited. Your teacher can see the recorded interruption.</p><button className="teacher-button" disabled={joining} onClick={() => void restoreFullscreen()} ref={restoreButtonRef} type="button">{joining ? "Restoring…" : "Return to fullscreen"}</button>{notice && <small>{notice}</small>}</section> : null}</section>;
+  if (session.answersReleasedAt && !session.paperVersionConfirmed) return <section aria-live="polite" className={styles.secureShell}><div className={styles.topline}><span>Jaguar Math · Paper answer entry</span><span className={online ? styles.online : styles.offline}>{online ? "Connected" : "Offline · reconnect to continue"}</span></div><div className={styles.versionStage}><p className="eyebrow">Final answer page · Step 1 of 2</p><h1>Enter your paper version.</h1><p className={styles.lead}>Find the version number printed on your test. Jaguar will load that version&apos;s answer sheet and mark it with the matching answer key.</p><form className={styles.versionForm} onSubmit={(event) => { event.preventDefault(); void confirmPaperVersion(); }}><label htmlFor={`paper-version-${assignmentId}`}>Version number <small>Printed on your test · 1–{session.paperVersionCount}</small></label><input autoFocus autoComplete="off" id={`paper-version-${assignmentId}`} inputMode="numeric" max={session.paperVersionCount} min={1} name="paper_version" onChange={(event) => setPaperVersion(event.target.value)} pattern="[0-9]*" required type="number" value={paperVersion} /><button className="teacher-button" disabled={selectingVersion} type="submit">{selectingVersion ? "Loading answer sheet…" : "Continue to all answers"} <span aria-hidden="true">→</span></button></form>{notice && <p className={styles.versionError} role="alert">{notice}</p>}<p className={styles.focusNote}>Next: enter every answer in order. Fullscreen exits recorded: <strong>{focusViolations}</strong></p></div>{fullscreenBlocked || !fullscreenActive ? <section className={styles.blockOverlay} role="alert"><span aria-hidden="true">!</span><p className="eyebrow">Fullscreen exit recorded</p><h2>Return to fullscreen now.</h2><p>Version selection and answer entry are locked while fullscreen is off.</p><button className="teacher-button" disabled={joining} onClick={() => void restoreFullscreen()} ref={restoreButtonRef} type="button">{joining ? "Restoring…" : "Return to fullscreen"}</button>{notice && <small>{notice}</small>}</section> : null}</section>;
+
+  return <section aria-live="polite" className={styles.secureShell}><div className={styles.topline}><span>Jaguar Math · Paper test</span><span className={online ? styles.online : styles.offline}>{online ? "Connected" : writingPaused ? "Offline · timer remains paused" : "Offline · timer continues"}</span></div><div className={styles.waitingCard}><p className="eyebrow">Secure paper waiting room</p><h1>{writingPaused ? "Writing is paused." : writing ? "Work on your printed test." : writingEnded ? "Pens down." : "Waiting for your teacher."}</h1><p className={styles.lead}>{writingPaused ? "Stop writing. Your teacher has paused the class timer; it will continue from the same time when resumed." : writing ? "Answer on paper only. The online answer sheet stays locked until writing time ends." : writingEnded ? "Stop writing and keep this page open. Your teacher will release the answer-entry window next." : "Stay in fullscreen. The class timer will start here for everyone at the same time."}</p><div className={styles.sessionGrid}><article><span>{writingPaused ? "Writing time paused" : writing ? "Writing time left" : writingEnded ? "Writing time" : "Writing time"}</span><strong>{writing || writingPaused ? clock(writingLeft) : writingEnded ? "00:00" : `${durationMinutes} min`}</strong></article><article><span>Paper version</span><strong>{session.paperVersionConfirmed ? `Version ${version}` : "Enter with answers"}</strong></article><article><span>Answer entry</span><strong>{session.answerDurationSeconds} sec</strong></article></div><div className={`${styles.phaseStatus} ${writingEnded || writingPaused ? styles.ready : ""}`}><i aria-hidden="true" /><div><strong>{writingPaused ? "Timer paused · stop writing" : writing ? "Writing timer is running" : writingEnded ? "Waiting for answer entry" : "Waiting for the teacher to start"}</strong><span>This page updates automatically. Do not leave fullscreen or refresh.</span></div></div><p className={styles.focusNote}>Fullscreen exits recorded: <strong>{focusViolations}</strong></p></div>{fullscreenBlocked || !fullscreenActive ? <section className={styles.blockOverlay} role="alert"><span aria-hidden="true">!</span><p className="eyebrow">Fullscreen exit recorded</p><h2>Return to fullscreen now.</h2><p>The secure waiting room is locked because fullscreen was exited. Your teacher can see the recorded interruption.</p><button className="teacher-button" disabled={joining} onClick={() => void restoreFullscreen()} ref={restoreButtonRef} type="button">{joining ? "Restoring…" : "Return to fullscreen"}</button>{notice && <small>{notice}</small>}</section> : null}</section>;
 }

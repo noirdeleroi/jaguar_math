@@ -37,9 +37,11 @@ test("students choose the version printed on their paper and grading follows tha
   assert.match(studentSelectedVersionMigration, /where candidate\.variant_index = p_version/);
   assert.match(studentSelectedVersionMigration, /insert into public\.attempt_questions/);
   assert.match(studentSelectedVersionMigration, /The paper version cannot change after answers are saved/);
-  assert.match(waitingRoom, /Enter your paper version\./);
-  assert.match(waitingRoom, /startOrContinuePaperAssignment/);
-  assert.match(waitingRoom, /paperVersionConfirmed/);
+  assert.match(waitingRoom, /session\.answersReleasedAt && !session\.paperVersionConfirmed/);
+  assert.match(waitingRoom, /Final answer page · Step 1 of 2/);
+  assert.match(waitingRoom, /selectPaperVersionForAnswerEntry/);
+  assert.match(waitingRoom, /Continue to all answers/);
+  assert.match(waitingRoom, /enter the version printed on your paper when the final answer page opens/);
 });
 
 test("active paper attempts expose answer metadata without prompt or option text", () => {

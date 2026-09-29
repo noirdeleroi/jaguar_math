@@ -42,7 +42,7 @@ export async function startOrContinueAssignment(assignmentId: string) {
   return { attemptId: data.id as string };
 }
 
-export async function startOrContinuePaperAssignment(assignmentId: string, paperVersion: number) {
+export async function selectPaperVersionForAnswerEntry(assignmentId: string, paperVersion: number) {
   await requireStudent();
   if (!notificationUuid.test(assignmentId) || !Number.isInteger(paperVersion) || paperVersion < 1 || paperVersion > 4) return { error: "Enter the version number printed on your paper." };
   const supabase = await createClient();
