@@ -84,6 +84,11 @@ test("teachers can pause, edit, resume, and end the synchronized paper timer", (
   assert.match(teacherSessionControls, /Pause timer/);
   assert.match(teacherSessionControls, /Resume timer/);
   assert.match(teacherSessionControls, /Set time left/);
+  assert.match(teacherSessionControls, /rpc: "start_owned_paper_session"/);
+  assert.match(teacherSessionControls, /rpc: "pause_owned_paper_session"/);
+  assert.match(teacherSessionControls, /rpc: "resume_owned_paper_session"/);
+  assert.match(teacherSessionControls, /rpc: "set_owned_paper_writing_time"/);
+  assert.doesNotMatch(teacherSessionControls, /action=\{(?:start|pause|resume|set)Paper/);
   assert.match(teacherSessionControls, /End writing & open answers/);
   assert.match(teacherSessionControls, /finish_owned_paper_writing_and_release_answers/);
   assert.match(teacherSessionControls, /abortSignal\(controller\.signal\)/);
