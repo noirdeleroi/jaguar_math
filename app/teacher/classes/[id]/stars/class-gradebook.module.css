@@ -818,6 +818,107 @@
   display: block;
 }
 
+.newTopicDialog {
+  width: min(660px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+
+.topicClassPicker,
+.topicModePicker {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.topicClassPicker legend,
+.topicModePicker legend {
+  margin-bottom: 7px;
+  color: #31554b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.topicClassPicker > label,
+.topicModePicker > label {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid #d7dfd8;
+  border-radius: 9px;
+  padding: 11px 12px;
+  background: #fffdf8;
+  cursor: pointer;
+}
+
+.topicClassPicker input,
+.topicModePicker input {
+  width: 18px;
+  height: 18px;
+  accent-color: #1f806a;
+}
+
+.topicClassPicker span,
+.topicClassPicker strong,
+.topicClassPicker small,
+.topicModePicker span,
+.topicModePicker strong,
+.topicModePicker small {
+  display: block;
+}
+
+.topicClassPicker small,
+.topicModePicker small {
+  margin-top: 3px;
+  color: #687d75;
+  font-size: 10px;
+}
+
+.percentageStepper {
+  display: grid;
+  grid-template-columns: 42px minmax(130px, 1fr) 42px;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.percentageStepper > button {
+  border: 1px solid #9ebbac;
+  border-radius: 9px;
+  background: #edf5ef;
+  color: #245a47;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.percentageStepper > button:disabled { cursor: not-allowed; opacity: .45; }
+.percentageStepper label { position: relative; }
+.percentageStepper label input { padding-right: 30px; font-size: 18px; font-weight: 900; text-align: center; }
+.percentageStepper label b { position: absolute; right: 13px; bottom: 11px; color: #607970; }
+
+.classworkGradeHead {
+  min-width: 154px;
+  border-top: 4px solid #d39b35 !important;
+  background: #fff1c8 !important;
+  color: #614800;
+}
+
+.classworkGradeHead > button { display: grid; gap: 3px; width: 100%; border: 0; padding: 10px; background: transparent; color: inherit; cursor: pointer; }
+.classworkGradeHead span,
+.classworkGradeHead small { color: #7d6521; font-size: 9px; }
+
+.classworkGradeCell {
+  min-width: 154px;
+  text-align: center;
+}
+
+.classworkGradeCell > strong { display: block; color: #6f5200; font-size: 20px; }
+.classworkGradeCell > div { display: flex; justify-content: center; gap: 6px; margin-top: 7px; }
+.classworkGradeCell button { min-width: 36px; border: 1px solid #d2b466; border-radius: 7px; padding: 5px 9px; background: #fff6da; color: #6f5200; font-size: 16px; font-weight: 900; cursor: pointer; }
+.classworkGradeCell button:disabled { cursor: not-allowed; opacity: .4; }
+
 .currentTopicChoice strong {
   color: #245a47;
   font-size: 12px;

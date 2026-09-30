@@ -2,13 +2,67 @@
 
 import { useState } from "react";
 import { FINAL_GRADE_COMMENT_MAX_LENGTH, normalizeFinalGradeOverride } from "@/lib/classroom-final-grade";
-import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem } from "@/lib/classroom-stars";
+import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem, TeacherClassOption } from "@/lib/classroom-stars";
 import { DEFAULT_TOPIC_GRADE_FORMULA, clampTopicGrade, evaluateTopicFinalGradeFormula, normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
 import styles from "./class-gradebook.module.css";
 
 function todayKey() {
   const date = new Date();
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function PercentageStepper({ value, onChange, disabled = false }: { value: number; onChange: (value: number) => void; disabled?: boolean }) {
+  const change = (next: number) => onChange(Math.max(0, Math.min(100, Math.round(next))));
+  return <div className={styles.percentageStepper}><button aria-label="Decrease grade by 5 percent" disabled={disabled || value <= 0} onClick={() => change(value - 5)} type="button">−</button><label><span>Default grade</span><input disabled={disabled} max="100" min="0" onChange={(event) => change(Number(event.target.value))} step="1" type="number" value={value} /><b>%</b></label><button aria-label="Increase grade by 5 percent" disabled={disabled || value >= 100} onClick={() => change(value + 5)} type="button">＋</button></div>;
+}
+
+export function NewTopicDialog({ classId, classes, onClose, onCreated }: {
+  classId: string;
+  classes: TeacherClassOption[];
+  onClose: () => void;
+  onCreated: (topic: ClassroomWeek, classCount: number) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [classIds, setClassIds] = useState(() => new Set([classId]));
+  const [gradingMode, setGradingMode] = useState<"stars" | "classwork">("stars");
+  const [defaultGrade, setDefaultGrade] = useState(80);
+  const [makeCurrent, setMakeCurrent] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  function toggleClass(targetId: string, checked: boolean) {
+    if (targetId === classId) return;
+    setClassIds((current) => { const next = new Set(current); if (checked) next.add(targetId); else next.delete(targetId); return next; });
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/topics`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, classIds: [...classIds], gradingMode, classworkDefaultGrade: defaultGrade, makeCurrent }) });
+      const result = await response.json() as { topic?: ClassroomWeek; classCount?: number; error?: string };
+      if (!response.ok || !result.topic) throw new Error(result.error || "The topic could not be created.");
+      onCreated(result.topic, result.classCount ?? classIds.size);
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "The topic could not be created.");
+      setBusy(false);
+    }
+  }
+
+  return <div className={styles.dialogBackdrop} role="presentation"><section aria-modal="true" className={`${styles.columnDialog} ${styles.newTopicDialog}`} role="dialog">
+    <button aria-label="Close new topic" className={styles.dialogClose} disabled={busy} onClick={onClose} type="button">×</button>
+    <p className={styles.dialogEyebrow}>Class manager · New topic</p><h2>Create a topic</h2><p>Set it up once, then copy the same topic to any of your other classes.</p>
+    <form className={styles.columnForm} onSubmit={submit}>
+      <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Linear equations" required value={title} /></label>
+      <fieldset className={styles.topicClassPicker}><legend>Copy to classes</legend>{classes.map((classroom) => <label key={classroom.id}><input checked={classIds.has(classroom.id)} disabled={busy || classroom.id === classId} onChange={(event) => toggleClass(classroom.id, event.target.checked)} type="checkbox" /><span><strong>{classroom.name}</strong><small>Grade {classroom.gradeLevel}{classroom.id === classId ? " · current class" : ""}</small></span></label>)}</fieldset>
+      <fieldset className={styles.topicModePicker}><legend>How will this topic be graded?</legend><label><input checked={gradingMode === "stars"} disabled={busy} onChange={() => setGradingMode("stars")} type="radio" /><span><strong>★ Stars &amp; 💀 Skulls</strong><small>Show each student&apos;s topic rewards and warnings.</small></span></label><label><input checked={gradingMode === "classwork"} disabled={busy} onChange={() => setGradingMode("classwork")} type="radio" /><span><strong>Classwork grade</strong><small>Track one percentage per student with quick +/− controls.</small></span></label></fieldset>
+      {gradingMode === "classwork" ? <PercentageStepper disabled={busy} onChange={setDefaultGrade} value={defaultGrade} /> : null}
+      <label className={styles.currentTopicChoice}><input checked={makeCurrent} disabled={busy} onChange={(event) => setMakeCurrent(event.target.checked)} type="checkbox" /><span><strong>Make this the current topic</strong><small>Students will see this topic and their current result on the dashboard.</small></span></label>
+      {message ? <p className={styles.formError} role="alert">{message}</p> : null}
+      <div className={styles.dialogActions}><button disabled={busy || !title.trim()} type="submit">{busy ? "Creating…" : `Create in ${classIds.size} ${classIds.size === 1 ? "class" : "classes"}`}</button></div>
+    </form>
+  </section></div>;
 }
 
 export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onSaved }: {
@@ -23,6 +77,8 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
   const [finalGradeMax, setFinalGradeMax] = useState(String(topic.finalGradeMax));
   const [summativeGradeColumnId, setSummativeGradeColumnId] = useState(topic.summativeGradeColumnId ?? "");
   const [makeCurrent, setMakeCurrent] = useState(topic.isCurrent);
+  const [gradingMode, setGradingMode] = useState(topic.gradingMode);
+  const [defaultGrade, setDefaultGrade] = useState(topic.classworkDefaultGrade);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   let preview = "";
@@ -50,7 +106,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
       const response = await fetch(`/api/classes/${classId}/topics/${topic.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, finalGradeFormula: normalizedFormula, finalGradeMax: maximum, summativeGradeColumnId: summativeGradeColumnId || null, makeCurrent }),
+        body: JSON.stringify({ title, gradingMode, classworkDefaultGrade: defaultGrade, finalGradeFormula: normalizedFormula, finalGradeMax: maximum, summativeGradeColumnId: summativeGradeColumnId || null, makeCurrent }),
       });
       const result = await response.json() as { topic?: ClassroomWeek; error?: string };
       if (!response.ok || !result.topic) throw new Error(result.error || "The topic settings could not be saved.");
@@ -64,11 +120,13 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
   return <div className={styles.dialogBackdrop} role="presentation"><section aria-modal="true" className={styles.columnDialog} role="dialog">
     <button aria-label="Close topic settings" className={styles.dialogClose} disabled={busy} onClick={onClose} type="button">×</button>
     <p className={styles.dialogEyebrow}>{topic.label} · Topic settings</p>
-    <h2>Final topic grade</h2>
-    <p>Final grades are optional. Choose a summative test and enter a formula only when the topic is ready to be graded.</p>
+    <h2>Topic settings</h2>
+    <p>Choose what students see during this topic. Final grades remain optional.</p>
     <form className={styles.columnForm} onSubmit={submit}>
       <label>Topic name<input autoFocus maxLength={120} onChange={(event) => setTitle(event.target.value)} required value={title} /></label>
       <label className={styles.currentTopicChoice}><input checked={makeCurrent} disabled={topic.isCurrent} onChange={(event) => setMakeCurrent(event.target.checked)} type="checkbox" /><span><strong>{topic.isCurrent ? "Current topic" : "Set as current topic"}</strong><small>{topic.isCurrent ? "This topic opens by default in the class manager." : "Make this the default open topic for this class."}</small></span></label>
+      <fieldset className={styles.topicModePicker}><legend>Student topic result</legend><label><input checked={gradingMode === "stars"} onChange={() => setGradingMode("stars")} type="radio" /><span><strong>★ Stars &amp; 💀 Skulls</strong><small>Reward-based topic tracking.</small></span></label><label><input checked={gradingMode === "classwork"} onChange={() => setGradingMode("classwork")} type="radio" /><span><strong>Classwork grade</strong><small>One percentage per student.</small></span></label></fieldset>
+      {gradingMode === "classwork" ? <PercentageStepper disabled={busy} onChange={setDefaultGrade} value={defaultGrade} /> : null}
       <label>Summative test (N)<select disabled={!gradeColumns.length} onChange={(event) => setSummativeGradeColumnId(event.target.value)} value={summativeGradeColumnId}><option value="">{gradeColumns.length ? "No summative test selected" : "Add a test column first"}</option>{gradeColumns.map((column) => <option key={column.id} value={column.id}>{column.title}{column.maxScore ? ` · out of ${column.maxScore}` : ""}</option>)}</select></label>
       <div className={styles.formPair}><label>Final-grade formula (optional)<input maxLength={120} onChange={(event) => setFormula(event.target.value)} placeholder={DEFAULT_TOPIC_GRADE_FORMULA} value={formula} /></label><label>Maximum points<input max="100000" min="0.01" onChange={(event) => setFinalGradeMax(event.target.value)} required step="any" type="number" value={finalGradeMax} /></label></div>
       <div className={styles.formulaHelp}><code>N</code><span>summative points</span><code>stars</code><span>topic stars</span><code>skulls</code><span>topic skulls</span><code>HW</code><span>homework completed %</span></div>

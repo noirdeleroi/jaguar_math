@@ -14,7 +14,7 @@ import styles from "./class-manager.module.css";
 type Student = { id: string; full_name: string | null; email: string | null; grade_level: number | null };
 type Member = { student_id: string; nickname: string; nickname_is_custom: boolean };
 type EnrolledStudent = Student & { nickname: string; nicknameIsCustom: boolean };
-type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null; is_current: boolean; final_grade_formula: string | null; final_grade_max: number; summative_grade_column_id: string | null };
+type ClassroomWeek = { id: string; label: string; sort_order: number; title: string | null; focus: string | null; is_current: boolean; grading_mode: "stars" | "classwork"; classwork_default_grade: number; final_grade_formula: string | null; final_grade_max: number; summative_grade_column_id: string | null };
 type WorkItem = { id: string; week_id: string; kind: "homework" | "classwork"; position: number; title: string; activity_date: string | null };
 type WorkStatus = { work_item_id: string; student_id: string; status: string };
 type StarEvent = { id: string; student_id: string; week_id: string; delta: number };
@@ -24,6 +24,7 @@ type Attempt = { id: string; assignment_id: string; student_id: string; status: 
 type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual"; assignment_id: string | null; max_score: number | null; created_at: string };
 type ManualGradeRow = { column_id: string; student_id: string; score: number };
 type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
+type ClassworkGradeRow = { week_id: string; student_id: string; grade: number };
 type CwRecordRow = { id: string; week_id: string; student_id: string; record_date: string; reason: string };
 type GradebookRosterRow = { gradebook_code: string; gradebook_name: string; sort_order: number; student_id: string | null };
 type WorkSummary = { ok: number; notOk: number; late: number; recorded: number };
@@ -57,11 +58,12 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
 
   const admin = createAdminClient();
-  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: cwRecordRows, error: cwRecordError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
+  const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: teacherClasses, error: teacherClassesError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: cwRecordRows, error: cwRecordError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
     supabase.from("profiles").select("id, full_name, email, grade_level").eq("role", "student"),
+    supabase.from("classes").select("id, name, grade_level").eq("teacher_id", teacher.id).order("grade_level").order("name"),
     supabase.from("class_gradebook_students").select("gradebook_code, gradebook_name, sort_order, student_id").eq("class_id", id).order("sort_order"),
-    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, is_current, final_grade_formula, final_grade_max, summative_grade_column_id").eq("class_id", id).order("sort_order"),
+    supabase.from("classroom_weeks").select("id, label, sort_order, title, focus, is_current, grading_mode, classwork_default_grade, final_grade_formula, final_grade_max, summative_grade_column_id").eq("class_id", id).order("sort_order"),
     supabase.from("classroom_star_events").select("id, student_id, week_id, delta").eq("class_id", id),
     supabase.rpc("get_classroom_skull_totals", { p_class_id: id }),
     supabase.from("classroom_work_items").select("id, week_id, kind, position, title, activity_date").eq("class_id", id),
@@ -71,7 +73,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     hasGoogleGmailSendPermission(teacher.id),
     admin.from("google_classroom_courses").select("google_course_id").eq("class_id", id).eq("teacher_id", teacher.id).maybeSingle(),
   ]);
-  const dataError = memberError ?? studentError ?? gradebookRosterError ?? weekError ?? starError ?? skullError ?? workItemError ?? cwRecordError ?? linkError ?? gradeColumnError;
+  const dataError = memberError ?? studentError ?? teacherClassesError ?? gradebookRosterError ?? weekError ?? starError ?? skullError ?? workItemError ?? cwRecordError ?? linkError ?? gradeColumnError;
   if (dataError) throw dataError;
 
   const studentsById = new Map(((allStudents ?? []) as Student[]).map((student) => [student.id, student]));
@@ -80,18 +82,19 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const enrolled = memberRows.flatMap((member): EnrolledStudent[] => { const student = studentsById.get(member.student_id); return student ? [{ ...student, nickname: member.nickname, nicknameIsCustom: member.nickname_is_custom }] : []; }).sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { sensitivity: "base" }));
   const available = ((allStudents ?? []) as Student[]).filter((student) => !memberIds.has(student.id)).sort((a, b) => firstName(a.full_name || a.email || "").localeCompare(firstName(b.full_name || b.email || ""), undefined, { sensitivity: "base" }));
   const weeks = (weekRows ?? []) as ClassroomWeek[];
-  const activeTopic = weeks.find((topic) => topic.is_current) ?? weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: classroom.grade_level === 12 ? "Arithmetic Foundations" : "Algebra Foundations", focus: null, is_current: true, final_grade_formula: null, final_grade_max: 20, summative_grade_column_id: null };
+  const activeTopic = weeks.find((topic) => topic.is_current) ?? weeks.at(-1) ?? { id: "", label: "T1", sort_order: 1, title: classroom.grade_level === 12 ? "Arithmetic Foundations" : "Algebra Foundations", focus: null, is_current: true, grading_mode: "stars" as const, classwork_default_grade: 80, final_grade_formula: null, final_grade_max: 20, summative_grade_column_id: null };
   const workItems = (workItemRows ?? []) as WorkItem[];
   const workItemIds = workItems.map((item) => item.id);
   const assignmentIds = (assignmentLinks ?? []).map((link) => link.assignment_id);
   const gradeColumnIds = ((gradeColumnRows ?? []) as GradeColumnRow[]).map((column) => column.id);
-  const [{ data: statusRows, error: statusError }, { data: assessmentRows, error: assessmentError }, { data: manualGradeRows, error: manualGradeError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }] = await Promise.all([
+  const [{ data: statusRows, error: statusError }, { data: assessmentRows, error: assessmentError }, { data: manualGradeRows, error: manualGradeError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }, { data: classworkGradeRows, error: classworkGradeError }] = await Promise.all([
     workItemIds.length ? supabase.from("classroom_work_statuses").select("work_item_id, student_id, status").in("work_item_id", workItemIds) : Promise.resolve({ data: [] as WorkStatus[], error: null }),
     assignmentIds.length ? supabase.from("assignments").select("id, title, kind, status, due_at").in("id", assignmentIds).eq("created_by", teacher.id).in("status", ["published", "closed"]).order("due_at", { ascending: true, nullsFirst: false }) : Promise.resolve({ data: [] as Assessment[], error: null }),
     gradeColumnIds.length ? supabase.from("classroom_manual_grades").select("column_id, student_id, score").in("column_id", gradeColumnIds) : Promise.resolve({ data: [] as ManualGradeRow[], error: null }),
     weeks.length && enrolled.length ? supabase.from("classroom_final_grade_overrides").select("week_id, student_id, score, comment").in("week_id", weeks.map((week) => week.id)).in("student_id", enrolled.map((student) => student.id)) : Promise.resolve({ data: [] as FinalGradeOverrideRow[], error: null }),
+    weeks.length && enrolled.length ? supabase.from("classroom_topic_classwork_grades").select("week_id, student_id, grade").in("week_id", weeks.map((week) => week.id)).in("student_id", enrolled.map((student) => student.id)) : Promise.resolve({ data: [] as ClassworkGradeRow[], error: null }),
   ]);
-  if (statusError || assessmentError || manualGradeError || finalGradeOverrideError) throw statusError ?? assessmentError ?? manualGradeError ?? finalGradeOverrideError;
+  if (statusError || assessmentError || manualGradeError || finalGradeOverrideError || classworkGradeError) throw statusError ?? assessmentError ?? manualGradeError ?? finalGradeOverrideError ?? classworkGradeError;
   const assessmentIds = (assessmentRows ?? []).map((assessment) => assessment.id);
   const { data: attemptRows, error: attemptError } = assessmentIds.length && enrolled.length ? await supabase.from("attempts").select("id, assignment_id, student_id, status, score, max_score, attempt_number, started_at, submitted_at").in("assignment_id", assessmentIds).in("student_id", enrolled.map((student) => student.id)).in("status", ["in_progress", "submitted"]).order("attempt_number", { ascending: false }).order("started_at", { ascending: false }) : { data: [] as Attempt[], error: null };
   if (attemptError) throw attemptError;
@@ -177,6 +180,12 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     skullsByStudent.set(row.student_id, values);
   }
   const finalGradeOverrides: ClassroomStarState["finalGradeOverrides"] = {};
+  const classworkGradesByWeek = new Map<string, Record<string, number>>();
+  for (const row of (classworkGradeRows ?? []) as ClassworkGradeRow[]) {
+    const values = classworkGradesByWeek.get(row.week_id) ?? {};
+    values[row.student_id] = Number(row.grade);
+    classworkGradesByWeek.set(row.week_id, values);
+  }
   for (const row of (finalGradeOverrideRows ?? []) as FinalGradeOverrideRow[]) {
     const week = weekById.get(row.week_id);
     if (!week) continue;
@@ -188,7 +197,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: ((gradebookRosterRows ?? []) as GradebookRosterRow[]).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, gradingMode: week.grading_mode, classworkDefaultGrade: Number(week.classwork_default_grade ?? 80), classworkGrades: classworkGradesByWeek.get(week.id) ?? {}, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skulls: skullsByStudent.get(student.id) ?? {} })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
     finalGradeOverrides,
@@ -210,7 +219,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     </header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><span>Current topic</span><strong>{activeTopic.title || `Topic ${activeTopic.sort_order}`}</strong></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
-    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialCwRecords={cwRecords} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}:${cwRecords.length}`} />
+    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialCwRecords={cwRecords} initialGradeColumns={gradeColumns} initialState={starState} key={`${activeTopic.label}:${starState.eventIds.length}:${starState.skullEventIds.length}:${starState.workItems.length}:${starState.weeks.length}:${gradeColumns.length}:${cwRecords.length}`} teacherClasses={(teacherClasses ?? []).map((item) => ({ id: item.id, name: item.name, gradeLevel: item.grade_level }))} />
     {!enrolled.length ? <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section> : null}
   </main>;
 }

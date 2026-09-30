@@ -5,9 +5,18 @@ export type ClassroomWeek = {
   title: string | null;
   focus: string | null;
   isCurrent: boolean;
+  gradingMode: "stars" | "classwork";
+  classworkDefaultGrade: number;
+  classworkGrades: Record<string, number>;
   finalGradeFormula: string | null;
   finalGradeMax: number;
   summativeGradeColumnId: string | null;
+};
+
+export type TeacherClassOption = {
+  id: string;
+  name: string;
+  gradeLevel: number;
 };
 
 export type ClassroomStudent = {

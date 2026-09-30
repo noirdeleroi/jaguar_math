@@ -9,9 +9,15 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const teacher = await requireTeacher();
     const { id, topicId } = await context.params;
-    const body = await request.json() as { title?: unknown; finalGradeFormula?: unknown; finalGradeMax?: unknown; summativeGradeColumnId?: unknown; makeCurrent?: unknown };
+    const body = await request.json() as { title?: unknown; gradingMode?: unknown; classworkDefaultGrade?: unknown; finalGradeFormula?: unknown; finalGradeMax?: unknown; summativeGradeColumnId?: unknown; makeCurrent?: unknown };
     const title = typeof body.title === "string" ? body.title.trim() : "";
     if (!title || title.length > 120) return NextResponse.json({ error: "Enter a topic name under 120 characters." }, { status: 400 });
+    const gradingMode = body.gradingMode === "classwork" ? "classwork" : body.gradingMode === "stars" ? "stars" : null;
+    if (!gradingMode) return NextResponse.json({ error: "Choose Stars & Skulls or Classwork grade." }, { status: 400 });
+    const classworkDefaultGrade = Number(body.classworkDefaultGrade);
+    if (!Number.isFinite(classworkDefaultGrade) || classworkDefaultGrade < 0 || classworkDefaultGrade > 100) {
+      return NextResponse.json({ error: "Enter a default classwork grade from 0% to 100%." }, { status: 400 });
+    }
 
     let finalGradeFormula: string | null;
     try {
@@ -60,10 +66,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
 
     const { data, error } = await supabase.from("classroom_weeks")
-      .update({ title, final_grade_formula: finalGradeFormula, final_grade_max: finalGradeMax, summative_grade_column_id: summativeGradeColumnId })
+      .update({ title, grading_mode: gradingMode, classwork_default_grade: classworkDefaultGrade, final_grade_formula: finalGradeFormula, final_grade_max: finalGradeMax, summative_grade_column_id: summativeGradeColumnId })
       .eq("id", topicId)
       .eq("class_id", id)
-      .select("id, label, sort_order, title, focus, is_current, final_grade_formula, final_grade_max, summative_grade_column_id")
+      .select("id, label, sort_order, title, focus, is_current, grading_mode, classwork_default_grade, final_grade_formula, final_grade_max, summative_grade_column_id")
       .single();
     if (error) throw error;
 
@@ -75,6 +81,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         title: data.title,
         focus: data.focus,
         isCurrent: data.is_current,
+        gradingMode: data.grading_mode,
+        classworkDefaultGrade: Number(data.classwork_default_grade),
+        classworkGrades: {},
         finalGradeFormula: data.final_grade_formula,
         finalGradeMax: Number(data.final_grade_max),
         summativeGradeColumnId: data.summative_grade_column_id,
