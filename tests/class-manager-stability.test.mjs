@@ -22,3 +22,11 @@ test("the frozen spreadsheet header forwards topic clicks to the live header", (
   assert.match(classroom, /sourceControl\.click\(\)/);
   assert.match(classroom, /frozenHeader\.removeEventListener\("click", activateSourceControl\)/);
 });
+
+test("classwork grade buttons adjust student grades by one percentage point", () => {
+  assert.match(classroom, /Quick ±1%/);
+  assert.match(classroom, /changeClassworkGrade\(week, student\.id, -1\)/);
+  assert.match(classroom, /changeClassworkGrade\(week, student\.id, 1\)/);
+  assert.match(classroom, /change classwork grades by 1%/);
+  assert.doesNotMatch(classroom, /classwork grade by 5 percent/);
+});
