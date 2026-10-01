@@ -420,7 +420,6 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       } else {
         setSaveState("saved");
         setSaveMessage(`All changes saved successfully at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}. You’re safe to close this page.`);
-        router.refresh();
       }
     } catch {
       const pendingNow = readQueue(initialState.classroom.id);
@@ -431,7 +430,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       const pendingNow = readQueue(initialState.classroom.id);
       if (navigator.onLine && queueSize(pendingNow) && JSON.stringify(pendingNow) !== JSON.stringify(pending)) setTimeout(() => void flushQueue(pendingNow), 100);
     }
-  }, [initialState.classroom.id, router]);
+  }, [initialState.classroom.id]);
 
   useEffect(() => {
     let pending = readQueue(initialState.classroom.id);
@@ -464,6 +463,29 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     const interval = window.setInterval(() => { const current = readQueue(initialState.classroom.id); if (navigator.onLine && queueSize(current)) void flushQueue(current); }, 15000);
     return () => { window.clearTimeout(hydrationTimer); window.removeEventListener("online", handleOnline); window.removeEventListener("offline", handleOffline); window.clearInterval(interval); };
   }, [flushQueue, initialState.classroom.id]);
+
+  useEffect(() => {
+    const pending = readQueue(initialState.classroom.id);
+    const fallbackWeek = initialWeek(initialState, currentWeekLabel);
+    const availableWeeks = new Set(initialState.weeks.map((week) => week.label));
+
+    const refreshTimer = window.setTimeout(() => {
+      setData(applyPending(initialState, pending));
+      setAssignments(initialAssignments);
+      setGradeColumns(initialGradeColumns);
+      setAvailableAssessments(initialAvailableAssessments);
+      setCwRecords(initialCwRecords);
+      setSelectedWeek((current) => availableWeeks.has(current) ? current : fallbackWeek);
+      setOpenWeek((current) => current && availableWeeks.has(current) ? current : fallbackWeek);
+      setExpandedWeeks((current) => {
+        const preserved = new Set([...current].filter((weekLabel) => availableWeeks.has(weekLabel)));
+        if (!preserved.size) preserved.add(fallbackWeek);
+        return preserved;
+      });
+    }, 0);
+
+    return () => window.clearTimeout(refreshTimer);
+  }, [currentWeekLabel, initialAssignments, initialAvailableAssessments, initialCwRecords, initialGradeColumns, initialState]);
 
   useEffect(() => {
     if (!embedded) return;
@@ -512,6 +534,21 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     if (!scroller || !table || !frozenHeader || !sourceHeader) return;
 
     let frame = 0;
+    const controlSelector = "a, button, input, select, textarea, [tabindex]";
+
+    const activateSourceControl = (event: MouseEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const clonedControl = event.target.closest<HTMLElement>(controlSelector);
+      if (!clonedControl || !frozenHeader.contains(clonedControl)) return;
+
+      const clonedControls = Array.from(frozenHeader.querySelectorAll<HTMLElement>(controlSelector));
+      const controlIndex = clonedControls.indexOf(clonedControl);
+      const sourceControl = sourceHeader.querySelectorAll<HTMLElement>(controlSelector).item(controlIndex);
+      if (!sourceControl || sourceControl.matches(":disabled")) return;
+
+      event.preventDefault();
+      sourceControl.click();
+    };
 
     const syncPosition = () => {
       const scrollerRect = scroller.getBoundingClientRect();
@@ -555,13 +592,14 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       }
 
       const clonedHeader = sourceHeader.cloneNode(true) as HTMLTableSectionElement;
-      clonedHeader.querySelectorAll<HTMLElement>("a, button, input, select, textarea, [tabindex]").forEach((element) => { element.tabIndex = -1; });
+      clonedHeader.querySelectorAll<HTMLElement>(controlSelector).forEach((element) => { element.tabIndex = -1; });
       frozenTable.append(clonedHeader);
       frozenHeader.replaceChildren(frozenTable);
       syncPosition();
     };
 
     rebuildHeader();
+    frozenHeader.addEventListener("click", activateSourceControl);
     scroller.addEventListener("scroll", requestSync, { passive: true });
     window.addEventListener("scroll", requestSync, { passive: true });
     window.addEventListener("resize", rebuildHeader);
@@ -572,6 +610,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     return () => {
       window.cancelAnimationFrame(frame);
       resizeObserver?.disconnect();
+      frozenHeader.removeEventListener("click", activateSourceControl);
       scroller.removeEventListener("scroll", requestSync);
       window.removeEventListener("scroll", requestSync);
       window.removeEventListener("resize", rebuildHeader);

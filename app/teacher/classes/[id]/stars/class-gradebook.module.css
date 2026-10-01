@@ -29,6 +29,11 @@
   margin: 0;
 }
 
+.frozenSheetHeader button,
+.frozenSheetHeader a {
+  pointer-events: auto;
+}
+
 .skullGroup {
   padding: 8px 12px;
   color: #31554b;
