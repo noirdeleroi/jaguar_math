@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   DEFAULT_TOPIC_GRADE_FORMULA,
   calculateHomeworkCompletionPercentage,
+  calculateStudentTopicFinalGrade,
   clampTopicGrade,
   evaluateTopicFinalGradeFormula,
   evaluateTopicGradeFormula,
@@ -62,4 +63,17 @@ test("final topic grades are clamped between zero and the teacher maximum", () =
 test("65 percent is the inclusive passing threshold", () => {
   assert.equal(isPassingTopicGrade(13, 20), true);
   assert.equal(isPassingTopicGrade(12.99, 20), false);
+});
+
+test("student final grades match teacher formulas and prefer manual overrides", () => {
+  const input = { formula: DEFAULT_TOPIC_GRADE_FORMULA, maximum: 20, override: null, summativeScore: 15, stars: 4, skulls: 1, completedHomework: 1, assignedHomework: 2 };
+  assert.equal(calculateStudentTopicFinalGrade(input), 20);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, override: 17.5 }), 17.5);
+});
+
+test("student final grades wait for required scores and stay hidden when disabled", () => {
+  const input = { formula: DEFAULT_TOPIC_GRADE_FORMULA, maximum: 20, override: null, summativeScore: null, stars: 4, skulls: 1, completedHomework: 0, assignedHomework: 0 };
+  assert.equal(calculateStudentTopicFinalGrade(input), null);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, formula: "stars" }), 4);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, formula: null }), null);
 });

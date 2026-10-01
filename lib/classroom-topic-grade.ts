@@ -207,3 +207,32 @@ export function topicGradeFormulaUsesVariable(formula: string, variable: keyof T
   const normalizedVariable = variable.toLowerCase();
   return tokenize(formula).some((token) => token.type === "variable" && token.value.toLowerCase() === normalizedVariable);
 }
+
+export type StudentTopicFinalGradeInput = {
+  formula: string | null;
+  maximum: number;
+  override: number | null;
+  summativeScore: number | null;
+  stars: number;
+  skulls: number;
+  completedHomework: number;
+  assignedHomework: number;
+};
+
+export function calculateStudentTopicFinalGrade(input: StudentTopicFinalGradeInput) {
+  if (!input.formula) return null;
+  if (input.override !== null) return input.override;
+  if (topicGradeFormulaUsesVariable(input.formula, "N") && input.summativeScore === null) return null;
+
+  try {
+    const result = evaluateTopicFinalGradeFormula(input.formula, {
+      N: input.summativeScore ?? 0,
+      stars: input.stars,
+      skulls: input.skulls,
+      HW: calculateHomeworkCompletionPercentage(input.completedHomework, input.assignedHomework),
+    });
+    return Math.round(clampTopicGrade(result, input.maximum) * 100) / 100;
+  } catch {
+    return null;
+  }
+}
