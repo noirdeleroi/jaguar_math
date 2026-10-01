@@ -16,5 +16,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Run the relevant lint, tests, and production build before pushing when those checks are available.
 - When a task adds or changes a Supabase migration, compare local and linked migration history, apply every pending migration to the linked database before deploying application code that depends on it, and confirm the histories match afterward.
 - After pushing, ensure the application is deployed through the configured deployment workflow and verify the affected production route before reporting completion. A successful Git push alone is not sufficient verification.
+- Do not open Vercel in the user's active browser just to check a deployment. Prefer terminal or API checks. If browser-only verification is genuinely necessary, use a separate signed-in Google Chrome session/profile rather than the user's current browser tab.
 - If migrations or deployment cannot be completed because access or deployment tooling is unavailable, report the task as blocked instead of claiming it is complete.
 - Report the pushed branch and commit hash in the final response.
