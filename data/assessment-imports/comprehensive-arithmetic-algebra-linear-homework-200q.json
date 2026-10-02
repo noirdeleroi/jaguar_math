@@ -1,0 +1,5793 @@
+{
+  "questions": [
+    {
+      "prompt": "Evaluate $18-3(4)+2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$4$"
+        },
+        {
+          "id": "B",
+          "text": "$8$"
+        },
+        {
+          "id": "C",
+          "text": "$14$"
+        },
+        {
+          "id": "D",
+          "text": "$62$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply before adding or subtracting: $3(4)=12$. Then $18-12+2=8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ORDER_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $72\\div[3(2+2)]$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6$"
+        },
+        {
+          "id": "B",
+          "text": "$12$"
+        },
+        {
+          "id": "C",
+          "text": "$24$"
+        },
+        {
+          "id": "D",
+          "text": "$48$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "First, $2+2=4$. The denominator is $3\\cdot4=12$, so $72\\div12=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ORDER_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is the value of $(5-8)^2-4$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$-13$"
+        },
+        {
+          "id": "B",
+          "text": "$-5$"
+        },
+        {
+          "id": "C",
+          "text": "$5$"
+        },
+        {
+          "id": "D",
+          "text": "$13$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$5-8=-3$, and $(-3)^2=9$. Therefore, $9-4=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.INTEGER_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which value is equal to $\\frac{3}{4}+\\frac{5}{8}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{8}{12}$"
+        },
+        {
+          "id": "B",
+          "text": "$1\\frac{1}{8}$"
+        },
+        {
+          "id": "C",
+          "text": "$1\\frac{3}{8}$"
+        },
+        {
+          "id": "D",
+          "text": "$1\\frac{5}{8}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Rewrite $\\frac{3}{4}$ as $\\frac{6}{8}$. Then $\\frac{6}{8}+\\frac{5}{8}=\\frac{11}{8}=1\\frac{3}{8}$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $2\\frac{1}{3}-\\frac{5}{6}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$1\\frac{1}{6}$"
+        },
+        {
+          "id": "B",
+          "text": "$1\\frac{1}{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$1\\frac{2}{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$2\\frac{1}{6}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$2\\frac{1}{3}=\\frac{14}{6}$. Thus $\\frac{14}{6}-\\frac{5}{6}=\\frac{9}{6}=\\frac{3}{2}=1\\frac{1}{2}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $\\frac{7}{9}\\cdot\\frac{27}{14}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{1}{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{2}{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{3}{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{7}{2}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Cancel common factors before multiplying: $\\frac{7}{14}=\\frac{1}{2}$ and $\\frac{27}{9}=3$. The product is $\\frac{3}{2}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $\\frac{5}{6}\\div\\frac{10}{9}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{3}{4}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{4}{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{25}{27}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{50}{54}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by the reciprocal: $\\frac{5}{6}\\cdot\\frac{9}{10}=\\frac{45}{60}=\\frac{3}{4}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A school club uses $\\frac{3}{8}$ of a package of 64 sheets of paper. How many sheets does the club use?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$8$"
+        },
+        {
+          "id": "B",
+          "text": "$16$"
+        },
+        {
+          "id": "C",
+          "text": "$24$"
+        },
+        {
+          "id": "D",
+          "text": "$40$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{8}$ of 64 is $\\frac{3}{8}\\cdot64=3\\cdot8=24$ sheets.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $4.8+0.75-1.3$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3.45$"
+        },
+        {
+          "id": "B",
+          "text": "$4.25$"
+        },
+        {
+          "id": "C",
+          "text": "$5.42$"
+        },
+        {
+          "id": "D",
+          "text": "$6.85$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Align decimal places: $4.80+0.75=5.55$, and $5.55-1.30=4.25$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is the product of $3.6$ and $0.25$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$0.09$"
+        },
+        {
+          "id": "B",
+          "text": "$0.9$"
+        },
+        {
+          "id": "C",
+          "text": "$9$"
+        },
+        {
+          "id": "D",
+          "text": "$90$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Since $0.25=\\frac14$, the product is one-fourth of $3.6$, which is $0.9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Evaluate $7.2\\div0.06$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$1.2$"
+        },
+        {
+          "id": "B",
+          "text": "$12$"
+        },
+        {
+          "id": "C",
+          "text": "$120$"
+        },
+        {
+          "id": "D",
+          "text": "$1{,}200$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply both numbers by 100: $7.2\\div0.06=720\\div6=120$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which fraction is equivalent to $0.375$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{3}{5}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{3}{8}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{5}{8}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{7}{20}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$0.375=\\frac{375}{1000}$. Dividing numerator and denominator by 125 gives $\\frac{3}{8}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The ratio of red markers to blue markers in a box is $3:5$. If there are 40 markers altogether, how many are red?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$12$"
+        },
+        {
+          "id": "B",
+          "text": "$15$"
+        },
+        {
+          "id": "C",
+          "text": "$24$"
+        },
+        {
+          "id": "D",
+          "text": "$25$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "There are $3+5=8$ equal parts. Each part is $40\\div8=5$, so the red markers number $3\\cdot5=15$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A bus travels 180 miles in 3 hours at a constant rate. At this rate, how far does it travel in $2.5$ hours?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$120$ miles"
+        },
+        {
+          "id": "B",
+          "text": "$135$ miles"
+        },
+        {
+          "id": "C",
+          "text": "$150$ miles"
+        },
+        {
+          "id": "D",
+          "text": "$225$ miles"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The unit rate is $180\\div3=60$ miles per hour. In $2.5$ hours, the bus travels $60\\cdot2.5=150$ miles.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Six identical notebooks cost 10.50 dollars. At the same price per notebook, what is the cost of 4 notebooks?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5.25$ dollars"
+        },
+        {
+          "id": "B",
+          "text": "$7.00$ dollars"
+        },
+        {
+          "id": "C",
+          "text": "$7.50$ dollars"
+        },
+        {
+          "id": "D",
+          "text": "$8.75$ dollars"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Each notebook costs $10.50\\div6=1.75$ dollars. Four cost $4\\cdot1.75=7.00$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A recipe uses $2.5$ cups of flour for 20 rolls. How many cups are needed for 32 rolls at the same rate?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3.2$ cups"
+        },
+        {
+          "id": "B",
+          "text": "$4$ cups"
+        },
+        {
+          "id": "C",
+          "text": "$4.5$ cups"
+        },
+        {
+          "id": "D",
+          "text": "$5$ cups"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$32$ is $\\frac{32}{20}=1.6$ times 20, so multiply the flour by $1.6$: $2.5\\cdot1.6=4$ cups.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PROPORTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which decimal is equivalent to $35\\%$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$0.035$"
+        },
+        {
+          "id": "B",
+          "text": "$0.35$"
+        },
+        {
+          "id": "C",
+          "text": "$3.5$"
+        },
+        {
+          "id": "D",
+          "text": "$35$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Percent means per hundred, so $35\\%=\\frac{35}{100}=0.35$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $15\\%$ of 240?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$24$"
+        },
+        {
+          "id": "B",
+          "text": "$30$"
+        },
+        {
+          "id": "C",
+          "text": "$36$"
+        },
+        {
+          "id": "D",
+          "text": "$40$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$10\\%$ of 240 is 24 and $5\\%$ is 12. Their sum is $24+12=36$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A quantity increases from 80 to 92. What is the percent increase?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$12\\%$"
+        },
+        {
+          "id": "B",
+          "text": "$13\\%$"
+        },
+        {
+          "id": "C",
+          "text": "$15\\%$"
+        },
+        {
+          "id": "D",
+          "text": "$20\\%$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The increase is $92-80=12$. Relative to the original value, $\\frac{12}{80}=0.15=15\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A population of 250 decreases by $18\\%$. What is the new population?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$195$"
+        },
+        {
+          "id": "B",
+          "text": "$205$"
+        },
+        {
+          "id": "C",
+          "text": "$218$"
+        },
+        {
+          "id": "D",
+          "text": "$232$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$18\\%$ of 250 is $0.18\\cdot250=45$. The new population is $250-45=205$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "An item priced at 50 dollars is discounted by $20\\%$. A $10\\%$ sales tax is then applied to the discounted price. What is the final price?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$35$ dollars"
+        },
+        {
+          "id": "B",
+          "text": "$40$ dollars"
+        },
+        {
+          "id": "C",
+          "text": "$44$ dollars"
+        },
+        {
+          "id": "D",
+          "text": "$45$ dollars"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "After the discount, the price is $50(0.80)=40$ dollars. Adding $10\\%$ tax gives $40(1.10)=44$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "After a $25\\%$ discount, a jacket costs 60 dollars. What was its original price?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$75$ dollars"
+        },
+        {
+          "id": "B",
+          "text": "$80$ dollars"
+        },
+        {
+          "id": "C",
+          "text": "$85$ dollars"
+        },
+        {
+          "id": "D",
+          "text": "$90$ dollars"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "A $25\\%$ discount leaves $75\\%$ of the original price. Since $60\\div0.75=80$, the original price was 80 dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A meal costs 45 dollars before a $7\\%$ sales tax. What is the total cost?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$45.07$ dollars"
+        },
+        {
+          "id": "B",
+          "text": "$47.15$ dollars"
+        },
+        {
+          "id": "C",
+          "text": "$48.15$ dollars"
+        },
+        {
+          "id": "D",
+          "text": "$52.00$ dollars"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The tax is $0.07\\cdot45=3.15$ dollars. The total is $45+3.15=48.15$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which is the best estimate of $198\\cdot51$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$1{,}000$"
+        },
+        {
+          "id": "B",
+          "text": "$5{,}000$"
+        },
+        {
+          "id": "C",
+          "text": "$10{,}000$"
+        },
+        {
+          "id": "D",
+          "text": "$20{,}000$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Round $198$ to 200 and 51 to 50. Then $200\\cdot50=10{,}000$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ESTIMATION",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which is the best estimate of $29.8\\div0.49$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6$"
+        },
+        {
+          "id": "B",
+          "text": "$15$"
+        },
+        {
+          "id": "C",
+          "text": "$30$"
+        },
+        {
+          "id": "D",
+          "text": "$60$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Use compatible numbers: $29.8\\approx30$ and $0.49\\approx0.5$. Then $30\\div0.5=60$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ESTIMATION",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "How many minutes are in $3.5$ hours?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$180$"
+        },
+        {
+          "id": "B",
+          "text": "$200$"
+        },
+        {
+          "id": "C",
+          "text": "$210$"
+        },
+        {
+          "id": "D",
+          "text": "$350$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "There are 60 minutes in an hour, so $3.5\\cdot60=210$ minutes.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.UNITS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A package has a mass of $2.4$ kilograms. What is its mass in grams?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$24$ grams"
+        },
+        {
+          "id": "B",
+          "text": "$240$ grams"
+        },
+        {
+          "id": "C",
+          "text": "$2{,}400$ grams"
+        },
+        {
+          "id": "D",
+          "text": "$24{,}000$ grams"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "One kilogram is 1,000 grams, so $2.4\\cdot1{,}000=2{,}400$ grams.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.UNITS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A board is 5 feet 8 inches long. What is its length in inches?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$60$ inches"
+        },
+        {
+          "id": "B",
+          "text": "$64$ inches"
+        },
+        {
+          "id": "C",
+          "text": "$68$ inches"
+        },
+        {
+          "id": "D",
+          "text": "$72$ inches"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Five feet is $5\\cdot12=60$ inches. Adding 8 inches gives $60+8=68$ inches.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.UNITS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $(3\\times10^4)(2\\times10^{-3})$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6\\times10^{-7}$"
+        },
+        {
+          "id": "B",
+          "text": "$6\\times10^1$"
+        },
+        {
+          "id": "C",
+          "text": "$6\\times10^7$"
+        },
+        {
+          "id": "D",
+          "text": "$60\\times10^1$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply the coefficients and add exponents: $3\\cdot2=6$ and $4+(-3)=1$. The result is $6\\times10^1=60$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.SCI_NOTATION",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Which of the following values is greatest?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{5}{8}$"
+        },
+        {
+          "id": "B",
+          "text": "$0.62$"
+        },
+        {
+          "id": "C",
+          "text": "$61\\%$"
+        },
+        {
+          "id": "D",
+          "text": "$0.605$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Convert all values to decimals: $\\frac58=0.625$, $0.62$, $61\\%=0.61$, and $0.605$. The greatest is $0.625$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.REAL_NUMBERS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A tank holds 250 liters when full. It is $\\frac{3}{5}$ full, and then 40 liters are used. How many liters remain?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$90$"
+        },
+        {
+          "id": "B",
+          "text": "$100$"
+        },
+        {
+          "id": "C",
+          "text": "$110$"
+        },
+        {
+          "id": "D",
+          "text": "$150$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac35$ of 250 is 150 liters. After 40 liters are used, $150-40=110$ liters remain.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A student answers 36 of 45 questions correctly. What percent of the questions did the student answer correctly?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$72\\%$"
+        },
+        {
+          "id": "B",
+          "text": "$75\\%$"
+        },
+        {
+          "id": "C",
+          "text": "$80\\%$"
+        },
+        {
+          "id": "D",
+          "text": "$90\\%$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{36}{45}=\\frac45=0.8=80\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A 12-ounce container costs 3.60 dollars, and an 18-ounce container costs 5.04 dollars. Which statement is true?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The 12-ounce container costs 0.02 dollars less per ounce."
+        },
+        {
+          "id": "B",
+          "text": "The 18-ounce container costs 0.02 dollars less per ounce."
+        },
+        {
+          "id": "C",
+          "text": "Both containers have the same cost per ounce."
+        },
+        {
+          "id": "D",
+          "text": "The 18-ounce container costs 0.20 dollars less per ounce."
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The smaller container costs $3.60\\div12=0.30$ dollars per ounce. The larger costs $5.04\\div18=0.28$ dollars per ounce, which is 0.02 dollars less.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A store increases a 40-dollar price by $25\\%$ and later decreases the new price by $20\\%$. What is the final price?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$36$ dollars"
+        },
+        {
+          "id": "B",
+          "text": "$38$ dollars"
+        },
+        {
+          "id": "C",
+          "text": "$40$ dollars"
+        },
+        {
+          "id": "D",
+          "text": "$42$ dollars"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The increase gives $40(1.25)=50$ dollars. The decrease then gives $50(0.80)=40$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A class collected 84 cans on Monday and $\\frac{5}{7}$ as many cans on Tuesday. How many cans were collected over the two days?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$60$"
+        },
+        {
+          "id": "B",
+          "text": "$120$"
+        },
+        {
+          "id": "C",
+          "text": "$144$"
+        },
+        {
+          "id": "D",
+          "text": "$204$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Tuesday's collection was $\\frac57\\cdot84=60$ cans. The two-day total was $84+60=144$ cans.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Enter the value of $6+24\\div(3\\cdot2)-5$.",
+      "type": "numeric",
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Inside the parentheses, $3\\cdot2=6$. Then $24\\div6=4$, and $6+4-5=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ORDER_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Enter the value of $-18+7-(-9)$.",
+      "type": "numeric",
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "Subtracting a negative is addition: $-18+7+9=-11+9=-2$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.INTEGER_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $\\frac{5}{12}+\\frac{1}{3}$. Enter your answer as a decimal.",
+      "type": "numeric",
+      "correct_answer": "0.75",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac13=\\frac4{12}$, so the sum is $\\frac9{12}=\\frac34=0.75$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $1.5\\cdot2\\frac{2}{3}$. Enter your answer as a decimal or integer.",
+      "type": "numeric",
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "$1.5=\\frac32$ and $2\\frac23=\\frac83$. Their product is $\\frac32\\cdot\\frac83=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $12.5-3.78$.",
+      "type": "numeric",
+      "correct_answer": "8.72",
+      "numeric_tolerance": 0,
+      "explanation": "Write $12.5$ as $12.50$ and subtract: $12.50-3.78=8.72$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $0.84\\div0.07$.",
+      "type": "numeric",
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply both numbers by 100: $0.84\\div0.07=84\\div7=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.DECIMALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The ratio of juniors to seniors at an event is $7:3$. If 42 juniors attend, how many seniors attend?",
+      "type": "numeric",
+      "correct_answer": "18",
+      "numeric_tolerance": 0,
+      "explanation": "Seven ratio parts equal 42, so each part equals $42\\div7=6$. Seniors make up 3 parts, or $3\\cdot6=18$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A student walks $\\frac{5}{8}$ mile in 10 minutes at a constant rate. At this rate, how many miles does the student walk in 1 hour?",
+      "type": "numeric",
+      "correct_answer": "3.75",
+      "numeric_tolerance": 0,
+      "explanation": "One hour contains six 10-minute intervals. The distance is $6\\cdot\\frac58=\\frac{30}{8}=3.75$ miles.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "What is $12.5\\%$ of 96?",
+      "type": "numeric",
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "$12.5\\%=\\frac18$. One-eighth of 96 is $96\\div8=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "The number 54 is $30\\%$ of what number?",
+      "type": "numeric",
+      "correct_answer": "180",
+      "numeric_tolerance": 0,
+      "explanation": "Divide the part by the decimal percent: $54\\div0.30=180$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A quantity decreases from 160 to 136. What is the percent decrease? Enter the number only, without the percent sign.",
+      "type": "numeric",
+      "correct_answer": "15",
+      "numeric_tolerance": 0,
+      "explanation": "The decrease is $160-136=24$. Since $24\\div160=0.15$, the percent decrease is $15\\%$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "An 80-dollar item is discounted by $15\\%$, and then a 5-dollar coupon is applied. What is the final price in dollars?",
+      "type": "numeric",
+      "correct_answer": "63",
+      "numeric_tolerance": 0,
+      "explanation": "The discount is $0.15\\cdot80=12$ dollars. The final price is $80-12-5=63$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Round $4{,}876$ to the nearest hundred.",
+      "type": "numeric",
+      "correct_answer": "4900",
+      "numeric_tolerance": 0,
+      "explanation": "The tens digit is 7, so round the hundreds digit up. The result is $4{,}900$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.ESTIMATION",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A ribbon is $2.75$ yards long. How many feet long is the ribbon?",
+      "type": "numeric",
+      "correct_answer": "8.25",
+      "numeric_tolerance": 0,
+      "explanation": "One yard equals 3 feet, so $2.75\\cdot3=8.25$ feet.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.UNITS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "Compute $\\frac{6.4\\times10^5}{8\\times10^2}$. Enter the result as an ordinary number.",
+      "type": "numeric",
+      "correct_answer": "800",
+      "numeric_tolerance": 0,
+      "explanation": "$6.4\\div8=0.8$ and $10^5\\div10^2=10^3$. Thus $0.8\\times10^3=800$.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.SCI_NOTATION",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A book has 240 pages. A student reads $35\\%$ of the book on Monday and 48 pages on Tuesday. How many pages remain unread?",
+      "type": "numeric",
+      "correct_answer": "108",
+      "numeric_tolerance": 0,
+      "explanation": "$35\\%$ of 240 is $0.35\\cdot240=84$. After two days, $84+48=132$ pages are read, leaving $240-132=108$ pages.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "On a map, $\\frac{3}{4}$ inch represents 12 miles. How many miles are represented by $2.5$ inches?",
+      "type": "numeric",
+      "correct_answer": "40",
+      "numeric_tolerance": 0,
+      "explanation": "The scale is $12\\div\\frac34=16$ miles per inch. Therefore, $2.5\\cdot16=40$ miles.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.PROPORTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A club has 75 members. Two-fifths are Grade 11 students, and the rest are Grade 12 students. If one-third of the Grade 12 students are absent, how many club members are present?",
+      "type": "numeric",
+      "correct_answer": "60",
+      "numeric_tolerance": 0,
+      "explanation": "Grade 11 has $\\frac25\\cdot75=30$ members, so Grade 12 has 45. One-third of 45 is 15 absent students. Therefore, $75-15=60$ members are present.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A water container is $\\frac{7}{10}$ full. After 18 liters are added, it is full. What is the container's total capacity in liters?",
+      "type": "numeric",
+      "correct_answer": "60",
+      "numeric_tolerance": 0,
+      "explanation": "The missing part is $1-\\frac7{10}=\\frac3{10}$ of the capacity. If $\\frac3{10}$ equals 18 liters, the full capacity is $18\\div\\frac3{10}=60$ liters.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.FRACTIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A worker earns 18 dollars per hour for the first 8 hours and $1.5$ times that rate for 2 additional hours. How many dollars does the worker earn altogether?",
+      "type": "numeric",
+      "correct_answer": "198",
+      "numeric_tolerance": 0,
+      "explanation": "Regular pay is $18\\cdot8=144$ dollars. The additional rate is $1.5\\cdot18=27$ dollars per hour, so additional pay is $27\\cdot2=54$ dollars. Total pay is $144+54=198$ dollars.",
+      "difficulty": 3,
+      "points": 2,
+      "skills": [
+        {
+          "code": "NUM.RATIOS_RATES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "A bag contains 120 grams of a snack mixture. Nuts make up $45\\%$ of the mixture. After 6 grams of nuts are eaten, how many grams of nuts remain?",
+      "type": "numeric",
+      "correct_answer": "48",
+      "numeric_tolerance": 0,
+      "explanation": "$45\\%$ of 120 is $0.45\\cdot120=54$ grams. After 6 grams are eaten, $54-6=48$ grams remain.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "NUM.PERCENT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": null
+    },
+    {
+      "prompt": "In the expression $5x^2-3x+8$, which statement correctly identifies its parts?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The variable is $x$; the coefficients are $2$ and $3$; the constant term is $8$."
+        },
+        {
+          "id": "B",
+          "text": "The variable is $x$; the coefficients are $5$ and $-3$; the constant term is $8$."
+        },
+        {
+          "id": "C",
+          "text": "The variable is $x^2$; the coefficients are $5$ and $3$; the constant term is $-8$."
+        },
+        {
+          "id": "D",
+          "text": "The variable is $x$; the only coefficient is $5$; the constant term is $-3$."
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The variable is $x$. The numerical factors multiplying $x^2$ and $x$ are $5$ and $-3$, and the term without a variable is $8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which description best defines a term in an algebraic expression?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "A number, a variable, or a product of numbers and variables separated from other terms by addition or subtraction"
+        },
+        {
+          "id": "B",
+          "text": "Only a number that has no variable"
+        },
+        {
+          "id": "C",
+          "text": "Any two expressions joined by an equals sign"
+        },
+        {
+          "id": "D",
+          "text": "The answer obtained after solving an equation"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Terms are the addends of an expression. For example, the terms of $4x^2-7x+3$ are $4x^2$, $-7x$, and $3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which pair consists of like terms?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5x$ and $5x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$3a$ and $3b$"
+        },
+        {
+          "id": "C",
+          "text": "$4$ and $4y$"
+        },
+        {
+          "id": "D",
+          "text": "$7x$ and $-2x$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Like terms have exactly the same variable part, including exponents. Both $7x$ and $-2x$ have variable part $x$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which choice is an equation rather than an expression?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$4x-9$"
+        },
+        {
+          "id": "B",
+          "text": "$3(a+2)$"
+        },
+        {
+          "id": "C",
+          "text": "$2y+5=17$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{x}{3}+8$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "An equation states that two expressions are equal, so it contains an equals sign. Only $2y+5=17$ is an equation.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A taxi ride costs $C=2.50m+6$, where $m$ is the number of miles. What does the coefficient $2.50$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Every ride begins with a $2.50$ dollar fee."
+        },
+        {
+          "id": "B",
+          "text": "The ride costs $2.50$ dollars per mile."
+        },
+        {
+          "id": "C",
+          "text": "The taxi travels $2.50$ miles in total."
+        },
+        {
+          "id": "D",
+          "text": "The maximum ride cost is $2.50$ dollars."
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The coefficient of $m$ is the change in cost for each additional mile, so the rate is $2.50$ dollars per mile.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A taxi ride costs $C=2.50m+6$, where $m$ is the number of miles. What does the constant $6$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The initial fee before any miles are traveled"
+        },
+        {
+          "id": "B",
+          "text": "The cost of each mile"
+        },
+        {
+          "id": "C",
+          "text": "The number of miles in the ride"
+        },
+        {
+          "id": "D",
+          "text": "A discount applied after $6$ miles"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "When $m=0$, $C=6$. Therefore, $6$ is the initial or fixed fee.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The formula $A=\\frac{1}{2}bh$ gives the area of a triangle. In this formula, which quantity is isolated?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$b$"
+        },
+        {
+          "id": "B",
+          "text": "$h$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{1}{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$A$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$A$ is alone on one side of the equals sign, so the formula is solved for, or isolated for, $A$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "If $a=-2$ and $b=3$, what is the value of $2a^2-3b$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-1",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute carefully: $2(-2)^2-3(3)=2(4)-9=8-9=-1$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $7x+4-3x+9$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10x+13$"
+        },
+        {
+          "id": "B",
+          "text": "$4x-5$"
+        },
+        {
+          "id": "C",
+          "text": "$4x+13$"
+        },
+        {
+          "id": "D",
+          "text": "$13x$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Combine like terms: $7x-3x=4x$ and $4+9=13$, giving $4x+13$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $5a^2+3a-2a^2+7a-4$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3a^2-4a-4$"
+        },
+        {
+          "id": "B",
+          "text": "$3a^2+10a-4$"
+        },
+        {
+          "id": "C",
+          "text": "$7a^2+10a-4$"
+        },
+        {
+          "id": "D",
+          "text": "$13a^2-4$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$5a^2-2a^2=3a^2$ and $3a+7a=10a$. The constant remains $-4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $4(2x-3)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$8x-12$"
+        },
+        {
+          "id": "B",
+          "text": "$8x-3$"
+        },
+        {
+          "id": "C",
+          "text": "$6x-12$"
+        },
+        {
+          "id": "D",
+          "text": "$8x+12$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Distribute $4$ to both terms: $4(2x)-4(3)=8x-12$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $-2(3x-5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$-6x-10$"
+        },
+        {
+          "id": "B",
+          "text": "$6x+10$"
+        },
+        {
+          "id": "C",
+          "text": "$-6x+5$"
+        },
+        {
+          "id": "D",
+          "text": "$-6x+10$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$-2(3x)=-6x$ and $-2(-5)=10$, so the result is $-6x+10$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $0.5(6x+8)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3x+8$"
+        },
+        {
+          "id": "B",
+          "text": "$6x+4$"
+        },
+        {
+          "id": "C",
+          "text": "$3x+4$"
+        },
+        {
+          "id": "D",
+          "text": "$30x+40$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply each term by $0.5$: $0.5(6x)=3x$ and $0.5(8)=4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $3(2x-5)+4(x+1)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10x-19$"
+        },
+        {
+          "id": "B",
+          "text": "$10x-11$"
+        },
+        {
+          "id": "C",
+          "text": "$7x-11$"
+        },
+        {
+          "id": "D",
+          "text": "$10x+11$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$3(2x-5)+4(x+1)=6x-15+4x+4=10x-11$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $\\frac{3}{4}(8x-12)-\\frac{1}{2}(2x+6)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5x-12$"
+        },
+        {
+          "id": "B",
+          "text": "$5x-6$"
+        },
+        {
+          "id": "C",
+          "text": "$7x-12$"
+        },
+        {
+          "id": "D",
+          "text": "$5x+12$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{4}(8x-12)=6x-9$ and $\\frac{1}{2}(2x+6)=x+3$. Thus $6x-9-(x+3)=5x-12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $1.2(5x-3)-0.4(10x+5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x-1.6$"
+        },
+        {
+          "id": "B",
+          "text": "$10x-5.6$"
+        },
+        {
+          "id": "C",
+          "text": "$2x+5.6$"
+        },
+        {
+          "id": "D",
+          "text": "$2x-5.6$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$1.2(5x-3)=6x-3.6$ and $0.4(10x+5)=4x+2$. Subtracting gives $2x-5.6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EQUIVALENT_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand $3x^2(2x^3-5x+4)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6x^6-15x^3+12x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$6x^5-5x^3+4x^2$"
+        },
+        {
+          "id": "C",
+          "text": "$6x^5-15x^3+12x^2$"
+        },
+        {
+          "id": "D",
+          "text": "$6x^5-15x^2+12$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Distribute $3x^2$ and add exponents when multiplying like bases: $6x^5-15x^3+12x^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $(x+3)(x-5)$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^2+2x-15$"
+        },
+        {
+          "id": "B",
+          "text": "$x^2-2x-15$"
+        },
+        {
+          "id": "C",
+          "text": "$x^2-8x-15$"
+        },
+        {
+          "id": "D",
+          "text": "$x^2-15$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply each term: $x^2-5x+3x-15=x^2-2x-15$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $(2x-1)^2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$4x^2-4x+1$"
+        },
+        {
+          "id": "B",
+          "text": "$4x^2+1$"
+        },
+        {
+          "id": "C",
+          "text": "$4x^2-2x+1$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^2-4x+1$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Use $(a-b)^2=a^2-2ab+b^2$: $(2x)^2-2(2x)(1)+1^2=4x^2-4x+1$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.POLYNOMIAL_OPS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A large square has side length $3x$. A smaller square with side length $x$ is cut out. Which expression gives the remaining area?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x^2$"
+        },
+        {
+          "id": "B",
+          "text": "$8x$"
+        },
+        {
+          "id": "C",
+          "text": "$9x^2$"
+        },
+        {
+          "id": "D",
+          "text": "$8x^2$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the square areas: $(3x)^2-x^2=9x^2-x^2=8x^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "In $7^3$, what is the base?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3$"
+        },
+        {
+          "id": "B",
+          "text": "$21$"
+        },
+        {
+          "id": "C",
+          "text": "$7$"
+        },
+        {
+          "id": "D",
+          "text": "$343$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The base is the repeated factor. In $7^3=7\\cdot7\\cdot7$, the base is $7$ and the exponent is $3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Simplify $x^3\\cdot x^5$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^{15}$"
+        },
+        {
+          "id": "B",
+          "text": "$x^8$"
+        },
+        {
+          "id": "C",
+          "text": "$2x^8$"
+        },
+        {
+          "id": "D",
+          "text": "$x^2$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "When multiplying powers with the same base, add the exponents: $x^{3+5}=x^8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{a^9}{a^4}$ for $a\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$a^5$"
+        },
+        {
+          "id": "B",
+          "text": "$a^{13}$"
+        },
+        {
+          "id": "C",
+          "text": "$a^{\\frac{9}{4}}$"
+        },
+        {
+          "id": "D",
+          "text": "$a^{-5}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "When dividing powers with the same nonzero base, subtract exponents: $a^{9-4}=a^5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(m^2)^4$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$m^6$"
+        },
+        {
+          "id": "B",
+          "text": "$m^{16}$"
+        },
+        {
+          "id": "C",
+          "text": "$4m^2$"
+        },
+        {
+          "id": "D",
+          "text": "$m^8$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "For a power raised to a power, multiply the exponents: $(m^2)^4=m^{2\\cdot4}=m^8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(3x^2)^2$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6x^4$"
+        },
+        {
+          "id": "B",
+          "text": "$9x^2$"
+        },
+        {
+          "id": "C",
+          "text": "$9x^4$"
+        },
+        {
+          "id": "D",
+          "text": "$3x^4$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Apply the exponent to every factor: $3^2(x^2)^2=9x^4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify completely $\\frac{(2x^2y^3)^2}{4xy^2}$ for $x\\ne0$ and $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^2y^3$"
+        },
+        {
+          "id": "B",
+          "text": "$x^3y^4$"
+        },
+        {
+          "id": "C",
+          "text": "$4x^3y^4$"
+        },
+        {
+          "id": "D",
+          "text": "$x^4y^6$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The numerator is $4x^4y^6$. Dividing by $4xy^2$ gives $x^{4-1}y^{6-2}=x^3y^4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "For $x\\ne0$, which expression is equivalent to $x^0+2x^3$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$1+2x^3$"
+        },
+        {
+          "id": "B",
+          "text": "$2x^3$"
+        },
+        {
+          "id": "C",
+          "text": "$3x^3$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^4$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Any nonzero base raised to the zero power equals $1$, so $x^0+2x^3=1+2x^3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Rewrite $\\frac{x^{-3}y^5}{y^2}$ using only positive exponents, where $x\\ne0$ and $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^3y^3$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{x^3}{y^3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{y^7}{x^3}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{y^3}{x^3}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$y^5/y^2=y^3$, and $x^{-3}=1/x^3$. Therefore the expression is $y^3/x^3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Rewrite $\\frac{4a^{-2}b^3}{2b^{-1}}$ using only positive exponents, where $a\\ne0$ and $b\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2b^2}{a^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$2a^2b^4$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{2b^4}{a^2}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{2}{a^2b^4}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "$4/2=2$, $b^3/b^{-1}=b^{3-(-1)}=b^4$, and $a^{-2}=1/a^2$. Thus the result is $2b^4/a^2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\left(\\frac{2x^3}{y^2}\\right)^2$, where $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2x^6}{y^4}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{4x^6}{y^4}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{4x^5}{y^4}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{4x^6}{y^2}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Square the numerator and denominator: $(2x^3)^2/(y^2)^2=4x^6/y^4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^5}{x^{-2}}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x^7$"
+        },
+        {
+          "id": "B",
+          "text": "$x^3$"
+        },
+        {
+          "id": "C",
+          "text": "$x^{-7}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{x^7}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the denominator exponent: $x^{5-(-2)}=x^7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPONENT_RULES",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the value of $16^{-\\frac{1}{2}}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$-4$"
+        },
+        {
+          "id": "B",
+          "text": "$4$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{1}{8}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{4}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$16^{1/2}=\\sqrt{16}=4$. A negative exponent takes the reciprocal, so $16^{-1/2}=1/4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the value of $27^{\\frac{2}{3}}$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "9",
+      "numeric_tolerance": 0,
+      "explanation": "$27^{2/3}=(\\sqrt[3]{27})^2=3^2=9$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which radical expression is equivalent to $a^{\\frac{3}{2}}$ for $a\\ge0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\sqrt[3]{a^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{\\sqrt{a}}{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\sqrt{a^3}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\sqrt{3a}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The denominator $2$ is the root index and the numerator $3$ is the power: $a^{3/2}=\\sqrt{a^3}$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPONENTS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{121}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "11",
+      "numeric_tolerance": 0,
+      "explanation": "The radical symbol denotes the principal, nonnegative square root. Since $11^2=121$, $\\sqrt{121}=11$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{48}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3\\sqrt{4}$"
+        },
+        {
+          "id": "B",
+          "text": "$4\\sqrt{3}$"
+        },
+        {
+          "id": "C",
+          "text": "$2\\sqrt{6}$"
+        },
+        {
+          "id": "D",
+          "text": "$16\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$48=16\\cdot3$, so $\\sqrt{48}=\\sqrt{16}\\sqrt3=4\\sqrt3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\sqrt{12}+\\sqrt{27}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5\\sqrt{3}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\sqrt{39}$"
+        },
+        {
+          "id": "C",
+          "text": "$3\\sqrt{13}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{12}=2\\sqrt3$ and $\\sqrt{27}=3\\sqrt3$. Add like radicals to get $5\\sqrt3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $2\\sqrt{18}+\\sqrt{8}$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$5\\sqrt{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$3\\sqrt{26}$"
+        },
+        {
+          "id": "C",
+          "text": "$10\\sqrt{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$8\\sqrt{2}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{18}=3\\sqrt2$ and $\\sqrt8=2\\sqrt2$. Thus $2(3\\sqrt2)+2\\sqrt2=8\\sqrt2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $(3\\sqrt{2})(2\\sqrt{6})$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6\\sqrt{8}$"
+        },
+        {
+          "id": "B",
+          "text": "$12\\sqrt{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$12\\sqrt{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{3}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply coefficients and radicands: $6\\sqrt{12}=6(2\\sqrt3)=12\\sqrt3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{\\sqrt{48}}{\\sqrt{3}}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{48}/\\sqrt3=\\sqrt{48/3}=\\sqrt{16}=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Expand and simplify $2\\sqrt{3}(3+\\sqrt{3})$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$6\\sqrt{3}+3$"
+        },
+        {
+          "id": "B",
+          "text": "$6\\sqrt{3}+6$"
+        },
+        {
+          "id": "C",
+          "text": "$12\\sqrt{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$6\\sqrt{6}+6$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$2\\sqrt3(3)=6\\sqrt3$ and $2\\sqrt3(\\sqrt3)=2(3)=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which expression is equivalent to $\\sqrt{50}+3\\sqrt{8}$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$11\\sqrt{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$8\\sqrt{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$4\\sqrt{58}$"
+        },
+        {
+          "id": "D",
+          "text": "$5\\sqrt{10}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$\\sqrt{50}=5\\sqrt2$ and $3\\sqrt8=3(2\\sqrt2)=6\\sqrt2$. Their sum is $11\\sqrt2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RADICALS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{5x+7}{6x^2}+\\frac{x-7}{6x^2}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{6x}{12x^2}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{1}{x^2}$"
+        },
+        {
+          "id": "C",
+          "text": "$1$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{1}{x}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "The denominators match, so add numerators: $(5x+7)+(x-7)=6x$. Then $6x/(6x^2)=1/x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{7y+3}{4y}-\\frac{3y+3}{4y}$ for $y\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{5}{2}$"
+        },
+        {
+          "id": "B",
+          "text": "$y$"
+        },
+        {
+          "id": "C",
+          "text": "$1$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{4y+6}{4y}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the entire second numerator: $(7y+3)-(3y+3)=4y$. Therefore $4y/(4y)=1$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^2-9}{x+3}$, where $x\\ne-3$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x+3$"
+        },
+        {
+          "id": "B",
+          "text": "$x-3$"
+        },
+        {
+          "id": "C",
+          "text": "$x-6$"
+        },
+        {
+          "id": "D",
+          "text": "$1$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Factor the difference of squares: $x^2-9=(x-3)(x+3)$. Cancel $x+3$ to get $x-3$, while retaining $x\\ne-3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{6x^2+12x}{3x}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$2x+4$"
+        },
+        {
+          "id": "B",
+          "text": "$2x+12$"
+        },
+        {
+          "id": "C",
+          "text": "$6x+4$"
+        },
+        {
+          "id": "D",
+          "text": "$2x^2+4x$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Factor the numerator: $6x^2+12x=6x(x+2)$. Dividing by $3x$ gives $2(x+2)=2x+4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{3}{x}\\cdot\\frac{2x^2}{9}$ for $x\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{2x^2}{3}$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{6}{9x}$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{2}{3x}$"
+        },
+        {
+          "id": "D",
+          "text": "$\\frac{2x}{3}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "$\\frac{3}{x}\\cdot\\frac{2x^2}{9}=\\frac{6x^2}{9x}$. Cancel common factors to obtain $2x/3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Simplify $\\frac{x^2-4}{x^2+x-6}$, where the original denominator is nonzero.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$\\frac{x-2}{x-3}$, where $x\\ne-2,3$"
+        },
+        {
+          "id": "B",
+          "text": "$\\frac{x+2}{x+3}$, where $x\\ne-3$ only"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{x+2}{x+3}$, where $x\\ne2,-3$"
+        },
+        {
+          "id": "D",
+          "text": "$1$, where $x\\ne2,-3$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Factor: $(x-2)(x+2)/[(x-2)(x+3)]$. Cancel $x-2$ to get $(x+2)/(x+3)$, but preserve both original restrictions $x\\ne2,-3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.RATIONAL_EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Solve $4x-7=21$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Add $7$ to get $4x=28$, then divide by $4$: $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3(x-2)+5=2x+9$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "10",
+      "numeric_tolerance": 0,
+      "explanation": "Expand: $3x-6+5=2x+9$, so $3x-1=2x+9$. Subtract $2x$ and add $1$ to get $x=10$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $5-2(3x+1)=15$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "$5-6x-2=15$, so $3-6x=15$. Then $-6x=12$ and $x=-2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x}{3}+\\frac{5}{6}=\\frac{3}{2}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $5/6$: $x/3=9/6-5/6=4/6=2/3$. Multiply by $3$ to get $x=2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $0.4x+1.2=3.6$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $1.2$ to obtain $0.4x=2.4$. Divide by $0.4$: $x=6$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{2(x-3)}{5}=\\frac{x+4}{3}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "38",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $15$: $6(x-3)=5(x+4)$. Then $6x-18=5x+20$, so $x=38$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "How many solutions does $4(x+2)=4x+8$ have?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "Infinitely many solutions"
+        },
+        {
+          "id": "C",
+          "text": "Exactly one solution: $x=0$"
+        },
+        {
+          "id": "D",
+          "text": "Exactly one solution: $x=2$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding the left side gives $4x+8=4x+8$, which is true for every real value of $x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "How many solutions does $3(x-1)=3x+5$ have?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "Infinitely many solutions"
+        },
+        {
+          "id": "C",
+          "text": "Exactly one solution: $x=-\\frac{8}{3}$"
+        },
+        {
+          "id": "D",
+          "text": "Exactly one solution: $x=\\frac{8}{3}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding gives $3x-3=3x+5$. Subtracting $3x$ would require $-3=5$, a contradiction, so there is no solution.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "The formula $d=rt$ relates distance, rate, and time. Which formula is solved for $t$, assuming $r\\ne0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$t=dr$"
+        },
+        {
+          "id": "B",
+          "text": "$t=\\frac{r}{d}$"
+        },
+        {
+          "id": "C",
+          "text": "$t=d-r$"
+        },
+        {
+          "id": "D",
+          "text": "$t=\\frac{d}{r}$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Divide both sides of $d=rt$ by the nonzero rate $r$: $t=d/r$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The area of a triangle is $A=\\frac{1}{2}bh$. Which formula is solved for $b$, assuming $h\\ne0$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$b=\\frac{A}{2h}$"
+        },
+        {
+          "id": "B",
+          "text": "$b=2Ah$"
+        },
+        {
+          "id": "C",
+          "text": "$b=\\frac{2A}{h}$"
+        },
+        {
+          "id": "D",
+          "text": "$b=\\frac{h}{2A}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply $A=bh/2$ by $2$ to get $2A=bh$, then divide by $h$: $b=2A/h$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The perimeter of a rectangle is $P=2l+2w$. Which formula is solved for $w$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$w=P-2l$"
+        },
+        {
+          "id": "B",
+          "text": "$w=\\frac{P-2l}{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$w=\\frac{P}{2l}$"
+        },
+        {
+          "id": "D",
+          "text": "$w=\\frac{2l-P}{2}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $2l$ from both sides: $P-2l=2w$. Divide by $2$ to get $w=(P-2l)/2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The temperature formulas satisfy $F=\\frac{9}{5}C+32$. Which expression gives $C$ in terms of $F$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$C=\\frac{5}{9}(F-32)$"
+        },
+        {
+          "id": "B",
+          "text": "$C=\\frac{9}{5}(F-32)$"
+        },
+        {
+          "id": "C",
+          "text": "$C=\\frac{5}{9}F-32$"
+        },
+        {
+          "id": "D",
+          "text": "$C=\\frac{5F}{9}+32$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $32$: $F-32=(9/5)C$. Multiply by $5/9$ to obtain $C=(5/9)(F-32)$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3x+2y=12$ for $y$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=12-3x$"
+        },
+        {
+          "id": "B",
+          "text": "$y=\\frac{3}{2}x-6$"
+        },
+        {
+          "id": "C",
+          "text": "$y=6-3x$"
+        },
+        {
+          "id": "D",
+          "text": "$y=6-\\frac{3}{2}x$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $3x$: $2y=12-3x$. Divide every term by $2$: $y=6-(3/2)x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A gym charges a $25$ dollar sign-up fee and $15$ dollars per month. If the total cost is $100$ dollars, for how many months was the membership used?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Let $m$ be the number of months. Solve $25+15m=100$: $15m=75$, so $m=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A rectangle has width $x$ and length $x+3$. Its perimeter is $30$. What is the width?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "$2x+2(x+3)=30$, so $4x+6=30$. Then $4x=24$ and $x=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Two consecutive integers have a sum of $73$. What is the smaller integer?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "36",
+      "numeric_tolerance": 0,
+      "explanation": "Let the smaller integer be $n$; the next is $n+1$. Then $n+(n+1)=73$, so $2n=72$ and $n=36$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Three-fifths of a number plus $7$ equals $25$. What is the number?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "30",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $(3/5)x+7=25$. Then $(3/5)x=18$, so $x=18(5/3)=30$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_CONTEXT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A cinema ticket costs $p$ dollars, and one order has a one-time booking fee of $4$ dollars. Which expression gives the total cost of $3$ tickets in one order?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$3(p+4)$"
+        },
+        {
+          "id": "B",
+          "text": "$p+12$"
+        },
+        {
+          "id": "C",
+          "text": "$3p+4$"
+        },
+        {
+          "id": "D",
+          "text": "$4p+3$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Three tickets cost $3p$. Because the $4$ dollar fee is charged once per order, the total is $3p+4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The ratio of red counters to blue counters is $3:5$. If there are $3n$ red counters, how many blue counters are there?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$8n$"
+        },
+        {
+          "id": "B",
+          "text": "$5n$"
+        },
+        {
+          "id": "C",
+          "text": "$\\frac{5}{3}n$"
+        },
+        {
+          "id": "D",
+          "text": "$15n$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The $3$ ratio parts for red correspond to $3n$, so one part is $n$. Blue has $5$ parts, or $5n$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A jacket costs $p$ dollars. Its price is reduced by $\\frac{1}{4}$ and then the reduced price is increased by $20\\%$. Which expression gives the final price?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$0.9p$"
+        },
+        {
+          "id": "B",
+          "text": "$0.95p$"
+        },
+        {
+          "id": "C",
+          "text": "$1.05p$"
+        },
+        {
+          "id": "D",
+          "text": "$1.2p-\\frac{1}{4}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "After a $25\\%$ reduction, the price is $0.75p$. Increasing that by $20\\%$ multiplies it by $1.20$: $1.20(0.75p)=0.9p$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A school orders $4n$ notebooks at $2.50$ dollars each and receives a $20\\%$ discount on the entire order. Which expression gives the final cost in dollars?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$10n$"
+        },
+        {
+          "id": "B",
+          "text": "$2n$"
+        },
+        {
+          "id": "C",
+          "text": "$8n-0.20$"
+        },
+        {
+          "id": "D",
+          "text": "$8n$"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Before the discount, the cost is $4n(2.50)=10n$. Paying $80\\%$ after the discount gives $0.8(10n)=8n$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.EXPRESSIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A fundraiser has already collected $45$ dollars and then collects $18$ dollars per hour. The total after $h$ hours is $W=18h+45$. Which statement is true?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The coefficient $18$ is the starting amount, and the constant $45$ is the hourly rate."
+        },
+        {
+          "id": "B",
+          "text": "Both $18$ and $45$ represent hourly rates."
+        },
+        {
+          "id": "C",
+          "text": "The coefficient $18$ is the hourly rate, and the constant $45$ is the starting amount."
+        },
+        {
+          "id": "D",
+          "text": "The expression shows that the fundraiser loses $18$ dollars per hour."
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The multiplier of $h$ is the change per hour, so $18$ is the hourly rate. At $h=0$, $W=45$, so $45$ is the starting amount.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Solve $x+9=17$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $9$ from both sides: $x=8$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $5x=35$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Divide both sides by $5$: $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $2x+5=19$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $5$ to get $2x=14$, then divide by $2$: $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $7-3x=22$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-5",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $7$ to get $-3x=15$, then divide by $-3$: $x=-5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $4x-9=2x+15$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $2x$, then add $9$: $2x=24$, so $x=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $3(x+4)=27$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Divide by $3$: $x+4=9$, so $x=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $2(x-3)+5=15$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Expand: $2x-1=15$, so $2x=16$ and $x=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $4(x+2)=2x+18$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Expand: $4x+8=2x+18$, so $2x=10$ and $x=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $5(x-2)=3x+8$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "9",
+      "numeric_tolerance": 0,
+      "explanation": "Expand: $5x-10=3x+8$, so $2x=18$ and $x=9$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the solution set of $3(x+2)=3x+6$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "$x=0$"
+        },
+        {
+          "id": "C",
+          "text": "All real numbers"
+        },
+        {
+          "id": "D",
+          "text": "$x=6$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding gives $3x+6=3x+6$, which is true for every real value of $x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "What is the solution set of $2(x+4)=2x+11$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "No solution"
+        },
+        {
+          "id": "B",
+          "text": "All real numbers"
+        },
+        {
+          "id": "C",
+          "text": "$x=3$"
+        },
+        {
+          "id": "D",
+          "text": "$x=\\frac{3}{2}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Expanding gives $2x+8=2x+11$. Subtracting $2x$ gives $8=11$, which is impossible.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Solve $\\frac{x}{3}+4=10$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "18",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $4$: $x/3=6$. Multiply by $3$: $x=18$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{2x-1}{4}=3$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6.5",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $4$: $2x-1=12$. Then $2x=13$, so $x=6.5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x+1}{3}=\\frac{x+5}{5}$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $15$: $5(x+1)=3(x+5)$. Then $2x=10$, so $x=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x}{2}+\\frac{x}{3}=10$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $6$: $3x+2x=60$, so $x=12$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $0.4x+1.2=5.6$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "11",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $1.2$: $0.4x=4.4$. Divide by $0.4$: $x=11$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $2.5x-3=12$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Add $3$: $2.5x=15$. Divide by $2.5$: $x=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $\\frac{x-2}{4}+\\frac{x+1}{2}=6$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $4$: $(x-2)+2(x+1)=24$. This gives $3x=24$, so $x=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Is $x=4$ a solution of $3x+7=19$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because substituting $4$ gives $19=19$."
+        },
+        {
+          "id": "B",
+          "text": "Yes, because $3+4+7=14$."
+        },
+        {
+          "id": "C",
+          "text": "No, because substituting $4$ gives $12=19$."
+        },
+        {
+          "id": "D",
+          "text": "No, because $x$ must be greater than $4$."
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=4$: $3(4)+7=19$, so the equation is true.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Is $x=3$ a solution of $2(x+1)=x+6$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, because both sides equal $8$."
+        },
+        {
+          "id": "B",
+          "text": "Yes, because both sides equal $9$."
+        },
+        {
+          "id": "C",
+          "text": "No, because the left side is $8$ and the right side is $9$."
+        },
+        {
+          "id": "D",
+          "text": "No, because the left side is $6$ and the right side is $3$."
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=3$: the left side is $8$ and the right side is $9$, so it is not a solution.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_1VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "The formula $d=rt$ gives distance in terms of rate and time. Which expression gives $t$ in terms of $d$ and $r$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$t=dr$"
+        },
+        {
+          "id": "B",
+          "text": "$t=\\frac{d}{r}$"
+        },
+        {
+          "id": "C",
+          "text": "$t=\\frac{r}{d}$"
+        },
+        {
+          "id": "D",
+          "text": "$t=d-r$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Divide both sides by $r$: $t=d/r$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $P=2l+2w$ for $w$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$w=P-2l$"
+        },
+        {
+          "id": "B",
+          "text": "$w=\\frac{P-l}{2}$"
+        },
+        {
+          "id": "C",
+          "text": "$w=\\frac{P-2l}{2}$"
+        },
+        {
+          "id": "D",
+          "text": "$w=\\frac{P}{2l}$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $2l$ and divide by $2$: $w=(P-2l)/2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Solve $y=mx+b$ for $x$, assuming $m\\ne0$.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x=\\frac{y-b}{m}$"
+        },
+        {
+          "id": "B",
+          "text": "$x=\\frac{y}{m}+b$"
+        },
+        {
+          "id": "C",
+          "text": "$x=\\frac{m}{y-b}$"
+        },
+        {
+          "id": "D",
+          "text": "$x=y-m-b$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $b$ and divide by $m$: $x=(y-b)/m$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The temperature formula is $C=\\frac{5}{9}(F-32)$. Which expression gives $F$ in terms of $C$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$F=\\frac{5}{9}C+32$"
+        },
+        {
+          "id": "B",
+          "text": "$F=\\frac{9}{5}C+32$"
+        },
+        {
+          "id": "C",
+          "text": "$F=\\frac{9}{5}(C-32)$"
+        },
+        {
+          "id": "D",
+          "text": "$F=\\frac{5}{9}(C+32)$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply by $9/5$ and then add $32$: $F=(9/5)C+32$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.REARRANGE_FORMULAS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A taxi charges a fixed fee of $6$ dollars plus $2.50$ dollars per mile. The total fare is $26$ dollars. How many miles were traveled?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $6+2.50m=26$: $2.50m=20$, so $m=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A phone plan costs $30$ dollars plus $5$ dollars for each extra GB of data. The bill is $55$ dollars. How many extra GB were used?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $30+5g=55$: $5g=25$, so $g=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Three consecutive integers have a sum of $63$. Which three integers are they?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$19,20,21$"
+        },
+        {
+          "id": "B",
+          "text": "$20,21,22$"
+        },
+        {
+          "id": "C",
+          "text": "$21,22,23$"
+        },
+        {
+          "id": "D",
+          "text": "$18,21,24$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Let the first integer be $x$: $x+(x+1)+(x+2)=63$, so $x=20$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A rectangle has perimeter $54$ cm. Its length is $5$ cm more than its width. What are its dimensions?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Width $9$ cm, length $14$ cm"
+        },
+        {
+          "id": "B",
+          "text": "Width $10$ cm, length $15$ cm"
+        },
+        {
+          "id": "C",
+          "text": "Width $11$ cm, length $16$ cm"
+        },
+        {
+          "id": "D",
+          "text": "Width $12$ cm, length $17$ cm"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Let width be $w$. Then $2w+2(w+5)=54$, so $w=11$ and the length is $16$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A delivery cost is modeled by $C=8n+12$, where $n$ is the number of items. What does the coefficient $8$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The fixed starting fee"
+        },
+        {
+          "id": "B",
+          "text": "The cost per item"
+        },
+        {
+          "id": "C",
+          "text": "The total number of items"
+        },
+        {
+          "id": "D",
+          "text": "The maximum possible cost"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The coefficient of $n$ is the change in cost for each additional item, so $8$ is the cost per item.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A water tank starts with $500$ liters and loses $18$ liters each minute. Which equation models the amount $A$ of water after $t$ minutes?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$A=500+18t$"
+        },
+        {
+          "id": "B",
+          "text": "$A=18-500t$"
+        },
+        {
+          "id": "C",
+          "text": "$A=500-18t$"
+        },
+        {
+          "id": "D",
+          "text": "$A=18t-500$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The tank starts at $500$ liters and decreases by $18$ liters per minute, so $A=500-18t$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Let $f(x)=3x-7$. Find $f(4)$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=4$: $f(4)=3(4)-7=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.CONCEPT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Let $g(x)=2x+5$. Find $g(-3)$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-1",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=-3$: $g(-3)=2(-3)+5=-1$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.CONCEPT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "For $h(x)=4x-1$, find the input $x$ when $h(x)=19$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $4x-1=19$: $4x=20$, so $x=5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.CONCEPT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which relation is a function?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "${(1,2),(1,5),(3,7)}$"
+        },
+        {
+          "id": "B",
+          "text": "${(0,4),(2,4),(5,9)}$"
+        },
+        {
+          "id": "C",
+          "text": "${(-1,3),(-1,3),(-1,6)}$"
+        },
+        {
+          "id": "D",
+          "text": "${(2,1),(2,3),(4,5)}$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "A relation is a function when each input has exactly one output. Only choice B meets that condition.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.CONCEPT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "A parking garage charges according to $C(h)=4+3h$, where $h$ is the number of hours parked and $0le hle 12$. What is the practical domain?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "All real numbers"
+        },
+        {
+          "id": "B",
+          "text": "$0le hle12$"
+        },
+        {
+          "id": "C",
+          "text": "$4le hle40$"
+        },
+        {
+          "id": "D",
+          "text": "Positive integers greater than $12$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The input is parking time and the problem restricts it to values from $0$ through $12$ hours.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.DOMAIN_RANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation represents a linear function?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=3x-8$"
+        },
+        {
+          "id": "B",
+          "text": "$y=x^2+3$"
+        },
+        {
+          "id": "C",
+          "text": "$y=\frac{4}{x}$"
+        },
+        {
+          "id": "D",
+          "text": "$y=2^x$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "A linear function can be written $y=mx+b$ with a constant slope. Only $y=3x-8$ has that form.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Which table does NOT represent a linear function?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$x:0,1,2,3$; $y:2,5,8,11$"
+        },
+        {
+          "id": "B",
+          "text": "$x:-1,0,1,2$; $y:6,4,2,0$"
+        },
+        {
+          "id": "C",
+          "text": "$x:0,1,2,3$; $y:1,2,4,8$"
+        },
+        {
+          "id": "D",
+          "text": "$x:2,4,6,8$; $y:7,7,7,7$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "For equally spaced inputs, a linear function has constant first differences. Choice C changes by $1,2,4$, so it is not linear.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Find the slope of the line through $(2,5)$ and $(6,13)$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "Use $m=(13-5)/(6-2)=8/4=2$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the slope of the line through $(3,-2)$ and $(3,7)$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$0$"
+        },
+        {
+          "id": "B",
+          "text": "$3$"
+        },
+        {
+          "id": "C",
+          "text": "$9$"
+        },
+        {
+          "id": "D",
+          "text": "Undefined"
+        }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "The two points have the same $x$-coordinate, so the line is vertical and its slope is undefined.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Find the slope of the horizontal line $y=-6$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "0",
+      "numeric_tolerance": 0,
+      "explanation": "A horizontal line has no vertical change, so its slope is $0$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The table contains $(1,9)$, $(3,15)$, and $(5,21)$. Find the constant rate of change.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "3",
+      "numeric_tolerance": 0,
+      "explanation": "From $(1,9)$ to $(3,15)$, $Delta y/Delta x=6/2=3$; the next interval has the same rate.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.RATE_CHANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A linear function has $f(-2)=11$ and $f(4)=-1$. Find its average rate of change from $x=-2$ to $x=4$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "Compute $(-1-11)/(4-(-2))=-12/6=-2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.RATE_CHANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which equation has slope $4$ and $y$-intercept $-9$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=-9x+4$"
+        },
+        {
+          "id": "B",
+          "text": "$y=4x-9$"
+        },
+        {
+          "id": "C",
+          "text": "$y=9x-4$"
+        },
+        {
+          "id": "D",
+          "text": "$4y=x-9$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Slope-intercept form is $y=mx+b$. With $m=4$ and $b=-9$, the equation is $y=4x-9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "For $y=-3x+8$, identify the slope and $y$-intercept.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Slope $-3$; $y$-intercept $(0,8)$"
+        },
+        {
+          "id": "B",
+          "text": "Slope $3$; $y$-intercept $(0,-8)$"
+        },
+        {
+          "id": "C",
+          "text": "Slope $8$; $y$-intercept $(0,-3)$"
+        },
+        {
+          "id": "D",
+          "text": "Slope $-3$; $y$-intercept $(8,0)$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "In $y=mx+b$, $m=-3$ and $b=8$, so the $y$-intercept is $(0,8)$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation represents the line with slope $2$ through $(3,1)$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y-1=2(x-3)$"
+        },
+        {
+          "id": "B",
+          "text": "$y-3=2(x-1)$"
+        },
+        {
+          "id": "C",
+          "text": "$y+1=2(x+3)$"
+        },
+        {
+          "id": "D",
+          "text": "$y-1=3(x-2)$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Point-slope form is $y-y_1=m(x-x_1)$, giving $y-1=2(x-3)$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation is the line through $(-2,7)$ and $(4,-5)$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=2x+11$"
+        },
+        {
+          "id": "B",
+          "text": "$y=-2x+3$"
+        },
+        {
+          "id": "C",
+          "text": "$y=-2x-3$"
+        },
+        {
+          "id": "D",
+          "text": "$y=\frac12x+8$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The slope is $(-5-7)/(4-(-2))=-12/6=-2$. Using $(-2,7)$ gives $7=4+b$, so $b=3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Rewrite $6x+3y=12$ in slope-intercept form.",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=2x+4$"
+        },
+        {
+          "id": "B",
+          "text": "$y=-2x+4$"
+        },
+        {
+          "id": "C",
+          "text": "$y=-2x+12$"
+        },
+        {
+          "id": "D",
+          "text": "$y=6x-4$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $6x$ and divide by $3$: $3y=-6x+12$, so $y=-2x+4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_2VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Find the $x$-intercept of $y=5x-20$. Enter the $x$-coordinate.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "At the $x$-intercept, $y=0$. Solve $0=5x-20$ to get $x=4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Find the $y$-intercept of $2x-4y=16$. Enter the $y$-coordinate.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-4",
+      "numeric_tolerance": 0,
+      "explanation": "Set $x=0$: $-4y=16$, so $y=-4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_2VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which point lies on the line $3x+2y=14$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$(2,4)$"
+        },
+        {
+          "id": "B",
+          "text": "$(4,2)$"
+        },
+        {
+          "id": "C",
+          "text": "$(0,6)$"
+        },
+        {
+          "id": "D",
+          "text": "$(-2,8)$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $(2,4)$: $3(2)+2(4)=6+8=14$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "ALG.LINEAR_EQ_2VAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "A line is parallel to $y=-\frac{3}{4}x+6$. Find the slope of the parallel line.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-0.75",
+      "numeric_tolerance": 0,
+      "explanation": "Parallel nonvertical lines have equal slopes, so the slope is $-3/4=-0.75$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A line is perpendicular to $y=\frac{2}{5}x-1$. Find the slope of the perpendicular line.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2.5",
+      "numeric_tolerance": 0,
+      "explanation": "Perpendicular slopes are negative reciprocals. The negative reciprocal of $2/5$ is $-5/2=-2.5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which equation is parallel to $y=3x-2$ and passes through $(2,10)$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=3x+4$"
+        },
+        {
+          "id": "B",
+          "text": "$y=-3x+16$"
+        },
+        {
+          "id": "C",
+          "text": "$y=\frac13x+\frac{28}{3}$"
+        },
+        {
+          "id": "D",
+          "text": "$y=3x-4$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "A parallel line has slope $3$. Substituting $(2,10)$ into $y=3x+b$ gives $10=6+b$, so $b=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation is perpendicular to $y=-2x+7$ and passes through $(4,1)$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y-1=\frac12(x-4)$"
+        },
+        {
+          "id": "B",
+          "text": "$y-1=-\frac12(x-4)$"
+        },
+        {
+          "id": "C",
+          "text": "$y-4=2(x-1)$"
+        },
+        {
+          "id": "D",
+          "text": "$y+1=-2(x+4)$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "The perpendicular slope is the negative reciprocal of $-2$, which is $1/2$. Use point-slope form through $(4,1)$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The table contains $(0,-2)$, $(2,4)$, and $(5,13)$. Which equation matches it?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=2x-2$"
+        },
+        {
+          "id": "B",
+          "text": "$y=3x-2$"
+        },
+        {
+          "id": "C",
+          "text": "$y=3x+2$"
+        },
+        {
+          "id": "D",
+          "text": "$y=5x-2$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The slope is $(4-(-2))/(2-0)=3$, and the value at $x=0$ is $-2$, so $y=3x-2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A tank begins with $120$ liters and loses $7$ liters per minute. Which function gives the amount $A(t)$ after $t$ minutes?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$A(t)=120+7t$"
+        },
+        {
+          "id": "B",
+          "text": "$A(t)=7-120t$"
+        },
+        {
+          "id": "C",
+          "text": "$A(t)=120-7t$"
+        },
+        {
+          "id": "D",
+          "text": "$A(t)=7t-120$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The initial value is $120$ and the rate of change is $-7$ liters per minute, so $A(t)=120-7t$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Function A is $y=4x-1$. Function B is shown by $(0,6)$, $(2,12)$, and $(4,18)$. Which function has the greater rate of change?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Function A"
+        },
+        {
+          "id": "B",
+          "text": "Function B"
+        },
+        {
+          "id": "C",
+          "text": "They have equal rates of change"
+        },
+        {
+          "id": "D",
+          "text": "There is not enough information"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Function A has slope $4$. Function B has slope $(12-6)/(2-0)=3$, so Function A changes faster.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.COMPARE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Function A is $y=-2x+5$. Function B has the table values $B(0)=8$ and $B(3)=2$. Which has the greater $y$-intercept?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Function A"
+        },
+        {
+          "id": "B",
+          "text": "Function B"
+        },
+        {
+          "id": "C",
+          "text": "The intercepts are equal"
+        },
+        {
+          "id": "D",
+          "text": "Neither has a $y$-intercept"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Function A has $y$-intercept $5$. Since $B(0)=8$, Function B has $y$-intercept $8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.COMPARE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "If $y$ varies directly with $x$ and $y=18$ when $x=6$, find the constant of variation.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "3",
+      "numeric_tolerance": 0,
+      "explanation": "Direct variation has the form $y=kx$. Thus $k=18/6=3$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "If $y$ varies directly with $x$ and $y=-20$ when $x=5$, which equation models the relationship?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=-4x$"
+        },
+        {
+          "id": "B",
+          "text": "$y=4x$"
+        },
+        {
+          "id": "C",
+          "text": "$y=-20x+5$"
+        },
+        {
+          "id": "D",
+          "text": "$y=5x-20$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "For direct variation $y=kx$, and $k=-20/5=-4$, so $y=-4x$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A taxi fare is modeled by $F(m)=4.50+2.25m$, where $m$ is miles traveled. Find the fare for $8$ miles.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "22.5",
+      "numeric_tolerance": 0,
+      "explanation": "Evaluate $F(8)=4.50+2.25(8)=4.50+18=22.50$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A freezer cools from $18^circ$C at a constant rate of $2.5^circ$C per hour. After how many hours will it reach $-7^circ$C?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "10",
+      "numeric_tolerance": 0,
+      "explanation": "Model the temperature by $T=18-2.5h$. Solve $-7=18-2.5h$ to get $h=10$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A streaming plan costs $C(g)=15+4g$, where $g$ is the number of premium rentals. What does the number $4$ represent?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The monthly base fee"
+        },
+        {
+          "id": "B",
+          "text": "The cost per premium rental"
+        },
+        {
+          "id": "C",
+          "text": "The total cost"
+        },
+        {
+          "id": "D",
+          "text": "The number of free rentals"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The coefficient of the input is the change in cost for one additional rental, so each premium rental costs $4$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Plan A costs $25+6x$ dollars and Plan B costs $49+3x$ dollars for $x$ uses. For how many uses do the plans cost the same?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Set the costs equal: $25+6x=49+3x$. Then $3x=24$, so $x=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A linear model passes through $(2018,42)$ and $(2022,58)$, where the second coordinate is a measured quantity. Use the model to predict the quantity in $2025$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "70",
+      "numeric_tolerance": 0,
+      "explanation": "The annual rate is $(58-42)/(2022-2018)=4$. Three years after 2022, the model predicts $58+3(4)=70$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.LINEAR_MODELING",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The distance $d$ in kilometers after $t$ hours is $d=72t+15$. Which statement correctly interprets the slope?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "The trip begins $72$ km from the origin"
+        },
+        {
+          "id": "B",
+          "text": "The distance increases by $15$ km each hour"
+        },
+        {
+          "id": "C",
+          "text": "The traveler moves at $72$ km/h"
+        },
+        {
+          "id": "D",
+          "text": "The trip lasts $72$ hours"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The slope gives change in distance per hour, so $72$ means a speed of $72$ km/h.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.RATE_CHANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "An arithmetic sequence begins $11,15,19,23,ldots$. Which function gives the $n$th term for $nge1$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$a(n)=4n+7$"
+        },
+        {
+          "id": "B",
+          "text": "$a(n)=11n+4$"
+        },
+        {
+          "id": "C",
+          "text": "$a(n)=4n+11$"
+        },
+        {
+          "id": "D",
+          "text": "$a(n)=11-4n$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "The common difference is $4$. Since $a(1)=11$, $a(n)=11+4(n-1)=4n+7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Starting with $f(x)=2x+1$, define $g(x)=f(x)+4$. Which equation represents $g$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$g(x)=2x+5$"
+        },
+        {
+          "id": "B",
+          "text": "$g(x)=2x-3$"
+        },
+        {
+          "id": "C",
+          "text": "$g(x)=6x+1$"
+        },
+        {
+          "id": "D",
+          "text": "$g(x)=2x+4$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Adding $4$ to every output shifts the line up $4$ units: $g(x)=2x+1+4=2x+5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.TRANSFORMATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Starting with $f(x)=-3x+2$, define $g(x)=f(x-5)$. Which equation represents $g$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$g(x)=-3x-13$"
+        },
+        {
+          "id": "B",
+          "text": "$g(x)=-3x+17$"
+        },
+        {
+          "id": "C",
+          "text": "$g(x)=-3x+7$"
+        },
+        {
+          "id": "D",
+          "text": "$g(x)=2x-5$"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x-5$ for $x$: $g(x)=-3(x-5)+2=-3x+17$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.TRANSFORMATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A theater sells only whole-number tickets and can seat at most $240$ people. If $R(n)=18n$ is revenue, what is the practical domain?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "All real numbers"
+        },
+        {
+          "id": "B",
+          "text": "All integers"
+        },
+        {
+          "id": "C",
+          "text": "Whole numbers from $0$ through $240$"
+        },
+        {
+          "id": "D",
+          "text": "Real numbers from $18$ through $4320$"
+        }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The input counts tickets, so it must be a whole number, and capacity restricts it to $0le nle240$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.DOMAIN_RANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "For $f(x)=2x-3$ with domain ${-1,0,2,5}$, what is the range?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "${-5,-3,1,7}$"
+        },
+        {
+          "id": "B",
+          "text": "${-1,0,2,5}$"
+        },
+        {
+          "id": "C",
+          "text": "${-2,-3,4,10}$"
+        },
+        {
+          "id": "D",
+          "text": "${1,3,7,13}$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Evaluate the function at each input: $f(-1)=-5$, $f(0)=-3$, $f(2)=1$, and $f(5)=7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.DOMAIN_RANGE",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "For the linear function $p(t)=85-6t$, find the input $t$ that produces the output $p(t)=31$.",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "9",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $85-6t=31$: $-6t=-54$, so $t=9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.CONCEPT",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A line crosses the $y$-axis at $-4$ and rises $5$ units whenever it runs $2$ units to the right. Which equation represents the line?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "$y=\frac{5}{2}x-4$"
+        },
+        {
+          "id": "B",
+          "text": "$y=\frac{2}{5}x-4$"
+        },
+        {
+          "id": "C",
+          "text": "$y=-\frac{5}{2}x+4$"
+        },
+        {
+          "id": "D",
+          "text": "$y=5x-2$"
+        }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Rise over run gives slope $5/2$, and the $y$-intercept is $-4$, so $y=(5/2)x-4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which description matches $y=-1.5x+12$?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "id": "A",
+          "text": "Starts at $-1.5$ and increases by $12$ per unit"
+        },
+        {
+          "id": "B",
+          "text": "Starts at $12$ and decreases by $1.5$ per unit"
+        },
+        {
+          "id": "C",
+          "text": "Starts at $12$ and increases by $1.5$ per unit"
+        },
+        {
+          "id": "D",
+          "text": "Starts at $1.5$ and decreases by $12$ per unit"
+        }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The intercept $12$ is the starting value, and the slope $-1.5$ means the output decreases by $1.5$ per input unit.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        {
+          "code": "FUNC.MULTIPLE_REPRESENTATIONS",
+          "weight": 1,
+          "is_primary": true
+        }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    }
+  ]
+}
