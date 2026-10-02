@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWeek, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, TeacherClassOption, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import { calculateHomeworkCompletionPercentage, clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
 import { gradebookColumnClipboardText, workStatusGrade } from "@/lib/gradebook-column-export";
-import { FinalGradeCell, GradeColumnDialog, ManualGradeCell, NewTopicDialog, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
+import { ClassworkNoteDialog, FinalGradeCell, GradeColumnDialog, ManualGradeCell, NewTopicDialog, TopicSettingsDialog, WorkColumnDialog } from "./gradebook-controls";
 import gradebookStyles from "./class-gradebook.module.css";
 import styles from "./stars.module.css";
 
@@ -126,7 +126,7 @@ function applyPending(initial: ClassroomStarState, queue: ClassroomSyncPayload):
   };
   for (const week of queue.weeks) if (!next.weeks.some((item) => item.label === week.label)) {
     next.weeks = next.weeks.map((item) => ({ ...item, isCurrent: false }));
-    next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null, isCurrent: true, gradingMode: "stars", classworkDefaultGrade: 80, classworkGrades: {}, finalGradeFormula: null, finalGradeMax: 20, summativeGradeColumnId: null });
+    next.weeks.push({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title || null, focus: week.focus || null, isCurrent: true, gradingMode: "stars", classworkDefaultGrade: 80, classworkGrades: {}, classworkNotes: {}, finalGradeFormula: null, finalGradeMax: 20, summativeGradeColumnId: null });
   }
   const knownEvents = new Set(next.eventIds);
   for (const event of queue.starEvents) {
@@ -382,6 +382,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [cwMessage, setCwMessage] = useState("");
   const [cwBusy, setCwBusy] = useState(false);
   const [workColumnDialog, setWorkColumnDialog] = useState<ClassroomWorkItem | null>(null);
+  const [classworkNoteEditor, setClassworkNoteEditor] = useState<{ topicId: string; studentId: string } | null>(null);
   const [workbook, setWorkbook] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
   const [importMessage, setImportMessage] = useState("");
@@ -394,7 +395,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const sheetScrollerRef = useRef<HTMLDivElement>(null);
   const sheetTableRef = useRef<HTMLTableElement>(null);
   const frozenSheetHeaderRef = useRef<HTMLDivElement>(null);
-  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || gradeColumnDialog || topicSettingsDialog || newTopicOpen || workColumnDialog || rewardEffect?.kind === "death");
+  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || classworkNoteEditor || gradeColumnDialog || topicSettingsDialog || newTopicOpen || workColumnDialog || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -876,6 +877,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
   const cwPopupStudent = cwPopup ? data.students.find((student) => student.id === cwPopup.studentId) ?? null : null;
   const cwPopupRecords = cwPopup ? cwRecords.filter((record) => record.studentId === cwPopup.studentId && record.weekLabel === cwPopup.weekLabel) : [];
+  const classworkNoteTopic = classworkNoteEditor ? data.weeks.find((topic) => topic.id === classworkNoteEditor.topicId) ?? null : null;
+  const classworkNoteStudent = classworkNoteEditor ? data.students.find((student) => student.id === classworkNoteEditor.studentId) ?? null : null;
 
   function toggleWeek(label: string) {
     if (openWeek === label) {
@@ -1044,7 +1047,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
 
   function saveTopicSettings(topic: ClassroomStarState["weeks"][number]) {
-    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === topic.id ? { ...topic, classworkGrades: Object.keys(topic.classworkGrades).length ? topic.classworkGrades : week.classworkGrades } : topic.isCurrent ? { ...week, isCurrent: false } : week) }));
+    setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === topic.id ? { ...topic, classworkGrades: Object.keys(topic.classworkGrades).length ? topic.classworkGrades : week.classworkGrades, classworkNotes: Object.keys(topic.classworkNotes).length ? topic.classworkNotes : week.classworkNotes } : topic.isCurrent ? { ...week, isCurrent: false } : week) }));
     if (topic.isCurrent) {
       setSelectedWeek(topic.label);
       setExpandedWeeks((current) => new Set([...current, topic.label]));
@@ -1187,7 +1190,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function topicModeHeaders(week: ClassroomWeek, topicPaletteClass: string, topicStartClass: string) {
     if (week.gradingMode === "classwork") {
       const columnId = `${week.label}:classwork-grade`;
-      return <th className={`${gradebookStyles.classworkGradeHead} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(columnId)}`}><button aria-label={`Select ${week.label} classwork grade column`} aria-pressed={sheetSelection?.kind === "column" && sheetSelection.id === columnId} className={styles.sheetColumnSelect} onClick={() => toggleSheetSelection("column", columnId)} type="button"><strong>Classwork grade</strong><span>Default {week.classworkDefaultGrade}%</span><small>Quick ±1%</small></button></th>;
+      return <th className={`${gradebookStyles.classworkGradeHead} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(columnId)}`}><button aria-label={`Select ${week.label} classwork grade column`} aria-pressed={sheetSelection?.kind === "column" && sheetSelection.id === columnId} className={styles.sheetColumnSelect} onClick={() => toggleSheetSelection("column", columnId)} type="button"><strong>Classwork grade</strong><span>Default {week.classworkDefaultGrade}%</span><small>Quick ±1% · Notes</small></button></th>;
     }
     const starColumnId = `${week.label}:stars`;
     const skullColumnId = `${week.label}:skulls`;
@@ -1198,7 +1201,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function topicModeCells(week: ClassroomWeek, student: ClassroomStarState["students"][number], topicPaletteClass: string, topicStartClass: string) {
     if (week.gradingMode === "classwork") {
       const grade = week.classworkGrades[student.id] ?? week.classworkDefaultGrade;
-      return <td className={`${gradebookStyles.classworkGradeCell} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(`${week.label}:classwork-grade`)}`}><strong>{grade}%</strong><div><button aria-label={`Decrease ${student.fullName}'s classwork grade by 1 percent`} disabled={grade <= 0} onClick={() => void changeClassworkGrade(week, student.id, -1)} type="button">−</button><button aria-label={`Increase ${student.fullName}'s classwork grade by 1 percent`} disabled={grade >= 100} onClick={() => void changeClassworkGrade(week, student.id, 1)} type="button">＋</button></div></td>;
+      const hasNote = Boolean(week.classworkNotes[student.id]);
+      return <td className={`${gradebookStyles.classworkGradeCell} ${topicPaletteClass} ${topicStartClass} ${selectedColumnClass(`${week.label}:classwork-grade`)}`}><strong>{grade}%</strong><div><button aria-label={`Decrease ${student.fullName}'s classwork grade by 1 percent`} disabled={grade <= 0} onClick={() => void changeClassworkGrade(week, student.id, -1)} type="button">−</button><button aria-label={`Open classwork note for ${student.fullName} in ${week.label}`} className={hasNote ? gradebookStyles.classworkNoteSaved : ""} onClick={() => setClassworkNoteEditor({ topicId: week.id, studentId: student.id })} title={hasNote ? "Edit saved note" : "Add note"} type="button">✎</button><button aria-label={`Increase ${student.fullName}'s classwork grade by 1 percent`} disabled={grade >= 100} onClick={() => void changeClassworkGrade(week, student.id, 1)} type="button">＋</button></div></td>;
     }
     const topicSkulls = student.skulls[week.label] ?? { today: 0, total: 0 };
     const missingCwCount = cwCounts.get(`${student.id}|${week.label}`) ?? 0;
@@ -1283,6 +1287,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     {newTopicOpen ? <NewTopicDialog classId={data.classroom.id} classes={teacherClasses.length ? teacherClasses : [{ id: data.classroom.id, name: data.classroom.name, gradeLevel: data.classroom.gradeLevel }]} onClose={() => setNewTopicOpen(false)} onCreated={topicCreated} /> : null}
     {topicSettingsDialog && data.weeks.find((week) => week.id === topicSettingsDialog) ? <TopicSettingsDialog classId={data.classroom.id} gradeColumns={gradeColumns.filter((column) => column.weekLabel === data.weeks.find((week) => week.id === topicSettingsDialog)!.label)} onClose={() => setTopicSettingsDialog(null)} onSaved={saveTopicSettings} topic={data.weeks.find((week) => week.id === topicSettingsDialog)!} /> : null}
     {workColumnDialog ? <WorkColumnDialog classId={data.classroom.id} item={workColumnDialog} onClose={() => setWorkColumnDialog(null)} onDeleted={deleteWorkColumn} onSaved={saveWorkColumn} /> : null}
+    {classworkNoteEditor && classworkNoteTopic && classworkNoteStudent ? <ClassworkNoteDialog classId={data.classroom.id} note={classworkNoteTopic.classworkNotes[classworkNoteStudent.id] ?? ""} onClose={() => setClassworkNoteEditor(null)} onSaved={(note) => setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === classworkNoteTopic.id ? { ...week, classworkNotes: note ? { ...week.classworkNotes, [classworkNoteStudent.id]: note } : Object.fromEntries(Object.entries(week.classworkNotes).filter(([studentId]) => studentId !== classworkNoteStudent.id)) } : week) }))} studentId={classworkNoteStudent.id} studentName={classworkNoteStudent.fullName} topic={classworkNoteTopic} /> : null}
     {assignmentPopupId && assignments.find((assignment) => assignment.id === assignmentPopupId) ? <AssignmentResultsPopup assignment={assignments.find((assignment) => assignment.id === assignmentPopupId)!} onClose={() => setAssignmentPopupId(null)} students={sortedStudents} updatedAt={assignmentsUpdatedAt} /> : null}
     {cwPopup && cwPopupStudent ? <div className={`${styles.popupBackdrop} ${styles.cwBackdrop}`} role="presentation"><section aria-label={`CW events for ${cwPopupStudent.fullName} in ${cwPopup.weekLabel}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.cwPopup}`} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setCwPopup(null)} type="button">×</button><header><p className={styles.popupEyebrow}>Topic {cwPopup.weekLabel} · CW</p><h2>{cwPopupStudent.fullName}</h2><p>Add each bad CW as a dated event with a short note. The table only shows how many CW events are missing for this topic.</p></header><form onSubmit={(event) => { event.preventDefault(); void addCwRecord(); }}><label><span>Date</span><input onChange={(event) => setCwRecordDate(event.target.value)} required type="date" value={cwRecordDate} /></label><label><span>Little note</span><textarea autoFocus maxLength={500} onChange={(event) => setCwReason(event.target.value)} placeholder="What was missing or incomplete?" required rows={3} value={cwReason} /></label><div><span className={styles.cwNotOkPill}>Bad CW</span><button disabled={cwBusy || !cwReason.trim()} type="submit">{cwBusy ? "Saving…" : "Add event"}</button></div></form>{cwMessage ? <p className={styles.cwMessage} role="status">{cwMessage}</p> : null}<section className={styles.cwRecordList}><div><strong>CW events</strong><span>{cwPopupRecords.length}</span></div>{cwPopupRecords.length ? cwPopupRecords.map((record) => <article key={record.id}><time dateTime={record.recordDate}>{record.recordDate}</time><p>{record.reason}</p><button aria-label={`Delete CW event from ${record.recordDate}`} disabled={cwBusy} onClick={() => void deleteCwRecord(record)} type="button">Delete</button></article>) : <p>No missing CW events for this student in this topic.</p>}</section></section></div> : null}
     {workCreatorOpen ? <div className={`${styles.popupBackdrop} ${styles.workBackdrop}`} role="presentation"><form aria-label={`Add homework or classwork to ${selectedWeek}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.workPopup}`} onSubmit={(event) => { event.preventDefault(); addWorkItem(); }} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setWorkCreatorOpen(false)} type="button">×</button><div aria-hidden="true" className={styles.workPopupIcon}>{newWorkKind === "homework" ? "HW" : "CW"}</div><p className={styles.popupEyebrow}>Topic {selectedWeek}</p><h2>Add {newWorkKind === "homework" ? "homework" : "classwork"}</h2><p className={styles.popupHint}>Every student starts as OK. Open the new record afterward to mark Late, Not OK, or Clear.</p><div className={styles.workPopupFields}><label><span>Record type</span><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select></label><label><span>Title</span><input aria-label="Work title" autoFocus maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} required value={newWorkTitle} /></label><label><span>Activity date</span><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /></label></div><button className={styles.popupAction} disabled={!newWorkTitle.trim()} type="submit">Add to {selectedWeek}</button></form></div> : null}

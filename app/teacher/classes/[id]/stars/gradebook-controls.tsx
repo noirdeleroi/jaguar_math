@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CLASSWORK_GRADE_NOTE_LIMIT } from "@/lib/classroom-classwork-note";
 import { FINAL_GRADE_COMMENT_MAX_LENGTH, normalizeFinalGradeOverride } from "@/lib/classroom-final-grade";
 import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem, TeacherClassOption } from "@/lib/classroom-stars";
 import { DEFAULT_TOPIC_GRADE_FORMULA, clampTopicGrade, evaluateTopicFinalGradeFormula, normalizeOptionalTopicGradeFormula } from "@/lib/classroom-topic-grade";
@@ -14,6 +15,54 @@ function todayKey() {
 function PercentageStepper({ value, onChange, disabled = false }: { value: number; onChange: (value: number) => void; disabled?: boolean }) {
   const change = (next: number) => onChange(Math.max(0, Math.min(100, Math.round(next))));
   return <div className={styles.percentageStepper}><button aria-label="Decrease grade by 5 percent" disabled={disabled || value <= 0} onClick={() => change(value - 5)} type="button">−</button><label><span>Default grade</span><input disabled={disabled} max="100" min="0" onChange={(event) => change(Number(event.target.value))} step="1" type="number" value={value} /><b>%</b></label><button aria-label="Increase grade by 5 percent" disabled={disabled || value >= 100} onClick={() => change(value + 5)} type="button">＋</button></div>;
+}
+
+export function ClassworkNoteDialog({ classId, topic, studentId, studentName, note, onClose, onSaved }: {
+  classId: string;
+  topic: ClassroomWeek;
+  studentId: string;
+  studentName: string;
+  note: string;
+  onClose: () => void;
+  onSaved: (note: string) => void;
+}) {
+  const [draft, setDraft] = useState(note);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/classes/${classId}/topics/${topic.id}/classwork-notes/${studentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note: draft }),
+      });
+      const result = await response.json() as { note?: string; error?: string };
+      if (!response.ok || typeof result.note !== "string") throw new Error(result.error || "The classwork note was not saved.");
+      onSaved(result.note);
+      onClose();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "The classwork note was not saved.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <div className={styles.dialogBackdrop} role="presentation"><section aria-label={`Classwork note for ${studentName} in ${topic.label}`} aria-modal="true" className={`${styles.columnDialog} ${styles.classworkNoteDialog}`} role="dialog">
+    <button aria-label="Close classwork note" className={styles.dialogClose} disabled={busy} onClick={onClose} type="button">×</button>
+    <p className={styles.dialogEyebrow}>{topic.label} · Classwork grade</p>
+    <h2>{studentName}</h2>
+    <p>A private note for this student and topic.</p>
+    <form className={styles.columnForm} onSubmit={submit}>
+      <label>Note<textarea autoFocus className={styles.classworkNoteTextarea} disabled={busy} maxLength={CLASSWORK_GRADE_NOTE_LIMIT} onChange={(event) => setDraft(event.target.value)} placeholder="Write a quick note…" rows={7} value={draft} /></label>
+      <small className={styles.classworkNoteCount}>{draft.length}/{CLASSWORK_GRADE_NOTE_LIMIT}</small>
+      {message ? <p className={styles.formError} role="alert">{message}</p> : null}
+      <div className={styles.dialogActions}><button className={styles.noteClearButton} disabled={busy || !draft} onClick={() => setDraft("")} type="button">Clear</button><button disabled={busy} type="submit">{busy ? "Saving…" : "Save note"}</button></div>
+    </form>
+  </section></div>;
 }
 
 export function NewTopicDialog({ classId, classes, onClose, onCreated }: {

@@ -25,6 +25,7 @@ type GradeColumnRow = { id: string; week_id: string; title: string; assessment_d
 type ManualGradeRow = { column_id: string; student_id: string; score: number };
 type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
 type ClassworkGradeRow = { week_id: string; student_id: string; grade: number };
+type ClassworkNoteRow = { week_id: string; student_id: string; note: string };
 type CwRecordRow = { id: string; week_id: string; student_id: string; record_date: string; reason: string };
 type GradebookRosterRow = { gradebook_code: string; gradebook_name: string; sort_order: number; student_id: string | null };
 type WorkSummary = { ok: number; notOk: number; late: number; recorded: number };
@@ -87,14 +88,15 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const workItemIds = workItems.map((item) => item.id);
   const assignmentIds = (assignmentLinks ?? []).map((link) => link.assignment_id);
   const gradeColumnIds = ((gradeColumnRows ?? []) as GradeColumnRow[]).map((column) => column.id);
-  const [{ data: statusRows, error: statusError }, { data: assessmentRows, error: assessmentError }, { data: manualGradeRows, error: manualGradeError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }, { data: classworkGradeRows, error: classworkGradeError }] = await Promise.all([
+  const [{ data: statusRows, error: statusError }, { data: assessmentRows, error: assessmentError }, { data: manualGradeRows, error: manualGradeError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }, { data: classworkGradeRows, error: classworkGradeError }, { data: classworkNoteRows, error: classworkNoteError }] = await Promise.all([
     workItemIds.length ? supabase.from("classroom_work_statuses").select("work_item_id, student_id, status").in("work_item_id", workItemIds) : Promise.resolve({ data: [] as WorkStatus[], error: null }),
     assignmentIds.length ? supabase.from("assignments").select("id, title, kind, status, due_at").in("id", assignmentIds).eq("created_by", teacher.id).in("status", ["published", "closed"]).order("due_at", { ascending: true, nullsFirst: false }) : Promise.resolve({ data: [] as Assessment[], error: null }),
     gradeColumnIds.length ? supabase.from("classroom_manual_grades").select("column_id, student_id, score").in("column_id", gradeColumnIds) : Promise.resolve({ data: [] as ManualGradeRow[], error: null }),
     weeks.length && enrolled.length ? supabase.from("classroom_final_grade_overrides").select("week_id, student_id, score, comment").in("week_id", weeks.map((week) => week.id)).in("student_id", enrolled.map((student) => student.id)) : Promise.resolve({ data: [] as FinalGradeOverrideRow[], error: null }),
     weeks.length && enrolled.length ? supabase.from("classroom_topic_classwork_grades").select("week_id, student_id, grade").in("week_id", weeks.map((week) => week.id)).in("student_id", enrolled.map((student) => student.id)) : Promise.resolve({ data: [] as ClassworkGradeRow[], error: null }),
+    weeks.length && enrolled.length ? supabase.from("classroom_topic_classwork_notes").select("week_id, student_id, note").in("week_id", weeks.map((week) => week.id)).in("student_id", enrolled.map((student) => student.id)) : Promise.resolve({ data: [] as ClassworkNoteRow[], error: null }),
   ]);
-  if (statusError || assessmentError || manualGradeError || finalGradeOverrideError || classworkGradeError) throw statusError ?? assessmentError ?? manualGradeError ?? finalGradeOverrideError ?? classworkGradeError;
+  if (statusError || assessmentError || manualGradeError || finalGradeOverrideError || classworkGradeError || classworkNoteError) throw statusError ?? assessmentError ?? manualGradeError ?? finalGradeOverrideError ?? classworkGradeError ?? classworkNoteError;
   const assessmentIds = (assessmentRows ?? []).map((assessment) => assessment.id);
   const { data: attemptRows, error: attemptError } = assessmentIds.length && enrolled.length ? await supabase.from("attempts").select("id, assignment_id, student_id, status, score, max_score, attempt_number, started_at, submitted_at").in("assignment_id", assessmentIds).in("student_id", enrolled.map((student) => student.id)).in("status", ["in_progress", "submitted"]).order("attempt_number", { ascending: false }).order("started_at", { ascending: false }) : { data: [] as Attempt[], error: null };
   if (attemptError) throw attemptError;
@@ -186,6 +188,12 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     values[row.student_id] = Number(row.grade);
     classworkGradesByWeek.set(row.week_id, values);
   }
+  const classworkNotesByWeek = new Map<string, Record<string, string>>();
+  for (const row of (classworkNoteRows ?? []) as ClassworkNoteRow[]) {
+    const values = classworkNotesByWeek.get(row.week_id) ?? {};
+    values[row.student_id] = row.note;
+    classworkNotesByWeek.set(row.week_id, values);
+  }
   for (const row of (finalGradeOverrideRows ?? []) as FinalGradeOverrideRow[]) {
     const week = weekById.get(row.week_id);
     if (!week) continue;
@@ -197,7 +205,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const starState: ClassroomStarState = {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: ((gradebookRosterRows ?? []) as GradebookRosterRow[]).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, gradingMode: week.grading_mode, classworkDefaultGrade: Number(week.classwork_default_grade ?? 80), classworkGrades: classworkGradesByWeek.get(week.id) ?? {}, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: weeks.map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, gradingMode: week.grading_mode, classworkDefaultGrade: Number(week.classwork_default_grade ?? 80), classworkGrades: classworkGradesByWeek.get(week.id) ?? {}, classworkNotes: classworkNotesByWeek.get(week.id) ?? {}, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: enrolled.map((student) => ({ id: student.id, fullName: student.nickname, nickname: student.nickname, email: student.email, totals: Object.fromEntries(weeks.map((week) => [week.label, studentWeeks(student.id)[week.label].stars])), skulls: skullsByStudent.get(student.id) ?? {} })),
     workItems: workItems.flatMap((item) => { const week = weekById.get(item.week_id); return week ? [{ id: item.id, weekLabel: week.label, kind: item.kind, position: item.position, title: item.title, activityDate: item.activity_date, statuses: statusesByItem.get(item.id) ?? {} }] : []; }),
     finalGradeOverrides,

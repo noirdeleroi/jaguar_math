@@ -759,6 +759,12 @@
   color: #a83e30;
 }
 
+.dialogActions .noteClearButton {
+  border: 1px solid #cbdad3;
+  background: #f4f7f5;
+  color: #526d64;
+}
+
 .dialogActions button:disabled {
   cursor: wait;
   opacity: .55;
@@ -923,6 +929,30 @@
 .classworkGradeCell > div { display: flex; justify-content: center; gap: 6px; margin-top: 7px; }
 .classworkGradeCell button { min-width: 36px; border: 1px solid #d2b466; border-radius: 7px; padding: 5px 9px; background: #fff6da; color: #6f5200; font-size: 16px; font-weight: 900; cursor: pointer; }
 .classworkGradeCell button:disabled { cursor: not-allowed; opacity: .4; }
+
+.classworkGradeCell .classworkNoteSaved {
+  border-color: #8cae9d;
+  background: #e5f1e9;
+  color: #245a47;
+}
+
+.classworkNoteDialog { width: min(430px, 100%); }
+
+.classworkNoteTextarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #cbdad3;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fffef8;
+  color: #233e36;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.classworkNoteTextarea:focus { border-color: #6f9b87; outline: 3px solid rgb(76 139 112 / 14%); }
+.classworkNoteCount { margin-top: -12px; color: #71827b; font-size: 10px; text-align: right; }
 
 .currentTopicChoice strong {
   color: #245a47;

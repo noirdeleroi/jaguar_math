@@ -32,7 +32,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       p_make_current: body.makeCurrent === true,
     });
     if (error) throw error;
-    const topics = ((data as { topics?: Array<ClassroomWeek & { classId: string }> } | null)?.topics ?? []);
+    const topics = ((data as { topics?: Array<ClassroomWeek & { classId: string }> } | null)?.topics ?? []).map((topic) => ({ ...topic, classworkNotes: topic.classworkNotes ?? {} }));
     const topic = topics.find((item) => item.classId === id);
     if (!topic) throw new Error("The topic was not returned for the open class.");
     return NextResponse.json({ topic, classCount: topics.length }, { status: 201, headers: { "Cache-Control": "no-store" } });

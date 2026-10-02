@@ -84,6 +84,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         gradingMode: data.grading_mode,
         classworkDefaultGrade: Number(data.classwork_default_grade),
         classworkGrades: {},
+        classworkNotes: {},
         finalGradeFormula: data.final_grade_formula,
         finalGradeMax: Number(data.final_grade_max),
         summativeGradeColumnId: data.summative_grade_column_id,

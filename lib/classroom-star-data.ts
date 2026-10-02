@@ -9,6 +9,7 @@ import { defaultCurrentWeek } from "@/lib/curriculum-weeks";
 type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
 type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
 type ClassworkGradeRow = { week_id: string; student_id: string; grade: number };
+type ClassworkNoteRow = { week_id: string; student_id: string; note: string };
 
 function firstName(value: string) {
   return value.trim().split(/\s+/)[0] ?? value;
@@ -42,13 +43,14 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   const weekIds = (weeks ?? []).map((week) => week.id);
   const nicknameByStudentId = new Map((memberships ?? []).map((membership) => [membership.student_id, membership.nickname]));
   const workItemIds = (workItems ?? []).map((item) => item.id);
-  const [{ data: profiles, error: profileError }, { data: statuses, error: statusError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }, { data: classworkGradeRows, error: classworkGradeError }] = await Promise.all([
+  const [{ data: profiles, error: profileError }, { data: statuses, error: statusError }, { data: finalGradeOverrideRows, error: finalGradeOverrideError }, { data: classworkGradeRows, error: classworkGradeError }, { data: classworkNoteRows, error: classworkNoteError }] = await Promise.all([
     studentIds.length ? supabase.from("profiles").select("id, full_name, email").in("id", studentIds).eq("role", "student").order("full_name") : Promise.resolve({ data: [], error: null }),
     workItemIds.length ? supabase.from("classroom_work_statuses").select("work_item_id, student_id, status").in("work_item_id", workItemIds) : Promise.resolve({ data: [], error: null }),
     weekIds.length && studentIds.length ? supabase.from("classroom_final_grade_overrides").select("week_id, student_id, score, comment").in("week_id", weekIds).in("student_id", studentIds) : Promise.resolve({ data: [] as FinalGradeOverrideRow[], error: null }),
     weekIds.length && studentIds.length ? supabase.from("classroom_topic_classwork_grades").select("week_id, student_id, grade").in("week_id", weekIds).in("student_id", studentIds) : Promise.resolve({ data: [] as ClassworkGradeRow[], error: null }),
+    weekIds.length && studentIds.length ? supabase.from("classroom_topic_classwork_notes").select("week_id, student_id, note").in("week_id", weekIds).in("student_id", studentIds) : Promise.resolve({ data: [] as ClassworkNoteRow[], error: null }),
   ]);
-  if (profileError || statusError || finalGradeOverrideError || classworkGradeError) throw profileError ?? statusError ?? finalGradeOverrideError ?? classworkGradeError;
+  if (profileError || statusError || finalGradeOverrideError || classworkGradeError || classworkNoteError) throw profileError ?? statusError ?? finalGradeOverrideError ?? classworkGradeError ?? classworkNoteError;
 
   const totals = new Map<string, Record<string, number>>();
   for (const event of events ?? []) {
@@ -80,6 +82,12 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
     values[row.student_id] = Number(row.grade);
     classworkGradesByWeek.set(row.week_id, values);
   }
+  const classworkNotesByWeek = new Map<string, Record<string, string>>();
+  for (const row of (classworkNoteRows ?? []) as ClassworkNoteRow[]) {
+    const values = classworkNotesByWeek.get(row.week_id) ?? {};
+    values[row.student_id] = row.note;
+    classworkNotesByWeek.set(row.week_id, values);
+  }
   for (const row of (finalGradeOverrideRows ?? []) as FinalGradeOverrideRow[]) {
     const weekLabel = weekLabelById.get(row.week_id);
     if (!weekLabel) continue;
@@ -92,7 +100,7 @@ export async function loadClassroomStarState(classId: string, teacherId: string)
   return {
     classroom: { id: classroom.id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year },
     gradebookRoster: (gradebookRoster ?? []).map((student) => ({ gradebookCode: student.gradebook_code, gradebookName: student.gradebook_name, sortOrder: student.sort_order, studentId: student.student_id })),
-    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, gradingMode: week.grading_mode as "stars" | "classwork", classworkDefaultGrade: Number(week.classwork_default_grade ?? 80), classworkGrades: classworkGradesByWeek.get(week.id) ?? {}, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
+    weeks: (weeks ?? []).map((week) => ({ id: week.id, label: week.label, sortOrder: week.sort_order, title: week.title, focus: week.focus, isCurrent: week.is_current, gradingMode: week.grading_mode as "stars" | "classwork", classworkDefaultGrade: Number(week.classwork_default_grade ?? 80), classworkGrades: classworkGradesByWeek.get(week.id) ?? {}, classworkNotes: classworkNotesByWeek.get(week.id) ?? {}, finalGradeFormula: week.final_grade_formula, finalGradeMax: Number(week.final_grade_max ?? 20), summativeGradeColumnId: week.summative_grade_column_id })),
     students: (profiles ?? []).map((profile) => {
       const nickname = nicknameByStudentId.get(profile.id) || profile.full_name || profile.email || "Unnamed student";
       return { id: profile.id, fullName: nickname, nickname, email: profile.email, totals: totals.get(profile.id) ?? {}, skulls: skullsByStudent.get(profile.id) ?? {} };

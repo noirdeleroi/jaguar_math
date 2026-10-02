@@ -8,6 +8,7 @@ export type ClassroomWeek = {
   gradingMode: "stars" | "classwork";
   classworkDefaultGrade: number;
   classworkGrades: Record<string, number>;
+  classworkNotes: Record<string, string>;
   finalGradeFormula: string | null;
   finalGradeMax: number;
   summativeGradeColumnId: string | null;
