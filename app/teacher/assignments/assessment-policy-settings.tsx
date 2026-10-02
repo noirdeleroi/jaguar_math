@@ -30,7 +30,7 @@ type Policy = Required<Omit<AssessmentPolicyInitial, "durationMinutes" | "kind">
 
 const PRESETS: Record<AssignmentKind, Policy> = {
   homework: {
-    kind: "homework", durationMinutes: null, paperAnswerDurationSeconds: 90, maxAttempts: 3, questionDisplayMode: "all_at_once",
+    kind: "homework", durationMinutes: null, paperAnswerDurationSeconds: 90, maxAttempts: 3, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: true, showAnswersAfterSubmit: true, showFeedbackAfterEachQuestion: true,
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
     examTrackFocusExits: false, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
