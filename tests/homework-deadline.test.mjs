@@ -5,9 +5,11 @@ import { attemptReviewLabel, attemptReviewState, homeworkResultsAreAvailable } f
 
 const deadlineMigration = readFileSync(new URL("../supabase/migrations/20260928140000_deadline_only_homework.sql", import.meta.url), "utf8");
 const attemptHistoryMigration = readFileSync(new URL("../supabase/migrations/20260928150000_homework_attempt_history.sql", import.meta.url), "utf8");
+const learningModeMigration = readFileSync(new URL("../supabase/migrations/20261002130000_homework_learning_mode.sql", import.meta.url), "utf8");
 const runner = readFileSync(new URL("../app/student/assignments/assessment-runner.tsx", import.meta.url), "utf8");
 const assignmentPage = readFileSync(new URL("../app/student/assignments/[id]/page.tsx", import.meta.url), "utf8");
 const dashboardData = readFileSync(new URL("../lib/student-assignments.ts", import.meta.url), "utf8");
+const submittedReview = readFileSync(new URL("../app/student/assignments/submitted-attempt-review.tsx", import.meta.url), "utf8");
 
 test("unanswered homework questions remain gray instead of being presented as wrong", () => {
   assert.equal(attemptReviewState(null, false), "unanswered");
@@ -32,10 +34,15 @@ test("homework keeps deadline fallback while secure snapshot submission is resto
   assert.match(attemptHistoryMigration, /grant execute on function public\.submit_attempt_snapshot/);
 });
 
-test("the runner confirms homework submissions and retains deadline auto-close", () => {
-  assert.match(runner, /Submit homework attempt/);
-  assert.match(runner, /Jaguar will close and grade the latest saved work at the deadline/);
-  assert.match(runner, /window\.confirm\(`Submit your \$\{subject\} now\?/);
+test("homework is a revise-and-learn loop with protected solution access", () => {
+  assert.match(learningModeMigration, /create function public\.check_homework_response/);
+  assert.match(learningModeMigration, /attempt\.student_id = auth\.uid\(\)/);
+  assert.match(learningModeMigration, /assignment\.kind = 'homework'/);
+  assert.match(learningModeMigration, /attempt\.status = 'in_progress'/);
+  assert.match(runner, /Check answer & solution/);
+  assert.match(runner, /change your answer and check again/);
+  assert.match(runner, /homework-video-link/);
+  assert.match(runner, /setFeedback\(\(current\) => \(\{ \.\.\.current, \[questionId\]: null \}\)\)/);
   assert.doesNotMatch(assignmentPage, /assignment\.kind === "homework"\) \{\s*const \{ error: finalizationError \} = await supabase\.rpc\("finalize_overdue_homework_attempts"/);
 });
 
@@ -44,6 +51,15 @@ test("active homework progress is not merged with an earlier completed score", (
   assert.match(dashboardData, /completed: Boolean\(submitted && !activeIsCurrent\)/);
   assert.match(assignmentPage, /const submittedAttempts = attempts\.filter/);
   assert.match(assignmentPage, /requestedAttemptId/);
-  assert.match(assignmentPage, /Saved separately/);
-  assert.match(assignmentPage, /SubmittedAttemptReview questions=\{submittedReviewQuestions\}/);
+  assert.match(assignmentPage, /Practice history/);
+  assert.match(assignmentPage, /SubmittedAttemptReview learningMode=\{assignment\.kind === "homework"\}/);
+});
+
+test("student homework views remove points, percentages, and grade language", () => {
+  assert.match(assignmentPage, /const scoreVisible = assignment\.kind !== "homework"/);
+  assert.match(assignmentPage, /Review learning →/);
+  assert.match(assignmentPage, /Homework is practice—there is no grade/);
+  assert.match(dashboardData, /showScore: assignment\.kind !== "homework"/);
+  assert.match(submittedReview, /showPoints=\{!learningMode\}/);
+  assert.match(runner, /!homeworkMode && <> · \{question\.points\}/);
 });

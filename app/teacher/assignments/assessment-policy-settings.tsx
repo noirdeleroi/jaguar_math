@@ -50,7 +50,7 @@ const PRESETS: Record<AssignmentKind, Policy> = {
 };
 
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
-  homework: { eyebrow: "Learning mode", title: "Homework", description: "Autosaved practice with separately scored attempts and a deadline safety net.", note: "Students submit each attempt when ready. Every completed attempt stays reviewable, and unfinished work closes automatically at the deadline." },
+  homework: { eyebrow: "Learning mode", title: "Homework", description: "Autosaved, ungraded practice with solutions and skill lessons.", note: "Students check solutions, revise answers, and use a related lesson for each skill. Completed practice highlights weaknesses without showing a grade." },
   test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
   paper: { eyebrow: "Paper mode", title: "Paper test", description: "Students solve a printed version, then enter answers in a short synchronized window.", note: "Jaguar runs the shared writing timer in fullscreen, assigns a paper version, autosaves answer entry, and keeps results private until you release them." },
 };
@@ -94,7 +94,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
     <div className={styles.policyGroups}>
       <section><h3>Student feedback</h3><p>{policy.kind === "homework" ? "Help students learn during practice." : "Keep answer information protected during assessment."}</p>
         <div className="assignment-toggles">
-          {policy.kind === "homework" ? <><input name="show_score_after_submit" type="hidden" value="on" /><input name="show_answers_after_submit" type="hidden" value="on" /><div className={styles.homeworkResultPolicy}><strong>Each completed attempt opens for review</strong><small>Students see their score and every question: gray means not answered, green means correct, and red means wrong.</small></div></> : <label className={styles.resultVisibility}>What students see after submitting
+          {policy.kind === "homework" ? <><input name="show_score_after_submit" type="hidden" value="on" /><input name="show_answers_after_submit" type="hidden" value="on" /><input name="show_feedback_after_each_question" type="hidden" value="on" /><div className={styles.homeworkResultPolicy}><strong>Ungraded learning feedback is always on</strong><small>Students can check the solution, change their answer, and open a lesson for the question&apos;s skill. Completed practice highlights mistakes without points or percentages.</small></div></> : <label className={styles.resultVisibility}>What students see after submitting
             <select name="student_result_visibility" onChange={(event) => { const value = event.target.value; setPolicy((current) => ({ ...current, showScoreAfterSubmit: value !== "private", showAnswersAfterSubmit: value === "full_review" })); }} value={resultVisibility}>
               <option value="private">Confirmation only — reveal nothing</option>
               <option value="score_only">Score only — keep questions private</option>
@@ -102,7 +102,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
             </select>
             <small>{resultVisibility === "private" ? "Students see only that the assessment was submitted." : resultVisibility === "score_only" ? "Students see their score, but no questions, answers, or correctness." : "Students see questions, their answers, correct answers, score, and improvement guidance."}</small>
           </label>}
-          <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={assessment} label={policy.kind === "homework" ? "Show correct or incorrect after each saved answer" : "Immediate correctness is disabled for assessments"} name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />
+          {policy.kind !== "homework" && <PolicyToggle checked={policy.showFeedbackAfterEachQuestion} disabled={assessment} label="Immediate correctness is disabled for assessments" name="show_feedback_after_each_question" onChange={(value) => set("showFeedbackAfterEachQuestion", value)} />}
         </div>
       </section>
       <section><h3>Form variation</h3><p>Each attempt receives a stable form code and server-saved order.</p>

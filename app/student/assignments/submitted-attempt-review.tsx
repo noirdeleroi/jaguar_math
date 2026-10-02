@@ -20,7 +20,7 @@ type ReviewQuestion = {
   explanation?: string | null;
 };
 
-export default function SubmittedAttemptReview({ questions }: { questions: ReviewQuestion[] }) {
+export default function SubmittedAttemptReview({ questions, learningMode = false }: { questions: ReviewQuestion[]; learningMode?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const question = questions[currentIndex];
 
@@ -31,7 +31,7 @@ export default function SubmittedAttemptReview({ questions }: { questions: Revie
   return <section className={`submitted-review ${state}`}>
     <header className="submitted-review-header">
       <div><p className="eyebrow">Question breakdown</p><h3>Question {question.number} of {questions.length}</h3></div>
-      <span className={`submitted-review-result ${state}`}>{attemptReviewLabel(state)} · {question.earnedPoints ?? 0}/{question.points}</span>
+      <span className={`submitted-review-result ${state}`}>{learningMode ? attemptReviewLabel(state) : `${attemptReviewLabel(state)} · ${question.earnedPoints ?? 0}/${question.points}`}</span>
     </header>
     <nav aria-label="Submitted question navigation" className="submitted-review-navigation">
       {questions.map((item, index) => {
@@ -41,7 +41,7 @@ export default function SubmittedAttemptReview({ questions }: { questions: Revie
       })}
     </nav>
     <div className="submitted-review-stage">
-      <QuestionReview correctAnswer={question.correctAnswer} earnedPoints={question.earnedPoints} explanation={question.explanation} isCorrect={question.isCorrect} number={question.number} options={question.options} points={question.points} prompt={question.prompt} studentAnswer={question.studentAnswer} type={question.type} />
+      <QuestionReview correctAnswer={question.correctAnswer} earnedPoints={question.earnedPoints} explanation={question.explanation} isCorrect={question.isCorrect} number={question.number} options={question.options} points={question.points} prompt={question.prompt} showPoints={!learningMode} studentAnswer={question.studentAnswer} type={question.type} />
     </div>
     <footer className="submitted-review-controls">
       <button disabled={currentIndex === 0} onClick={() => setCurrentIndex((index) => index - 1)} type="button">← Previous</button>

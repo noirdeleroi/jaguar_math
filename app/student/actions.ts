@@ -76,6 +76,15 @@ export async function saveStudentResponseWithFeedback(attemptId: string, questio
   return error || !row ? { error: "Your response could not be saved. The time window may have closed." } : { ok: true, isCorrect: Boolean(row.is_correct), pointsAwarded: Number(row.points_awarded ?? 0) };
 }
 
+export async function checkHomeworkResponse(attemptId: string, questionId: string, answer: string): Promise<{ error: string } | { ok: true; isCorrect: boolean; correctAnswer: string; explanation: string | null }> {
+  await requireStudent();
+  if (!uuid(attemptId) || !uuid(questionId) || typeof answer !== "string" || answer.length > 20_000) return { error: "That homework response could not be checked." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("check_homework_response", { p_attempt_id: attemptId, p_question_id: questionId, p_student_answer: answer });
+  const row = Array.isArray(data) ? data[0] : data;
+  return error || !row ? { error: "The solution is not available right now. Your answer is still saved." } : { ok: true, isCorrect: Boolean(row.is_correct), correctAnswer: String(row.correct_answer), explanation: row.explanation === null ? null : String(row.explanation) };
+}
+
 export async function submitStudentAttempt(attemptId: string) {
   await requireStudent(); const supabase = await createClient(); const { data, error } = await supabase.rpc("submit_attempt", { p_attempt_id: attemptId });
   if (error || !data) return { error: "Your attempt could not be submitted." };
