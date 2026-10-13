@@ -1,0 +1,529 @@
+{
+  "questions": [
+    {
+      "prompt": "Which equation represents a linear relationship?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=3x-7$" },
+        { "id": "B", "text": "$y=x^2+3$" },
+        { "id": "C", "text": "$y=\\frac{6}{x}$" },
+        { "id": "D", "text": "$y=2^x$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$y=3x-7$ has the form $y=mx+b$, so it has a constant rate of change. The other equations are nonlinear.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The table shows $x=-1,1,3,5$ and corresponding $y=8,4,0,-4$. Which statement is true?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The relationship is linear with slope $-4$." },
+        { "id": "B", "text": "The relationship is linear with slope $-2$." },
+        { "id": "C", "text": "The relationship is linear with slope $2$." },
+        { "id": "D", "text": "The relationship is not linear." }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Each time $x$ increases by $2$, $y$ decreases by $4$. Therefore, $m=\\frac{-4}{2}=-2$, and the constant slope confirms that the relationship is linear.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.MULTIPLE_REPRESENTATIONS", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A line passes through $(-5,-2)$ and $(1,10)$. Which statement describes its slope?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The slope is positive because $y$ increases as $x$ increases." },
+        { "id": "B", "text": "The slope is negative because the line crosses the $y$-axis below the origin." },
+        { "id": "C", "text": "The slope is zero because the two points have different $x$-coordinates." },
+        { "id": "D", "text": "The slope is undefined because the two points have different $y$-coordinates." }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "From $(-5,-2)$ to $(1,10)$, both $x$ and $y$ increase. In fact, $m=\\frac{10-(-2)}{1-(-5)}=2$, which is positive.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "What is the slope of the line through $(3,-4)$ and $(11,8)$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "1.5",
+      "numeric_tolerance": 0,
+      "explanation": "$m=\\frac{8-(-4)}{11-3}=\\frac{12}{8}=\\frac{3}{2}=1.5$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The table shows $x=-4,0,6$ and corresponding $y=7,1,-8$. What is the slope?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-1.5",
+      "numeric_tolerance": 0,
+      "explanation": "Using the first two points, $m=\\frac{1-7}{0-(-4)}=\\frac{-6}{4}=-1.5$. The next pair gives the same rate.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the slope of the line represented by $6x+3y=15$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$-2$" },
+        { "id": "B", "text": "$-\\frac{1}{2}$" },
+        { "id": "C", "text": "$2$" },
+        { "id": "D", "text": "$5$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Rewrite the equation as $3y=-6x+15$, or $y=-2x+5$. The coefficient of $x$ is the slope.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A gym membership costs $45$ after $2$ months and $81$ after $5$ months. The cost increases at a constant rate. What is the monthly rate, in dollars per month?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "The cost increases by $81-45=36$ dollars over $5-2=3$ months, so the monthly rate is $36/3=12$ dollars per month.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the $y$-intercept of the line $4x-5y=20$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-4",
+      "numeric_tolerance": 0,
+      "explanation": "Set $x=0$: $-5y=20$, so $y=-4$. The $y$-intercept is $(0,-4)$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The line $y=-\\frac{3}{4}x+6$ crosses the $x$-axis at $(a,0)$. What is the value of $a$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "At the $x$-intercept, $y=0$. Solve $0=-\\frac{3}{4}a+6$ to get $a=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which pair gives the $x$-intercept and $y$-intercept of $2x+5y=20$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x$-intercept $(4,0)$ and $y$-intercept $(0,10)$" },
+        { "id": "B", "text": "$x$-intercept $(10,0)$ and $y$-intercept $(0,4)$" },
+        { "id": "C", "text": "$x$-intercept $(2,0)$ and $y$-intercept $(0,5)$" },
+        { "id": "D", "text": "$x$-intercept $(20,0)$ and $y$-intercept $(0,20)$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Set $y=0$ to get $2x=20$, so $x=10$. Set $x=0$ to get $5y=20$, so $y=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which statement describes the horizontal line through $(-7,3)$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "Its equation is $x=-7$ and its slope is undefined." },
+        { "id": "B", "text": "Its equation is $x=3$ and its slope is $0$." },
+        { "id": "C", "text": "Its equation is $y=3$ and its slope is $0$." },
+        { "id": "D", "text": "Its equation is $y=-7$ and its slope is undefined." }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Every point on a horizontal line has the same $y$-coordinate. Therefore, the equation is $y=3$, and every horizontal line has slope $0$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which statement about the line $x=4$ is true?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "It is horizontal and has slope $0$." },
+        { "id": "B", "text": "It is vertical and has undefined slope." },
+        { "id": "C", "text": "It is vertical and has slope $4$." },
+        { "id": "D", "text": "It has $y$-intercept $(0,4)$." }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$x=4$ contains all points whose $x$-coordinate is $4$, so it is vertical. A vertical line has zero run and therefore an undefined slope.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation has slope $-5$ and $y$-intercept $9$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=9x-5$" },
+        { "id": "B", "text": "$y=-5x+9$" },
+        { "id": "C", "text": "$y=5x-9$" },
+        { "id": "D", "text": "$y=-9x+5$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "In $y=mx+b$, $m$ is the slope and $b$ is the $y$-intercept. Substituting $m=-5$ and $b=9$ gives $y=-5x+9$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which equation represents the line with slope $\\frac{3}{2}$ that passes through $(4,-1)$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=\\frac{3}{2}x-7$" },
+        { "id": "B", "text": "$y=\\frac{3}{2}x+5$" },
+        { "id": "C", "text": "$y=-\\frac{3}{2}x+5$" },
+        { "id": "D", "text": "$y=-\\frac{3}{2}x-7$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Use $y=mx+b$: $-1=\\frac{3}{2}(4)+b=6+b$, so $b=-7$. The equation is $y=\\frac{3}{2}x-7$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which equation represents the line through $(-2,7)$ and $(4,-5)$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=-2x+3$" },
+        { "id": "B", "text": "$y=-2x-3$" },
+        { "id": "C", "text": "$y=2x+11$" },
+        { "id": "D", "text": "$y=\\frac{1}{2}x+8$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "The slope is $\\frac{-5-7}{4-(-2)}=-2$. Using $(-2,7)$ in $y=-2x+b$ gives $7=4+b$, so $b=3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The table shows $x=0,2,5$ and corresponding $y=-6,0,9$. Which equation represents the table?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=2x-6$" },
+        { "id": "B", "text": "$y=3x-6$" },
+        { "id": "C", "text": "$y=3x+6$" },
+        { "id": "D", "text": "$y=6x-3$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "From $(0,-6)$ to $(2,0)$, the slope is $6/2=3$. Since $y=-6$ when $x=0$, the $y$-intercept is $-6$. Thus, $y=3x-6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.MULTIPLE_REPRESENTATIONS", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "A tutoring service charges a one-time registration fee of $75$ dollars plus $18$ dollars for each session. Which function gives the total cost $C(s)$ for $s$ sessions?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$C(s)=75s+18$" },
+        { "id": "B", "text": "$C(s)=18s+75$" },
+        { "id": "C", "text": "$C(s)=93s$" },
+        { "id": "D", "text": "$C(s)=75-18s$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The fixed fee is the starting value, $75$. The cost increases by $18$ for each session, so $C(s)=18s+75$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The function $V(t)=240-12t$ gives the volume of water in a tank, in liters, $t$ minutes after a drain opens. What does the slope represent?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The tank starts with $12$ liters." },
+        { "id": "B", "text": "The tank gains $12$ liters per minute." },
+        { "id": "C", "text": "The tank loses $12$ liters per minute." },
+        { "id": "D", "text": "The tank becomes empty after $12$ minutes." }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The slope is $-12$ liters per minute. The negative sign means the volume decreases, so the tank loses $12$ liters each minute.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which table represents $g(x)=4x-3$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x=-1,0,2$; $g(x)=-7,-3,5$" },
+        { "id": "B", "text": "$x=-1,0,2$; $g(x)=1,-3,-11$" },
+        { "id": "C", "text": "$x=-1,0,2$; $g(x)=-4,0,8$" },
+        { "id": "D", "text": "$x=-1,0,2$; $g(x)=-1,3,11$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Substitution gives $g(-1)=-7$, $g(0)=-3$, and $g(2)=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.MULTIPLE_REPRESENTATIONS", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Function A contains the points $(0,1)$, $(2,7)$, and $(5,16)$. Function B is $y=2.5x+9$. Which statement correctly compares their rates of change?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "Function A has the greater rate of change by $0.5$." },
+        { "id": "B", "text": "Function B has the greater rate of change by $0.5$." },
+        { "id": "C", "text": "Function A has the greater rate of change by $1.5$." },
+        { "id": "D", "text": "The functions have the same rate of change." }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Function A has slope $\\frac{7-1}{2-0}=3$. Function B has slope $2.5$. Therefore, Function A's rate is greater by $3-2.5=0.5$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.COMPARE", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "What is the slope of any line parallel to $7x-2y=10$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$-\\frac{7}{2}$" },
+        { "id": "B", "text": "$-\\frac{2}{7}$" },
+        { "id": "C", "text": "$\\frac{2}{7}$" },
+        { "id": "D", "text": "$\\frac{7}{2}$" }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Rewrite as $-2y=-7x+10$, then divide by $-2$ to get $y=\\frac{7}{2}x-5$. Parallel lines have the same slope.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which equation represents the line parallel to $y=-3x+4$ that passes through $(2,5)$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=-3x+11$" },
+        { "id": "B", "text": "$y=-3x-1$" },
+        { "id": "C", "text": "$y=\\frac{1}{3}x+\\frac{13}{3}$" },
+        { "id": "D", "text": "$y=3x-1$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "A parallel line has slope $-3$. Using $(2,5)$ in $y=-3x+b$ gives $5=-6+b$, so $b=11$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A line has slope $\\frac{2}{5}$. What is the slope of a line perpendicular to it?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$-\\frac{5}{2}$" },
+        { "id": "B", "text": "$-\\frac{2}{5}$" },
+        { "id": "C", "text": "$\\frac{5}{2}$" },
+        { "id": "D", "text": "$\\frac{2}{5}$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Perpendicular slopes are negative reciprocals. The negative reciprocal of $\\frac{2}{5}$ is $-\\frac{5}{2}$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which equation represents the line perpendicular to $3x+4y=8$ that passes through $(-3,2)$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$y=-\\frac{3}{4}x-\\frac{1}{4}$" },
+        { "id": "B", "text": "$y=\\frac{4}{3}x+6$" },
+        { "id": "C", "text": "$y=-\\frac{4}{3}x-2$" },
+        { "id": "D", "text": "$y=\\frac{3}{4}x+\\frac{17}{4}$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "$3x+4y=8$ has slope $-\\frac{3}{4}$, so a perpendicular line has slope $\\frac{4}{3}$. Using $(-3,2)$ gives $2=\\frac{4}{3}(-3)+b=-4+b$, so $b=6$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "If $f(x)=-2x+11$, what is $f(-3)$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "17",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=-3$: $f(-3)=-2(-3)+11=6+11=17$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.CONCEPT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "For $h(x)=5x-8$, what value of $x$ makes $h(x)=27$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $5x-8=27$: $5x=35$, so $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.CONCEPT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The function $C(d)=6+2.4d$ gives the cost, in dollars, of a taxi trip of $d$ miles. What does $C(15)$ represent, and what is its value?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The cost of a $15$-mile trip; $42$ dollars" },
+        { "id": "B", "text": "The number of miles traveled for $15$ dollars; $42$ miles" },
+        { "id": "C", "text": "The cost of a $15$-mile trip; $36$ dollars" },
+        { "id": "D", "text": "The taxi's cost per mile; $15$ dollars per mile" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "$C(15)$ is the cost when $d=15$ miles. $C(15)=6+2.4(15)=6+36=42$ dollars.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The function $T(t)=96-4t$ models the amount of material remaining after $t$ minutes. After how many minutes is the amount $0$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "24",
+      "numeric_tolerance": 0,
+      "explanation": "Set $T(t)=0$: $96-4t=0$. Then $4t=96$, so $t=24$ minutes.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A table has equally spaced $x$-values $0,1,2,3$ and corresponding $y$-values $2,5,10,17$. Why is the relationship not linear?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The $x$-values include $0$." },
+        { "id": "B", "text": "The $y$-values are all positive." },
+        { "id": "C", "text": "The first differences in $y$ are $3,5,7$, so the rate of change is not constant." },
+        { "id": "D", "text": "A linear relationship must have negative $y$-values." }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "For equal increases of $1$ in $x$, the changes in $y$ are $3$, $5$, and $7$. Since the rate changes, the relationship is not linear.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.MULTIPLE_REPRESENTATIONS", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "The line $y=(k-1)x+6$ is perpendicular to the line $y=\\frac{1}{3}x-2$. What is the value of $k$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "A line perpendicular to slope $\\frac{1}{3}$ has slope $-3$. Therefore, $k-1=-3$, so $k=-2$.",
+      "difficulty": 4,
+      "points": 1,
+      "skills": [
+        { "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    }
+  ]
+}
