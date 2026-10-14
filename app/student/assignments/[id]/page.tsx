@@ -13,6 +13,7 @@ import { buildAssignmentSkillReview } from "@/lib/assignment-skill-review";
 import { assignmentPdfIsAvailable } from "@/lib/homework-pdf-release";
 import { homeworkResultsAreAvailable } from "@/lib/attempt-review";
 import { testQuestionsAreReleased } from "@/lib/test-question-release";
+import { startOrContinueExamAssignment } from "@/app/student/actions";
 import { requireStudent } from "@/lib/auth";
 import { skillDisplayName } from "@/lib/skill-display-names";
 import { createClient } from "@/lib/supabase/server";
@@ -81,7 +82,9 @@ export default async function StudentAssignmentPage({ params, searchParams }: As
   } : null;
   const paperAnswersReleased = Boolean(paperSession?.answersReleasedAt);
 
-  const attemptIds = [activeAttempt?.id, answerReviewVisible ? reviewedAttempt?.id : undefined].filter((value): value is string => Boolean(value));
+  const scopedTestLaunch = activeAttempt && assignment.kind === "test" && assignment.status === "published" ? await startOrContinueExamAssignment(id) : null;
+  if (scopedTestLaunch && "error" in scopedTestLaunch) throw new Error(scopedTestLaunch.error);
+  const attemptIds = [assignment.kind === "test" ? undefined : activeAttempt?.id, answerReviewVisible ? reviewedAttempt?.id : undefined].filter((value): value is string => Boolean(value));
 
   let attemptQuestions: AttemptQuestion[] = [];
   if (attemptIds.length) {
@@ -107,7 +110,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: As
   }
 
   let responses: ResponseRow[] = [];
-  if (activeAttempt) {
+  if (activeAttempt && assignment.kind !== "test") {
     const { data } = await supabase.from("responses").select("question_id, student_answer, client_revision, is_correct, points_awarded").eq("attempt_id", activeAttempt.id);
     responses = (data ?? []) as ResponseRow[];
   }
@@ -127,7 +130,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: As
     }
     paperAnswerQuestions = (data ?? []) as PaperAnswerQuestion[];
   }
-  const runnerQuestions = assignment.kind === "paper" ? paperAnswerQuestions.map((item) => {
+  const runnerQuestions = scopedTestLaunch && "questions" in scopedTestLaunch ? scopedTestLaunch.questions : assignment.kind === "paper" ? paperAnswerQuestions.map((item) => {
     const response = responseByQuestion.get(item.question_id);
     return { id: item.question_id, prompt: "", type: item.question_type, options: item.question_type === "multiple_choice" ? item.option_ids.map((optionId) => ({ id: optionId, text: "" })) : null, points: Number(item.points), answer: response?.student_answer ?? "", serverRevision: Number(response?.client_revision ?? 0), isCorrect: response?.is_correct ?? null, pointsAwarded: response?.points_awarded ?? null };
   }) : activeForm.flatMap((item) => {

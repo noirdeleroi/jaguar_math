@@ -59,29 +59,20 @@ export async function startOrContinueExamAssignment(assignmentId: string) {
   const started = Date.now();
   await requireStudent();
   const supabase = await createClient();
-  // The RPC is idempotent per student and enforces assignment/release access.
-  const { data: attempt, error } = await supabase.rpc("start_exam_attempt", { p_assignment_id: assignmentId });
-  if (error || !attempt) return { error: "This test could not start. Check the connection and try again." };
-  const [{ data: form, error: formError }, { data: responses, error: responseError }] = await Promise.all([
-    supabase.from("attempt_questions").select("question_id, points, option_order, questions(id, prompt, type, options)").eq("attempt_id", attempt.id).order("position"),
-    supabase.from("responses").select("question_id, student_answer, client_revision, is_correct, points_awarded").eq("attempt_id", attempt.id),
-  ]);
-  if (formError || responseError || !form?.length) {
-    console.error(`[exam-launch] questions unavailable; elapsed_ms=${Date.now() - started}; code=${formError?.code ?? responseError?.code ?? "empty"}`);
-    return { error: "Your attempt is saved, but the questions could not load. Try again to continue the same attempt." };
+  const { data, error } = await supabase.rpc("get_my_exam_launch", { p_assignment_id: assignmentId });
+  if (error || !data) {
+    console.error(`[exam-launch] failed; elapsed_ms=${Date.now() - started}; code=${error?.code ?? "empty"}`);
+    return { error: "This test could not load. Retry to continue the same attempt." };
   }
-  const answers = new Map((responses ?? []).map((row) => [row.question_id, row]));
-  const questions = form.flatMap((item) => {
-    const question = (Array.isArray(item.questions) ? item.questions[0] : item.questions) as { id: string; prompt: string; type: string; options: { id: string; text: string }[] | null } | null;
-    if (!question) return [];
+  type LaunchQuestion = import("@/lib/exam-launch").ExamQuestion & { optionOrder: string[] };
+  const launch = data as { attemptId: string; expiresAt: string | null; formCode: string | null; focusViolations: number; questions: LaunchQuestion[] };
+  const questions = launch.questions.map(({ optionOrder, ...question }) => {
     const options = question.options;
-    const ordered = options && item.option_order?.length ? (item.option_order as string[]).flatMap((id) => options.find((option) => option.id === id) ?? []) : options;
-    const response = answers.get(item.question_id);
-    return [{ ...question, options: ordered?.length === options?.length ? ordered : options, points: Number(item.points), answer: response?.student_answer ?? "", serverRevision: Number(response?.client_revision ?? 0), isCorrect: response?.is_correct ?? null, pointsAwarded: response?.points_awarded ?? null }];
+    const ordered = options && optionOrder?.length ? optionOrder.flatMap((id) => options.find((option) => option.id === id) ?? []) : options;
+    return { ...question, options: ordered?.length === options?.length ? ordered : options, isCorrect: null, pointsAwarded: null };
   });
-  if (questions.length !== form.length) return { error: "Some questions could not load. Try again to continue the same attempt." };
   console.info(`[exam-launch] ready; elapsed_ms=${Date.now() - started}; questions=${questions.length}`);
-  return { attemptId: attempt.id as string, expiresAt: attempt.expires_at as string | null, formCode: attempt.form_code as string | null, focusViolations: Number(attempt.exam_focus_violations ?? 0), questions };
+  return { ...launch, questions };
 }
 
 export async function saveStudentResponse(attemptId: string, questionId: string, answer: string) {

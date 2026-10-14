@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { startOrContinueExamAssignment } from "../actions";
+import { startExam } from "@/lib/start-exam-client";
 import { flushExamActivityQueue, sendExamActivity } from "./exam-activity-client";
 import { canStartExamFromWaitingRoom } from "./exam-mode-attempt";
 import { canEnterSecureTestFullscreen, isIPadOS, isSecureTestFullscreenActive, requestSecureTestFullscreen, subscribeToFullscreen } from "./fullscreen-api";
@@ -78,7 +78,7 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
         return;
       }
 
-      const result = await withTimeout(startOrContinueExamAssignment(assignmentId), 25_000);
+      const result = await withTimeout(startExam(assignmentId), 25_000);
       if ("error" in result) { setNotice(result.error ?? "The test could not start."); return; }
       if (requireFullscreen) {
         if (stopIfFullscreenWasLost(result.attemptId)) return;
