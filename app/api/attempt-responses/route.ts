@@ -18,7 +18,9 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: claims, error: authError } = await supabase.auth.getClaims();
+  if (authError && authError.name !== "AuthSessionMissingError") return NextResponse.json({ error: "Session verification is temporarily unavailable. Please retry." }, { status: 503 });
+  const user = claims?.claims.sub ? { id: claims.claims.sub } : null;
   if (!user) return NextResponse.json({ error: "Sign in again to save your answers." }, { status: 401 });
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "student") return NextResponse.json({ error: "Answers are not available for this account." }, { status: 403 });

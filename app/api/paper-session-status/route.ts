@@ -7,7 +7,9 @@ export async function GET(request: Request) {
   const assignmentId = new URL(request.url).searchParams.get("assignmentId");
   if (!assignmentId || !UUID.test(assignmentId)) return NextResponse.json({ error: "The paper test is invalid." }, { status: 400 });
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: claims, error: authError } = await supabase.auth.getClaims();
+  if (authError && authError.name !== "AuthSessionMissingError") return NextResponse.json({ error: "Session verification is temporarily unavailable. Please retry." }, { status: 503 });
+  const user = claims?.claims.sub ? { id: claims.claims.sub } : null;
   if (!user) return NextResponse.json({ error: "Sign in again to continue." }, { status: 401 });
   const { data, error } = await supabase.rpc("get_my_paper_session_state", { p_assignment_id: assignmentId });
   const row = Array.isArray(data) ? data[0] : data;

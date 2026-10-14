@@ -7,7 +7,9 @@ export async function GET(request: Request) {
   const attemptId = new URL(request.url).searchParams.get("attemptId");
   if (!attemptId || !UUID.test(attemptId)) return NextResponse.json({ error: "The attempt is invalid." }, { status: 400 });
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: claims, error: authError } = await supabase.auth.getClaims();
+  if (authError && authError.name !== "AuthSessionMissingError") return NextResponse.json({ error: "Session verification is temporarily unavailable. Please retry." }, { status: 503 });
+  const user = claims?.claims.sub ? { id: claims.claims.sub } : null;
   if (!user) return NextResponse.json({ error: "Sign in again to continue." }, { status: 401 });
   const { data: attempt } = await supabase.from("attempts").select("assignment_id, status, expires_at").eq("id", attemptId).eq("student_id", user.id).maybeSingle();
   if (!attempt) return NextResponse.json({ error: "The attempt is not available." }, { status: 404 });

@@ -10,7 +10,9 @@ export async function POST(request: Request) {
   if (!body || !uuid(body.attemptId) || !uuid(body.eventId) || typeof body.eventType !== "string" || !eventTypes.has(body.eventType) || typeof body.clientOccurredAt !== "string" || Number.isNaN(new Date(body.clientOccurredAt).getTime()) || (body.awayDurationSeconds !== undefined && (!Number.isInteger(body.awayDurationSeconds) || Number(body.awayDurationSeconds) < 0 || Number(body.awayDurationSeconds) > 86400)) || (body.responses !== undefined && (!Array.isArray(body.responses) || body.responses.length > 200))) return NextResponse.json({ error: "Exam activity is invalid." }, { status: 400 });
   const responses = (body.responses ?? []) as ResponseInput[];
   if (responses.some((item) => typeof item.questionId !== "string" || !uuid(item.questionId) || typeof item.answer !== "string" || item.answer.length > 20_000 || !Number.isSafeInteger(item.revision) || Number(item.revision) < 0) || new Set(responses.map((item) => item.questionId)).size !== responses.length) return NextResponse.json({ error: "The answer snapshot is invalid." }, { status: 400 });
-  const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient(); const { data: claims, error: authError } = await supabase.auth.getClaims();
+  if (authError && authError.name !== "AuthSessionMissingError") return NextResponse.json({ error: "Session verification is temporarily unavailable. Please retry." }, { status: 503 });
+  const user = claims?.claims.sub ? { id: claims.claims.sub } : null;
   if (!user) return NextResponse.json({ error: "Sign in again to continue." }, { status: 401 });
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "student") return NextResponse.json({ error: "Exam activity is not available for this account." }, { status: 403 });

@@ -8,7 +8,7 @@ import { canStartExamFromWaitingRoom } from "./exam-mode-attempt";
 import { canEnterSecureTestFullscreen, isIPadOS, isSecureTestFullscreenActive, requestSecureTestFullscreen, subscribeToFullscreen } from "./fullscreen-api";
 import styles from "./exam-mode.module.css";
 
-export type ExamAttempt = { id: string; expiresAt: string | null; formCode: string | null; focusViolations: number };
+export type ExamAttempt = import("@/lib/exam-launch").ExamLaunch;
 
 type ExamModeGateProps = {
   assignmentId: string;
@@ -22,8 +22,10 @@ type ExamModeGateProps = {
   onActive?: (attempt: ExamAttempt) => void;
 };
 
-export default function ExamModeGate({ assignmentId, attempt, requireFullscreen, questionsReleased = true, instructions, durationMinutes, onActive }: ExamModeGateProps) {
+export default function ExamModeGate({ assignmentId, attempt, requireFullscreen, questionsReleased: initialQuestionsReleased = true, instructions, durationMinutes, onActive }: ExamModeGateProps) {
   const router = useRouter();
+  const [releaseDetected, setReleaseDetected] = useState(false);
+  const questionsReleased = initialQuestionsReleased || releaseDetected;
   const [notice, setNotice] = useState("");
   const [entering, setEntering] = useState(false);
   const [launching, setLaunching] = useState(false);
@@ -76,19 +78,20 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
       }
 
       const result = await startOrContinueExamAssignment(assignmentId);
-      if (result.error) { setNotice(result.error); return; }
+      if ("error" in result) { setNotice(result.error ?? "The test could not start."); return; }
       if (requireFullscreen) {
         if (stopIfFullscreenWasLost(result.attemptId)) return;
+        const queued = await flushExamActivityQueue(result.attemptId);
+        if (queued && "error" in queued) { setNotice(queued.error); return; }
+        if (queued?.autoSubmitted) { keepLoading = true; forgetWaitingRoom(); router.refresh(); return; }
         const activity = await sendExamActivity(result.attemptId, "fullscreen_restored");
         if (activity && !("error" in activity) && activity.autoSubmitted) { keepLoading = true; forgetWaitingRoom(); router.refresh(); return; }
         if (stopIfFullscreenWasLost(result.attemptId)) return;
       }
       keepLoading = true;
       forgetWaitingRoom();
-      // The page was rendered before this attempt existed, so it has no
-      // attempt questions yet. Reload the Server Component data before
-      // mounting the runner rather than briefly opening an empty test.
-      router.refresh();
+      if (onActive) onActive({ id: result.attemptId, expiresAt: result.expiresAt, formCode: result.formCode, focusViolations: result.focusViolations, questions: result.questions });
+      else router.refresh();
     } catch {
       setNotice("Exam Mode could not start. Please try again.");
     } finally {
@@ -160,17 +163,36 @@ export default function ExamModeGate({ assignmentId, attempt, requireFullscreen,
 
   useEffect(() => {
     if (!waitingRoomOpen || questionsReleased) return;
-    const interval = window.setInterval(() => router.refresh(), 2_000);
-    return () => window.clearInterval(interval);
-  }, [questionsReleased, router, waitingRoomOpen]);
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let controller: AbortController | undefined;
+    const poll = async () => {
+      if (stopped) return;
+      try {
+        if (document.visibilityState === "visible" && navigator.onLine) {
+          controller = new AbortController();
+          const timeout = window.setTimeout(() => controller?.abort(), 8_000);
+          try {
+            const response = await fetch(`/api/test-release-status?assignmentId=${encodeURIComponent(assignmentId)}`, { cache: "no-store", signal: controller.signal });
+            if (response.ok) {
+              const status = await response.json();
+              if (!stopped && status.released && status.status === "published") { setReleaseDetected(true); return; }
+              if (!stopped && status.status !== "published") { router.refresh(); return; }
+            }
+          } finally { window.clearTimeout(timeout); }
+        }
+      } catch { /* Retry the small status request when the connection recovers. */ }
+      if (!stopped) timer = setTimeout(() => void poll(), 4_000 + Math.random() * 2_000);
+    };
+    timer = setTimeout(() => void poll(), Math.random() * 2_000);
+    return () => { stopped = true; clearTimeout(timer); controller?.abort(); };
+  }, [assignmentId, questionsReleased, router, waitingRoomOpen]);
 
   useEffect(() => {
     if (!launching) return;
     const timeout = window.setTimeout(() => {
-      startingRef.current = false;
-      setEntering(false);
       setLaunching(false);
-      setNotice("The test is taking longer than expected to load. Your attempt is safe; try again.");
+      setNotice("The test is taking longer than expected to load. Keep this window open. You can retry when this request finishes.");
     }, 15_000);
     return () => window.clearTimeout(timeout);
   }, [launching]);
