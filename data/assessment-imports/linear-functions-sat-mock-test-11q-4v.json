@@ -1,0 +1,674 @@
+{
+  "question_groups": [
+    [
+      {
+        "prompt": "Which equation represents a linear function?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$f(x)=4x-9$" },
+          { "id": "B", "text": "$f(x)=x^2-9$" },
+          { "id": "C", "text": "$f(x)=4^x-9$" },
+          { "id": "D", "text": "$f(x)=\\frac{4}{x}-9$" }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "A linear function has a constant rate of change and can be written in the form $f(x)=mx+b$. Only $f(x)=4x-9$ has this form.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "Which equation represents a linear function?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$g(x)=3^x+2$" },
+          { "id": "B", "text": "$g(x)=-5x+2$" },
+          { "id": "C", "text": "$g(x)=x^2+2$" },
+          { "id": "D", "text": "$g(x)=\\frac{5}{x}+2$" }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "A linear function can be written as $g(x)=mx+b$. Only $g(x)=-5x+2$ has a constant slope and this form.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "Which equation represents a linear function?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$h(x)=\\sqrt{x}+7$" },
+          { "id": "B", "text": "$h(x)=7x^2-1$" },
+          { "id": "C", "text": "$h(x)=\\frac{1}{2}x+7$" },
+          { "id": "D", "text": "$h(x)=7(2^x)$" }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Only $h(x)=\\frac{1}{2}x+7$ is in the form $h(x)=mx+b$, so it is the only linear function.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "Which equation represents a linear function?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$p(x)=6x^2+4$" },
+          { "id": "B", "text": "$p(x)=\\frac{6}{x}+4$" },
+          { "id": "C", "text": "$p(x)=6(3^x)+4$" },
+          { "id": "D", "text": "$p(x)=-6x+4$" }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Only $p(x)=-6x+4$ has the linear form $p(x)=mx+b$ and therefore a constant rate of change.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "The table shows $x=-3,1,5,9$ and corresponding $y=14,6,-2,-10$. What is the slope of the line represented by the table?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-2",
+        "numeric_tolerance": 0,
+        "explanation": "For each increase of $4$ in $x$, $y$ decreases by $8$. Thus the slope is $\\frac{-8}{4}=-2$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The table shows $x=-2,2,6,10$ and corresponding $y=-7,3,13,23$. What is the slope of the line represented by the table?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "2.5",
+        "numeric_tolerance": 0,
+        "explanation": "For each increase of $4$ in $x$, $y$ increases by $10$. Thus the slope is $\\frac{10}{4}=2.5$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The table shows $x=-4,0,4,8$ and corresponding $y=1,7,13,19$. What is the slope of the line represented by the table?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "1.5",
+        "numeric_tolerance": 0,
+        "explanation": "For each increase of $4$ in $x$, $y$ increases by $6$. Thus the slope is $\\frac{6}{4}=1.5$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The table shows $x=-5,-1,3,7$ and corresponding $y=18,13,8,3$. What is the slope of the line represented by the table?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-1.25",
+        "numeric_tolerance": 0,
+        "explanation": "For each increase of $4$ in $x$, $y$ decreases by $5$. Thus the slope is $\\frac{-5}{4}=-1.25$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.RATE_CHANGE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "What is the slope of the line represented by $6x+3y=21$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$2$" },
+          { "id": "B", "text": "$-2$" },
+          { "id": "C", "text": "$\\frac{1}{2}$" },
+          { "id": "D", "text": "$-\\frac{1}{2}$" }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Solving for $y$ gives $3y=-6x+21$, so $y=-2x+7$. The slope is $-2$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line represented by $4x-8y=24$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$-2$" },
+          { "id": "B", "text": "$2$" },
+          { "id": "C", "text": "$\\frac{1}{2}$" },
+          { "id": "D", "text": "$-\\frac{1}{2}$" }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Solving for $y$ gives $-8y=-4x+24$, so $y=\\frac{1}{2}x-3$. The slope is $\\frac{1}{2}$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line represented by $9x+6y=30$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$\\frac{3}{2}$" },
+          { "id": "B", "text": "$-\\frac{2}{3}$" },
+          { "id": "C", "text": "$\\frac{2}{3}$" },
+          { "id": "D", "text": "$-\\frac{3}{2}$" }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Solving for $y$ gives $6y=-9x+30$, so $y=-\\frac{3}{2}x+5$. The slope is $-\\frac{3}{2}$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line represented by $5x-2y=14$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$\\frac{5}{2}$" },
+          { "id": "B", "text": "$-\\frac{5}{2}$" },
+          { "id": "C", "text": "$\\frac{2}{5}$" },
+          { "id": "D", "text": "$-\\frac{2}{5}$" }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Solving for $y$ gives $-2y=-5x+14$, so $y=\\frac{5}{2}x-7$. The slope is $\\frac{5}{2}$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "ALG.LINEAR_EQ_2VAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "The function $C(n)=18n+45$ gives the total cost, in dollars, of a service plan for $n$ months. What does $45$ represent?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The cost for each month" },
+          { "id": "B", "text": "The number of months included for free" },
+          { "id": "C", "text": "The one-time initial fee" },
+          { "id": "D", "text": "The total cost after $18$ months" }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The constant term is the value of $C(n)$ when $n=0$, so $45$ is the one-time initial fee.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "The function $P(t)=12t+80$ gives the total price, in dollars, of renting equipment for $t$ hours. What does $80$ represent?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The total price after $12$ hours" },
+          { "id": "B", "text": "The hourly rental rate" },
+          { "id": "C", "text": "The maximum number of rental hours" },
+          { "id": "D", "text": "The fixed rental fee" }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "The constant term is $P(0)$, the price before any hourly charges are added. Therefore, $80$ is the fixed rental fee.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "The function $B(m)=25m+60$ gives the total bill, in dollars, for $m$ music lessons. What does $60$ represent?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The registration fee charged before any lessons" },
+          { "id": "B", "text": "The cost of each music lesson" },
+          { "id": "C", "text": "The number of lessons in the package" },
+          { "id": "D", "text": "The bill for $25$ lessons" }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Because $B(0)=60$, the constant term represents the registration fee charged before any lessons.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "The function $T(d)=7d+35$ gives the total charge, in dollars, for a delivery traveling $d$ miles. What does $35$ represent?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The charge for each mile" },
+          { "id": "B", "text": "The base delivery charge" },
+          { "id": "C", "text": "The number of miles traveled" },
+          { "id": "D", "text": "The charge for traveling $7$ miles" }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The constant term is $T(0)$, so $35$ is the base charge before the per-mile charge is added.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "Which equation represents the line with slope $-3$ that passes through $(4,5)$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$y=-3x+17$" },
+          { "id": "B", "text": "$y=-3x-7$" },
+          { "id": "C", "text": "$y=3x-7$" },
+          { "id": "D", "text": "$y=3x+17$" }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Use $y=mx+b$: $5=-3(4)+b$, so $b=17$. The equation is $y=-3x+17$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which equation represents the line with slope $2$ that passes through $(-3,1)$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$y=2x-5$" },
+          { "id": "B", "text": "$y=-2x-5$" },
+          { "id": "C", "text": "$y=2x+7$" },
+          { "id": "D", "text": "$y=-2x+7$" }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Use $y=mx+b$: $1=2(-3)+b$, so $b=7$. The equation is $y=2x+7$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which equation represents the line with slope $\\frac{1}{2}$ that passes through $(6,-4)$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$y=-\\frac{1}{2}x-1$" },
+          { "id": "B", "text": "$y=\\frac{1}{2}x-7$" },
+          { "id": "C", "text": "$y=2x-16$" },
+          { "id": "D", "text": "$y=\\frac{1}{2}x+7$" }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Use $y=mx+b$: $-4=\\frac{1}{2}(6)+b$, so $b=-7$. The equation is $y=\\frac{1}{2}x-7$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which equation represents the line with slope $-\\frac{3}{2}$ that passes through $(-2,8)$?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$y=\\frac{3}{2}x+11$" },
+          { "id": "B", "text": "$y=-\\frac{3}{2}x+11$" },
+          { "id": "C", "text": "$y=\\frac{3}{2}x+5$" },
+          { "id": "D", "text": "$y=-\\frac{3}{2}x+5$" }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Use $y=mx+b$: $8=-\\frac{3}{2}(-2)+b=3+b$, so $b=5$. The equation is $y=-\\frac{3}{2}x+5$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A water tank contains $620$ liters when a drain is opened. The amount of water decreases at a constant rate of $18$ liters per minute. Which function gives the amount $W(t)$, in liters, remaining after $t$ minutes?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$W(t)=18t+620$" },
+          { "id": "B", "text": "$W(t)=620t-18$" },
+          { "id": "C", "text": "$W(t)=620-18t$" },
+          { "id": "D", "text": "$W(t)=18-620t$" }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The initial amount is $620$, and it decreases by $18$ each minute. Therefore, $W(t)=620-18t$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A candle is $34$ centimeters tall when lit. Its height decreases at a constant rate of $1.5$ centimeters per hour. Which function gives its height $H(t)$, in centimeters, after $t$ hours?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$H(t)=34-1.5t$" },
+          { "id": "B", "text": "$H(t)=1.5t+34$" },
+          { "id": "C", "text": "$H(t)=34t-1.5$" },
+          { "id": "D", "text": "$H(t)=1.5-34t$" }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "The initial height is $34$, and the height decreases by $1.5$ per hour. Thus $H(t)=34-1.5t$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A savings account contains $275$ dollars before weekly deposits begin. The balance increases by $40$ dollars each week. Which function gives the balance $B(w)$, in dollars, after $w$ weeks?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$B(w)=275w+40$" },
+          { "id": "B", "text": "$B(w)=40-275w$" },
+          { "id": "C", "text": "$B(w)=275-40w$" },
+          { "id": "D", "text": "$B(w)=40w+275$" }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "The initial balance is $275$, and $40$ is added each week. Therefore, $B(w)=40w+275$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A car rental company charges a base fee of $52$ dollars plus $0.28$ dollar per mile driven. Which function gives the total charge $C(m)$, in dollars, for driving $m$ miles?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "$C(m)=52m+0.28$" },
+          { "id": "B", "text": "$C(m)=0.28m+52$" },
+          { "id": "C", "text": "$C(m)=52-0.28m$" },
+          { "id": "D", "text": "$C(m)=0.28-52m$" }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The fixed fee is $52$, and each mile adds $0.28$. Thus $C(m)=0.28m+52$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Function $f$ is defined by $f(x)=2.4x-5$. Function $g$ is represented by the table with points $(0,7)$, $(3,13)$, and $(6,19)$. Which statement correctly compares the rates of change?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The rate of change of $f$ is $0.4$ greater than that of $g$." },
+          { "id": "B", "text": "The rate of change of $g$ is $0.4$ greater than that of $f$." },
+          { "id": "C", "text": "The functions have the same rate of change." },
+          { "id": "D", "text": "The rates of change cannot be compared from the information given." }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "The slope of $f$ is $2.4$. For $g$, the slope is $\\frac{13-7}{3-0}=2$. Therefore, the rate of change of $f$ is $0.4$ greater.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.COMPARE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "Function $p$ is defined by $p(x)=-1.5x+8$. Function $q$ is represented by the table with points $(-2,9)$, $(2,1)$, and $(5,-5)$. Which statement correctly compares the rates of change?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The rate of change of $p$ is $0.5$ less than that of $q$." },
+          { "id": "B", "text": "The functions have the same rate of change." },
+          { "id": "C", "text": "The rate of change of $p$ is $0.5$ greater than that of $q$." },
+          { "id": "D", "text": "The rates of change cannot be compared from the information given." }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The slope of $p$ is $-1.5$. For $q$, the slope is $\\frac{1-9}{2-(-2)}=-2$. Since $-1.5-(-2)=0.5$, the rate of change of $p$ is $0.5$ greater.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.COMPARE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "Function $r$ is defined by $r(x)=\\frac{3}{4}x+6$. Function $s$ is represented by the table with points $(0,-2)$, $(4,2)$, and $(8,6)$. Which statement correctly compares the rates of change?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The rate of change of $r$ is $\\frac{1}{4}$ greater than that of $s$." },
+          { "id": "B", "text": "The rate of change of $s$ is $\\frac{1}{4}$ greater than that of $r$." },
+          { "id": "C", "text": "The functions have the same rate of change." },
+          { "id": "D", "text": "The rate of change of $s$ is $1$ greater than that of $r$." }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The slope of $r$ is $\\frac{3}{4}$. For $s$, the slope is $\\frac{2-(-2)}{4-0}=1$. Therefore, the rate of change of $s$ is $\\frac{1}{4}$ greater.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.COMPARE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "Function $u$ is defined by $u(x)=-3x+10$. Function $v$ is represented by the table with points $(-1,8)$, $(1,2)$, and $(4,-7)$. Which statement correctly compares the rates of change?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "A", "text": "The rate of change of $u$ is $3$ greater than that of $v$." },
+          { "id": "B", "text": "The rate of change of $v$ is $3$ greater than that of $u$." },
+          { "id": "C", "text": "The rate of change of $u$ is $1$ less than that of $v$." },
+          { "id": "D", "text": "The functions have the same rate of change." }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "The slope of $u$ is $-3$. For $v$, the slope is $\\frac{2-8}{1-(-1)}=-3$. The functions have the same rate of change.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.COMPARE", "weight": 1, "is_primary": true }],
+        "icfes_competency": "ARGUMENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "A line in the $xy$-plane is parallel to $4x-2y=9$. What is the slope of the line?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "2",
+        "numeric_tolerance": 0,
+        "explanation": "Rewrite the given equation as $y=2x-\\frac{9}{2}$. A parallel line has the same slope, so its slope is $2$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line in the $xy$-plane is parallel to $3x+6y=11$. What is the slope of the line?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-0.5",
+        "numeric_tolerance": 0,
+        "explanation": "Rewrite the given equation as $y=-\\frac{1}{2}x+\\frac{11}{6}$. A parallel line has the same slope, so its slope is $-0.5$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line in the $xy$-plane is parallel to $10x-4y=7$. What is the slope of the line?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "2.5",
+        "numeric_tolerance": 0,
+        "explanation": "Rewrite the equation as $y=\\frac{5}{2}x-\\frac{7}{4}$. A parallel line has the same slope, so its slope is $2.5$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line in the $xy$-plane is parallel to $8x+2y=15$. What is the slope of the line?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-4",
+        "numeric_tolerance": 0,
+        "explanation": "Rewrite the given equation as $y=-4x+\\frac{15}{2}$. A parallel line has the same slope, so its slope is $-4$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "The line $y=(k+1)x-4$ is perpendicular to the line $y=\\frac{1}{3}x+7$. What is the value of $k$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-4",
+        "numeric_tolerance": 0,
+        "explanation": "A line perpendicular to slope $\\frac{1}{3}$ has slope $-3$. Thus $k+1=-3$, so $k=-4$.",
+        "difficulty": 4,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The line $y=(2k-1)x+5$ is perpendicular to the line $y=-\\frac{1}{2}x+9$. What is the value of $k$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "1.5",
+        "numeric_tolerance": 0,
+        "explanation": "A line perpendicular to slope $-\\frac{1}{2}$ has slope $2$. Thus $2k-1=2$, so $2k=3$ and $k=1.5$.",
+        "difficulty": 4,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The line $y=(3-k)x+2$ is perpendicular to the line $y=\\frac{1}{4}x-6$. What is the value of $k$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "7",
+        "numeric_tolerance": 0,
+        "explanation": "A line perpendicular to slope $\\frac{1}{4}$ has slope $-4$. Thus $3-k=-4$, so $k=7$.",
+        "difficulty": 4,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The line $y=(k-5)x+1$ is perpendicular to the line $y=-\\frac{1}{3}x+8$. What is the value of $k$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "8",
+        "numeric_tolerance": 0,
+        "explanation": "A line perpendicular to slope $-\\frac{1}{3}$ has slope $3$. Thus $k-5=3$, so $k=8$.",
+        "difficulty": 4,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A delivery company charges a fixed fee plus a constant amount per kilometer. A $12$-kilometer delivery costs $38$ dollars, and a $20$-kilometer delivery costs $54$ dollars. What is the fixed fee, in dollars?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "14",
+        "numeric_tolerance": 0,
+        "explanation": "The per-kilometer rate is $\\frac{54-38}{20-12}=2$. Using $C(d)=2d+b$ and $(12,38)$ gives $38=24+b$, so $b=14$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A bicycle rental shop charges a fixed fee plus a constant amount per hour. A $3$-hour rental costs $29$ dollars, and a $7$-hour rental costs $53$ dollars. What is the fixed fee, in dollars?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "11",
+        "numeric_tolerance": 0,
+        "explanation": "The hourly rate is $\\frac{53-29}{7-3}=6$. Using $C(h)=6h+b$ and $(3,29)$ gives $29=18+b$, so $b=11$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A printing service charges a setup fee plus a constant amount per poster. Printing $25$ posters costs $87$ dollars, and printing $45$ posters costs $137$ dollars. What is the setup fee, in dollars?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "24.5",
+        "numeric_tolerance": 0,
+        "explanation": "The cost per poster is $\\frac{137-87}{45-25}=2.5$. Using $C(p)=2.5p+b$ and $(25,87)$ gives $87=62.5+b$, so $b=24.5$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A tutoring company charges an enrollment fee plus a constant amount per session. Four sessions cost $98$ dollars, and ten sessions cost $188$ dollars. What is the enrollment fee, in dollars?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "38",
+        "numeric_tolerance": 0,
+        "explanation": "The cost per session is $\\frac{188-98}{10-4}=15$. Using $C(s)=15s+b$ and $(4,98)$ gives $98=60+b$, so $b=38$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "FUNC.LINEAR_MODELING", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "The graphs of $y=3x-8$ and $y=-x+12$ intersect at $(a,b)$. What is the value of $a$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "5",
+        "numeric_tolerance": 0,
+        "explanation": "At the intersection, $3x-8=-x+12$. Thus $4x=20$ and $x=5$, so $a=5$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The graphs of $y=5x+4$ and $y=-2x+25$ intersect at $(a,b)$. What is the value of $a$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "3",
+        "numeric_tolerance": 0,
+        "explanation": "At the intersection, $5x+4=-2x+25$. Thus $7x=21$ and $x=3$, so $a=3$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The graphs of $y=2x+11$ and $y=-4x-7$ intersect at $(a,b)$. What is the value of $a$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "-3",
+        "numeric_tolerance": 0,
+        "explanation": "At the intersection, $2x+11=-4x-7$. Thus $6x=-18$ and $x=-3$, so $a=-3$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "The graphs of $y=-3x+2$ and $y=x-14$ intersect at $(a,b)$. What is the value of $a$?",
+        "type": "numeric",
+        "options": null,
+        "correct_answer": "4",
+        "numeric_tolerance": 0,
+        "explanation": "At the intersection, $-3x+2=x-14$. Thus $16=4x$ and $x=4$, so $a=4$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [{ "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ]
+  ]
+}
