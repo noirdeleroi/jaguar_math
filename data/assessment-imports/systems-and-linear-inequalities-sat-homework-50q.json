@@ -1,0 +1,844 @@
+{
+  "questions": [
+    {
+      "prompt": "The solution to the system $y=2x+1$ and $3x+y=16$ is $(x,y)$. What is the value of $x$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "3",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $2x+1$ for $y$ in the second equation: $3x+(2x+1)=16$. Thus $5x=15$, so $x=3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $y=3x-4$ and $2x+y=16$ is $(x,y)$. What is the value of $y$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $3x-4$ for $y$: $2x+3x-4=16$, so $5x=20$ and $x=4$. Then $y=3(4)-4=8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair is the solution to the system $x=2y+1$ and $3x-y=13$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(2,5)$" },
+        { "id": "B", "text": "$(3,1)$" },
+        { "id": "C", "text": "$(5,2)$" },
+        { "id": "D", "text": "$(7,3)$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x=2y+1$ into $3x-y=13$: $3(2y+1)-y=13$. Then $5y=10$, so $y=2$ and $x=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The system $4x+y=9$ and $y=x-6$ has solution $(x,y)$. What is the value of $x+y$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "0",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $x-6$ for $y$: $4x+x-6=9$, so $x=3$. Then $y=-3$, and $x+y=0$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $y=12-2x$ and $5x+2y=18$ is $(x,y)$. What is the value of $x$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-6",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $12-2x$ for $y$: $5x+2(12-2x)=18$. This simplifies to $x+24=18$, so $x=-6$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair is the solution to the system $y=-x+7$ and $2x-3y=-6$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(1,6)$" },
+        { "id": "B", "text": "$(2,5)$" },
+        { "id": "C", "text": "$(3,4)$" },
+        { "id": "D", "text": "$(4,3)$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $-x+7$ for $y$: $2x-3(-x+7)=-6$. Then $5x=15$, so $x=3$ and $y=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair satisfies both $y=2x+5$ and $4x+y=17$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(1,7)$" },
+        { "id": "B", "text": "$(2,9)$" },
+        { "id": "C", "text": "$(3,11)$" },
+        { "id": "D", "text": "$(4,13)$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $2x+5$ for $y$: $4x+2x+5=17$, so $x=2$. Then $y=9$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The point $(3,-2)$ is the solution to the system $y=ax+7$ and $x-y=5$. What is the value of $a$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-3",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $(3,-2)$ into $y=ax+7$: $-2=3a+7$. Thus $3a=-9$ and $a=-3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Plan A costs $25$ dollars plus $8$ dollars per hour. Plan B costs $61$ dollars plus $2$ dollars per hour. After how many hours do the plans have the same cost?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Set the costs equal: $25+8h=61+2h$. Then $6h=36$, so $h=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_CONTEXT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A store sold $18$ items consisting of pens and notebooks. Each pen cost $2$ dollars, each notebook cost $5$ dollars, and the total revenue was $57$ dollars. How many notebooks were sold?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Let $p+n=18$ and $2p+5n=57$. Substitute $p=18-n$: $2(18-n)+5n=57$, so $3n=21$ and $n=7$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_CONTEXT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $x+y=11$ and $x-y=3$ is $(x,y)$. What is the value of $x$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "7",
+      "numeric_tolerance": 0,
+      "explanation": "Add the equations to eliminate $y$: $2x=14$. Therefore, $x=7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $2x+3y=12$ and $2x-y=4$ is $(x,y)$. What is the value of $y$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract the second equation from the first: $4y=8$, so $y=2$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The system $3x+2y=16$ and $5x-2y=16$ has solution $(x,y)$. What is the value of $x+y$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "6",
+      "numeric_tolerance": 0,
+      "explanation": "Add the equations: $8x=32$, so $x=4$. Substitution gives $y=2$, so $x+y=6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $4x-3y=18$ and $2x+3y=12$ is $(x,y)$. What is the value of $x$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "5",
+      "numeric_tolerance": 0,
+      "explanation": "Add the equations to eliminate $y$: $6x=30$. Therefore, $x=5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair is the solution to the system $6x+5y=7$ and $3x-5y=11$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(-1,2)$" },
+        { "id": "B", "text": "$(1,-2)$" },
+        { "id": "C", "text": "$(2,-1)$" },
+        { "id": "D", "text": "$(3,1)$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Add the equations: $9x=18$, so $x=2$. Substituting gives $12+5y=7$, so $y=-1$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $2x+3y=13$ and $5x-2y=4$ is $(x,y)$. What is the value of $x$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "Multiply the first equation by $2$ and the second by $3$: $4x+6y=26$ and $15x-6y=12$. Adding gives $19x=38$, so $x=2$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The solution to the system $3x+4y=1$ and $2x-3y=12$ is $(x,y)$. What is the value of $y$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "-2",
+      "numeric_tolerance": 0,
+      "explanation": "Multiplying the first equation by $2$ and the second by $-3$ gives $6x+8y=2$ and $-6x+9y=-36$. Adding gives $17y=-34$, so $y=-2$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "At an event, $120$ adult and student tickets were sold. Adult tickets cost $14$ dollars, student tickets cost $9$ dollars, and the total revenue was $1{,}330$ dollars. How many adult tickets were sold?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "50",
+      "numeric_tolerance": 0,
+      "explanation": "Let $a+s=120$ and $14a+9s=1330$. Subtract $9(a+s)=1080$ from the revenue equation to get $5a=250$, so $a=50$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_CONTEXT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A chemist combines a $20\\%$ solution and a $50\\%$ solution to make $30$ liters of a $32\\%$ solution. How many liters of the $50\\%$ solution are used?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "12",
+      "numeric_tolerance": 0,
+      "explanation": "Let $x+y=30$ and $0.20x+0.50y=9.6$. Subtracting $0.20(x+y)=6$ gives $0.30y=3.6$, so $y=12$.",
+      "difficulty": 4,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_CONTEXT", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The point $(2,3)$ is the solution to the system $4x+ky=17$ and $x+y=5$. What is the value of $k$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "3",
+      "numeric_tolerance": 0,
+      "explanation": "Substitute $(2,3)$ into the first equation: $4(2)+3k=17$. Then $3k=9$, so $k=3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The graphs of $y=x+2$ and $y=-2x+8$ intersect at which point?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(1,3)$" },
+        { "id": "B", "text": "$(2,4)$" },
+        { "id": "C", "text": "$(3,5)$" },
+        { "id": "D", "text": "$(4,6)$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "At the intersection, $x+2=-2x+8$. Thus $3x=6$, so $x=2$ and $y=4$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "One line in a system has equation $y=4$, and the other has equation $x=-3$. What is the solution to the system?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(-3,4)$" },
+        { "id": "B", "text": "$(3,4)$" },
+        { "id": "C", "text": "$(4,-3)$" },
+        { "id": "D", "text": "$(4,3)$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "The horizontal line $y=4$ and the vertical line $x=-3$ intersect at $(-3,4)$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Line $A$ contains the points $(0,5)$, $(1,3)$, and $(2,1)$. Line $B$ is defined by $y=x-1$. At what $x$-coordinate do the lines intersect?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "2",
+      "numeric_tolerance": 0,
+      "explanation": "The points on line $A$ follow $y=-2x+5$. Set $-2x+5=x-1$ to get $3x=6$, so $x=2$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "When graphed in the same coordinate plane, the lines $y=2x+1$ and $y=2x-5$ have how many points of intersection?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "Zero" },
+        { "id": "B", "text": "One" },
+        { "id": "C", "text": "Two" },
+        { "id": "D", "text": "Infinitely many" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "The lines have the same slope but different $y$-intercepts, so they are parallel and never intersect.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "When graphed, the equations $2x-y=6$ and $y=2x-6$ represent which situation?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "Two parallel lines" },
+        { "id": "B", "text": "Two lines intersecting at $(0,-6)$" },
+        { "id": "C", "text": "The same line" },
+        { "id": "D", "text": "A horizontal line and a vertical line" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Rearranging $2x-y=6$ gives $y=2x-6$, exactly the second equation. Their graphs coincide.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "The graphs of $y=\\frac{1}{2}x+1$ and $y=-x+7$ intersect at $(a,b)$. What is the value of $b$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "3",
+      "numeric_tolerance": 0,
+      "explanation": "Set the equations equal: $\\frac{1}{2}x+1=-x+7$. Then $\\frac{3}{2}x=6$, so $x=4$ and $b=3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which statement best describes the graph of the system $y=3x-5$ and $6x-2y=10$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "The lines intersect once at $(0,-5)$." },
+        { "id": "B", "text": "The lines are parallel and have no common point." },
+        { "id": "C", "text": "The equations graph as the same line." },
+        { "id": "D", "text": "The lines intersect once at $(5,10)$." }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Solving $6x-2y=10$ for $y$ gives $y=3x-5$, so both equations represent the same line.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Which statement is true about the graphs of $x+2y=6$ and $2x+4y=12$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "They have no points in common." },
+        { "id": "B", "text": "They have exactly one point in common." },
+        { "id": "C", "text": "They have exactly two points in common." },
+        { "id": "D", "text": "They have infinitely many points in common." }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "The second equation is twice the first, so the equations represent the same line and share infinitely many points.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "How many solutions does the system $y=-3x+4$ and $y=x-8$ have?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "No solutions" },
+        { "id": "B", "text": "Exactly one solution" },
+        { "id": "C", "text": "Exactly two solutions" },
+        { "id": "D", "text": "Infinitely many solutions" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "The lines have different slopes, $-3$ and $1$, so they intersect at exactly one point.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "How many solutions does the system $4x+2y=10$ and $2x+y=8$ have?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "No solutions" },
+        { "id": "B", "text": "Exactly one solution" },
+        { "id": "C", "text": "Exactly two solutions" },
+        { "id": "D", "text": "Infinitely many solutions" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Doubling the second equation would give $4x+2y=16$, not $10$. The left sides are proportional but the constants are not, so the lines are parallel.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "How many solutions does the system $3x-6y=9$ and $x-2y=3$ have?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "No solutions" },
+        { "id": "B", "text": "Exactly one solution" },
+        { "id": "C", "text": "Exactly three solutions" },
+        { "id": "D", "text": "Infinitely many solutions" }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "The first equation is three times the second, so both equations represent the same line.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "For which condition on $k$ does the system $y=kx+4$ and $y=3x-2$ have exactly one solution?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$k=3$" },
+        { "id": "B", "text": "$k=-2$" },
+        { "id": "C", "text": "$k\\ne3$" },
+        { "id": "D", "text": "$k\\ne-2$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "The lines intersect exactly once when their slopes differ. Their slopes are $k$ and $3$, so $k\\ne3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "For which condition on $k$ does the system $4x+2y=6$ and $2x+y=k$ have no solution?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$k=3$" },
+        { "id": "B", "text": "$k>3$" },
+        { "id": "C", "text": "$k<3$" },
+        { "id": "D", "text": "$k\\ne3$" }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Dividing the first equation by $2$ gives $2x+y=3$. The system has no solution when the second equation has the same left side but a different constant, so $k\\ne3$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "The system $6x-9y=12$ and $2x-3y=c$ has infinitely many solutions. What is the value of $c$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "4",
+      "numeric_tolerance": 0,
+      "explanation": "Divide the first equation by $3$ to get $2x-3y=4$. For the equations to represent the same line, $c=4$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "The system $ax+2y=6$ and $3x+6y=18$ has infinitely many solutions. What is the value of $a$?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "1",
+      "numeric_tolerance": 0,
+      "explanation": "Divide the second equation by $3$ to get $x+2y=6$. For the equations to be identical, $a=1$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which conclusion is correct for the system $4x-2y=8$ and $y=2x-4$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "It has no solution because the slopes are equal." },
+        { "id": "B", "text": "It has one solution because the slopes are different." },
+        { "id": "C", "text": "It has infinitely many solutions because the equations are equivalent." },
+        { "id": "D", "text": "It has exactly two solutions because both equations contain two variables." }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Solving $4x-2y=8$ for $y$ gives $y=2x-4$, which is the second equation. Therefore, every point on the line satisfies both equations.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.SYSTEMS_LINEAR", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "ARGUMENTACION"
+    },
+    {
+      "prompt": "Which inequality is equivalent to $3x-5>16$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x>7$" },
+        { "id": "B", "text": "$x<7$" },
+        { "id": "C", "text": "$x>\\frac{11}{3}$" },
+        { "id": "D", "text": "$x<\\frac{11}{3}$" }
+      ],
+      "correct_answer": "A",
+      "numeric_tolerance": 0,
+      "explanation": "Add $5$ to get $3x>21$, then divide by $3$ to obtain $x>7$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which inequality is equivalent to $-4x+7\\le19$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x\\le-3$" },
+        { "id": "B", "text": "$x\\ge-3$" },
+        { "id": "C", "text": "$x\\le3$" },
+        { "id": "D", "text": "$x\\ge3$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $7$ to get $-4x\\le12$. Dividing by $-4$ reverses the inequality, giving $x\\ge-3$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "What is the solution to $2(x-3)<5x+9$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x<-5$" },
+        { "id": "B", "text": "$x>-5$" },
+        { "id": "C", "text": "$x<5$" },
+        { "id": "D", "text": "$x>5$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Expand and solve: $2x-6<5x+9$, so $-15<3x$, which is equivalent to $x>-5$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A club charges a one-time fee of $18$ dollars plus $6.50$ dollars for each event. A student can spend at most $70$ dollars. What is the greatest number of events the student can attend?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "8",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $18+6.5e\\le70$. Then $6.5e\\le52$, so $e\\le8$. The greatest possible whole number is $8$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A tank initially contains $9$ liters of water and fills at $3$ liters per minute. At least how many minutes are needed for the tank to contain at least $42$ liters?",
+      "type": "numeric",
+      "options": null,
+      "correct_answer": "11",
+      "numeric_tolerance": 0,
+      "explanation": "Solve $9+3t\\ge42$. Then $3t\\ge33$, so $t\\ge11$. At least $11$ minutes are needed.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which interval describes all solutions to $-2\\le3x+4<10$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$-2<x<2$" },
+        { "id": "B", "text": "$-2\\le x<2$" },
+        { "id": "C", "text": "$-2<x\\le2$" },
+        { "id": "D", "text": "$-6\\le x<6$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $4$ throughout: $-6\\le3x<6$. Divide by $3$ to obtain $-2\\le x<2$.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.COMPOUND_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which inequality is equivalent to $5-2x>17$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x>-6$" },
+        { "id": "B", "text": "$x<-6$" },
+        { "id": "C", "text": "$x>6$" },
+        { "id": "D", "text": "$x<6$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Subtract $5$: $-2x>12$. Dividing by $-2$ reverses the inequality, so $x<-6$.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair satisfies $2x+3y\\le12$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(3,3)$" },
+        { "id": "B", "text": "$(0,4)$" },
+        { "id": "C", "text": "$(6,1)$" },
+        { "id": "D", "text": "$(2,4)$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Substituting $(0,4)$ gives $2(0)+3(4)=12$, and $12\\le12$ is true. Each other choice gives a value greater than $12$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which description matches the graph of $y>-\\frac{1}{2}x+3$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "A solid boundary line with the region above it shaded" },
+        { "id": "B", "text": "A solid boundary line with the region below it shaded" },
+        { "id": "C", "text": "A dashed boundary line with the region above it shaded" },
+        { "id": "D", "text": "A dashed boundary line with the region below it shaded" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "Because the inequality is strict, the boundary is dashed. Because $y$ is greater than the line's value, the region above the line is shaded.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Which description matches the graph of $3x-2y\\ge8$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "A dashed line $y=\\frac{3}{2}x-4$ with shading above" },
+        { "id": "B", "text": "A dashed line $y=\\frac{3}{2}x-4$ with shading below" },
+        { "id": "C", "text": "A solid line $y=\\frac{3}{2}x-4$ with shading above" },
+        { "id": "D", "text": "A solid line $y=\\frac{3}{2}x-4$ with shading below" }
+      ],
+      "correct_answer": "D",
+      "numeric_tolerance": 0,
+      "explanation": "Solving for $y$ gives $y\\le\\frac{3}{2}x-4$. The boundary is solid because equality is included, and the region below the line is shaded.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "INTERPRETACION_REPRESENTACION"
+    },
+    {
+      "prompt": "Adult tickets cost $12$ dollars each and student tickets cost $8$ dollars each. If $a$ adult tickets and $s$ student tickets must generate at least $500$ dollars, which inequality models this requirement?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$12a+8s\\le500$" },
+        { "id": "B", "text": "$12a+8s\\ge500$" },
+        { "id": "C", "text": "$8a+12s\\le500$" },
+        { "id": "D", "text": "$8a+12s\\ge500$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "Adult-ticket revenue is $12a$ and student-ticket revenue is $8s$. The phrase 'at least $500$ dollars' means the total is greater than or equal to $500$.",
+      "difficulty": 1,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which ordered pair is a solution to the system of inequalities $x+y\\le10$, $x\\ge2$, and $y\\ge3$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(1,9)$" },
+        { "id": "B", "text": "$(4,7)$" },
+        { "id": "C", "text": "$(6,3)$" },
+        { "id": "D", "text": "$(8,1)$" }
+      ],
+      "correct_answer": "C",
+      "numeric_tolerance": 0,
+      "explanation": "For $(6,3)$, $6+3\\le10$, $6\\ge2$, and $3\\ge3$ are all true. Each other choice violates at least one inequality.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "Which point lies in the solution region of both $y\\ge x-2$ and $y<-x+6$?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$(4,2)$" },
+        { "id": "B", "text": "$(1,4)$" },
+        { "id": "C", "text": "$(0,7)$" },
+        { "id": "D", "text": "$(5,0)$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "For $(1,4)$, $4\\ge1-2$ and $4<-1+6$ are both true. The other points fail at least one inequality.",
+      "difficulty": 2,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    },
+    {
+      "prompt": "A fundraiser sells adult tickets for $12$ dollars and child tickets for $7$ dollars. It can sell no more than $70$ tickets and must collect at least $600$ dollars. If $x$ is the number of adult tickets and $y$ is the number of child tickets, which system represents the constraints?",
+      "type": "multiple_choice",
+      "options": [
+        { "id": "A", "text": "$x+y\\ge70$, $12x+7y\\le600$, $x\\ge0$, $y\\ge0$" },
+        { "id": "B", "text": "$x+y\\le70$, $12x+7y\\ge600$, $x\\ge0$, $y\\ge0$" },
+        { "id": "C", "text": "$x+y\\le600$, $12x+7y\\ge70$, $x\\ge0$, $y\\ge0$" },
+        { "id": "D", "text": "$x+y=70$, $12x+7y=600$, $x\\ge0$, $y\\ge0$" }
+      ],
+      "correct_answer": "B",
+      "numeric_tolerance": 0,
+      "explanation": "'No more than $70$ tickets' gives $x+y\\le70$, and 'at least $600$ dollars' gives $12x+7y\\ge600$. Ticket counts must be nonnegative.",
+      "difficulty": 3,
+      "points": 1,
+      "skills": [
+        { "code": "ALG.LINEAR_INEQUALITIES", "weight": 1, "is_primary": true }
+      ],
+      "icfes_competency": "FORMULACION_EJECUCION"
+    }
+  ]
+}
