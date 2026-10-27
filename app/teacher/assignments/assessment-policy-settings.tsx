@@ -16,6 +16,7 @@ export type AssessmentPolicyInitial = {
   showScoreAfterSubmit?: boolean;
   showAnswersAfterSubmit?: boolean;
   showFeedbackAfterEachQuestion?: boolean;
+  allowGraphingCalculator?: boolean;
   shuffleQuestions?: boolean;
   shuffleOptions?: boolean;
   examMode?: boolean;
@@ -32,18 +33,21 @@ const PRESETS: Record<AssignmentKind, Policy> = {
   homework: {
     kind: "homework", durationMinutes: null, paperAnswerDurationSeconds: 90, maxAttempts: 3, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: true, showAnswersAfterSubmit: true, showFeedbackAfterEachQuestion: true,
+    allowGraphingCalculator: true,
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
     examTrackFocusExits: false, examAllowedFocusExits: 2, examViolationAction: "warn", teacherControlledQuestionRelease: false,
   },
   test: {
     kind: "test", durationMinutes: 60, paperAnswerDurationSeconds: 90, maxAttempts: 1, questionDisplayMode: "one_at_a_time",
     showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
+    allowGraphingCalculator: true,
     shuffleQuestions: true, shuffleOptions: true, examMode: true, examRequireFullscreen: true,
     examTrackFocusExits: true, examAllowedFocusExits: 1, examViolationAction: "warn", teacherControlledQuestionRelease: true,
   },
   paper: {
     kind: "paper", durationMinutes: 60, paperAnswerDurationSeconds: 90, maxAttempts: 1, questionDisplayMode: "all_at_once",
     showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false,
+    allowGraphingCalculator: false,
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
     examTrackFocusExits: false, examAllowedFocusExits: 0, examViolationAction: "warn", teacherControlledQuestionRelease: true,
   },
@@ -109,6 +113,11 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
         <div className="assignment-toggles">
           <PolicyToggle checked={policy.shuffleQuestions} disabled={assessment} label={paper ? "Question order follows the printed paper" : "Shuffle question order"} name="shuffle_questions" onChange={(value) => set("shuffleQuestions", value)} />
           <PolicyToggle checked={policy.shuffleOptions} disabled={assessment} label={paper ? "Choice letters follow the printed paper" : "Shuffle multiple-choice options"} name="shuffle_options" onChange={(value) => set("shuffleOptions", value)} />
+        </div>
+      </section>
+      <section><h3>Student tools</h3><p>{paper ? "Paper tests use the printed test and answer-entry sheet." : "Choose which built-in support students can use during this assignment."}</p>
+        <div className="assignment-toggles">
+          <PolicyToggle checked={policy.allowGraphingCalculator} disabled={paper} label={paper ? "Graphing calculator is unavailable in paper mode" : "Allow Jaguar Grapher (SAT-style graphing calculator)"} name="allow_graphing_calculator" onChange={(value) => set("allowGraphingCalculator", value)} />
         </div>
       </section>
     </div>
