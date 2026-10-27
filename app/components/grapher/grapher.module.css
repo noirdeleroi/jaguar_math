@@ -41,6 +41,21 @@
   z-index: 1000;
 }
 
+@media (min-width: 1200px) {
+  .floatingShell {
+    bottom: 16px;
+    height: auto;
+    left: 16px;
+    max-height: none;
+    max-width: none;
+    min-width: 0;
+    resize: none;
+    right: auto;
+    top: 16px;
+    width: var(--assessment-grapher-dock-width, min(56vw, 1080px));
+  }
+}
+
 .loading {
   align-items: center;
   background: #fff;

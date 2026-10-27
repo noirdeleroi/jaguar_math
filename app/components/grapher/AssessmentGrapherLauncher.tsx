@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import styles from "./grapher.module.css";
 
@@ -14,6 +14,12 @@ export default function AssessmentGrapherLauncher({ attemptId, disabled = false 
   const [open, setOpen] = useState(false);
   const portalTarget = typeof document === "undefined" ? null : document.body;
   const visible = open && !disabled;
+
+  useEffect(() => {
+    document.body.classList.toggle("assessment-grapher-open", visible);
+
+    return () => document.body.classList.remove("assessment-grapher-open");
+  }, [visible]);
 
   return <>
     <span className={styles.launcher}>
