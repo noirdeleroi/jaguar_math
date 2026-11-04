@@ -196,7 +196,7 @@ export function GradeColumnDialog({ classId, weeks, availableAssessments, defaul
   onSaved: (column: ClassroomGradeColumn) => void;
   onDeleted: (columnId: string) => void;
 }) {
-  const [source, setSource] = useState<"assessment" | "manual">(column?.source ?? (availableAssessments.length ? "assessment" : "manual"));
+  const [source, setSource] = useState<"assessment" | "manual">(column?.source === "manual" ? "manual" : column?.source === "assessment" ? "assessment" : (availableAssessments.length ? "assessment" : "manual"));
   const [assignmentId, setAssignmentId] = useState(column?.assignmentId ?? availableAssessments[0]?.id ?? "");
   const [weekLabel, setWeekLabel] = useState(column?.weekLabel ?? defaultWeek);
   const selectedAssessment = availableAssessments.find((assessment) => assessment.id === assignmentId);

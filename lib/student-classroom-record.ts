@@ -1,6 +1,7 @@
 import "server-only";
 
 import { calculateStudentTopicFinalGrade } from "@/lib/classroom-topic-grade";
+import { projectGrades, type ProjectDocument } from "@/lib/business-poster-project";
 import { curriculumTopic } from "@/lib/curriculum-weeks";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -45,7 +46,8 @@ type WorkItemRow = { id: string; week_id: string; kind: "homework" | "classwork"
 type WorkStatusRow = { work_item_id: string; status: string };
 type ClassworkGradeRow = { week_id: string; grade: number };
 type FinalGradeOverrideRow = { week_id: string; score: number };
-type GradeColumnRow = { id: string; week_id: string; source: "assessment" | "manual"; assignment_id: string | null };
+type GradeColumnRow = { id: string; week_id: string; source: "assessment" | "manual" | "project"; assignment_id: string | null };
+type ProjectRow = { column_id: string; document: ProjectDocument };
 type ManualGradeRow = { column_id: string; score: number };
 type AssignmentRow = { id: string; kind: string };
 type AttemptRow = { assignment_id: string; score: number | null; attempt_number: number; started_at: string };
@@ -73,14 +75,16 @@ export async function getStudentClassroomRecord(studentId: string): Promise<Stud
     { data: skullData, error: skullError },
     { data: workItemData, error: workItemError },
     { data: gradeColumnData, error: gradeColumnError },
+    { data: projectData, error: projectError },
   ] = await Promise.all([
     admin.from("classroom_weeks").select("id, class_id, label, sort_order, title, grading_mode, classwork_default_grade, final_grade_formula, final_grade_max, summative_grade_column_id").in("class_id", classIds).order("sort_order"),
     admin.from("classroom_star_events").select("week_id, delta").eq("student_id", studentId).in("class_id", classIds),
     admin.from("classroom_skull_events").select("week_id, action").eq("student_id", studentId).in("class_id", classIds),
     admin.from("classroom_work_items").select("id, week_id, kind").in("class_id", classIds),
     admin.from("classroom_grade_columns").select("id, week_id, source, assignment_id").in("class_id", classIds),
+    admin.from("classroom_projects").select("column_id, document").in("class_id", classIds),
   ]);
-  const firstError = topicError ?? starError ?? skullError ?? workItemError ?? gradeColumnError;
+  const firstError = topicError ?? starError ?? skullError ?? workItemError ?? gradeColumnError ?? projectError;
   if (firstError) throw firstError;
 
   const topics = (topicData ?? []) as TopicRow[];
@@ -144,6 +148,7 @@ export async function getStudentClassroomRecord(studentId: string): Promise<Stud
   const finalOverrideByTopic = new Map(((finalGradeOverrideData ?? []) as FinalGradeOverrideRow[]).map((grade) => [grade.week_id, Number(grade.score)]));
   const manualGradeByColumn = new Map(((manualGradeData ?? []) as ManualGradeRow[]).map((grade) => [grade.column_id, Number(grade.score)]));
   const gradeColumnById = new Map(gradeColumns.map((column) => [column.id, column]));
+  const projectGradeByColumn = new Map(((projectData ?? []) as ProjectRow[]).map((project) => [project.column_id, projectGrades(project.document, new Set([studentId]))[studentId]?.score ?? null]));
 
   const classes = memberships.flatMap((membership): StudentClassRecord[] => {
     const classroom = Array.isArray(membership.classes) ? membership.classes[0] : membership.classes;
@@ -154,7 +159,9 @@ export async function getStudentClassroomRecord(studentId: string): Promise<Stud
       .map((topic): StudentTopicRecord => {
         const stars = starsByTopic.get(topic.id) ?? 0;
         const summativeColumn = topic.summative_grade_column_id ? gradeColumnById.get(topic.summative_grade_column_id) : null;
-        const summativeScore = summativeColumn?.source === "manual"
+        const summativeScore = summativeColumn?.source === "project"
+          ? projectGradeByColumn.get(summativeColumn.id) ?? null
+          : summativeColumn?.source === "manual"
           ? manualGradeByColumn.get(summativeColumn.id) ?? null
           : summativeColumn?.assignment_id && assignmentsById.has(summativeColumn.assignment_id)
             ? latestAttemptByAssignment.get(summativeColumn.assignment_id)?.score ?? null

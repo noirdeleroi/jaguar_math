@@ -15,6 +15,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const supabase = await createClient();
     const { data: classroom } = await supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle();
     if (!classroom) return NextResponse.json({ error: "That class is not available." }, { status: 404 });
+    const { data: project } = await supabase.from("classroom_projects").select("work_item_id").eq("class_id", id).eq("work_item_id", workItemId).maybeSingle();
+    if (project) return NextResponse.json({ error: "Open the project to manage its teams and grades." }, { status: 400 });
     const { data, error } = await supabase.from("classroom_work_items").update({ title, activity_date: activityDate }).eq("id", workItemId).eq("class_id", id).select("id, title, activity_date").maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "That homework or classwork column was not found." }, { status: 404 });
@@ -32,6 +34,8 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     const supabase = await createClient();
     const { data: classroom } = await supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle();
     if (!classroom) return NextResponse.json({ error: "That class is not available." }, { status: 404 });
+    const { data: project } = await supabase.from("classroom_projects").select("work_item_id").eq("class_id", id).eq("work_item_id", workItemId).maybeSingle();
+    if (project) return NextResponse.json({ error: "Open the project to manage its teams and grades." }, { status: 400 });
     const { data, error } = await supabase.from("classroom_work_items").delete().eq("id", workItemId).eq("class_id", id).select("id").maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "That homework or classwork column was not found." }, { status: 404 });

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { assignmentResultStatus } from "@/lib/assignment-completion";
+import { projectColumnGrades } from "@/lib/business-poster-project";
+import { loadClassroomProjects } from "@/lib/business-poster-project-data";
 import { requireTeacher } from "@/lib/auth";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, WorkStatus as ClassroomWorkStatus } from "@/lib/classroom-stars";
 import { hasGoogleGmailSendPermission } from "@/lib/google-classroom";
@@ -21,7 +23,7 @@ type StarEvent = { id: string; student_id: string; week_id: string; delta: numbe
 type SkullTotalRow = { student_id: string; week_label: string; skulls_today: number; skulls_total: number };
 type Assessment = { id: string; title: string; kind: string; status: "published" | "closed"; due_at: string | null };
 type Attempt = { id: string; assignment_id: string; student_id: string; status: "in_progress" | "submitted"; score: number | null; max_score: number | null; attempt_number: number; started_at: string; submitted_at: string | null };
-type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual"; assignment_id: string | null; max_score: number | null; created_at: string };
+type GradeColumnRow = { id: string; week_id: string; title: string; assessment_date: string; source: "assessment" | "manual" | "project"; assignment_id: string | null; max_score: number | null; created_at: string };
 type ManualGradeRow = { column_id: string; student_id: string; score: number };
 type FinalGradeOverrideRow = { week_id: string; student_id: string; score: number; comment: string };
 type ClassworkGradeRow = { week_id: string; student_id: string; grade: number };
@@ -58,6 +60,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
   const { data: classroom, error: classroomError } = await supabase.from("classes").select("id, name, grade_level, academic_year, teacher_id").eq("id", id).maybeSingle();
   if (classroomError || !classroom || classroom.teacher_id !== teacher.id) notFound();
 
+  const projects = await loadClassroomProjects(id);
   const admin = createAdminClient();
   const [{ data: members, error: memberError }, { data: allStudents, error: studentError }, { data: teacherClasses, error: teacherClassesError }, { data: gradebookRosterRows, error: gradebookRosterError }, { data: weekRows, error: weekError }, { data: starEvents, error: starError }, { data: skullRows, error: skullError }, { data: workItemRows, error: workItemError }, { data: cwRecordRows, error: cwRecordError }, { data: assignmentLinks, error: linkError }, { data: gradeColumnRows, error: gradeColumnError }, gmailSendEnabled, { data: googleCourse }] = await Promise.all([
     supabase.from("class_members").select("student_id, nickname, nickname_is_custom").eq("class_id", id),
@@ -147,7 +150,10 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     const week = weekById.get(column.week_id);
     if (!week) return [];
     const maxScore = column.max_score === null ? null : Number(column.max_score);
-    const scores = column.source === "assessment" && column.assignment_id
+    const project = projects.find((item) => item.columnId === column.id);
+    const scores = column.source === "project"
+      ? project ? projectColumnGrades(project, memberIds).scores : {}
+      : column.source === "assessment" && column.assignment_id
       ? Object.fromEntries(managerStudents.flatMap((student) => student.scores[column.assignment_id!] ? [[student.id, student.scores[column.assignment_id!]]] : []))
       : Object.fromEntries((manualGradesByColumn.get(column.id) ?? []).flatMap((grade) => maxScore && maxScore > 0 ? [[grade.student_id, { attemptId: null, score: Number(grade.score), maxScore, percent: Math.round(Number(grade.score) / maxScore * 100) }]] : []));
     const percentages = Object.values(scores).map((score) => score.percent);
@@ -227,7 +233,7 @@ export default async function ClassDetailPage({ params, searchParams }: PageProp
     </header>
     {messages.error ? <p className="notice notice-error" role="alert">{messages.error}</p> : null}{messages.success ? <p className="notice notice-success">{messages.success}</p> : null}
     <section className={styles.managerBar}><div><strong className={styles.weekBadge}>{activeTopic.label}</strong><div><span>Current topic</span><strong>{activeTopic.title || `Topic ${activeTopic.sort_order}`}</strong></div></div><div className={styles.managerControls}><ClassManagerDialogs classroom={{ id, name: classroom.name, gradeLevel: classroom.grade_level, academicYear: classroom.academic_year }} enrolled={enrolled.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", nickname: student.nickname, nicknameIsCustom: student.nicknameIsCustom, email: student.email, gradeLevel: student.grade_level }))} available={available.map((student) => ({ id: student.id, fullName: student.full_name || student.email || "Unnamed student", email: student.email, gradeLevel: student.grade_level }))} />{enrolled.length ? <ManageStudentCredentials classId={id} gmailSendEnabled={gmailSendEnabled} students={enrolled.map((student) => ({ id: student.id, fullName: student.nickname, emailAddress: student.email || "No email" }))} /> : null}</div></section>
-    <StarClassroom availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialCwRecords={cwRecords} initialGradeColumns={gradeColumns} initialState={starState} key={id} teacherClasses={(teacherClasses ?? []).map((item) => ({ id: item.id, name: item.name, gradeLevel: item.grade_level }))} />
+    <StarClassroom initialProjects={projects} availableAssessments={availableAssessments} currentWeekLabel={activeTopic.label} embedded initialAssignments={classroomHomework} initialCwRecords={cwRecords} initialGradeColumns={gradeColumns} initialState={starState} key={id} teacherClasses={(teacherClasses ?? []).map((item) => ({ id: item.id, name: item.name, gradeLevel: item.grade_level }))} />
     {!enrolled.length ? <section className={styles.emptyGradebook}><strong>No students in this class yet.</strong><p>Use Add student to choose an existing Jaguar account.</p></section> : null}
   </main>;
 }

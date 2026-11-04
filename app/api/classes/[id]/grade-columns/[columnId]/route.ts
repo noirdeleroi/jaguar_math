@@ -17,6 +17,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       supabase.from("classroom_grade_columns").select("id, source, title, max_score").eq("id", columnId).eq("class_id", id).maybeSingle(),
     ]);
     if (!classroom || !column) return NextResponse.json({ error: "That test column was not found." }, { status: 404 });
+    if (column.source === "project") return NextResponse.json({ error: "Open the project to edit its rubric and teams." }, { status: 400 });
     if (!week) return NextResponse.json({ error: "That topic does not belong to this class." }, { status: 400 });
     const values: Record<string, unknown> = { week_id: week.id, assessment_date: body.assessmentDate };
     let title = column.title;
@@ -46,6 +47,8 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     const supabase = await createClient();
     const { data: classroom } = await supabase.from("classes").select("id").eq("id", id).eq("teacher_id", teacher.id).maybeSingle();
     if (!classroom) return NextResponse.json({ error: "That class is not available." }, { status: 404 });
+    const { data: project } = await supabase.from("classroom_projects").select("work_item_id").eq("class_id", id).eq("column_id", columnId).maybeSingle();
+    if (project) return NextResponse.json({ error: "Project grade columns are managed through their project." }, { status: 400 });
     const { data, error } = await supabase.from("classroom_grade_columns").delete().eq("id", columnId).eq("class_id", id).select("id").maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "That test column was not found." }, { status: 404 });

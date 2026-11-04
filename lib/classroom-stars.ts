@@ -77,7 +77,7 @@ export type ClassroomGradeColumn = {
   weekLabel: string;
   title: string;
   assessmentDate: string;
-  source: "assessment" | "manual";
+  source: "assessment" | "manual" | "project";
   assignmentId: string | null;
   maxScore: number | null;
   average: number | null;

@@ -1,6 +1,8 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import BusinessPosterProjectDialog from "./business-poster-project";
+import { BUSINESS_POSTER_TITLE, projectColumnGrades, type BusinessPosterProject } from "@/lib/business-poster-project";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWeek, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, TeacherClassOption, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import { calculateHomeworkCompletionPercentage, clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
@@ -344,7 +346,7 @@ function AssignmentResultsPopup({ assignment, students, updatedAt, onClose }: { 
   </section></div>;
 }
 
-export default function StarClassroom({ initialState, currentWeekLabel, embedded = false, initialAssignments = [], initialGradeColumns = [], availableAssessments: initialAvailableAssessments = [], initialCwRecords = [], teacherClasses = [] }: { initialState: ClassroomStarState; currentWeekLabel: string; embedded?: boolean; initialAssignments?: ClassroomHomeworkAssignment[]; initialGradeColumns?: ClassroomGradeColumn[]; availableAssessments?: AvailableClassroomAssessment[]; initialCwRecords?: ClassroomCwRecord[]; teacherClasses?: TeacherClassOption[] }) {
+export default function StarClassroom({ initialState, currentWeekLabel, embedded = false, initialAssignments = [], initialGradeColumns = [], availableAssessments: initialAvailableAssessments = [], initialCwRecords = [], teacherClasses = [], initialProjects = [] }: { initialProjects?: BusinessPosterProject[]; initialState: ClassroomStarState; currentWeekLabel: string; embedded?: boolean; initialAssignments?: ClassroomHomeworkAssignment[]; initialGradeColumns?: ClassroomGradeColumn[]; availableAssessments?: AvailableClassroomAssessment[]; initialCwRecords?: ClassroomCwRecord[]; teacherClasses?: TeacherClassOption[] }) {
   const router = useRouter();
   const [data, setData] = useState(initialState);
   const [selectedWeek, setSelectedWeek] = useState(() => initialWeek(initialState, currentWeekLabel));
@@ -354,7 +356,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [saveMessage, setSaveMessage] = useState("Everything is safely saved in Jaguar.");
   const [activeWorkId, setActiveWorkId] = useState<string>("");
-  const [newWorkKind, setNewWorkKind] = useState<WorkKind>("homework");
+  const [newWorkKind, setNewWorkKind] = useState<WorkKind | "project">("homework");
   const [newWorkTitle, setNewWorkTitle] = useState(() => automaticWorkTitle(initialState, initialWeek(initialState, currentWeekLabel), "homework"));
   const [newWorkDate, setNewWorkDate] = useState(localDateKey);
   const [utilityMessage, setUtilityMessage] = useState("Pick a student or make balanced teams.");
@@ -365,6 +367,12 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const [utilityOverlay, setUtilityOverlay] = useState<UtilityOverlay | null>(null);
   const [rewardEffect, setRewardEffect] = useState<RewardEffect | null>(null);
   const [workCreatorOpen, setWorkCreatorOpen] = useState(false);
+  const [projects, setProjects] = useState(initialProjects);
+  const [projectDialogId, setProjectDialogId] = useState<string | null>(null);
+  const [projectCreating, setProjectCreating] = useState(false);
+  const projectCreatingRef = useRef(false);
+  const [projectCreateError, setProjectCreateError] = useState("");
+  const [useSuppliedTeams, setUseSuppliedTeams] = useState(true);
   const [assignments, setAssignments] = useState(initialAssignments);
   const [gradeColumns, setGradeColumns] = useState(initialGradeColumns);
   const [availableAssessments, setAvailableAssessments] = useState(initialAvailableAssessments);
@@ -395,7 +403,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   const sheetScrollerRef = useRef<HTMLDivElement>(null);
   const sheetTableRef = useRef<HTMLTableElement>(null);
   const frozenSheetHeaderRef = useRef<HTMLDivElement>(null);
-  const blockingOverlayOpen = Boolean(utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || classworkNoteEditor || gradeColumnDialog || topicSettingsDialog || newTopicOpen || workColumnDialog || rewardEffect?.kind === "death");
+  const blockingOverlayOpen = Boolean(projectDialogId || utilityOverlay || workCreatorOpen || assignmentPopupId || cwPopup || classworkNoteEditor || gradeColumnDialog || topicSettingsDialog || newTopicOpen || workColumnDialog || rewardEffect?.kind === "death");
 
   const flushQueue = useCallback(async (payload?: ClassroomSyncPayload) => {
     const pending = payload ?? readQueue(initialState.classroom.id);
@@ -474,6 +482,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       setData(applyPending(initialState, pending));
       setAssignments(initialAssignments);
       setGradeColumns(initialGradeColumns);
+      setProjects(initialProjects);
       setAvailableAssessments(initialAvailableAssessments);
       setCwRecords(initialCwRecords);
       setSelectedWeek((current) => availableWeeks.has(current) ? current : fallbackWeek);
@@ -486,7 +495,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     }, 0);
 
     return () => window.clearTimeout(refreshTimer);
-  }, [currentWeekLabel, initialAssignments, initialAvailableAssessments, initialCwRecords, initialGradeColumns, initialState]);
+  }, [currentWeekLabel, initialAssignments, initialAvailableAssessments, initialCwRecords, initialGradeColumns, initialProjects, initialState]);
 
   useEffect(() => {
     if (!embedded) return;
@@ -750,7 +759,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     setOpenWeek(topic.label);
     setExpandedWeeks(new Set([topic.label]));
     setActiveWorkId("");
-    setNewWorkTitle(newWorkKind === "homework" ? "HW 1" : "CW 1");
+    setNewWorkTitle(newWorkKind === "project" ? BUSINESS_POSTER_TITLE : newWorkKind === "homework" ? "HW 1" : "CW 1");
     setNewWorkDate(localDateKey());
     setNewTopicOpen(false);
     setSaveState("saved");
@@ -774,7 +783,29 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     }
   }
 
+  async function createProject() {
+    if (projectCreatingRef.current) return;
+    projectCreatingRef.current = true;
+    setProjectCreating(true); setProjectCreateError("");
+    try {
+      const response = await fetch(`/api/classes/${data.classroom.id}/projects`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ weekLabel: selectedWeek, activityDate: newWorkDate || localDateKey(), useSuppliedTeams }) });
+      const result = await response.json() as { project?: BusinessPosterProject; error?: string };
+      if (!response.ok || !result.project) throw new Error(result.error || "The project could not be created.");
+      const project = result.project;
+      setProjects((current) => [...current, project]);
+      setWorkCreatorOpen(false); setProjectDialogId(project.workItemId);
+      router.refresh();
+    } catch (cause) { setProjectCreateError(cause instanceof Error ? cause.message : "The project could not be created."); }
+    finally { projectCreatingRef.current = false; setProjectCreating(false); }
+  }
+
+  function saveProject(project: BusinessPosterProject) {
+    setProjects((current) => current.map((item) => item.workItemId === project.workItemId ? project : item));
+    setGradeColumns((current) => current.map((column) => column.id === project.columnId ? { ...column, ...projectColumnGrades(project, new Set(data.students.map((student) => student.id))) } : column));
+  }
+
   function addWorkItem() {
+    if (newWorkKind === "project") { void createProject(); return; }
     const position = workPosition(data, selectedWeek, newWorkKind);
     const title = newWorkTitle.trim() || `${newWorkKind === "homework" ? "HW" : "CW"} ${position}`;
     const item: ClassroomWorkItem = { id: crypto.randomUUID(), weekLabel: selectedWeek, kind: newWorkKind, position, title, activityDate: newWorkDate || null, statuses: {} };
@@ -888,13 +919,13 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     setSelectedWeek(label);
     setOpenWeek(label);
     setActiveWorkId("");
-    setNewWorkTitle(automaticWorkTitle(data, label, newWorkKind));
+    setNewWorkTitle(newWorkKind === "project" ? BUSINESS_POSTER_TITLE : automaticWorkTitle(data, label, newWorkKind));
     setNewWorkDate(localDateKey());
   }
 
   function toggleSheetWeek(label: string) {
     setSelectedWeek(label);
-    setNewWorkTitle(automaticWorkTitle(data, label, newWorkKind));
+    setNewWorkTitle(newWorkKind === "project" ? BUSINESS_POSTER_TITLE : automaticWorkTitle(data, label, newWorkKind));
     setNewWorkDate(localDateKey());
     setExpandedWeeks((current) => {
       const next = new Set(current);
@@ -983,7 +1014,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function sheetColumnsForWeek(weekLabel: string): SheetDatedColumn[] {
     const representedAssignments = new Set(gradeColumns.flatMap((column) => column.assignmentId ? [column.assignmentId] : []));
     const columns: SheetDatedColumn[] = [
-      ...data.workItems.filter((item) => item.weekLabel === weekLabel).map((item): SheetDatedColumn => ({ type: "work", id: `work:${item.id}`, date: item.activityDate, item })),
+      ...data.workItems.filter((item) => item.weekLabel === weekLabel && !projects.some((project) => project.workItemId === item.id)).map((item): SheetDatedColumn => ({ type: "work", id: `work:${item.id}`, date: item.activityDate, item })),
       ...gradeColumns.filter((column) => column.weekLabel === weekLabel).map((column): SheetDatedColumn => ({ type: "grade", id: `grade:${column.id}`, date: column.assessmentDate, column })),
       ...assignments.filter((assignment) => assignment.weekLabel === weekLabel && !representedAssignments.has(assignment.id)).map((assignment): SheetDatedColumn => ({ type: "assignment", id: `assignment:${assignment.id}`, date: assignment.dueAt?.slice(0, 10) ?? null, assignment })),
     ];
@@ -1116,7 +1147,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
         const result = sheetColumn.assignment.results[studentId];
         return result?.status === "submitted" ? result.score : null;
       }
-      return sheetColumn.column.scores[studentId]?.score;
+      return sheetColumn.column.scores[studentId]?.score ?? (sheetColumn.column.source === "project" ? "—" : null);
     });
     if (!text) return;
     try {
@@ -1166,7 +1197,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
       return <th className={`${gradebookStyles.datedColumnHead} ${gradebookStyles.assignmentHead} ${topicPaletteClass} ${selectedColumnClass(sheetColumn.id)}`} key={sheetColumn.id}><div><button aria-label={`Select ${sheetColumn.assignment.title} column`} aria-pressed={selected} className={styles.sheetColumnSelect} onClick={() => toggleSheetSelection("column", sheetColumn.id)} type="button"><strong>Online HW</strong><span>{sheetColumn.assignment.title}</span><small>{sheetColumn.date ? shortDate(sheetColumn.date) : "No due date"} · {sheetColumn.assignment.status}</small></button><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}</div></div></th>;
     }
     const { column } = sheetColumn;
-    return <th className={`${gradebookStyles.assessmentHead} ${topicPaletteClass} ${selectedColumnClass(sheetColumn.id)}`} key={sheetColumn.id}><div><button aria-label={`Select ${column.title} column`} aria-pressed={selected} className={styles.sheetColumnSelect} onClick={() => toggleSheetSelection("column", sheetColumn.id)} type="button"><strong>{column.title}</strong><span>{shortDate(column.assessmentDate)} · {column.source === "manual" ? `Manual / ${column.maxScore}` : "Auto test"}</span><small>{column.average === null ? "No grades" : `Avg ${column.average}%`}</small></button><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}<button aria-label={`Edit ${column.title} column`} onClick={() => setGradeColumnDialog(column)} type="button">Edit</button></div></div></th>;
+    return <th className={`${gradebookStyles.assessmentHead} ${topicPaletteClass} ${selectedColumnClass(sheetColumn.id)}`} key={sheetColumn.id}><div><button aria-label={`Select ${column.title} column`} aria-pressed={selected} className={styles.sheetColumnSelect} onClick={() => toggleSheetSelection("column", sheetColumn.id)} type="button"><strong>{column.title}</strong><span>{shortDate(column.assessmentDate)} · {column.source === "project" ? "Project /100" : column.source === "manual" ? `Manual / ${column.maxScore}` : "Auto test"}</span><small>{column.average === null ? "No grades" : `Avg ${column.average}%`}</small></button><div className={gradebookStyles.headerActions}>{copyColumnButton(sheetColumn)}<button aria-label={column.source === "project" ? `Open ${column.title}` : `Edit ${column.title} column`} onClick={() => { const project = projects.find((item) => item.columnId === column.id); if (project) setProjectDialogId(project.workItemId); else setGradeColumnDialog(column); }} type="button">{column.source === "project" ? "Open project" : "Edit"}</button></div></div></th>;
   }
 
   function sheetColumnCell(sheetColumn: SheetDatedColumn, student: ClassroomStarState["students"][number], topicPaletteClass: string) {
@@ -1183,6 +1214,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     }
     const { column } = sheetColumn;
     const score = column.scores[student.id];
+    if (column.source === "project") return <td className={`${gradebookStyles.assessmentCell} ${topicPaletteClass} ${selectionClass}`} key={sheetColumn.id}><button aria-label={`${column.title} grade for ${student.fullName}`} onClick={() => { const project = projects.find((item) => item.columnId === column.id); if (project) setProjectDialogId(project.workItemId); }} type="button"><strong>{score ? `${score.score}/100` : "—"}</strong><span>{score ? `${score.percent}%` : "Ungraded"}</span></button></td>;
     if (column.source === "manual") return <ManualGradeCell classId={data.classroom.id} className={`${topicPaletteClass} ${selectionClass}`} column={column} key={sheetColumn.id} onSaved={(grade) => saveManualGrade(column.id, student.id, grade)} studentId={student.id} studentName={student.fullName} />;
     return <td className={`${gradebookStyles.assessmentCell} ${topicPaletteClass} ${selectionClass}`} key={sheetColumn.id}>{score && column.assignmentId && score.attemptId ? <a href={`/teacher/assignments/${column.assignmentId}/attempts/${score.attemptId}`}><strong>{score.percent}%</strong><span>{score.score}/{score.maxScore}</span></a> : <strong title="Absent">—</strong>}</td>;
   }
@@ -1269,7 +1301,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
 
             <section className={styles.workSection}>
               <div className={styles.sectionHeader}><div><p className="eyebrow">Topic records</p><h2>Homework and classwork</h2><p>Select a record to edit every student’s status. Changes save automatically.</p></div><button className={styles.workAddButton} onClick={() => setWorkCreatorOpen(true)} type="button">＋ Add HW / CW</button></div>
-              {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork ? <div className={styles.statusTable}><header><div className={styles.workEditor}><label><span>Name</span><input maxLength={120} onBlur={() => editWorkItem(activeWork, { title: activeWork.title.trim() || `${activeWork.kind === "homework" ? "HW" : "CW"} ${activeWork.position}` }, true)} onChange={(event) => editWorkItem(activeWork, { title: event.target.value }, false)} value={activeWork.title} /></label><label><span>Date</span><input onChange={(event) => editWorkItem(activeWork, { activityDate: event.target.value || null }, true)} type="date" value={activeWork.activityDate || ""} /></label><small>{activeWork.kind === "homework" ? "OK / Not OK / Late" : "OK / Not OK"} · changes save automatically</small></div></header>{sortedStudents.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["ok", "not_ok", "late"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for this topic. Use Add HW / CW to create the first record.</p>}
+              {weekItems.length ? <><div className={styles.workTabs}>{weekItems.map((item) => <button className={activeWork?.id === item.id ? styles.activeTab : ""} key={item.id} onClick={() => setActiveWorkId(item.id)} type="button"><b>{item.kind === "homework" ? `HW${item.position}` : `CW${item.position}`}</b><span>{item.title}</span></button>)}</div>{activeWork && projects.some((project) => project.workItemId === activeWork.id) ? <button className={styles.workAddButton} onClick={() => setProjectDialogId(activeWork.id)} type="button">Open project · Grade Project</button> : activeWork ? <div className={styles.statusTable}><header><div className={styles.workEditor}><label><span>Name</span><input maxLength={120} onBlur={() => editWorkItem(activeWork, { title: activeWork.title.trim() || `${activeWork.kind === "homework" ? "HW" : "CW"} ${activeWork.position}` }, true)} onChange={(event) => editWorkItem(activeWork, { title: event.target.value }, false)} value={activeWork.title} /></label><label><span>Date</span><input onChange={(event) => editWorkItem(activeWork, { activityDate: event.target.value || null }, true)} type="date" value={activeWork.activityDate || ""} /></label><small>{activeWork.kind === "homework" ? "OK / Not OK / Late" : "OK / Not OK"} · changes save automatically</small></div></header>{sortedStudents.map((student) => { const options: WorkStatus[] = activeWork.kind === "homework" ? ["ok", "not_ok", "late"] : ["ok", "not_ok"]; const current = activeWork.statuses[student.id]; return <div className={styles.statusRow} key={student.id}><strong>{student.fullName}</strong><div>{options.map((status) => <button className={current === status ? styles.activeStatus : ""} key={status} onClick={() => setWorkStatus(activeWork, student.id, status)} type="button">{statusLabels[status]}</button>)}<button className={!current ? styles.activeStatus : ""} onClick={() => setWorkStatus(activeWork, student.id, "")} type="button">Clear</button></div></div>; })}</div> : null}</> : <p className={styles.emptyState}>No homework or classwork has been added for this topic. Use Add HW / CW to create the first record.</p>}
             </section>
           </div> : null}
         </article>;
@@ -1290,7 +1322,13 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     {classworkNoteEditor && classworkNoteTopic && classworkNoteStudent ? <ClassworkNoteDialog classId={data.classroom.id} note={classworkNoteTopic.classworkNotes[classworkNoteStudent.id] ?? ""} onClose={() => setClassworkNoteEditor(null)} onSaved={(note) => setData((current) => ({ ...current, weeks: current.weeks.map((week) => week.id === classworkNoteTopic.id ? { ...week, classworkNotes: note ? { ...week.classworkNotes, [classworkNoteStudent.id]: note } : Object.fromEntries(Object.entries(week.classworkNotes).filter(([studentId]) => studentId !== classworkNoteStudent.id)) } : week) }))} studentId={classworkNoteStudent.id} studentName={classworkNoteStudent.fullName} topic={classworkNoteTopic} /> : null}
     {assignmentPopupId && assignments.find((assignment) => assignment.id === assignmentPopupId) ? <AssignmentResultsPopup assignment={assignments.find((assignment) => assignment.id === assignmentPopupId)!} onClose={() => setAssignmentPopupId(null)} students={sortedStudents} updatedAt={assignmentsUpdatedAt} /> : null}
     {cwPopup && cwPopupStudent ? <div className={`${styles.popupBackdrop} ${styles.cwBackdrop}`} role="presentation"><section aria-label={`CW events for ${cwPopupStudent.fullName} in ${cwPopup.weekLabel}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.cwPopup}`} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setCwPopup(null)} type="button">×</button><header><p className={styles.popupEyebrow}>Topic {cwPopup.weekLabel} · CW</p><h2>{cwPopupStudent.fullName}</h2><p>Add each bad CW as a dated event with a short note. The table only shows how many CW events are missing for this topic.</p></header><form onSubmit={(event) => { event.preventDefault(); void addCwRecord(); }}><label><span>Date</span><input onChange={(event) => setCwRecordDate(event.target.value)} required type="date" value={cwRecordDate} /></label><label><span>Little note</span><textarea autoFocus maxLength={500} onChange={(event) => setCwReason(event.target.value)} placeholder="What was missing or incomplete?" required rows={3} value={cwReason} /></label><div><span className={styles.cwNotOkPill}>Bad CW</span><button disabled={cwBusy || !cwReason.trim()} type="submit">{cwBusy ? "Saving…" : "Add event"}</button></div></form>{cwMessage ? <p className={styles.cwMessage} role="status">{cwMessage}</p> : null}<section className={styles.cwRecordList}><div><strong>CW events</strong><span>{cwPopupRecords.length}</span></div>{cwPopupRecords.length ? cwPopupRecords.map((record) => <article key={record.id}><time dateTime={record.recordDate}>{record.recordDate}</time><p>{record.reason}</p><button aria-label={`Delete CW event from ${record.recordDate}`} disabled={cwBusy} onClick={() => void deleteCwRecord(record)} type="button">Delete</button></article>) : <p>No missing CW events for this student in this topic.</p>}</section></section></div> : null}
-    {workCreatorOpen ? <div className={`${styles.popupBackdrop} ${styles.workBackdrop}`} role="presentation"><form aria-label={`Add homework or classwork to ${selectedWeek}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.workPopup}`} onSubmit={(event) => { event.preventDefault(); addWorkItem(); }} role="dialog"><button aria-label="Close popup" className={styles.popupClose} onClick={() => setWorkCreatorOpen(false)} type="button">×</button><div aria-hidden="true" className={styles.workPopupIcon}>{newWorkKind === "homework" ? "HW" : "CW"}</div><p className={styles.popupEyebrow}>Topic {selectedWeek}</p><h2>Add {newWorkKind === "homework" ? "homework" : "classwork"}</h2><p className={styles.popupHint}>Every student starts as OK. Open the new record afterward to mark Late, Not OK, or Clear.</p><div className={styles.workPopupFields}><label><span>Record type</span><select aria-label="Work type" onChange={(event) => { const kind = event.target.value as WorkKind; setNewWorkKind(kind); setNewWorkTitle(automaticWorkTitle(data, selectedWeek, kind)); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option></select></label><label><span>Title</span><input aria-label="Work title" autoFocus maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} placeholder={newWorkKind === "homework" ? "Homework title" : "Classwork title"} required value={newWorkTitle} /></label><label><span>Activity date</span><input aria-label="Activity date" onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /></label></div><button className={styles.popupAction} disabled={!newWorkTitle.trim()} type="submit">Add to {selectedWeek}</button></form></div> : null}
+    {projectDialogId ? <BusinessPosterProjectDialog classId={data.classroom.id} key={projectDialogId} onClose={() => setProjectDialogId(null)} onSaved={saveProject} workItemId={projectDialogId} /> : null}
+    {workCreatorOpen ? <div className={`${styles.popupBackdrop} ${styles.workBackdrop}`} role="presentation"><form aria-label={`Add homework or classwork to ${selectedWeek}`} aria-modal="true" className={`${styles.classroomPopup} ${styles.workPopup}`} onSubmit={(event) => { event.preventDefault(); addWorkItem(); }} role="dialog">
+      <button aria-label="Close popup" className={styles.popupClose} disabled={projectCreating} onClick={() => setWorkCreatorOpen(false)} type="button">×</button><div aria-hidden="true" className={styles.workPopupIcon}>{newWorkKind === "project" ? "100" : newWorkKind === "homework" ? "HW" : "CW"}</div><p className={styles.popupEyebrow}>Topic {selectedWeek}</p><h2>Add {newWorkKind === "project" ? "Business Poster Project" : newWorkKind === "homework" ? "homework" : "classwork"}</h2><p className={styles.popupHint}>{newWorkKind === "project" ? "Grade teams and individuals using the 100-point rubric. Only this class receives the project." : "Every student starts as OK. Open the new record afterward to mark Late, Not OK, or Clear."}</p>
+      <div className={styles.workPopupFields}><label><span>Record type</span><select aria-label="Work type" disabled={projectCreating} onChange={(event) => { const kind = event.target.value as WorkKind | "project"; setNewWorkKind(kind); setNewWorkTitle(kind === "project" ? BUSINESS_POSTER_TITLE : automaticWorkTitle(data, selectedWeek, kind)); setProjectCreateError(""); }} value={newWorkKind}><option value="homework">Homework</option><option value="classwork">Classwork</option><option value="project">Business Poster Project</option></select></label><label><span>Title</span><input aria-label="Work title" autoFocus disabled={projectCreating || newWorkKind === "project"} maxLength={120} onChange={(event) => setNewWorkTitle(event.target.value)} required value={newWorkTitle} /></label><label><span>Activity date</span><input aria-label="Activity date" disabled={projectCreating} onChange={(event) => setNewWorkDate(event.target.value)} type="date" value={newWorkDate} /></label></div>
+      {newWorkKind === "project" ? <label><input checked={useSuppliedTeams} disabled={projectCreating} onChange={(event) => setUseSuppliedTeams(event.target.checked)} type="checkbox" /> Use supplied groups if they match this class roster. Teams can be edited afterward.</label> : null}
+      {projectCreateError ? <p role="alert">{projectCreateError}</p> : null}<button className={styles.popupAction} disabled={projectCreating || !newWorkTitle.trim() || (newWorkKind === "project" && queueSize(queue) > 0)} type="submit">{projectCreating ? "Creating…" : newWorkKind === "project" && queueSize(queue) > 0 ? "Waiting for classroom sync…" : `Add to ${selectedWeek}`}</button>
+    </form></div> : null}
     {utilityOverlay ? <UtilityPopup onClose={closeUtilityOverlay} onPickAgain={chooseRandomStudent} onRemix={makeTeams} onSetTimer={setClassTimer} onToggleTimer={() => timer === 0 ? setClassTimer(timerDuration) : setTimerRunning((value) => !value)} overlay={utilityOverlay} timer={timer} timerDuration={timerDuration} timerRunning={timerRunning} /> : null}
     {rewardEffect ? <RewardAnimation effect={rewardEffect} key={rewardEffect.id} onClose={closeReward} /> : null}
   </div>;
