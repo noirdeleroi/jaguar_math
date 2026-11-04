@@ -36,10 +36,9 @@ export default function BusinessPosterProjectDialog({ classId, workItemId, onClo
   useEffect(() => {
     const dialog = dialogRef.current!;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // The Class Manager owns scroll locking for this overlay.
     dialog.showModal();
-    return () => { document.body.style.overflow = overflow; dialog.close(); previous?.focus(); };
+    return () => { dialog.close(); previous?.focus(); };
   }, []);
 
   useEffect(() => {

@@ -75,6 +75,7 @@ try {
   await dialog.getByRole("button", { name: "Save project grades", exact: true }).click();
   await expect(dialog.getByText("Saved. Completed individual grades are now in Class Manager.", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).overflowY)).not.toBe("hidden");
   for (const index of names.keys()) await expect(page.getByRole("button", { name: `Business Poster Project grade for ${first.members.find((member) => member.student_id === row.document.teams[0].members[index].studentId).nickname}`, exact: true }).first()).toContainText(`${[94, 87, 80, 88][index]}/100`);
   console.log("PASS: shared team scores, different individual totals, unsaved group navigation, and Class Manager propagation");
 
