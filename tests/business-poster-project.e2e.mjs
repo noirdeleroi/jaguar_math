@@ -141,6 +141,11 @@ try {
   await expect(dialog.getByLabel(`${names[0]} final grade`, { exact: true })).toHaveText("79/100");
   console.log("PASS: concurrent-session conflict feedback protects saved scores and reload restores the current revision");
 
+  await page.setViewportSize({ width: 1366, height: 768 });
+  const lastStudentRow = await dialog.getByLabel(`${names[3]} final grade`, { exact: true }).boundingBox();
+  const saveFooter = await dialog.locator("footer").boundingBox();
+  assert.ok(lastStudentRow && saveFooter && lastStudentRow.y + lastStudentRow.height < saveFooter.y, "All four students must fit above the save controls on a laptop");
+  if (process.env.PROJECT_TEST_SCREENSHOT) await page.screenshot({ path: process.env.PROJECT_TEST_SCREENSHOT.replace(/\.png$/, "-laptop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   const bounds = await dialog.boundingBox();
   assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 391);

@@ -93,7 +93,7 @@ export default function BusinessPosterProjectDialog({ classId, workItemId, onClo
   const assigned = new Set(draft?.teams.flatMap((team) => team.members.flatMap((member) => member.studentId ? [member.studentId] : [])) ?? []);
   const unresolved = draft?.teams.reduce((sum, team) => sum + team.members.filter((member) => !member.studentId || !roster.some((student) => student.id === member.studentId)).length, 0) ?? 0;
 
-  return <dialog aria-labelledby="poster-project-title" className={`${gradebookStyles.columnDialog} ${styles.dialog}`} onCancel={(event) => { event.preventDefault(); close(); }} ref={dialogRef}>
+  return <dialog aria-labelledby="poster-project-title" className={`${gradebookStyles.columnDialog} ${styles.dialog}`} data-mode={mode} onCancel={(event) => { event.preventDefault(); close(); }} ref={dialogRef}>
     <button aria-label="Close project" className={gradebookStyles.dialogClose} disabled={busy} onClick={close} type="button">×</button>
     <header><p className={gradebookStyles.dialogEyebrow}>Class Manager · Project /100</p><h2 id="poster-project-title">{BUSINESS_POSTER_TITLE}</h2><p>Team criteria /60 + individual criteria /40. Blank cells remain ungraded.</p></header>
     {loading ? <p role="status">Loading saved teams and scores…</p> : null}

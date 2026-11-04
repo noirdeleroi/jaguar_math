@@ -33,6 +33,32 @@
 .footer { position: sticky; bottom: -28px; background: #fffefa; margin-top: 20px; padding: 10px 0 5px; border-top: 1px solid #d7e3dc; }
 .footer p { margin: 7px 0; }
 .dialog button:disabled, .dialog input:disabled { opacity: .6; cursor: default; }
+@media(min-width: 601px) {
+  .dialog { padding: 22px; }
+  .dialog > header > p:last-child { margin: 6px 0; }
+  .toolbar, .groupTabs { margin: 12px 0; }
+  .rubric { padding: 10px; }
+  .grading h3 { margin: 12px 0; font-size: 16px; }
+  .grading h4 { margin: 12px 0; font-size: 14px; }
+  .grading fieldset { margin: 12px 0; padding: 12px; }
+  .criterion { font-size: 12px; margin: 5px 0; }
+  .criterion > span:first-child { min-height: 32px; }
+  .dialog input[type="number"] { height: 36px; padding: 7px; }
+  .grading th, .grading td { padding: 6px 8px; }
+  .footer { bottom: -22px; padding: 6px 0 0; margin-top: 14px; }
+  .footer p { margin: 4px 0; font-size: 12px; }
+}
+@media(min-width: 601px) and (max-height: 800px) {
+  .dialog[data-mode="grades"] > header > p { display: none; }
+  .toolbar button, .groupTabs button { padding: 6px 10px; }
+  .rubric { padding: 8px; }
+  .warning { padding: 6px; }
+  .grading fieldset { margin: 8px 0; padding: 8px; }
+  .criterion > span:first-child { min-height: 26px; }
+  .dialog input[type="number"] { height: 32px; padding: 5px 7px; }
+  .grading th, .grading td { padding: 5px 8px; }
+  .grading h4 { margin: 8px 0; }
+}
 @media(max-width: 600px) {
   .dialog { width: calc(100% - 16px); max-height: calc(100dvh - 16px); padding: 20px 12px; }
   .criterion { grid-template-columns: 1fr 70px 25px; }
