@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
-import { projectColumnGrades, projectGrades, suppliedProjectTeams, sumProjectScores, validateProjectDocument } from "../lib/business-poster-project.ts";
+import { PROJECT_TEAM_COMMENT_LIMIT, projectColumnGrades, projectGrades, suppliedProjectTeams, sumProjectScores, validateProjectDocument } from "../lib/business-poster-project.ts";
 
 const ids = Array.from({ length: 4 }, randomUUID);
 function document() {
@@ -56,6 +56,32 @@ test("reopening serialized data preserves teams, zero scores, blanks, and totals
   assert.deepEqual(restored, draft);
   validateProjectDocument(restored, new Set(ids));
   assert.deepEqual(projectGrades(restored), projectGrades(draft));
+});
+test("team comments persist independently without changing grades, including older projects without comments", () => {
+  const draft = document();
+  const originalGrades = projectGrades(draft);
+  validateProjectDocument(draft, new Set(ids));
+  draft.teams.push({ id: randomUUID(), name: "Group 2", scores: [null, null, null], members: [] });
+  draft.teams[0].comment = "Strong business idea.\nExplain the intersection more clearly. <Good effort!>";
+  draft.teams[1].comment = "Use larger graph labels.";
+  const restored = JSON.parse(JSON.stringify(draft));
+  validateProjectDocument(restored, new Set(ids));
+  assert.equal(restored.teams[0].comment, draft.teams[0].comment);
+  assert.equal(restored.teams[1].comment, "Use larger graph labels.");
+  assert.deepEqual(projectGrades(restored), originalGrades);
+  restored.teams[0].comment = "";
+  validateProjectDocument(restored, new Set(ids));
+  assert.equal(restored.teams[1].comment, "Use larger graph labels.");
+  assert.deepEqual(projectGrades(restored), originalGrades);
+});
+test("team comment validation accepts the limit and rejects invalid or oversized comments", () => {
+  const draft = document();
+  draft.teams[0].comment = "x".repeat(PROJECT_TEAM_COMMENT_LIMIT);
+  validateProjectDocument(draft, new Set(ids));
+  for (const comment of [null, 42, [], {}, "x".repeat(PROJECT_TEAM_COMMENT_LIMIT + 1)]) {
+    draft.teams[0].comment = comment;
+    assert.throws(() => validateProjectDocument(draft, new Set(ids)), /team comment/);
+  }
 });
 test("moving a student uses their individual scores and their new team's shared scores", () => {
   const draft = document();

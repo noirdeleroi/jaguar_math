@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BUSINESS_POSTER_RUBRIC, BUSINESS_POSTER_TITLE, projectGrades, sumProjectScores, validateProjectDocument, type BusinessPosterProject, type ProjectDocument, type ProjectRosterStudent, type ProjectScore, type ProjectTeam } from "@/lib/business-poster-project";
+import { BUSINESS_POSTER_RUBRIC, BUSINESS_POSTER_TITLE, PROJECT_TEAM_COMMENT_LIMIT, projectGrades, sumProjectScores, validateProjectDocument, type BusinessPosterProject, type ProjectDocument, type ProjectRosterStudent, type ProjectScore, type ProjectTeam } from "@/lib/business-poster-project";
 import gradebookStyles from "./class-gradebook.module.css";
 import styles from "./business-poster-project.module.css";
 
@@ -112,6 +112,11 @@ export default function BusinessPosterProjectDialog({ classId, workItemId, onClo
             const scores = member.studentId ? draft.individualScores[member.studentId] ?? [null, null] : [null, null];
             return <tr key={member.studentId ?? `unresolved-${index}`}><th>{student?.fullName ?? `${member.label || "Choose a student"} (unresolved)`}</th>{[0, 1].map((criterion) => <td key={criterion}><ScoreInput disabled={busy || !student} label={`${student?.fullName ?? member.label} ${criterion === 0 ? "Understanding" : "Participation"}`} onChange={(value) => { const id = member.studentId; if (!id) return; setDraft((current) => { if (!current) return current; const existing = current.individualScores[id] ?? [null, null]; const next: [ProjectScore, ProjectScore] = [...existing]; next[criterion] = value; return { ...current, individualScores: { ...current.individualScores, [id]: next } }; }); setMessage(""); }} value={scores[criterion]} /></td>)}<td><output aria-label={`${student?.fullName ?? member.label} final grade`}>{member.studentId && grades[member.studentId] ? `${grades[member.studentId].score}/100` : "Ungraded"}</output></td></tr>;
           })}</tbody></table></div>
+          <details className={styles.teamComment}>
+            <summary>Team comment{activeTeam.comment?.trim() ? <span>Added</span> : null}</summary>
+            <label><span>Comment for {activeTeam.name}</span><textarea aria-label={`${activeTeam.name} team comment`} disabled={busy} maxLength={PROJECT_TEAM_COMMENT_LIMIT} onChange={(event) => updateTeam(activeTeam.id, (team) => ({ ...team, comment: event.target.value }))} placeholder="Feedback for the whole group…" rows={3} value={activeTeam.comment ?? ""} /></label>
+            <small>One shared comment for this group. Save with “Save project grades”. <span>{(activeTeam.comment ?? "").length}/{PROJECT_TEAM_COMMENT_LIMIT}</span></small>
+          </details>
         </div> : <p>Open Edit teams and add a team to start grading.</p>}
       </section> : null}
     </> : null}

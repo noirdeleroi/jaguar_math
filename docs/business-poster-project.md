@@ -4,6 +4,8 @@ In a class's **+ HW / CW** dialog, choose **Business Poster Project**, set its d
 
 The overlay provides the full rubric, three shared team criteria, two individual criteria, a team subtotal, and an individual total. All criteria accept decimal scores from 0 through 20. A student's total is ungraded until all five criteria are present. Zero is a valid score. Percentages and column averages use the existing integer rounding convention; raw point totals retain decimal precision. Closing with unsaved edits requires confirmation. Failed saves retain edits. Inputs lock during saves; revision conflicts require explicitly reloading the current saved document.
 
+Each group also has one optional **Team comment** section below its individual grades. Expand it to enter shared feedback (up to 2,000 characters), then use **Save project grades**. Comments survive group navigation and reopening, can be edited or cleared, and do not affect scores. They are stored as an optional `comment` string on the existing team's JSON data; older projects without comments need no migration.
+
 **Edit teams** supports adding/removing teams and members and choosing existing students from the selected class. Individual scores follow the student when moving teams; shared scores follow the team. Removed members' scores are excluded when saving. Projects in other classes start with editable empty teams unless their roster confidently matches the optional supplied template.
 
 ## Supplied roster

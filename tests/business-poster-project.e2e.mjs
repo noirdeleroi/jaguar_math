@@ -59,6 +59,15 @@ try {
   const angelina = checked(await admin.from("profiles").select("id").in("id", first.members.map((member) => member.student_id)).ilike("full_name", "Angelina%").single());
   await dialog.getByLabel("Group 5 member 2", { exact: true }).selectOption(angelina.id);
   await dialog.getByRole("button", { name: "Grade Project", exact: true }).click();
+  const groupComment = "Strong business idea.\nExplain the intersection more clearly.";
+  await dialog.locator("summary").filter({ hasText: /^Team comment/ }).click();
+  await dialog.getByLabel("Group 1 team comment", { exact: true }).fill(groupComment);
+  await dialog.getByRole("button", { name: "Group 2", exact: true }).click();
+  await expect(dialog.getByLabel("Group 2 team comment", { exact: true })).toHaveValue("");
+  await dialog.getByLabel("Group 2 team comment", { exact: true }).fill("Use larger graph labels.");
+  await dialog.getByRole("button", { name: "Group 1", exact: true }).click();
+  await expect(dialog.getByLabel("Group 1 team comment", { exact: true })).toHaveValue(groupComment);
+  await dialog.locator("summary").filter({ hasText: /^Team comment/ }).click();
   const teamLabels = ["Mathematical Correctness & Completeness", "Mathematical Presentation", "Creativity & Poster Presentation"];
   for (const [index, score] of [18, 17, 19].entries()) await dialog.getByLabel(`Group 1 ${teamLabels[index]}`, { exact: true }).fill(String(score));
   await expect(dialog.getByText("Team subtotal: 54/60", { exact: true })).toBeVisible();
@@ -83,6 +92,13 @@ try {
   await page.getByRole("button", { name: "Open Business Poster Project", exact: true }).first().click();
   await dialog.getByRole("button", { name: "Grade Project", exact: true }).click();
   await expect(dialog.getByLabel(`${names[0]} final grade`, { exact: true })).toHaveText("94/100");
+  await dialog.locator("summary").filter({ hasText: /^Team comment/ }).click();
+  await expect(dialog.getByLabel("Group 1 team comment", { exact: true })).toHaveValue(groupComment);
+  await dialog.getByRole("button", { name: "Group 2", exact: true }).click();
+  await expect(dialog.getByLabel("Group 2 team comment", { exact: true })).toHaveValue("Use larger graph labels.");
+  await dialog.getByRole("button", { name: "Group 1", exact: true }).click();
+  await dialog.locator("summary").filter({ hasText: /^Team comment/ }).click();
+  console.log("PASS: separate team comments survive group navigation, saving, and reopening without changing grades");
   await dialog.getByLabel(`Group 1 ${teamLabels[0]}`, { exact: true }).fill("20");
   for (const [index, name] of names.entries()) await expect(dialog.getByLabel(`${name} final grade`, { exact: true })).toHaveText(`${[96, 89, 82, 90][index]}/100`);
   await dialog.getByLabel(`${names[0]} Understanding`, { exact: true }).fill("10");
@@ -183,6 +199,15 @@ try {
   await dialog.getByRole("button", { name: "Grade Project", exact: true }).click();
   await expect(dialog.getByLabel(`${names[0]} final grade`, { exact: true })).toHaveText("79/100");
   console.log("PASS: mobile dialog, existing HW/CW and manual grading, other-class empty teams, saved grades preserved");
+  await dialog.getByRole("button", { name: "Group 2", exact: true }).click();
+  await dialog.locator("summary").filter({ hasText: /^Team comment/ }).click();
+  await dialog.getByLabel("Group 2 team comment", { exact: true }).fill("");
+  await dialog.getByRole("button", { name: "Save project grades", exact: true }).click();
+  await expect(dialog.getByText("Saved. Completed individual grades are now in Class Manager.", { exact: true })).toBeVisible();
+  const commentsSaved = checked(await admin.from("classroom_projects").select("document").eq("class_id", first.id).single());
+  assert.equal(commentsSaved.document.teams[0].comment, groupComment);
+  assert.equal(commentsSaved.document.teams[1].comment, "");
+  console.log("PASS: clearing one team's comment preserves the other team's comment and all scores");
   assert.deepEqual(pageErrors, []);
   console.log("PASS: no browser runtime errors");
 } finally {

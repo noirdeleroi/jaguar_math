@@ -1,6 +1,7 @@
 import type { ClassroomGrade } from "./classroom-stars";
 
 export const BUSINESS_POSTER_TITLE = "Business Poster Project";
+export const PROJECT_TEAM_COMMENT_LIMIT = 2000;
 export const BUSINESS_POSTER_RUBRIC = [
   { title: "Mathematical Correctness & Completeness", description: "All required mathematics is present and correct: arithmetic, algebra, linear equations, system, graph, inequality, interpretations, and conclusion. Full working is shown." },
   { title: "Mathematical Presentation", description: "Formulas are large and readable; notation is correct; variables and terms are defined; calculations are organized; graph axes, scale, lines, and intersection are clearly labeled." },
@@ -10,7 +11,7 @@ export const BUSINESS_POSTER_RUBRIC = [
 ] as const;
 
 export type ProjectScore = number | null;
-export type ProjectTeam = { id: string; name: string; scores: [ProjectScore, ProjectScore, ProjectScore]; members: { studentId: string | null; label: string }[] };
+export type ProjectTeam = { id: string; name: string; comment?: string; scores: [ProjectScore, ProjectScore, ProjectScore]; members: { studentId: string | null; label: string }[] };
 export type ProjectDocument = { rubricVersion: 1; teams: ProjectTeam[]; individualScores: Record<string, [ProjectScore, ProjectScore]> };
 export type BusinessPosterProject = { workItemId: string; columnId: string; revision: number; document: ProjectDocument };
 export type ProjectRosterStudent = { id: string; fullName: string; aliases: string[] };
@@ -41,6 +42,7 @@ export function validateProjectDocument(value: unknown, rosterIds: ReadonlySet<s
   const students = new Set<string>();
   for (const team of value.teams) {
     if (!record(team) || typeof team.id !== "string" || !uuidPattern.test(team.id) || teamIds.has(team.id) || typeof team.name !== "string" || !team.name.trim() || team.name.length > 80 || !scoreArray(team.scores, 3) || !Array.isArray(team.members) || team.members.length > 100) throw new Error("Check team names, members, and scores (0–20).");
+    if (team.comment !== undefined && (typeof team.comment !== "string" || team.comment.length > PROJECT_TEAM_COMMENT_LIMIT)) throw new Error(`Keep each team comment to ${PROJECT_TEAM_COMMENT_LIMIT} characters or fewer.`);
     teamIds.add(team.id);
     for (const member of team.members) {
       if (!record(member) || typeof member.label !== "string" || member.label.length > 160 || (member.studentId !== null && (typeof member.studentId !== "string" || !rosterIds.has(member.studentId)))) throw new Error("Choose students from this class roster.");
