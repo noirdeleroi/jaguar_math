@@ -12,6 +12,7 @@ import {
 } from "@/lib/paper-scan-layout";
 import type { PageRow, ScanWorkspace, SheetRow } from "@/lib/paper-scan-types";
 import styles from "./scan-marking.module.css";
+import { scanPageResults } from "@/lib/paper-scan-results";
 
 type Decision = BubbleReading & { resolved: boolean };
 type Filter = "all" | "pending" | "graded" | "review";
@@ -194,7 +195,12 @@ export default function ScanMarkingWorkspace({
     ["rejected", "duplicate"].includes(p.status),
   ).length;
   const unidentified = data.pages.filter((p) => p.status === "unidentified");
-  const selectedPage = data.pages.find((p) => p.id === selected);
+  const selectedId =
+    selected ??
+    data.pages.find((p) => p.status === "review")?.id ??
+    data.pages.find((p) => p.status === "accepted")?.id ??
+    data.pages[0]?.id;
+  const selectedPage = data.pages.find((p) => p.id === selectedId);
   const classes = [
     ...new Map(data.sheets.map((s) => [s.class_id, s.class_name])).entries(),
   ].sort((a, b) => a[1].localeCompare(b[1]));
@@ -405,6 +411,11 @@ export default function ScanMarkingWorkspace({
               const grade = data.grades.find(
                 (g) => g.id === sheet.attempt_id && g.status === "submitted",
               );
+              const preview = scanPageResults(
+                sheet.questions,
+                pages.flatMap((p) => p.decisions ?? p.readings),
+                data.keys,
+              );
               return (
                 <article key={sheet.id}>
                   <div>
@@ -420,11 +431,18 @@ export default function ScanMarkingWorkspace({
                           ? "Needs review · grade withheld"
                           : `Pending · ${pages.filter((p) => p.status === "accepted").length}/${Math.ceil(sheet.questions.length / QUESTIONS_PER_PAGE)} pages accepted`}
                     </span>
+                    {!grade && pages.length > 0 && (
+                      <small>
+                        Provisional: {preview.score} / {preview.maxScore} ·{" "}
+                        {preview.correct} correct · {preview.incorrect}{" "}
+                        incorrect · {preview.blank} blank
+                      </small>
+                    )}
                   </div>
                   <div className={styles.actions}>
                     {pages.map((page) => (
                       <button
-                        aria-pressed={selected === page.id}
+                        aria-pressed={selectedId === page.id}
                         className={
                           page.status === "review"
                             ? "teacher-button"
@@ -451,6 +469,29 @@ export default function ScanMarkingWorkspace({
           {unidentified.length > 0 && (
             <div className={styles.unmatched}>
               <h3>Unidentified scans</h3>
+              <button
+                className="teacher-button"
+                disabled={busy || archived}
+                onClick={() =>
+                  run(async () => {
+                    for (const page of unidentified) {
+                      if (pause.current) break;
+                      setProgress(
+                        `Retrying recognition for source page ${page.source_page}…`,
+                      );
+                      const result = await mutate({
+                        action: "reprocess",
+                        pageId: page.id,
+                        revision: page.revision,
+                      });
+                      if (result.page.sheet_id) setSelected(result.page.id);
+                      await load();
+                    }
+                  })
+                }
+              >
+                Retry automatic recognition ({unidentified.length})
+              </button>
               {unidentified.map((p) => (
                 <button
                   className="secondary-inline-button"
@@ -472,6 +513,14 @@ export default function ScanMarkingWorkspace({
               data={data}
               api={api}
               disabled={archived}
+              retry={async () => {
+                await mutate({
+                  action: "reprocess",
+                  pageId: selectedPage.id,
+                  revision: selectedPage.revision,
+                });
+                await load();
+              }}
               save={async (payload) => {
                 await mutate({ action: "review", ...payload });
                 await load();
@@ -597,7 +646,13 @@ export default function ScanMarkingWorkspace({
           {data.audit.map((a) => (
             <div key={a.id}>
               <time>{new Date(a.created_at).toLocaleString()}</time>
-              <strong>{a.event.replaceAll("_", " ")}</strong>
+              <strong>
+                {a.event === "recognized"
+                  ? a.detail.status === "unidentified"
+                    ? "Identification failed"
+                    : "Scan processed"
+                  : a.event.replaceAll("_", " ")}
+              </strong>
               <span>
                 {data.sheets.find((s) => s.id === a.sheet_id)?.student_name ??
                   "Unidentified scan"}
@@ -619,12 +674,14 @@ function PaperReview({
   api,
   disabled,
   save,
+  retry,
 }: {
   page: PageRow;
   data: ScanWorkspace;
   api: string;
   disabled: boolean;
   save: (payload: Record<string, unknown>) => Promise<void>;
+  retry: () => Promise<void>;
 }) {
   const originalSheet = data.sheets.find((s) => s.id === page.sheet_id);
   const [sheetId, setSheetId] = useState(originalSheet?.id ?? "");
@@ -715,6 +772,35 @@ function PaperReview({
   const remaining = questions.filter(
     (q) => !decisions.find((r) => r.position === q.position)?.resolved,
   ).length;
+  const results = scanPageResults(
+    questions,
+    decisions,
+    data.keys,
+    page.status !== "accepted" && Boolean(page.problem),
+  );
+  const confirmDetected = () => {
+    setDecisions((current) =>
+      current.map((r) =>
+        r.resolved
+          ? r
+          : r.candidateChoice
+            ? {
+                ...r,
+                choice: r.candidateChoice,
+                status: "clear",
+                resolved: true,
+              }
+            : r.status === "blank"
+              ? { ...r, choice: null, resolved: true }
+              : r,
+      ),
+    );
+    if (!note.trim())
+      setNote(
+        "Confirmed detected choices and blanks against the original scan.",
+      );
+    setShowAll(true);
+  };
   const perform = async (action: string) => {
     setBusy(true);
     setError("");
@@ -757,6 +843,113 @@ function PaperReview({
           {error}
         </p>
       )}
+      {sheet && (
+        <section
+          className={styles.markingResults}
+          aria-label="Question marking results"
+        >
+          <div>
+            <h3>
+              {page.status === "accepted" && results.unresolved === 0
+                ? "Marked results"
+                : "Provisional marking results"}
+            </h3>
+            <strong className={styles.resultScore}>
+              {results.score} / {results.maxScore}
+            </strong>
+            <p>
+              {results.correct} correct · {results.incorrect} incorrect ·{" "}
+              {results.blank} blank
+              {results.unresolved > 0
+                ? ` · ${results.unresolved} need confirmation`
+                : ""}
+            </p>
+          </div>
+          {results.unresolved > 0 && (
+            <p>
+              Light marks are suggestions, not finalized answers. Check the
+              scan, confirm the detected choices or change them below, then save
+              the review.
+            </p>
+          )}
+          <div className={styles.resultTableScroll}>
+            <table className={styles.resultTable}>
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>Student answer</th>
+                  <th>Correct answer</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.rows.map((r) => (
+                  <tr
+                    key={r.position}
+                    className={
+                      r.comparison === "correct"
+                        ? styles.resultCorrect
+                        : r.comparison === "incorrect"
+                          ? styles.resultIncorrect
+                          : styles.resultPending
+                    }
+                  >
+                    <th scope="row">{r.position}</th>
+                    <td>
+                      {r.choice
+                        ? `${r.choice}${r.resolved ? "" : " (confirm)"}`
+                        : r.comparison === "blank"
+                          ? "Blank"
+                          : "Unreadable"}
+                    </td>
+                    <td>{r.answerKey}</td>
+                    <td>
+                      {r.comparison === "correct"
+                        ? `${r.resolved ? "✓ Correct" : "Likely correct"}`
+                        : r.comparison === "incorrect"
+                          ? `${r.resolved ? "✕ Incorrect" : "Likely incorrect"}`
+                          : r.comparison === "blank"
+                            ? "Blank · 0 pts"
+                            : "Needs review"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {remaining > 0 && (
+            <button
+              className="secondary-inline-button"
+              disabled={disabled || busy}
+              onClick={confirmDetected}
+            >
+              Confirm detected answers & blanks
+            </button>
+          )}
+        </section>
+      )}
+      {page.decisions === null &&
+        ["unidentified", "review"].includes(page.status) && (
+          <button
+            className="secondary-inline-button"
+            disabled={disabled || busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                await retry();
+              } catch (e) {
+                setError(
+                  e instanceof Error ? e.message : "Recognition retry failed.",
+                );
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Retry automatic recognition
+          </button>
+        )}
       {unidentified && (
         <div className={styles.identity}>
           <label>
@@ -870,7 +1063,10 @@ function PaperReview({
                     <strong>Question {q.position}</strong>
                     <small>
                       Detected:{" "}
-                      {reading?.choice ?? reading?.status ?? "unreadable"}
+                      {reading?.choice ??
+                        (reading?.candidateChoice
+                          ? `possible ${reading.candidateChoice} — confirm`
+                          : (reading?.status ?? "unreadable"))}
                       {reading?.densities.length
                         ? ` · ink ${reading.densities.map((d) => Math.round(d * 100) + "%").join(" / ")}`
                         : ""}

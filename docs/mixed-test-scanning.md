@@ -43,4 +43,12 @@ For the first physical test, create a small private trial assessment, print seve
 
 ## Deployment
 
-Apply both mixed-test migrations to the linked Supabase database and confirm migration histories match before deploying this application. No new environment secrets are required. The server needs the existing `SUPABASE_SECRET_KEY`; native PDF/image dependencies and the PDF.js worker are included in the Next.js deployment. Processing endpoints use the Node.js runtime and bounded requests (one page per request).
+Apply all mixed-test and scan-recovery migrations to the linked Supabase database and confirm migration histories match before deploying this application. No new environment secrets are required. The server needs the existing `SUPABASE_SECRET_KEY`; native PDF/image dependencies and the PDF.js worker are included in the Next.js deployment. Processing endpoints use the Node.js runtime and bounded requests (one page per request).
+
+## Monochrome scanner recovery and marking results
+
+The QR reader retries at multiple scales and uses median cleanup to handle speckled black-and-white printer/scanner output. Registration squares receive the same recovery, and the answer grid is locally aligned against its printed rings. These steps do not clean or invent student marks: the original raster remains the answer evidence.
+
+Use **Retry automatic recognition** for an unidentified scan. It updates that page in place, retains the original file and prior detector output in the audit history, and cannot replace a finalized page, manual review or explicit teacher grade hold.
+
+Selecting a paper opens a question-by-question result table with student choice, protected correct answer, and correct/incorrect/blank/needs-review status. Light marks may show a clearly labelled suggestion and provisional score. Suggestions do not enter the gradebook. Inspect the scan, use **Confirm detected answers & blanks** or choose answers individually, then **Save review & recalculate** to finalize. Missing or ambiguous selections still require an explicit interpretation.

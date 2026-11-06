@@ -115,7 +115,7 @@ export async function POST(
     if (!body || typeof body !== "object" || Array.isArray(body))
       throw new ScanError("Invalid scan request.");
     const result = await scanMutation(id, body);
-    if (["process", "review"].includes(body.action)) {
+    if (["process", "review", "reprocess"].includes(body.action)) {
       revalidatePath(`/teacher/assignments/${id}`);
       revalidatePath("/teacher/classes", "layout");
       revalidatePath("/student", "layout");

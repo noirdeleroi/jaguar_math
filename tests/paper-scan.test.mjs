@@ -11,6 +11,8 @@ import {
 import { renderScanPage } from "../lib/paper-scan-render.ts";
 import { buildScanSheetsPdf } from "../lib/paper-scan-pdf.ts";
 import { buildAssignmentAnswerKeyPdf } from "../lib/assignment-pdf.ts";
+import jsQR from "jsqr";
+import { scanPageResults } from "../lib/paper-scan-results.ts";
 import { ScanSourceCache } from "../lib/paper-scan-source-cache.ts";
 import {
   pageQuestions,
@@ -84,6 +86,84 @@ test("sheet identifiers are opaque, versioned, and bounded", () => {
     ),
     true,
   );
+});
+test("scanner halftoning recovers QR and registration while preserving raw answer evidence", async () => {
+  const sheet = fixtureSheet(10);
+  const image = await renderScanPage(
+    await filledPdf([sheet]),
+    1,
+    "application/pdf",
+  );
+  const { data, info } = await sharp(image.bytes)
+    .grayscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let seed = 731;
+  for (let i = 0; i < data.length; i++) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    data[i] = data[i] < 170 && seed % 100 >= 28 ? 0 : 255;
+  }
+  const scanned = await sharp(data, {
+    raw: { width: info.width, height: info.height, channels: 1 },
+  })
+    .png()
+    .toBuffer();
+  const raw = await sharp(scanned)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  assert.equal(
+    jsQR(new Uint8ClampedArray(raw.data), raw.info.width, raw.info.height),
+    null,
+    "Regression fixture must defeat the original single-pass QR decoder",
+  );
+  const found = await identifyScan(scanned);
+  assert.deepEqual(found.identifier, { token: sheet.token, page: 1 });
+  assert.deepEqual(
+    found.rgba,
+    raw.data,
+    "QR cleanup must not change evidence used for grading",
+  );
+  const recognized = await recognizeScan(scanned, sheet.questions, sheet.token);
+  assert.equal(recognized.problem, null);
+  assert.deepEqual(
+    recognized.readings.map((r) => r.choice ?? r.candidateChoice),
+    sheet.questions.map((_, i) => ["A", "B", "C", "D"][i % 4]),
+  );
+});
+test("light selections are visible suggestions and remain unresolved until teacher confirmation", () => {
+  const reading = {
+    position: 1,
+    ...classifyBubble([0.32, 0, 0, 0], [0.2, 0, 0, 0], [0, 0, 0, 0]),
+  };
+  assert.equal(reading.choice, null);
+  assert.equal(reading.candidateChoice, "A");
+  const questions = [
+    { position: 1, questionId: "q1", points: 2, options: ["A", "B", "C", "D"] },
+    { position: 2, questionId: "q2", points: 1, options: ["A", "B", "C", "D"] },
+  ];
+  const result = scanPageResults(
+    questions,
+    [
+      reading,
+      { position: 2, choice: "C", status: "clear", densities: [0, 0, 1, 0] },
+    ],
+    { q1: "A", q2: "B" },
+  );
+  assert.equal(result.score, 2);
+  assert.equal(result.correct, 1);
+  assert.equal(result.incorrect, 1);
+  assert.equal(result.unresolved, 1);
+  assert.equal(result.rows[0].resolved, false);
+  const confirmed = scanPageResults(
+    questions,
+    [
+      { ...reading, choice: "A", resolved: true },
+      { position: 2, choice: "C", status: "clear", densities: [0, 0, 1, 0] },
+    ],
+    { q1: "A", q2: "B" },
+  );
+  assert.equal(confirmed.unresolved, 0);
 });
 test("private source cache isolates owner keys, expires and stays within memory bounds", () => {
   const cache = new ScanSourceCache(10, 100);

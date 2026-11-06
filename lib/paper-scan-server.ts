@@ -133,6 +133,106 @@ export async function scanMutation(id: string, body: Record<string, unknown>) {
     throw new ScanError("Restore the assessment before changing scans.");
   const admin = createAdminClient();
   const bucket = admin.storage.from(SCAN_BUCKET);
+  if (body.action === "reprocess") {
+    if (
+      typeof body.pageId !== "string" ||
+      !/^[a-f0-9-]{36}$/i.test(body.pageId) ||
+      !Number.isInteger(body.revision) ||
+      Number(body.revision) < 1
+    )
+      throw new ScanError("Refresh the scan before retrying.");
+    const { data: page, error } = await admin
+      .from("paper_scan_pages")
+      .select("*")
+      .eq("id", body.pageId)
+      .eq("assignment_id", id)
+      .maybeSingle();
+    check(error, "Scan could not be loaded.");
+    if (!page) throw new ScanError("Scan not found.", 404);
+    if (
+      page.revision !== body.revision ||
+      !["unidentified", "review"].includes(page.status) ||
+      page.decisions !== null
+    )
+      throw new ScanError(
+        "This scan changed or already has a review. Refresh before retrying.",
+        409,
+      );
+    const { data: manualReview, error: auditError } = await admin
+      .from("paper_scan_audit")
+      .select("id")
+      .eq("page_id", page.id)
+      .like("event", "manual_%")
+      .limit(1)
+      .maybeSingle();
+    check(auditError, "Review history could not be checked.");
+    if (manualReview)
+      throw new ScanError(
+        "Recognition cannot replace a teacher's manual review or grade hold.",
+        409,
+      );
+    const { data: image, error: imageError } = await bucket.download(
+      page.image_path,
+    );
+    check(imageError, "Original scan could not be loaded.");
+    const bytes = Buffer.from(await image!.arrayBuffer());
+    const identification = await identifyScan(bytes);
+    const { data: sheet } = identification.identifier
+      ? await admin
+          .from("paper_scan_sheets")
+          .select("*")
+          .eq("assignment_id", id)
+          .eq("token", identification.identifier.token)
+          .maybeSingle()
+      : { data: null };
+    const sheetPage = identification.identifier?.page ?? null;
+    const questions =
+      sheet && sheetPage ? pageQuestions(sheet.questions, sheetPage) : [];
+    const validSheet = Boolean(sheet && questions.length);
+    const recognition = validSheet
+      ? await recognizeScan(bytes, questions, sheet.token)
+      : null;
+    const normalizedPath = recognition?.normalized
+      ? `${teacher.id}/${id}/${page.batch_id}/retry-${page.id}-${randomUUID()}.png`
+      : null;
+    if (normalizedPath) {
+      const { error } = await bucket.upload(
+        normalizedPath,
+        recognition!.normalized!,
+        { contentType: "image/png", upsert: false, cacheControl: "0" },
+      );
+      check(error, "Aligned scan could not be preserved.");
+    }
+    const { data: updated, error: retryError } = await admin.rpc(
+      "reprocess_scan_page",
+      {
+        p_page_id: page.id,
+        p_teacher_id: teacher.id,
+        p_revision: body.revision,
+        p_sheet: validSheet ? sheet.id : null,
+        p_sheet_page: validSheet ? sheetPage : null,
+        p_normalized_path: normalizedPath,
+        p_readings: recognition?.readings ?? [],
+        p_problem:
+          recognition?.problem ??
+          (validSheet
+            ? null
+            : identification.identifier
+              ? "QR code belongs to another assessment or page."
+              : "QR code is still unreadable. Check the original scan or identify the student manually."),
+        p_algorithm: SCAN_ALGORITHM,
+      },
+    );
+    if (retryError && normalizedPath) await bucket.remove([normalizedPath]);
+    if (retryError)
+      throw new ScanError(
+        retryError.code === "P0001"
+          ? retryError.message
+          : "Recognition could not be retried. Refresh and try again.",
+        409,
+      );
+    return { page: updated };
+  }
   if (body.action === "register") {
     const name = String(body.name ?? "")
       .replace(/[\u0000-\u001f]/g, "")

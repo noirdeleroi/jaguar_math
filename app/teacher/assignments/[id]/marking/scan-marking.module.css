@@ -11,10 +11,67 @@
   font-size: 28px;
   font-weight: 550;
 }
-.workspace > *, .printUpload > div, .mainGrid > *, .paperReview, .answerList, .answerList > article { min-width: 0; }
-.workspace p, .workspace small, .workspace strong, .audit span { overflow-wrap: anywhere; }
+.workspace > *,
+.printUpload > div,
+.mainGrid > *,
+.paperReview,
+.answerList,
+.answerList > article {
+  min-width: 0;
+}
+.workspace p,
+.workspace small,
+.workspace strong,
+.audit span {
+  overflow-wrap: anywhere;
+}
 .workspace h3 {
   font-size: 18px;
+}
+.markingResults {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #bccfbe;
+  border-radius: 9px;
+  background: #f7faf3;
+  min-width: 0;
+}
+.markingResults h3,
+.markingResults p {
+  margin: 0;
+}
+.resultScore {
+  display: block;
+  font-size: 32px;
+  margin: 8px 0;
+}
+.resultTableScroll {
+  overflow-x: auto;
+  min-width: 0;
+}
+.resultTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.resultTable th,
+.resultTable td {
+  padding: 10px 6px;
+  border-bottom: 1px solid #dce3d8;
+}
+.resultCorrect td:last-child {
+  color: #17603a;
+  font-weight: 800;
+}
+.resultIncorrect td:last-child {
+  color: #a02e27;
+  font-weight: 800;
+}
+.resultPending td:last-child {
+  color: #7a5a21;
+  font-weight: 800;
 }
 .workspace p {
   line-height: 1.6;

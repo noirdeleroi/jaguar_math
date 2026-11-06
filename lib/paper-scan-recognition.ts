@@ -1,4 +1,4 @@
-import jsQR from "jsqr";
+import jsQR, { type QRCode } from "jsqr";
 import sharp from "sharp";
 import {
   bubblePosition,
@@ -19,7 +19,7 @@ export type Recognition = {
   normalized: Buffer | null;
   algorithm: string;
 };
-export const SCAN_ALGORITHM = "jm-omr-1.0";
+export const SCAN_ALGORITHM = "jm-omr-1.1";
 
 // An eight-parameter projective map handles rotation, scale, skew and perspective.
 export function homography(from: Point[], to: Point[]) {
@@ -60,6 +60,45 @@ function sample(raster: Raster, p: Point) {
   const y = Math.round(p.y);
   if (x < 0 || y < 0 || x >= raster.width || y >= raster.height) return 0;
   return raster.data[y * raster.width + x];
+}
+
+function refineBubbleRow(
+  raster: Raster,
+  map: (point: Point) => Point,
+  index: number,
+) {
+  let best = { x: 0, y: 0 };
+  let bestScore = -Infinity;
+  // Register small paper-feed shifts against printed rings. Exclude the
+  // darkest circle so a shaded answer cannot pull the search into its center.
+  for (let y = -2; y <= 2; y += 0.5)
+    for (let x = -2; x <= 2; x += 0.5) {
+      const rings = CHOICES.map((_, c) => {
+        const center = bubblePosition(index, c);
+        let ink = 0;
+        for (let angle = 0; angle < 24; angle++) {
+          const theta = (angle * Math.PI) / 12;
+          ink +=
+            1 -
+            sample(
+              raster,
+              map({
+                x: center.x + x + 6.2 * Math.cos(theta),
+                y: center.y + y + 6.2 * Math.sin(theta),
+              }),
+            ) /
+              255;
+        }
+        return ink / 24;
+      }).sort((a, b) => a - b);
+      const score =
+        (rings[0] + rings[1] + rings[2]) / 3 - 0.003 * (x * x + y * y);
+      if (score > bestScore) {
+        bestScore = score;
+        best = { x, y };
+      }
+    }
+  return best;
 }
 
 function findMarker(
@@ -116,7 +155,8 @@ function findMarker(
       }
       const bw = maxX - minX + 1;
       const bh = maxY - minY + 1;
-      // Rotated squares can have a bounding-box fill ratio near one half.
+      // Rotation and monochrome halftoning can reduce the connected ink below
+      // half the bounding box. Size, shape, position and QR agreement also gate it.
       if (
         bw < 8 * scale ||
         bh < 8 * scale ||
@@ -124,7 +164,7 @@ function findMarker(
         bh > 20 * scale ||
         bw / bh < 0.7 ||
         bw / bh > 1.43 ||
-        queue.length / (bw * bh) < 0.48
+        queue.length / (bw * bh) < 0.4
       )
         continue;
       const point = { x: x0 + sx / queue.length, y: y0 + sy / queue.length };
@@ -169,6 +209,12 @@ export function classifyBubble(
             : "clear";
   return {
     choice: status === "clear" ? CHOICES[strongest.index] : null,
+    ...(status === "faint" &&
+    strongest.density >= 0.12 &&
+    strongest.density - runnerUp.density >= 0.1 &&
+    runnerUp.density < 0.08
+      ? { candidateChoice: CHOICES[strongest.index] }
+      : {}),
     status,
     densities: densities.map((d) => Math.round(d * 1000) / 1000),
   };
@@ -187,9 +233,50 @@ export async function identifyScan(bytes: Buffer) {
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const qr = jsQR(new Uint8ClampedArray(data), info.width, info.height, {
-    inversionAttempts: "dontInvert",
+  let qr = jsQR(new Uint8ClampedArray(data), info.width, info.height, {
+    inversionAttempts: "attemptBoth",
   });
+  if (!qr) {
+    // Monochrome scanners turn solid printer ink into a fine halftone pattern.
+    // Downsampling integrates the dots; median filtering repairs pinholes. Only
+    // the QR decoder sees these variants: answer measurements use the untouched
+    // raster, and every decoded point is mapped back to its original coordinates.
+    for (const [median, factor] of [
+      [false, 0.5],
+      [true, 0.5],
+      [true, 1],
+    ] as const) {
+      let variant = sharp(data, {
+        raw: { width: info.width, height: info.height, channels: 4 },
+      });
+      if (median) variant = variant.median(3);
+      const width = Math.max(1, Math.round(info.width * factor));
+      const processed = await variant
+        .resize({ width })
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const decoded = jsQR(
+        new Uint8ClampedArray(processed.data),
+        processed.info.width,
+        processed.info.height,
+        { inversionAttempts: "attemptBoth" },
+      );
+      if (!decoded) continue;
+      const sx = info.width / processed.info.width;
+      const sy = info.height / processed.info.height;
+      qr = {
+        ...decoded,
+        location: Object.fromEntries(
+          Object.entries(decoded.location).map(([key, point]) => [
+            key,
+            point ? { x: point.x * sx, y: point.y * sy } : undefined,
+          ]),
+        ) as QRCode["location"],
+      };
+      break;
+    }
+  }
   return {
     qr,
     identifier: qr ? parseQrPayload(qr.data) : null,
@@ -284,18 +371,41 @@ export async function recognizeScan(
   );
   if (scale < 1.2)
     return fail("Scan resolution is too low. Scan at 200-300 dpi.");
-  const markers = MARKERS.map((p) => findMarker(raster, predict(p), scale));
+  let markers = MARKERS.map((p) => findMarker(raster, predict(p), scale));
+  for (const kernel of [3, 5]) {
+    if (markers.every(Boolean)) break;
+    const cleaned = await sharp(gray, {
+      raw: { width: found.width, height: found.height, channels: 1 },
+    })
+      .median(kernel)
+      .grayscale()
+      .raw()
+      .toBuffer();
+    const alignmentRaster = { ...raster, data: cleaned };
+    markers = MARKERS.map(
+      (p, i) => markers[i] ?? findMarker(alignmentRaster, predict(p), scale),
+    );
+  }
   if (markers.some((p) => !p))
     return fail(
       "All four alignment squares must be clear and visible. Rescan or review manually.",
     );
   const map = homography(MARKERS, markers as Point[]);
+  const qrCorners = found.qr
+    ? [
+        found.qr.location.topLeftCorner,
+        found.qr.location.topRightCorner,
+        found.qr.location.bottomRightCorner,
+        found.qr.location.bottomLeftCorner,
+      ]
+    : [];
   if (
     found.qr &&
     found.identifier &&
     qrSource.some(
-      (p) =>
-        Math.hypot(map(p).x - predict(p).x, map(p).y - predict(p).y) / scale >
+      (p, i) =>
+        Math.hypot(map(p).x - qrCorners[i].x, map(p).y - qrCorners[i].y) /
+          scale >
         3,
     )
   )
@@ -303,12 +413,14 @@ export async function recognizeScan(
       "QR and alignment squares disagree. Rescan or review manually.",
     );
   const readings: BubbleReading[] = questions.map((question, i) => {
+    const offset = refineBubbleRow(raster, map, i);
     const densities: number[] = [];
     const quadrants: number[] = [];
     const outside: number[] = [];
     const darkInk: number[] = [];
     for (let c = 0; c < 4; c++) {
-      const center = bubblePosition(i, c);
+      const point = bubblePosition(i, c);
+      const center = { x: point.x + offset.x, y: point.y + offset.y };
       let dark = 0;
       let deep = 0;
       let total = 0;

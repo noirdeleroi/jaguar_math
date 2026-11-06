@@ -33,6 +33,8 @@ export type ScanSheet = {
 export type BubbleReading = {
   position: number;
   choice: ScanChoice | null;
+  // A visible suggestion for review only. It never contributes to a final grade.
+  candidateChoice?: ScanChoice;
   status: "clear" | "blank" | "multiple" | "faint" | "irregular" | "unreadable";
   densities: number[];
   resolved?: boolean;
