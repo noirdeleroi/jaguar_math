@@ -164,6 +164,15 @@ test("light selections are visible suggestions and remain unresolved until teach
     { q1: "A", q2: "B" },
   );
   assert.equal(confirmed.unresolved, 0);
+  const overridden = scanPageResults(
+    questions.slice(0, 1),
+    [{ ...reading, choice: null, status: "blank", resolved: true }],
+    { q1: "A" },
+  );
+  assert.equal(overridden.rows[0].choice, null);
+  assert.equal(overridden.rows[0].comparison, "blank");
+  assert.equal(overridden.score, 0);
+  assert.equal(overridden.unresolved, 0);
 });
 test("private source cache isolates owner keys, expires and stays within memory bounds", () => {
   const cache = new ScanSourceCache(10, 100);

@@ -13,7 +13,11 @@ export function scanPageResults(
         !alignmentProblem &&
         (reading.resolved || reading.status === "clear"),
     );
-    const choice = reading?.choice ?? reading?.candidateChoice ?? null;
+    const choice =
+      reading?.choice ??
+      (reading?.status === "faint" && !reading.resolved
+        ? (reading.candidateChoice ?? null)
+        : null);
     const answerKey = keys[question.questionId];
     const comparison = choice
       ? choice === answerKey
