@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { validateAssignmentImport } from "@/lib/assignment-import";
+import { mixedQuestionError } from "@/lib/paper-scan-layout";
 import { assignmentAllowsGraphingCalculator } from "@/lib/assignment-tools";
 import { requireTeacher } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +39,7 @@ export type QuestionBankActionState = { error: string } | null;
 export type DraftQuestionActionState = { error?: string; success?: boolean } | null;
 
 function settings(formData: FormData) {
-  const title = text(formData.get("title")); const description = text(formData.get("description")); const kind = text(formData.get("kind")); const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
+  const title = text(formData.get("title")); const description = text(formData.get("description")); const requestedKind = text(formData.get("kind")); const scanEnabled = requestedKind === "mixed"; const kind = scanEnabled ? "paper" : requestedKind; const duration = text(formData.get("duration_minutes")) ? integer(formData.get("duration_minutes"), null) : null; const maxAttempts = integer(formData.get("max_attempts"), 0); const due = dueAt(formData.get("due_at"), formData.get("due_at_timezone_offset"));
   const paperAnswerDurationSeconds = kind === "paper" ? integer(formData.get("paper_answer_duration_seconds"), 90) : 90;
   if (!title || !["homework", "test", "paper"].includes(kind) || duration === undefined || (duration !== null && duration <= 0) || (kind === "paper" && duration === null) || !maxAttempts || maxAttempts < 1 || due === undefined || paperAnswerDurationSeconds === null || paperAnswerDurationSeconds < 30 || paperAnswerDurationSeconds > 3600) return null;
   const exam_mode = checked(formData.get("exam_mode")); const exam_allowed_focus_exits = exam_mode ? integer(formData.get("exam_allowed_focus_exits"), kind === "test" ? 1 : 2) : 2; const exam_violation_action = text(formData.get("exam_violation_action")) || "warn"; const question_display_mode = text(formData.get("question_display_mode")) || "one_at_a_time"; const resultVisibility = text(formData.get("student_result_visibility"));
@@ -46,7 +47,7 @@ function settings(formData: FormData) {
   if (resultVisibility && !["private", "score_only", "full_review"].includes(resultVisibility)) return null;
   const showAnswersAfterSubmit = resultVisibility ? resultVisibility === "full_review" : checked(formData.get("show_answers_after_submit"));
   const showScoreAfterSubmit = showAnswersAfterSubmit || (resultVisibility ? resultVisibility === "score_only" : checked(formData.get("show_score_after_submit")));
-  return { title, description, kind, due_at: due, duration_minutes: duration, paper_answer_duration_seconds: paperAnswerDurationSeconds, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), allow_graphing_calculator: assignmentAllowsGraphingCalculator(kind as "homework" | "test" | "paper", checked(formData.get("allow_graphing_calculator"))), include_in_class_manager: checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release: (kind === "test" || kind === "paper") && checked(formData.get("teacher_controlled_question_release")) };
+  return { title, description, kind, paper_scan_enabled: scanEnabled, due_at: due, duration_minutes: duration, paper_answer_duration_seconds: paperAnswerDurationSeconds, max_attempts: maxAttempts, show_score_after_submit: showScoreAfterSubmit, show_answers_after_submit: showAnswersAfterSubmit, show_feedback_after_each_question: checked(formData.get("show_feedback_after_each_question")), allow_graphing_calculator: assignmentAllowsGraphingCalculator(kind as "homework" | "test" | "paper", checked(formData.get("allow_graphing_calculator"))), include_in_class_manager: scanEnabled || checked(formData.get("include_in_class_manager")), question_display_mode, shuffle_questions: checked(formData.get("shuffle_questions")), shuffle_options: checked(formData.get("shuffle_options")), class_ids: classIds(formData), exam_mode, exam_require_fullscreen: exam_mode ? checked(formData.get("exam_require_fullscreen")) : false, exam_track_focus_exits: exam_mode ? checked(formData.get("exam_track_focus_exits")) : false, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release: (kind === "test" || kind === "paper") && checked(formData.get("teacher_controlled_question_release")) };
 }
 
 export async function createAssignment(_: DraftActionState, formData: FormData): Promise<DraftActionState> {
@@ -57,6 +58,7 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   let parsed: unknown; try { parsed = JSON.parse(rawQuestions); } catch { return { error: "Validate the question import before saving." }; }
   const validated = validateAssignmentImport(Array.isArray(parsed) ? { questions: parsed } : parsed);
   if (!validated.data) return { error: validated.errors[0] ?? "The questions are invalid." };
+  if (values.paper_scan_enabled) { const error = mixedQuestionError(validated.data.question_groups); if (error) return { error }; }
   // PostgreSQL distinguishes an absent JSON property from a JSON `null`. The RPC
   // accepts omitted options for non-multiple-choice questions, so preserve that
   // distinction when serializing the normalized import for Supabase.
@@ -65,7 +67,7 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
   const createParameters = { p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_questions: rpcQuestions, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question };
   const { data, error } = values.kind === "paper" ? await supabase.rpc("create_paper_assignment_draft_ready", createParameters) : await supabase.rpc("create_assignment_draft_ready", createParameters);
   if (error || !data) { if (error) console.error(`create_assignment_draft_with_exam failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`); return { error: safeDraftError(error) }; }
-  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release, paper_answer_duration_seconds: values.paper_answer_duration_seconds, allow_graphing_calculator: values.allow_graphing_calculator }).eq("id", data).eq("created_by", teacher.id);
+  const { error: managerError } = await supabase.from("assignments").update({ paper_scan_enabled: values.paper_scan_enabled, include_in_class_manager: values.include_in_class_manager, teacher_controlled_question_release: values.teacher_controlled_question_release, paper_answer_duration_seconds: values.paper_answer_duration_seconds, allow_graphing_calculator: values.allow_graphing_calculator }).eq("id", data).eq("created_by", teacher.id);
   if (managerError) redirect(message(`/teacher/assignments/${data}`, "error", "The draft was saved, but its additional settings could not be saved."));
   if (createIntent === "publish") {
     const { error: publishError } = await supabase.rpc("publish_owned_assignment", { p_assignment_id: data });
@@ -78,10 +80,24 @@ export async function createAssignment(_: DraftActionState, formData: FormData):
 export async function updateAssignment(formData: FormData) {
   const teacher = await requireTeacher(); const id = text(formData.get("assignment_id")); const values = settings(formData); const path = `/teacher/assignments/${id}`;
   if (!id || !values || values.class_ids.length === 0) redirect(message(path, "error", "Complete the assignment settings and select at least one class."));
-  const supabase = await createClient(); const updateParameters = { p_assignment_id: id, p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question };
+  const supabase = await createClient();
+  const { data: existing } = await supabase.from("assignments").select("paper_scan_enabled,status").eq("id",id).eq("created_by",teacher.id).maybeSingle();
+  if (values.paper_scan_enabled && existing && !existing.paper_scan_enabled && existing.status !== "draft") redirect(message(path,"error","Choose Mixed Test before publishing."));
+  if (existing?.paper_scan_enabled && existing.status !== "draft") {
+    if (!values.paper_scan_enabled) redirect(message(path,"error","Published Mixed Test mode is locked."));
+    const { error } = await supabase.from("assignments").update({ title: values.title, description: values.description, due_at: values.due_at, show_score_after_submit: values.show_score_after_submit, show_answers_after_submit: values.show_answers_after_submit }).eq("id",id).eq("created_by",teacher.id);
+    if (error) redirect(message(path,"error","Mixed Test settings could not be saved."));
+    revalidatePath(path); revalidatePath("/teacher/classes","layout"); redirect(message(path,"success","Mixed Test settings saved. Printed identities and classes remain locked."));
+  }
+  if (existing?.status === "draft" && (existing.paper_scan_enabled || values.paper_scan_enabled)) {
+    const { error } = await supabase.rpc("update_owned_mixed_draft", { p_assignment_id: id, p_settings: values });
+    if (error) redirect(message(path,"error","The draft could not be updated. Check the questions and selected classes."));
+    revalidatePath(path); revalidatePath("/teacher/assignments"); redirect(message(path,"success","Draft settings saved."));
+  }
+  const updateParameters = { p_assignment_id: id, p_title: values.title, p_description: values.description, p_kind: values.kind, p_due_at: values.due_at, p_duration_minutes: values.duration_minutes, p_max_attempts: values.max_attempts, p_show_score_after_submit: values.show_score_after_submit, p_show_answers_after_submit: values.show_answers_after_submit, p_shuffle_questions: values.shuffle_questions, p_shuffle_options: values.shuffle_options, p_class_ids: values.class_ids, p_exam_mode: values.exam_mode, p_exam_require_fullscreen: values.exam_require_fullscreen, p_exam_track_focus_exits: values.exam_track_focus_exits, p_exam_allowed_focus_exits: values.exam_allowed_focus_exits, p_exam_violation_action: values.exam_violation_action, p_question_display_mode: values.question_display_mode, p_show_feedback_after_each_question: values.show_feedback_after_each_question };
   const { error } = values.kind === "paper" ? await supabase.rpc("update_owned_paper_assignment_ready", updateParameters) : await supabase.rpc("update_owned_assignment_ready", updateParameters);
   if (error) redirect(message(path, "error", "The assignment could not be updated."));
-  const { error: managerError } = await supabase.from("assignments").update({ include_in_class_manager: values.include_in_class_manager, paper_answer_duration_seconds: values.paper_answer_duration_seconds, allow_graphing_calculator: values.allow_graphing_calculator }).eq("id", id).eq("created_by", teacher.id);
+  const { error: managerError } = await supabase.from("assignments").update({ paper_scan_enabled: values.paper_scan_enabled, include_in_class_manager: values.include_in_class_manager, paper_answer_duration_seconds: values.paper_answer_duration_seconds, allow_graphing_calculator: values.allow_graphing_calculator }).eq("id", id).eq("created_by", teacher.id);
   if (managerError) redirect(message(path, "error", "The assignment was saved, but its additional settings could not be updated."));
   const { error: releaseSettingError } = await supabase.from("assignments").update({ teacher_controlled_question_release: values.teacher_controlled_question_release }).eq("id", id).eq("created_by", teacher.id).eq("status", "draft");
   if (releaseSettingError) redirect(message(path, "error", "The assignment was saved, but its test-start setting could not be updated."));
@@ -264,6 +280,8 @@ export async function duplicateAssignment(formData: FormData) {
     if (error) console.error(`duplicate_owned_assignment failed: code=${error.code}; message=${error.message}; details=${error.details ?? "none"}; hint=${error.hint ?? "none"}`);
     redirect(message(`/teacher/assignments/${id}`, "error", safeDuplicateError(error)));
   }
+  const { data: source } = await supabase.from("assignments").select("paper_scan_enabled").eq("id",id).eq("created_by",(await requireTeacher()).id).maybeSingle();
+  if (source?.paper_scan_enabled) { const { error } = await supabase.from("assignments").update({ paper_scan_enabled: true, include_in_class_manager: true }).eq("id",data); if (error) redirect(message(`/teacher/assignments/${data}`,"error","Draft copied; select Mixed Test in settings before publishing.")); }
   revalidatePath("/teacher"); revalidatePath("/teacher/assignments"); revalidatePath(`/teacher/assignments/${data}`);
   redirect(message(`/teacher/assignments/${data}`, "success", "Assignment duplicated as a private draft."));
 }

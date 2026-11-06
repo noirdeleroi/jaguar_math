@@ -4,7 +4,7 @@ import { useState } from "react";
 import ExamModeSettings from "./exam-mode-settings";
 import styles from "./assessment-policy-settings.module.css";
 
-export type AssignmentKind = "homework" | "test" | "paper";
+export type AssignmentKind = "homework" | "test" | "paper" | "mixed";
 type StoredAssignmentKind = AssignmentKind | "quiz";
 
 export type AssessmentPolicyInitial = {
@@ -51,16 +51,23 @@ const PRESETS: Record<AssignmentKind, Policy> = {
     shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
     examTrackFocusExits: false, examAllowedFocusExits: 0, examViolationAction: "warn", teacherControlledQuestionRelease: true,
   },
+  mixed: {
+    kind: "mixed", durationMinutes: 60, paperAnswerDurationSeconds: 90, maxAttempts: 1, questionDisplayMode: "all_at_once",
+    showScoreAfterSubmit: false, showAnswersAfterSubmit: false, showFeedbackAfterEachQuestion: false, allowGraphingCalculator: false,
+    shuffleQuestions: false, shuffleOptions: false, examMode: false, examRequireFullscreen: false,
+    examTrackFocusExits: false, examAllowedFocusExits: 0, examViolationAction: "warn", teacherControlledQuestionRelease: true,
+  },
 };
 
 const COPY: Record<AssignmentKind, { eyebrow: string; title: string; description: string; note: string }> = {
   homework: { eyebrow: "Learning mode", title: "Homework", description: "Autosaved, ungraded practice with solutions and skill lessons.", note: "Students check solutions, revise answers, and use a related lesson for each skill. Completed practice highlights weaknesses without showing a grade." },
   test: { eyebrow: "Secure mode", title: "Test", description: "A timed, one-attempt assessment with Exam Mode and teacher-controlled results.", note: "Security-critical delivery settings are enforced. You decide separately when students may see results." },
   paper: { eyebrow: "Paper mode", title: "Paper test", description: "Students solve a printed version, then enter answers in a short synchronized window.", note: "Jaguar runs the shared writing timer in fullscreen, assigns a paper version, autosaves answer entry, and keeps results private until you release them." },
+  mixed: { eyebrow: "Print & scan", title: "Mixed Test", description: "Print personalized A/B/C/D bubble sheets. Upload scans for automatic grading and visual review.", note: "Import your usual JSON, select classes, then publish. Download QR answer sheets, upload completed papers in any batch, and review uncertain marks. Only finalized papers receive grades in class management. All versions must contain A/B/C/D multiple-choice questions." },
 };
 
 function normalizedInitial(initial: AssessmentPolicyInitial): Policy {
-  const kind = initial.kind === "test" || initial.kind === "paper" ? initial.kind : "homework";
+  const kind = initial.kind === "test" || initial.kind === "paper" || initial.kind === "mixed" ? initial.kind : "homework";
   return { ...PRESETS[kind], ...initial, kind } as Policy;
 }
 
@@ -69,7 +76,8 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   const [presetVersion, setPresetVersion] = useState(0);
   const secure = policy.kind === "test";
   const test = policy.kind === "test";
-  const paper = policy.kind === "paper";
+  const paper = policy.kind === "paper" || policy.kind === "mixed";
+  const scan = policy.kind === "mixed";
   const assessment = test || paper;
   const resultVisibility = policy.showAnswersAfterSubmit ? "full_review" : policy.showScoreAfterSubmit ? "score_only" : "private";
   const chooseKind = (kind: AssignmentKind) => { setPolicy(PRESETS[kind]); setPresetVersion((value) => value + 1); onKindChange?.(kind); };
@@ -78,17 +86,18 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
   return <div className={styles.wrapper}>
     <fieldset className={styles.kindPicker}>
       <legend>Choose how students will use this work</legend>
-      <div className={styles.kindGrid}>{(["homework", "test", "paper"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
-        <input checked={policy.kind === kind} name="kind" onChange={() => chooseKind(kind)} type="radio" value={kind} />
+      <div className={styles.kindGrid}>{(["homework", "test", "paper", "mixed"] as AssignmentKind[]).map((kind) => <label className={policy.kind === kind ? styles.activeKind : ""} key={kind}>
+        <input disabled={questionReleaseLocked && (scan || kind === "mixed")} checked={policy.kind === kind} name="kind" onChange={() => chooseKind(kind)} type="radio" value={kind} />
         <span>{COPY[kind].eyebrow}</span><strong>{COPY[kind].title}</strong><small>{COPY[kind].description}</small>
       </label>)}</div>
+      {scan && questionReleaseLocked && <input name="kind" type="hidden" value="mixed" />}
     </fieldset>
 
     <section className={`${styles.policySummary} ${styles[policy.kind]}`} aria-live="polite">
       <div><span>{COPY[policy.kind].eyebrow}</span><strong>{COPY[policy.kind].title} policy</strong></div><p>{COPY[policy.kind].note}</p>
     </section>
 
-    <div className="assessment-fields">
+    {scan ? <><input name="duration_minutes" type="hidden" value="60" /><input name="max_attempts" type="hidden" value="1" /><input name="question_display_mode" type="hidden" value="all_at_once" /><input name="teacher_controlled_question_release" type="hidden" value="on" /><section className={styles.homeworkGuard}><strong>Paper only · No student answer-entry window</strong><p>Correct answers stay private. Each student receives a stable printed version and gradebook identity. Questions and class selection lock after publishing. Review and grade as many students as you have scanned.</p></section><label>Student result visibility<select name="student_result_visibility" value={resultVisibility} onChange={(event) => setPolicy((current) => ({ ...current, showScoreAfterSubmit: event.target.value !== "private", showAnswersAfterSubmit: event.target.value === "full_review" }))}><option value="private">Keep results private</option><option value="score_only">Release scores only</option><option value="full_review">Release complete answer review</option></select></label></> : <><div className="assessment-fields">
       {policy.kind === "homework" ? <label>Homework deadline<input disabled type="text" value="Assignment due date" /><input name="duration_minutes" type="hidden" value="" /><small className={styles.lockedLabel}>No separate timer; unfinished work closes at the deadline</small></label> : <label>{paper ? "Writing time in minutes" : "Duration in minutes"}<input min="1" name="duration_minutes" onChange={(event) => set("durationMinutes", event.target.value ? Number(event.target.value) : null)} required={secure || paper} type="number" value={policy.durationMinutes ?? ""} />{paper && <small className={styles.lockedLabel}>One synchronized timer for the whole class</small>}</label>}
       {paper && <label>Answer-entry time in seconds<input max="3600" min="30" name="paper_answer_duration_seconds" onChange={(event) => set("paperAnswerDurationSeconds", Number(event.target.value))} required type="number" value={policy.paperAnswerDurationSeconds} /><small className={styles.lockedLabel}>90 seconds by default</small></label>}
       <label>Maximum attempts{assessment && <small className={styles.lockedLabel}>Locked for assessments</small>}<input disabled={assessment} min="1" name={assessment ? undefined : "max_attempts"} onChange={(event) => set("maxAttempts", Math.max(1, Number(event.target.value)))} required type="number" value={policy.maxAttempts} />{assessment && <input name="max_attempts" type="hidden" value="1" />}</label>
@@ -124,6 +133,7 @@ export default function AssessmentPolicySettings({ initial = {}, onKindChange, q
 
     {policy.kind === "homework" ? <section className={styles.homeworkGuard}><strong>No Exam Mode for homework</strong><p>Homework is for practice. Students may leave the page and use learning resources without being flagged.</p></section> : paper ? <section className={styles.homeworkGuard}><strong>Secure paper workflow</strong><p>Students remain in fullscreen for writing and answer entry. Fullscreen exits are recorded, printed questions stay hidden, and answers autosave one numbered field at a time.</p></section> : <ExamModeSettings forcedEnabled={secure} initial={{ enabled: policy.examMode, requireFullscreen: policy.examRequireFullscreen, trackFocusExits: policy.examTrackFocusExits, allowedFocusExits: policy.examAllowedFocusExits, violationAction: policy.examViolationAction }} key={`${policy.kind}-${presetVersion}`} />}
     {assessment && <section className={styles.releaseSetting}><div><strong>Teacher-controlled {paper ? "writing and answer" : "question"} release</strong>{(questionReleaseLocked || paper) && <small className={styles.lockedLabel}>Required for {paper ? "paper tests" : "published tests"}</small>}<p>{paper ? "Students enter the fullscreen waiting room first. You start the writing timer, then open the short answer-entry window after writing ends." : "Students can enter fullscreen and read the instructions, but their timer and questions stay locked until you release the test."}</p></div><label><input checked={policy.teacherControlledQuestionRelease} disabled={questionReleaseLocked || paper} name={questionReleaseLocked || paper ? undefined : "teacher_controlled_question_release"} onChange={(event) => set("teacherControlledQuestionRelease", event.target.checked)} type="checkbox" /> Wait for me to release the {paper ? "paper test" : "questions"}{(questionReleaseLocked || paper) && policy.teacherControlledQuestionRelease && <input name="teacher_controlled_question_release" type="hidden" value="on" />}</label></section>}
+    </>}
   </div>;
 }
 

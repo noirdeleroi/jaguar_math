@@ -208,10 +208,10 @@ function answerLabel(question: AssignmentPdfQuestion) {
   return option ? `${option.id}. ${pdfPlainText(option.text)}` : pdfPlainText(question.correctAnswer);
 }
 
-function drawDocumentHeader(layout: PdfLayout, material: AssignmentPdfMaterial, version: number, versionCount: number) {
+function drawDocumentHeader(layout: PdfLayout, material: AssignmentPdfMaterial, version: number, versionCount: number, numericVersions = false) {
   layout.text("JAGUAR MATH", { font: layout.bold, size: 10, color: COLORS.coral, lineHeight: 13, gapAfter: 8 });
   layout.text(material.title, { font: layout.bold, size: 23, lineHeight: 28, color: COLORS.green, gapAfter: 5 });
-  const versionLabel = versionCount > 1 ? `  |  Version ${String.fromCharCode(64 + version)}` : "";
+  const versionLabel = numericVersions ? `  |  Version ${version}` : versionCount > 1 ? `  |  Version ${String.fromCharCode(64 + version)}` : "";
   layout.text(`${material.kind.toUpperCase()}${versionLabel}  |  ${dueLabel(material.dueAt)}`, { font: layout.bold, size: 9, color: COLORS.muted, gapAfter: 10 });
   if (material.description) layout.text(material.description, { size: 10, color: COLORS.muted, gapAfter: 10 });
   layout.text("Name: ____________________________________    Date: ____________________", { size: 10, gapAfter: 5 });
@@ -237,14 +237,14 @@ function drawAnswer(layout: PdfLayout, question: AssignmentPdfQuestion) {
   else layout.y -= 5;
 }
 
-export async function buildAssignmentAnswerKeyPdf(material: AssignmentPdfMaterial) {
+export async function buildAssignmentAnswerKeyPdf(material: AssignmentPdfMaterial, options: { questionsOnly?: boolean; numericVersions?: boolean } = {}) {
   if (!material.questions.length) throw new Error("The assignment has no questions to export.");
   const document = await PDFDocument.create();
   const regular = await document.embedFont(StandardFonts.Helvetica);
   const bold = await document.embedFont(StandardFonts.HelveticaBold);
   document.setTitle(pdfPlainText(material.title));
   document.setAuthor("Jaguar Math");
-  document.setSubject("Assignment questions and answer key");
+  document.setSubject(options.questionsOnly ? "Student question paper" : "Assignment questions and answer key");
   document.setCreator("Jaguar Math");
   const layout = new PdfLayout(document, regular, bold);
   layout.runningTitle = pdfPlainText(material.title).slice(0, 70);
@@ -252,11 +252,12 @@ export async function buildAssignmentAnswerKeyPdf(material: AssignmentPdfMateria
 
   for (const form of forms) {
     layout.newPage();
-    drawDocumentHeader(layout, material, form.version, forms.length);
+    drawDocumentHeader(layout, material, form.version, forms.length, options.numericVersions);
     for (const question of form.questions) drawQuestion(layout, question);
+    if (options.questionsOnly) continue;
     layout.newPage();
     layout.text("ANSWER KEY", { font: bold, size: 10, color: COLORS.coral, lineHeight: 13, gapAfter: 8 });
-    layout.text(`${material.title}${forms.length > 1 ? ` - Version ${String.fromCharCode(64 + form.version)}` : ""}`, { font: bold, size: 20, lineHeight: 25, color: COLORS.green, gapAfter: 5 });
+    layout.text(`${material.title}${forms.length > 1 ? ` - Version ${options.numericVersions ? form.version : String.fromCharCode(64 + form.version)}` : ""}`, { font: bold, size: 20, lineHeight: 25, color: COLORS.green, gapAfter: 5 });
     layout.text("Correct answers and teacher explanations", { size: 10, color: COLORS.muted, gapAfter: 10 });
     layout.rule(8);
     for (const question of form.questions) drawAnswer(layout, question);

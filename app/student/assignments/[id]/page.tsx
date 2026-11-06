@@ -40,7 +40,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: As
   await requireStudent();
   const { id } = await params;
   const supabase = await createClient();
-  const { data: assignment, error } = await supabase.from("assignments").select("id, title, description, kind, status, due_at, duration_minutes, max_attempts, show_score_after_submit, show_answers_after_submit, show_feedback_after_each_question, allow_graphing_calculator, question_display_mode, shuffle_questions, shuffle_options, exam_mode, exam_require_fullscreen, exam_track_focus_exits, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release, questions_released_at, paper_started_at, paper_writing_ends_at, paper_writing_paused_at, paper_answer_duration_seconds, homework_pdf_released_at").eq("id", id).in("status", ["published", "closed"]).maybeSingle();
+  const { data: assignment, error } = await supabase.from("assignments").select("id, title, description, kind, paper_scan_enabled, status, due_at, duration_minutes, max_attempts, show_score_after_submit, show_answers_after_submit, show_feedback_after_each_question, allow_graphing_calculator, question_display_mode, shuffle_questions, shuffle_options, exam_mode, exam_require_fullscreen, exam_track_focus_exits, exam_allowed_focus_exits, exam_violation_action, teacher_controlled_question_release, questions_released_at, paper_started_at, paper_writing_ends_at, paper_writing_paused_at, paper_answer_duration_seconds, homework_pdf_released_at").eq("id", id).in("status", ["published", "closed"]).maybeSingle();
   if (error) {
     console.error(`[student-assignment] load failed: code=${error.code}; message=${error.message}`);
     throw new Error("Student assignment data could not be loaded.");
@@ -63,6 +63,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: As
   const latestSubmitted = submittedAttempts[0];
   const { attempt: requestedAttemptId } = await searchParams;
   const reviewedAttempt = requestedAttemptId ? submittedAttempts.find((attempt) => attempt.id === requestedAttemptId) ?? (activeAttempt ? undefined : latestSubmitted) : activeAttempt ? undefined : latestSubmitted;
+  if (assignment.paper_scan_enabled && !reviewedAttempt) return <main className="student-main"><Link className="back-link" href="/student">← Dashboard</Link><section className="teacher-section"><p className="eyebrow">Mixed Test · Paper assessment</p><h1>{assignment.title}</h1><p>Complete your personalized printed answer sheet. Your teacher will scan and review it. Your result is pending until every page has been graded.</p></section></main>;
   const serverNow = new Date().toISOString();
   const isOverdue = Boolean(assignment.due_at && new Date(assignment.due_at) < new Date(serverNow));
   const homeworkResultsReady = homeworkResultsAreAvailable(assignment.kind, assignment.due_at, new Date(serverNow).getTime());

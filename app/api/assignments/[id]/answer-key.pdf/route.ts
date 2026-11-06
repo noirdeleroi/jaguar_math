@@ -44,7 +44,7 @@ function material(value: unknown): AssignmentPdfMaterial {
   return { title: payload.title, description: payload.description as string | null, kind: payload.kind, dueAt: payload.due_at as string | null, questions };
 }
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   const profile = await getCurrentProfile();
   if (!profile) return new Response("Sign in to download this PDF.", { status: 401 });
   const { id } = await context.params;
@@ -59,11 +59,14 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   try {
     const pdfMaterial = material(data);
-    const bytes = await buildAssignmentAnswerKeyPdf(pdfMaterial);
+    const questionsOnly = new URL(request.url).searchParams.get("questionsOnly") === "1";
+    if (questionsOnly && profile.role !== "teacher") return new Response("Not found", { status: 404 });
+    const { data: assignment } = profile.role === "teacher" ? await supabase.from("assignments").select("paper_scan_enabled").eq("id",id).maybeSingle() : { data: null };
+    const bytes = await buildAssignmentAnswerKeyPdf(pdfMaterial, { questionsOnly, numericVersions: Boolean(assignment?.paper_scan_enabled) });
     return new Response(new Uint8Array(bytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${assignmentPdfFilename(pdfMaterial.title)}"`,
+        "Content-Disposition": `attachment; filename="${questionsOnly ? "student_question_papers.pdf" : assignmentPdfFilename(pdfMaterial.title)}"`,
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
       },

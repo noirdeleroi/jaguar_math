@@ -6,7 +6,7 @@ type ClassOption = { id: string; name: string; grade_level: number };
 type TestRosterRow = { student_id: string; attempt_id: string | null; attempt_number: number | null; status: "submitted" | "in_progress" | "not_started"; started_at: string | null; submitted_at: string | null; expires_at: string | null; teacher_extra_minutes: number; answered_count: number; total_questions: number; last_activity_at: string | null; focus_violations: number; form_code: string | null; offline_recovery_used: boolean; offline_recovery_seconds: number };
 type PaperRosterRow = Omit<TestRosterRow, "teacher_extra_minutes"> & { answer_adjustment_seconds: number; answers_released_at: string | null; answer_duration_seconds: number };
 
-export default async function AssignmentResultsOverview({ assignmentId, assignmentKind, classes, selectedClassId, examMode = false, allowedFocusExits = 0, live = false, closed = false, tabbed = false, questionSet, paperAnswersReleased = false, openPaperAnswerEntry = false }: { assignmentId: string; assignmentKind: string; classes: ClassOption[]; selectedClassId?: string; examMode?: boolean; allowedFocusExits?: number; live?: boolean; closed?: boolean; tabbed?: boolean; questionSet?: ReactNode; paperAnswersReleased?: boolean; openPaperAnswerEntry?: boolean }) {
+export default async function AssignmentResultsOverview({ scanMode = false, assignmentId, assignmentKind, classes, selectedClassId, examMode = false, allowedFocusExits = 0, live = false, closed = false, tabbed = false, questionSet, paperAnswersReleased = false, openPaperAnswerEntry = false }: { scanMode?: boolean; assignmentId: string; assignmentKind: string; classes: ClassOption[]; selectedClassId?: string; examMode?: boolean; allowedFocusExits?: number; live?: boolean; closed?: boolean; tabbed?: boolean; questionSet?: ReactNode; paperAnswersReleased?: boolean; openPaperAnswerEntry?: boolean }) {
   const supabase = await createClient();
   if (assignmentKind === "homework") {
     const { error: finalizationError } = await supabase.rpc("finalize_overdue_homework_attempts", { p_assignment_id: assignmentId });
@@ -18,7 +18,7 @@ export default async function AssignmentResultsOverview({ assignmentId, assignme
   const { data, error } = await supabase.rpc("get_assignment_results_overview", { p_assignment_id: assignmentId, p_class_id: selectedClassId ?? null });
   if (error || !data) return <section className="teacher-section results-section"><h2>Results overview</h2><p className="form-note">Results are not available right now. Refresh the page and try again.</p></section>;
   const overview = data as AssignmentResultsOverview;
-  const paperMode = assignmentKind === "paper";
+  const paperMode = assignmentKind === "paper" && !scanMode;
   const onlineExamMode = examMode && assignmentKind === "test";
   const { data: rosterData, error: rosterError } = paperMode ? await supabase.rpc("get_owned_paper_roster", { p_assignment_id: assignmentId, p_class_id: selectedClassId ?? null }) : onlineExamMode ? await supabase.rpc("get_owned_test_roster", { p_assignment_id: assignmentId, p_class_id: selectedClassId ?? null }) : { data: [] as (TestRosterRow | PaperRosterRow)[], error: null };
   if (rosterError) console.error(`[teacher-test-manager] roster load failed: code=${rosterError.code}; message=${rosterError.message}`);
