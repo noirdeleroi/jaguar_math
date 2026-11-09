@@ -8,6 +8,7 @@ import {
   QR,
   qrPayload,
   QUESTIONS_PER_PAGE,
+  scanPaperLabel,
   SHEET_HEIGHT,
   SHEET_WIDTH,
   type ScanSheet,
@@ -67,7 +68,7 @@ export async function buildScanSheetsPdf(title: string, sheets: ScanSheet[]) {
         365,
       );
       text(
-        `VERSION ${sheet.version}  -  Use the matching question paper`,
+        `${scanPaperLabel(sheet)}  -  Use your named question paper`,
         55,
         159,
         10,

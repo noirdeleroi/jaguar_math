@@ -1,4 +1,5 @@
 import { scanWorkspace, ScanError } from "@/lib/paper-scan-server";
+import { printedScanChoice, scanPaperLabel } from "@/lib/paper-scan-layout";
 function cell(value: unknown) {
   const raw = value === null || value === undefined ? "" : String(value);
   const safe = /^[=+@\-\t\r]/.test(raw) ? `'${raw}` : raw;
@@ -16,7 +17,7 @@ export async function GET(
         "Student ID",
         "Student",
         "Class",
-        "Version",
+        "Paper",
         "Paper status",
         "Score",
         "Maximum",
@@ -50,12 +51,13 @@ export async function GET(
         const reading = (page?.decisions ?? page?.readings)?.find(
           (r) => r.position === q.position,
         );
-        const correct = reading?.choice === data.keys[q.questionId];
+        const answerKey = printedScanChoice(q, data.keys[q.questionId]);
+        const correct = reading?.choice === answerKey;
         rows.push([
           sheet.student_code,
           sheet.student_name,
           sheet.class_name,
-          sheet.version,
+          scanPaperLabel(sheet),
           status,
           grade?.score,
           grade?.max_score,
@@ -64,7 +66,7 @@ export async function GET(
             : null,
           q.position,
           reading?.choice,
-          data.keys[q.questionId],
+          answerKey,
           grade ? correct : null,
           grade ? (correct ? q.points : 0) : null,
           page?.id,

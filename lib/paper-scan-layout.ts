@@ -18,6 +18,9 @@ export type ScanQuestion = {
   questionId: string;
   points: number;
   options: string[];
+  variantIndex?: number;
+  // Source option IDs in printed A/B/C/D order. Absent on legacy issued sheets.
+  optionOrder?: string[];
 };
 export type ScanSheet = {
   id: string;
@@ -39,6 +42,22 @@ export type BubbleReading = {
   densities: number[];
   resolved?: boolean;
 };
+export function printedScanChoice(
+  question: Pick<ScanQuestion, "optionOrder">,
+  sourceChoice: string,
+) {
+  const index = (question.optionOrder ?? [...CHOICES]).indexOf(sourceChoice);
+  return CHOICES[index] ?? "";
+}
+export function scanPaperLabel(sheet: {
+  id: string;
+  version: number;
+  questions: ScanQuestion[];
+}) {
+  return sheet.questions.some((q) => q.optionOrder)
+    ? `Paper ${sheet.id.slice(0, 8).toUpperCase()}`
+    : `Version ${sheet.version}`;
+}
 export function pageQuestions(questions: ScanQuestion[], page: number) {
   return questions.slice(
     (page - 1) * QUESTIONS_PER_PAGE,

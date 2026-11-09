@@ -1,4 +1,5 @@
 import type { BubbleReading, ScanQuestion } from "./paper-scan-layout.ts";
+import { printedScanChoice } from "./paper-scan-layout.ts";
 
 export function scanPageResults(
   questions: ScanQuestion[],
@@ -10,15 +11,15 @@ export function scanPageResults(
     const reading = readings.find((r) => r.position === question.position);
     const resolved = Boolean(
       reading &&
-        !alignmentProblem &&
-        (reading.resolved || reading.status === "clear"),
+      !alignmentProblem &&
+      (reading.resolved || reading.status === "clear"),
     );
     const choice =
       reading?.choice ??
       (reading?.status === "faint" && !reading.resolved
         ? (reading.candidateChoice ?? null)
         : null);
-    const answerKey = keys[question.questionId];
+    const answerKey = printedScanChoice(question, keys[question.questionId]);
     const comparison = choice
       ? choice === answerKey
         ? "correct"

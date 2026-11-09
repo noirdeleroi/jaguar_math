@@ -151,7 +151,10 @@ try {
     questions: s.questions,
   });
   // A wrong clear answer and a correct clear answer make the result table testable.
-  const pdf = await filledPdf([sheet], (i) => (i === 0 ? 0 : 1));
+  const pdf = await filledPdf([sheet], (i) => {
+    const correct = sheet.questions[i].optionOrder?.indexOf("A") ?? 0;
+    return i === 0 ? correct : (correct + 1) % 4;
+  });
   const image = await renderScanPage(pdf, 1, "application/pdf");
   const batch = randomUUID(),
     root = `${users[0].id}/${assignmentId}/${batch}`,
@@ -169,21 +172,19 @@ try {
       .upload(original, image.bytes, { contentType: "image/png" }),
   );
   check(
-    await admin
-      .from("paper_scan_batches")
-      .insert({
-        id: batch,
-        assignment_id: assignmentId,
-        teacher_id: users[0].id,
-        file_name: "old-unidentified.pdf",
-        file_hash: createHash("sha256").update(pdf).digest("hex"),
-        file_size: pdf.length,
-        mime: "application/pdf",
-        source_path: source,
-        status: "complete",
-        page_count: 1,
-        next_page: 2,
-      }),
+    await admin.from("paper_scan_batches").insert({
+      id: batch,
+      assignment_id: assignmentId,
+      teacher_id: users[0].id,
+      file_name: "old-unidentified.pdf",
+      file_hash: createHash("sha256").update(pdf).digest("hex"),
+      file_size: pdf.length,
+      mime: "application/pdf",
+      source_path: source,
+      status: "complete",
+      page_count: 1,
+      next_page: 2,
+    }),
   );
   let page = check(
     await admin

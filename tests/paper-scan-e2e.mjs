@@ -284,7 +284,9 @@ async function finish(batchId, id = assignmentId) {
   } while (!result.done);
 }
 function correctIndex(index, sheet) {
-  return (index + sheet.version - 1) % 4;
+  const q = sheet.questions[index];
+  const source = ["A", "B", "C", "D"][(index + (q.variantIndex ?? sheet.version) - 1) % 4];
+  return (q.optionOrder ?? ["A", "B", "C", "D"]).indexOf(source);
 }
 async function cleanup() {
   log("Removing isolated fixtures and private scan files");
@@ -416,7 +418,7 @@ try {
       await writeFile(join(artifacts, "sample-personalized-sheets.pdf"), bytes);
   }
   const questionPaper = await request(
-    `/api/assignments/${assignmentId}/answer-key.pdf?questionsOnly=1`,
+    `/api/assignments/${assignmentId}/papers.pdf?kind=questions`,
   );
   assert.equal(questionPaper.status, 200);
   await writeFile(

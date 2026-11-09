@@ -1,0 +1,1426 @@
+{
+  "title": "Unit 1 - Extremely Easy Mixed Test Demo",
+  "description": "10 SAT-style multiple-choice question slots. Each slot has four very similar number variants. 10 points total. Designed for a short print, scan and grade demo.",
+  "question_groups": [
+    [
+      {
+        "prompt": "What is $2+3$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$7$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Add 3 to 2 to get 5.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.INTEGER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $3+3$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Add 3 to 3 to get 6.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.INTEGER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $4+3$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Add 3 to 4 to get 7.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.INTEGER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $5+3$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$10$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Add 3 to 5 to get 8.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.INTEGER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "What is $2+3\\times 2$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$10$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$9$"
+          },
+          {
+            "id": "D",
+            "text": "$8$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply first: 3 times 2 is 6. Then add 2 to get 8.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $2+3\\times 3$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$10$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$11$"
+          },
+          {
+            "id": "D",
+            "text": "$15$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply first: 3 times 3 is 9. Then add 2 to get 11.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $2+3\\times 4$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$15$"
+          },
+          {
+            "id": "B",
+            "text": "$14$"
+          },
+          {
+            "id": "C",
+            "text": "$20$"
+          },
+          {
+            "id": "D",
+            "text": "$13$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply first: 3 times 4 is 12. Then add 2 to get 14.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $2+3\\times 5$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$17$"
+          },
+          {
+            "id": "B",
+            "text": "$25$"
+          },
+          {
+            "id": "C",
+            "text": "$16$"
+          },
+          {
+            "id": "D",
+            "text": "$18$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply first: 3 times 5 is 15. Then add 2 to get 17.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "What is one-half of $4$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$1$"
+          },
+          {
+            "id": "C",
+            "text": "$2$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Divide 4 by 2 to get 2.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is one-half of $6$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$2$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Divide 6 by 2 to get 3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is one-half of $8$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Divide 8 by 2 to get 4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is one-half of $10$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$10$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$5$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Divide 10 by 2 to get 5.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "What is $10\\%$ of $40$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$40$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Ten percent means one tenth. Divide 40 by 10 to get 4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $10\\%$ of $50$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$50$"
+          },
+          {
+            "id": "D",
+            "text": "$4$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Ten percent means one tenth. Divide 50 by 10 to get 5.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $10\\%$ of $60$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7$"
+          },
+          {
+            "id": "B",
+            "text": "$60$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Ten percent means one tenth. Divide 60 by 10 to get 6.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is $10\\%$ of $70$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$70$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$8$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Ten percent means one tenth. Divide 70 by 10 to get 7.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Which expression is equal to $2x+3x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5x$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$6x$"
+          },
+          {
+            "id": "D",
+            "text": "$4x$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Add the coefficients: 2+3=5. The expression is 5x.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which expression is equal to $3x+3x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$7x$"
+          },
+          {
+            "id": "C",
+            "text": "$5x$"
+          },
+          {
+            "id": "D",
+            "text": "$6x$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Add the coefficients: 3+3=6. The expression is 6x.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which expression is equal to $4x+3x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8x$"
+          },
+          {
+            "id": "B",
+            "text": "$6x$"
+          },
+          {
+            "id": "C",
+            "text": "$7x$"
+          },
+          {
+            "id": "D",
+            "text": "$7$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Add the coefficients: 4+3=7. The expression is 7x.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which expression is equal to $5x+3x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7x$"
+          },
+          {
+            "id": "B",
+            "text": "$8x$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$9x$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Add the coefficients: 5+3=8. The expression is 8x.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "If $x+2=6$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$4$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract 2 from both sides: x=6-2=4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $x+3=7$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract 3 from both sides: x=7-3=4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $x+4=8$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$3$"
+          },
+          {
+            "id": "D",
+            "text": "$5$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract 4 from both sides: x=8-4=4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $x+5=9$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract 5 from both sides: x=9-5=4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "If $2x=6$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$3$"
+          },
+          {
+            "id": "D",
+            "text": "$2$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Divide both sides by 2: x=3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $3x=9$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$9$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$2$"
+          },
+          {
+            "id": "D",
+            "text": "$4$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Divide both sides by 3: x=3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $4x=12$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$2$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$12$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Divide both sides by 4: x=3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $5x=15$, what is $x$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$2$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$15$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Divide both sides by 5: x=3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "If $y=2x+1$ and $x=2$, what is $y$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Substitute x=2: y=2(2)+1=5.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $y=2x+1$ and $x=3$, what is $y$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$4$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Substitute x=3: y=2(3)+1=7.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $y=2x+1$ and $x=4$, what is $y$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$10$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Substitute x=4: y=2(4)+1=9.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "If $y=2x+1$ and $x=5$, what is $y$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$12$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$11$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Substitute x=5: y=2(5)+1=11.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "What is the slope of the line $y=2x+1$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$2$"
+          },
+          {
+            "id": "B",
+            "text": "$1$"
+          },
+          {
+            "id": "C",
+            "text": "$3$"
+          },
+          {
+            "id": "D",
+            "text": "$0$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "In y=mx+b, the slope is the coefficient of x, so the slope is 2.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line $y=3x+1$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$1$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$0$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "In y=mx+b, the slope is the coefficient of x, so the slope is 3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line $y=4x+1$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$0$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$1$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "In y=mx+b, the slope is the coefficient of x, so the slope is 4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What is the slope of the line $y=5x+1$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$1$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "In y=mx+b, the slope is the coefficient of x, so the slope is 5.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A line passes through $(0,1)$ and $(2,3)$. What is its slope?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$2$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$0$"
+          },
+          {
+            "id": "D",
+            "text": "$1$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Slope is change in y divided by change in x: (3-1)/(2-0)=1.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line passes through $(0,1)$ and $(2,5)$. What is its slope?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$0$"
+          },
+          {
+            "id": "C",
+            "text": "$2$"
+          },
+          {
+            "id": "D",
+            "text": "$3$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Slope is change in y divided by change in x: (5-1)/(2-0)=2.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line passes through $(0,1)$ and $(2,7)$. What is its slope?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$5$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Slope is change in y divided by change in x: (7-1)/(2-0)=3.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A line passes through $(0,1)$ and $(2,9)$. What is its slope?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$0$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Slope is change in y divided by change in x: (9-1)/(2-0)=4.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.RATE_CHANGE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ]
+  ]
+}

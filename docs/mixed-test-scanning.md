@@ -2,7 +2,11 @@
 
 Create a **Mixed Test** at `/teacher/assignments/new`, import the usual question JSON, choose classes, and publish. Every version must contain only multiple-choice questions with exactly the option IDs `A`, `B`, `C`, and `D`. Existing online and synchronized paper modes remain available.
 
-Open **Print sheets & mark papers** on the assignment. Download student question papers (no solutions) and personalized answer sheets for everyone, a class, or one student. Give each student the question version printed on their answer sheet. Keep the separate teacher key private.
+Open **Print sheets & mark papers** on the assignment. **Download all student packets** places each student's named question pages immediately before their named QR answer sheet. Use **Download class packets** to print one class, or **Student packet**, **Question paper**, and **Answer sheet** in the roster to download one student's materials. Question papers contain no solutions. Keep the separate, personalized teacher keys private. Students solve their own questions, shade the matching answer sheet, and return only the answer sheet for scanning.
+
+New papers choose one variant independently for each question slot and shuffle the four choices separately for every student/question. Printed letters can therefore differ between students. The saved question IDs and option order bind both PDFs, scan review, exports and final grading. Reprinting never reshuffles an issued paper. Papers issued before this feature keep their original complete version and A/B/C/D mapping.
+
+For an extremely easy demo, import `data/assessment-imports/unit-1-extremely-easy-mixed-demo-10q-4v.json`: 10 one-point MCQ slots, each with four similar number variants. It covers arithmetic, fractions, percentages, simple expressions/equations, evaluating a line and slope.
 
 Print answer sheets at 100%, single-sided, on A4 paper. The blue bubble outlines also work in grayscale. Students fully shade one circle per question with dark pencil or black/blue pen and erase changes completely. Do not crop the four black squares or the QR code. Scan at 200–300 dpi. The template supports the importer's existing maximum of 200 questions, continuing onto additional personalized pages after every 60 questions.
 
@@ -15,7 +19,7 @@ The gradebook uses the established weighted question points and percentage scale
 ## Integrity and permissions
 
 - QR codes contain an opaque random sheet token, page number, and template version; no names, answers or grades.
-- Sheet snapshots bind the exact student, class, assignment, version and question IDs. Published mode and class choices are locked. Newly enrolled students receive sheets on refresh; issued sheets are stable.
+- Sheet snapshots bind the exact student, class, assignment, per-question variant, question IDs and option order. Printed letters are mapped back to source option IDs before the canonical grader runs. Published mode and class choices are locked. Newly enrolled students receive sheets on refresh; issued sheets are stable.
 - Originals and page images are stored in the private `paper-scans` Supabase bucket. Only owner-checked server routes issue short-lived preview links or signed upload links. Never publish these files or signed links.
 - Recognition runs on the server, using the QR finder patterns to locate four registration squares and a projective transform to measure the answer grid. QR/marker disagreement or insufficient resolution fails into review.
 - Page writes, review decisions, attempt creation/recalculation, and audit events are transactional. One active page per sheet/page and one attempt per student prevent duplicate grades. Whole-file SHA-256 checks prevent repeated imports and verify stored file integrity.
@@ -26,6 +30,8 @@ The gradebook uses the established weighted question points and percentage scale
 ## Verification
 
 `npm test` includes generated-PDF recognition, dynamic pagination, rotated/skewed/compressed scans, faint/multiple/crossed/blank marks, alignment failures and identifier mismatch tests. These are **synthetic scans**, not physical scanner validation.
+
+It also checks all 24 answer permutations, the math and structure of all 40 demo variants, named packet ordering, QR identity, and the absence of student solutions. `tests/personalized-mixed-papers-e2e.mjs` is an opt-in API/database/PDF/browser check: it imports the actual demo JSON, issues four personalized papers plus a legacy fixture, checks stable reprints and download scopes, scans five papers, and verifies individual grades and canonical answers. It uses the same `RUN_PAPER_SCAN_E2E`, `PAPER_SCAN_BASE_URL`, and optional `PLAYWRIGHT_MODULE` settings and cleans up its own synthetic data.
 
 Run the opt-in integration suite against a running production build:
 

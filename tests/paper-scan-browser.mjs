@@ -94,7 +94,10 @@ try {
   await writeFile(statePath, JSON.stringify(state));
   await page.getByRole("link", { name: /Print sheets & mark papers/ }).click();
   await page
-    .getByRole("heading", { name: "Personalized answer sheets", exact: true })
+    .getByRole("heading", {
+      name: "Individual question papers & QR sheets",
+      exact: true,
+    })
     .waitFor();
   await page.waitForFunction(() =>
     document.body.innerText.includes("Scan Test Student 00"),
@@ -116,7 +119,14 @@ try {
     questions: s.questions,
   };
   const scan = await rasterizePdf(
-    await filledPdf([sheet], (i) => i % 4, { 1: "faint" }),
+    await filledPdf(
+      [sheet],
+      (i) =>
+        (sheet.questions[i].optionOrder ?? ["A", "B", "C", "D"]).indexOf(
+          workspace.keys[sheet.questions[i].questionId],
+        ),
+      { 1: "faint" },
+    ),
   );
   await page
     .getByLabel("Upload scanned answer sheets", { exact: true })
@@ -130,11 +140,14 @@ try {
     .getByRole("button", { name: "Page 1 · Review", exact: true })
     .click();
   await page
-    .getByRole("button", { name: "Question 2: B", exact: true })
+    .getByRole("button", {
+      name: `Question 2: ${["A", "B", "C", "D"][(sheet.questions[1].optionOrder ?? ["A", "B", "C", "D"]).indexOf(workspace.keys[sheet.questions[1].questionId])]}`,
+      exact: true,
+    })
     .click();
   await page
     .getByPlaceholder("e.g. Q7: erased B, clearly shaded C")
-    .fill("Browser QA: faint B confirmed against original scan");
+    .fill("Browser QA: faint choice confirmed against original scan");
   await page
     .getByRole("button", { name: "Save review & recalculate", exact: true })
     .click();

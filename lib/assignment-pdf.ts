@@ -1,4 +1,10 @@
-import { PDFDocument, StandardFonts, type PDFFont, type PDFPage, rgb } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  type PDFFont,
+  type PDFPage,
+  rgb,
+} from "pdf-lib";
 
 export type AssignmentPdfOption = { id: string; text: string };
 export type AssignmentPdfQuestion = {
@@ -18,6 +24,7 @@ export type AssignmentPdfMaterial = {
   kind: string;
   dueAt: string | null;
   questions: AssignmentPdfQuestion[];
+  student?: { name: string; className: string; code: string; paper: string };
 };
 
 const PAGE_WIDTH = 612;
@@ -72,7 +79,8 @@ export function pdfPlainText(value: string) {
       .replace(/\^\s*\{([^{}]+)\}/g, "^($1)")
       .replace(/_\s*\{([^{}]+)\}/g, "_($1)");
   }
-  for (const [pattern, replacement] of LATEX_REPLACEMENTS) output = output.replace(pattern, replacement);
+  for (const [pattern, replacement] of LATEX_REPLACEMENTS)
+    output = output.replace(pattern, replacement);
   return output
     .replace(/\$/g, "")
     .replace(/\\[a-zA-Z]+/g, "")
@@ -86,7 +94,12 @@ export function pdfPlainText(value: string) {
 }
 
 export function assignmentPdfFilename(title: string) {
-  const stem = pdfPlainText(title).replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_").replace(/\s+/g, "_").replace(/^[_.]+|[_.]+$/g, "").slice(0, 80) || "assignment";
+  const stem =
+    pdfPlainText(title)
+      .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+      .replace(/\s+/g, "_")
+      .replace(/^[_.]+|[_.]+$/g, "")
+      .slice(0, 80) || "assignment";
   return `${stem}_questions_and_answers.pdf`;
 }
 
@@ -120,18 +133,38 @@ function wrapLine(text: string, font: PDFFont, size: number, width: number) {
   return lines;
 }
 
-function wrappedLines(text: string, font: PDFFont, size: number, width: number) {
-  return pdfPlainText(text).split("\n").flatMap((line) => wrapLine(line, font, size, width));
+function wrappedLines(
+  text: string,
+  font: PDFFont,
+  size: number,
+  width: number,
+) {
+  return pdfPlainText(text)
+    .split("\n")
+    .flatMap((line) => wrapLine(line, font, size, width));
 }
 
 function formsFor(questions: AssignmentPdfQuestion[]) {
-  const sorted = [...questions].sort((left, right) => left.position - right.position || left.variantIndex - right.variantIndex);
-  const maximumVersion = Math.max(1, ...sorted.map((question) => question.variantIndex));
+  const sorted = [...questions].sort(
+    (left, right) =>
+      left.position - right.position || left.variantIndex - right.variantIndex,
+  );
+  const maximumVersion = Math.max(
+    1,
+    ...sorted.map((question) => question.variantIndex),
+  );
   return Array.from({ length: maximumVersion }, (_, index) => {
     const version = index + 1;
     const byPosition = new Map<number, AssignmentPdfQuestion>();
-    for (const question of sorted) if (question.variantIndex === 1 || question.variantIndex === version) byPosition.set(question.position, question);
-    return { version, questions: [...byPosition.values()].sort((left, right) => left.position - right.position) };
+    for (const question of sorted)
+      if (question.variantIndex === 1 || question.variantIndex === version)
+        byPosition.set(question.position, question);
+    return {
+      version,
+      questions: [...byPosition.values()].sort(
+        (left, right) => left.position - right.position,
+      ),
+    };
   });
 }
 
@@ -155,8 +188,20 @@ class PdfLayout {
     this.pageNumber += 1;
     this.y = PAGE_HEIGHT - MARGIN;
     if (this.pageNumber > 1) {
-      this.page.drawText(this.runningTitle, { x: MARGIN, y: PAGE_HEIGHT - 32, size: 8, font: this.bold, color: COLORS.muted, maxWidth: CONTENT_WIDTH - 60 });
-      this.page.drawLine({ start: { x: MARGIN, y: PAGE_HEIGHT - 40 }, end: { x: PAGE_WIDTH - MARGIN, y: PAGE_HEIGHT - 40 }, thickness: 0.7, color: COLORS.rule });
+      this.page.drawText(this.runningTitle, {
+        x: MARGIN,
+        y: PAGE_HEIGHT - 32,
+        size: 8,
+        font: this.bold,
+        color: COLORS.muted,
+        maxWidth: CONTENT_WIDTH - 60,
+      });
+      this.page.drawLine({
+        start: { x: MARGIN, y: PAGE_HEIGHT - 40 },
+        end: { x: PAGE_WIDTH - MARGIN, y: PAGE_HEIGHT - 40 },
+        thickness: 0.7,
+        color: COLORS.rule,
+      });
       this.y = PAGE_HEIGHT - 58;
     }
   }
@@ -165,7 +210,17 @@ class PdfLayout {
     if (this.y - height < MARGIN + 20) this.newPage();
   }
 
-  text(value: string, options: { font?: PDFFont; size?: number; lineHeight?: number; color?: ReturnType<typeof rgb>; indent?: number; gapAfter?: number } = {}) {
+  text(
+    value: string,
+    options: {
+      font?: PDFFont;
+      size?: number;
+      lineHeight?: number;
+      color?: ReturnType<typeof rgb>;
+      indent?: number;
+      gapAfter?: number;
+    } = {},
+  ) {
     const font = options.font ?? this.regular;
     const size = options.size ?? 10;
     const lineHeight = options.lineHeight ?? size * 1.38;
@@ -173,7 +228,13 @@ class PdfLayout {
     const lines = wrappedLines(value, font, size, CONTENT_WIDTH - indent);
     for (const line of lines) {
       this.ensure(lineHeight);
-      this.page.drawText(line, { x: MARGIN + indent, y: this.y - size, size, font, color: options.color ?? COLORS.ink });
+      this.page.drawText(line, {
+        x: MARGIN + indent,
+        y: this.y - size,
+        size,
+        font,
+        color: options.color ?? COLORS.ink,
+      });
       this.y -= lineHeight;
     }
     this.y -= options.gapAfter ?? 0;
@@ -182,15 +243,26 @@ class PdfLayout {
   rule(gap = 11) {
     this.ensure(gap * 2 + 1);
     this.y -= gap;
-    this.page.drawLine({ start: { x: MARGIN, y: this.y }, end: { x: PAGE_WIDTH - MARGIN, y: this.y }, thickness: 0.6, color: COLORS.rule });
+    this.page.drawLine({
+      start: { x: MARGIN, y: this.y },
+      end: { x: PAGE_WIDTH - MARGIN, y: this.y },
+      thickness: 0.6,
+      color: COLORS.rule,
+    });
     this.y -= gap;
   }
 
-  finishFooters() {
+  finishFooters(questionsOnly = false) {
     const count = this.document.getPageCount();
     this.document.getPages().forEach((page, index) => {
-      const label = `Jaguar Math  |  Questions and answers  |  ${index + 1} of ${count}`;
-      page.drawText(label, { x: MARGIN, y: 24, size: 8, font: this.regular, color: COLORS.muted });
+      const label = `Jaguar Math  |  ${questionsOnly ? "Question paper" : "Questions and answers"}  |  ${index + 1} of ${count}`;
+      page.drawText(label, {
+        x: MARGIN,
+        y: 24,
+        size: 8,
+        font: this.regular,
+        color: COLORS.muted,
+      });
     });
   }
 }
@@ -203,65 +275,232 @@ function dueLabel(dueAt: string | null) {
 }
 
 function answerLabel(question: AssignmentPdfQuestion) {
-  if (question.type !== "multiple_choice") return pdfPlainText(question.correctAnswer);
-  const option = question.options?.find((item) => item.id === question.correctAnswer);
-  return option ? `${option.id}. ${pdfPlainText(option.text)}` : pdfPlainText(question.correctAnswer);
+  if (question.type !== "multiple_choice")
+    return pdfPlainText(question.correctAnswer);
+  const option = question.options?.find(
+    (item) => item.id === question.correctAnswer,
+  );
+  return option
+    ? `${option.id}. ${pdfPlainText(option.text)}`
+    : pdfPlainText(question.correctAnswer);
 }
 
-function drawDocumentHeader(layout: PdfLayout, material: AssignmentPdfMaterial, version: number, versionCount: number, numericVersions = false) {
-  layout.text("JAGUAR MATH", { font: layout.bold, size: 10, color: COLORS.coral, lineHeight: 13, gapAfter: 8 });
-  layout.text(material.title, { font: layout.bold, size: 23, lineHeight: 28, color: COLORS.green, gapAfter: 5 });
-  const versionLabel = numericVersions ? `  |  Version ${version}` : versionCount > 1 ? `  |  Version ${String.fromCharCode(64 + version)}` : "";
-  layout.text(`${material.kind.toUpperCase()}${versionLabel}  |  ${dueLabel(material.dueAt)}`, { font: layout.bold, size: 9, color: COLORS.muted, gapAfter: 10 });
-  if (material.description) layout.text(material.description, { size: 10, color: COLORS.muted, gapAfter: 10 });
-  layout.text("Name: ____________________________________    Date: ____________________", { size: 10, gapAfter: 5 });
+function drawDocumentHeader(
+  layout: PdfLayout,
+  material: AssignmentPdfMaterial,
+  version: number,
+  versionCount: number,
+  numericVersions = false,
+) {
+  layout.text("JAGUAR MATH", {
+    font: layout.bold,
+    size: 10,
+    color: COLORS.coral,
+    lineHeight: 13,
+    gapAfter: 8,
+  });
+  layout.text(material.title, {
+    font: layout.bold,
+    size: 23,
+    lineHeight: 28,
+    color: COLORS.green,
+    gapAfter: 5,
+  });
+  const versionLabel = numericVersions
+    ? `  |  Version ${version}`
+    : versionCount > 1
+      ? `  |  Version ${String.fromCharCode(64 + version)}`
+      : "";
+  layout.text(
+    `${material.kind.toUpperCase()}${versionLabel}  |  ${dueLabel(material.dueAt)}`,
+    { font: layout.bold, size: 9, color: COLORS.muted, gapAfter: 10 },
+  );
+  if (material.description)
+    layout.text(material.description, {
+      size: 10,
+      color: COLORS.muted,
+      gapAfter: 10,
+    });
+  if (material.student) {
+    layout.text(material.student.name, {
+      font: layout.bold,
+      size: 14,
+      gapAfter: 5,
+    });
+    layout.text(
+      `Class: ${material.student.className}  |  Student ID: ${material.student.code}  |  ${material.student.paper}`,
+      { size: 10, gapAfter: 5 },
+    );
+    layout.text(
+      "Use only your matching named answer sheet. Shade your answers on that sheet.",
+      { size: 9, color: COLORS.muted, gapAfter: 5 },
+    );
+  } else
+    layout.text(
+      "Name: ____________________________________    Date: ____________________",
+      { size: 10, gapAfter: 5 },
+    );
   layout.rule(8);
 }
 
-function drawQuestion(layout: PdfLayout, question: AssignmentPdfQuestion) {
-  layout.ensure(56);
-  layout.text(`${question.position}.  ${question.points} ${question.points === 1 ? "point" : "points"}`, { font: layout.bold, size: 9, color: COLORS.coral, lineHeight: 12, gapAfter: 3 });
-  layout.text(question.prompt, { size: 11, lineHeight: 15.5, gapAfter: 5 });
+function drawQuestion(
+  layout: PdfLayout,
+  question: AssignmentPdfQuestion,
+  compact = false,
+) {
+  const promptLine = compact ? 14 : 15.5;
+  const optionLine = compact ? 12 : 14;
+  const optionGap = compact ? 0 : 2;
+  const promptGap = compact ? 3 : 5;
+  const ruleGap = compact ? 5 : 7;
+  const height =
+    15 +
+    wrappedLines(question.prompt, layout.regular, 11, CONTENT_WIDTH).length *
+      promptLine +
+    promptGap +
+    (question.options?.length
+      ? question.options.reduce(
+          (sum, option) =>
+            sum +
+            wrappedLines(
+              `${option.id}.  ${option.text}`,
+              layout.regular,
+              10,
+              CONTENT_WIDTH - 14,
+            ).length *
+              optionLine +
+            optionGap,
+          0,
+        )
+      : 28) +
+    ruleGap * 2;
+  // Keep a normal question and all four choices together across page breaks.
+  layout.ensure(Math.min(height, PAGE_HEIGHT - MARGIN * 2 - 80));
+  layout.text(
+    `${question.position}.  ${question.points} ${question.points === 1 ? "point" : "points"}`,
+    {
+      font: layout.bold,
+      size: 9,
+      color: COLORS.coral,
+      lineHeight: 12,
+      gapAfter: 3,
+    },
+  );
+  layout.text(question.prompt, {
+    size: 11,
+    lineHeight: promptLine,
+    gapAfter: promptGap,
+  });
   if (question.options?.length) {
-    for (const option of question.options) layout.text(`${option.id}.  ${option.text}`, { size: 10, lineHeight: 14, indent: 14, gapAfter: 2 });
+    for (const option of question.options)
+      layout.text(`${option.id}.  ${option.text}`, {
+        size: 10,
+        lineHeight: optionLine,
+        indent: 14,
+        gapAfter: optionGap,
+      });
   } else {
-    layout.text("Answer: ______________________________________________", { size: 10, color: COLORS.muted, indent: 14, gapAfter: 7 });
+    layout.text("Answer: ______________________________________________", {
+      size: 10,
+      color: COLORS.muted,
+      indent: 14,
+      gapAfter: 7,
+    });
   }
-  layout.rule(7);
+  layout.rule(ruleGap);
 }
 
 function drawAnswer(layout: PdfLayout, question: AssignmentPdfQuestion) {
   layout.ensure(46);
-  layout.text(`${question.position}.  ${answerLabel(question)}${question.numericTolerance > 0 ? ` (tolerance +/- ${question.numericTolerance})` : ""}`, { font: layout.bold, size: 10.5, lineHeight: 15, color: COLORS.green, gapAfter: 3 });
-  if (question.explanation) layout.text(question.explanation, { size: 9.5, lineHeight: 13.5, color: COLORS.muted, indent: 14, gapAfter: 7 });
+  layout.text(
+    `${question.position}.  ${answerLabel(question)}${question.numericTolerance > 0 ? ` (tolerance +/- ${question.numericTolerance})` : ""}`,
+    {
+      font: layout.bold,
+      size: 10.5,
+      lineHeight: 15,
+      color: COLORS.green,
+      gapAfter: 3,
+    },
+  );
+  if (question.explanation)
+    layout.text(question.explanation, {
+      size: 9.5,
+      lineHeight: 13.5,
+      color: COLORS.muted,
+      indent: 14,
+      gapAfter: 7,
+    });
   else layout.y -= 5;
 }
 
-export async function buildAssignmentAnswerKeyPdf(material: AssignmentPdfMaterial, options: { questionsOnly?: boolean; numericVersions?: boolean } = {}) {
-  if (!material.questions.length) throw new Error("The assignment has no questions to export.");
+export async function buildAssignmentAnswerKeyPdf(
+  material: AssignmentPdfMaterial,
+  options: { questionsOnly?: boolean; numericVersions?: boolean } = {},
+) {
+  if (!material.questions.length)
+    throw new Error("The assignment has no questions to export.");
   const document = await PDFDocument.create();
   const regular = await document.embedFont(StandardFonts.Helvetica);
   const bold = await document.embedFont(StandardFonts.HelveticaBold);
   document.setTitle(pdfPlainText(material.title));
   document.setAuthor("Jaguar Math");
-  document.setSubject(options.questionsOnly ? "Student question paper" : "Assignment questions and answer key");
+  document.setSubject(
+    options.questionsOnly
+      ? "Student question paper"
+      : "Assignment questions and answer key",
+  );
   document.setCreator("Jaguar Math");
   const layout = new PdfLayout(document, regular, bold);
-  layout.runningTitle = pdfPlainText(material.title).slice(0, 70);
+  layout.runningTitle = pdfPlainText(
+    material.student
+      ? `${material.student.name} | ${material.student.className} | ${material.student.paper}`
+      : material.title,
+  ).slice(0, 100);
   const forms = formsFor(material.questions);
 
   for (const form of forms) {
     layout.newPage();
-    drawDocumentHeader(layout, material, form.version, forms.length, options.numericVersions);
-    for (const question of form.questions) drawQuestion(layout, question);
+    drawDocumentHeader(
+      layout,
+      material,
+      form.version,
+      forms.length,
+      options.numericVersions,
+    );
+    for (const question of form.questions)
+      drawQuestion(layout, question, Boolean(material.student));
     if (options.questionsOnly) continue;
     layout.newPage();
-    layout.text("ANSWER KEY", { font: bold, size: 10, color: COLORS.coral, lineHeight: 13, gapAfter: 8 });
-    layout.text(`${material.title}${forms.length > 1 ? ` - Version ${options.numericVersions ? form.version : String.fromCharCode(64 + form.version)}` : ""}`, { font: bold, size: 20, lineHeight: 25, color: COLORS.green, gapAfter: 5 });
-    layout.text("Correct answers and teacher explanations", { size: 10, color: COLORS.muted, gapAfter: 10 });
+    layout.text("ANSWER KEY", {
+      font: bold,
+      size: 10,
+      color: COLORS.coral,
+      lineHeight: 13,
+      gapAfter: 8,
+    });
+    layout.text(
+      `${material.title}${forms.length > 1 ? ` - Version ${options.numericVersions ? form.version : String.fromCharCode(64 + form.version)}` : ""}`,
+      {
+        font: bold,
+        size: 20,
+        lineHeight: 25,
+        color: COLORS.green,
+        gapAfter: 5,
+      },
+    );
+    layout.text("Correct answers and teacher explanations", {
+      size: 10,
+      color: COLORS.muted,
+      gapAfter: 10,
+    });
+    if (material.student)
+      layout.text(
+        `${material.student.name} | ${material.student.className} | ${material.student.paper}`,
+        { font: bold, size: 10, gapAfter: 8 },
+      );
     layout.rule(8);
     for (const question of form.questions) drawAnswer(layout, question);
   }
-  layout.finishFooters();
+  layout.finishFooters(options.questionsOnly);
   return document.save();
 }

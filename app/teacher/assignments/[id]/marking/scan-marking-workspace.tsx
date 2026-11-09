@@ -7,6 +7,8 @@ import {
   CHOICES,
   pageQuestions,
   QUESTIONS_PER_PAGE,
+  printedScanChoice,
+  scanPaperLabel,
   type BubbleReading,
   type ScanQuestion,
 } from "@/lib/paper-scan-layout";
@@ -32,6 +34,7 @@ export default function ScanMarkingWorkspace({
   archived: boolean;
 }) {
   const api = `/api/assignments/${assignmentId}/scans`;
+  const papers = `/api/assignments/${assignmentId}/papers.pdf`;
   const [data, setData] = useState<ScanWorkspace>(empty);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState("");
@@ -265,32 +268,34 @@ export default function ScanMarkingWorkspace({
       <section className={`teacher-section ${styles.printUpload}`}>
         <div>
           <p className="eyebrow">1 · Print your test</p>
-          <h2>Personalized answer sheets</h2>
+          <h2>Individual question papers & QR sheets</h2>
           <p>
-            Print at 100%, single-sided. Each student must use the question
-            paper with the version shown on their sheet. Scan at 200–300 dpi
-            with all four squares visible.
+            Each new paper mixes question variants and shuffles A/B/C/D for that
+            student. Download packets to print each student&apos;s named question
+            paper followed by their matching QR answer sheet. Print at 100%,
+            single-sided. Scan only the answer sheets at 200–300 dpi with all
+            four squares visible.
           </p>
           <div className={styles.actions}>
-            <a className="teacher-button" href={pdf}>
-              Download all sheets
+            <a className="teacher-button" href={papers}>
+              Download all student packets
             </a>
             <a
               className="secondary-inline-button"
-              href={`/api/assignments/${assignmentId}/answer-key.pdf?questionsOnly=1`}
+              href={`${papers}?kind=questions`}
             >
               Student question papers
             </a>
-            <a
-              className={styles.textLink}
-              href={`/api/assignments/${assignmentId}/answer-key.pdf`}
-            >
+            <a className="secondary-inline-button" href={pdf}>
+              Answer sheets only
+            </a>
+            <a className={styles.textLink} href={`${papers}?kind=key`}>
               Teacher key (private)
             </a>
           </div>
           <small>
-            The student question PDF contains no answer key. Print the version
-            matching each personalized answer sheet.
+            Student PDFs contain no solutions. Names, classes and paper IDs
+            match on both parts. Reprints keep the same questions and choices.
           </small>
         </div>
         <div>
@@ -374,9 +379,9 @@ export default function ScanMarkingWorkspace({
           {classId && (
             <a
               className="secondary-inline-button"
-              href={`${pdf}?classId=${classId}`}
+              href={`${papers}?classId=${classId}`}
             >
-              Download this class
+              Download class packets
             </a>
           )}
           <label>
@@ -421,8 +426,8 @@ export default function ScanMarkingWorkspace({
                   <div>
                     <strong>{sheet.student_name}</strong>
                     <small>
-                      {sheet.class_name} · ID {sheet.student_code} · Version{" "}
-                      {sheet.version}
+                      {sheet.class_name} · ID {sheet.student_code} ·{" "}
+                      {scanPaperLabel(sheet)}
                     </small>
                     <span className={styles[status]}>
                       {grade
@@ -457,9 +462,21 @@ export default function ScanMarkingWorkspace({
                     ))}
                     <a
                       className={styles.textLink}
+                      href={`${papers}?studentId=${sheet.student_id}`}
+                    >
+                      Student packet
+                    </a>
+                    <a
+                      className={styles.textLink}
+                      href={`${papers}?kind=questions&studentId=${sheet.student_id}`}
+                    >
+                      Question paper
+                    </a>
+                    <a
+                      className={styles.textLink}
                       href={`${pdf}?studentId=${sheet.student_id}`}
                     >
-                      Print sheet
+                      Answer sheet
                     </a>
                   </div>
                 </article>
@@ -833,7 +850,7 @@ function PaperReview({
       <h2>{sheet?.student_name ?? "Identify this paper"}</h2>
       <p>
         {sheet
-          ? `${sheet.class_name} · Version ${sheet.version} · Page ${sheetPage}`
+          ? `${sheet.class_name} · ${scanPaperLabel(sheet)} · Page ${sheetPage}`
           : `Source page ${page.source_page}`}{" "}
         · <strong>{page.status}</strong>
       </p>
@@ -1045,7 +1062,7 @@ function PaperReview({
               const reading = page.readings.find(
                 (r) => r.position === q.position,
               );
-              const key = data.keys[q.questionId];
+              const key = printedScanChoice(q, data.keys[q.questionId]);
               const index = questions.findIndex(
                 (x) => x.position === q.position,
               );
@@ -1088,11 +1105,10 @@ function PaperReview({
                         aria-label={`Question ${q.position}: ${choice}`}
                         aria-pressed={Boolean(
                           answer?.resolved &&
-                            (choice === answer.choice ||
-                              (choice === "blank" &&
-                                answer.status === "blank") ||
-                              (choice === "invalid" &&
-                                answer.status === "irregular")),
+                          (choice === answer.choice ||
+                            (choice === "blank" && answer.status === "blank") ||
+                            (choice === "invalid" &&
+                              answer.status === "irregular")),
                         )}
                         disabled={disabled || busy}
                         key={choice}
@@ -1196,7 +1212,11 @@ function ScanStatistics({
         if (!question) continue;
         const value = stats.get(question.position) ?? { correct: 0, count: 0 };
         value.count++;
-        if (reading.choice === data.keys[question.questionId]) value.correct++;
+        if (
+          reading.choice ===
+          printedScanChoice(question, data.keys[question.questionId])
+        )
+          value.correct++;
         stats.set(question.position, value);
       }
   }
