@@ -28,6 +28,82 @@
 .workspace h3 {
   font-size: 18px;
 }
+.flowNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid #d5cdc0;
+  padding-bottom: 14px;
+}
+.flowNav a {
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: #245347;
+  text-decoration: none;
+  font-weight: 700;
+  background: #f5f5ed;
+}
+.flowNav a[aria-current="page"] {
+  background: #225c4b;
+  color: white;
+}
+.gradingCallout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px;
+  background: #edf5ec;
+  border: 1px solid #bfd2bf;
+  border-radius: 10px;
+}
+.rosterFilters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.rosterTable {
+  min-width: 780px;
+  margin-bottom: 14px;
+}
+.rosterTable th,
+.rosterTable td {
+  padding: 16px 10px;
+}
+.saveBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #becfbd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: #fffdf6;
+  box-shadow: 0 3px 16px #193d3514;
+}
+.scanInspection {
+  display: grid;
+  gap: 16px;
+}
+.scanInspection[open] > * {
+  margin-top: 16px;
+}
+.scanInspection summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 14px 0;
+}
+@media (max-width: 760px) {
+  .rosterFilters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .rosterFilters label:first-child {
+    grid-column: 1 / -1;
+  }
+}
 .markingResults {
   display: grid;
   gap: 12px;
@@ -206,6 +282,9 @@
   color: #7c4b16;
 }
 .mainGrid > .review {
+  color: #183f35;
+}
+.workspace section.review {
   color: #183f35;
 }
 .unmatched {

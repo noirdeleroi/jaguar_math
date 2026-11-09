@@ -40,7 +40,10 @@ export type BubbleReading = {
   candidateChoice?: ScanChoice;
   status: "clear" | "blank" | "multiple" | "faint" | "irregular" | "unreadable";
   densities: number[];
+  // Estimated mark clarity (0-100), not measured recognition accuracy.
+  confidence?: number;
   resolved?: boolean;
+  reviewed?: boolean;
 };
 export function printedScanChoice(
   question: Pick<ScanQuestion, "optionOrder">,

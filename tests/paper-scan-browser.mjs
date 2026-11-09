@@ -121,11 +121,7 @@ try {
   const scan = await rasterizePdf(
     await filledPdf(
       [sheet],
-      (i) =>
-        (sheet.questions[i].optionOrder ?? ["A", "B", "C", "D"]).indexOf(
-          workspace.keys[sheet.questions[i].questionId],
-        ),
-      { 1: "faint" },
+      (i) => {const correct = (sheet.questions[i].optionOrder ?? ["A", "B", "C", "D"]).indexOf(workspace.keys[sheet.questions[i].questionId]); return i === 1 ? [correct, (correct+1)%4] : correct;},
     ),
   );
   await page
@@ -136,9 +132,8 @@ try {
       buffer: scan,
     });
   await page.getByText(/Batch finished/).waitFor({ timeout: 120000 });
-  await page
-    .getByRole("button", { name: "Page 1 · Review", exact: true })
-    .click();
+  await page.goto(`${base}/teacher/assignments/${assignmentId}/grading/${sheet.id}`);
+  await page.getByText("Inspect original scan & individual marks",{exact:true}).click();
   await page
     .getByRole("button", {
       name: `Question 2: ${["A", "B", "C", "D"][(sheet.questions[1].optionOrder ?? ["A", "B", "C", "D"]).indexOf(workspace.keys[sheet.questions[1].questionId])]}`,

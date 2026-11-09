@@ -275,7 +275,7 @@ try {
         [...jar].map(([name, value]) => ({ name, value, url: base })),
       );
       const tab = await context.newPage();
-      await tab.goto(`${base}/teacher/assignments/${assignmentId}/marking`);
+      await tab.goto(`${base}/teacher/assignments/${assignmentId}/grading/${s.id}`);
       await tab.getByRole("table").waitFor();
       assert.equal(
         await tab.getByRole("cell", { name: "✓ Correct", exact: true }).count(),

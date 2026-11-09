@@ -33,6 +33,7 @@ export type PageRow = {
   decisions: BubbleReading[] | null;
   problem: string | null;
   normalized_path: string | null;
+  algorithm?: string;
   revision: number;
 };
 export type ScanWorkspace = {

@@ -1,5 +1,6 @@
 import jsQR, { type QRCode } from "jsqr";
 import sharp from "sharp";
+import { markConfidence } from "./paper-scan-confidence.ts";
 import {
   bubblePosition,
   CHOICES,
@@ -19,7 +20,7 @@ export type Recognition = {
   normalized: Buffer | null;
   algorithm: string;
 };
-export const SCAN_ALGORITHM = "jm-omr-1.1";
+export const SCAN_ALGORITHM = "jm-omr-1.2";
 
 // An eight-parameter projective map handles rotation, scale, skew and perspective.
 export function homography(from: Point[], to: Point[]) {
@@ -187,36 +188,44 @@ export function classifyBubble(
   densities: number[],
   quadrants: number[],
   outside: number[],
-  darkInk = densities,
 ): Omit<BubbleReading, "position"> {
   const ranked = densities
     .map((density, index) => ({ density, index }))
     .sort((a, b) => b.density - a.density);
   const strongest = ranked[0];
   const runnerUp = ranked[1];
+  const dominant =
+    strongest.density >= 0.12 &&
+    strongest.density - runnerUp.density >= 0.1 &&
+    runnerUp.density <= Math.max(0.08, strongest.density * 0.2);
+  const crossed =
+    outside[strongest.index] > 0.09 &&
+    quadrants[strongest.index] < 0.75 &&
+    strongest.density < 0.6;
   const status =
     strongest.density < 0.025
       ? "blank"
-      : runnerUp.density >= 0.22
+      : runnerUp.density >= 0.18 && runnerUp.density >= strongest.density * 0.35
         ? "multiple"
-        : strongest.density < 0.72 ||
-            darkInk[strongest.index] < 0.55 ||
-            runnerUp.density > 0.055
-          ? "faint"
-          : quadrants[strongest.index] < 0.48 ||
-              outside.some((value) => value > 0.035)
-            ? "irregular"
-            : "clear";
+        : crossed
+          ? "irregular"
+          : dominant
+            ? "clear"
+            : "faint";
   return {
     choice: status === "clear" ? CHOICES[strongest.index] : null,
     ...(status === "faint" &&
-    strongest.density >= 0.12 &&
-    strongest.density - runnerUp.density >= 0.1 &&
-    runnerUp.density < 0.08
+    strongest.density >= 0.05 &&
+    strongest.density - runnerUp.density >= 0.03
       ? { candidateChoice: CHOICES[strongest.index] }
       : {}),
     status,
     densities: densities.map((d) => Math.round(d * 1000) / 1000),
+    confidence: Math.min(
+      status === "clear" || status === "blank" ? 99 : 69,
+      markConfidence(densities, quadrants, outside) ?? 0,
+    ),
+    resolved: status === "clear" || status === "blank",
   };
 }
 
@@ -417,12 +426,10 @@ export async function recognizeScan(
     const densities: number[] = [];
     const quadrants: number[] = [];
     const outside: number[] = [];
-    const darkInk: number[] = [];
     for (let c = 0; c < 4; c++) {
       const point = bubblePosition(i, c);
       const center = { x: point.x + offset.x, y: point.y + offset.y };
       let dark = 0;
-      let deep = 0;
       let total = 0;
       let outerDark = 0;
       let outerTotal = 0;
@@ -437,8 +444,7 @@ export async function recognizeScan(
             const q = (dx >= 0 ? 1 : 0) + (dy >= 0 ? 2 : 0);
             total++;
             qTotal[q]++;
-            if (v < 110) deep++;
-            if (v < 170) {
+            if (v < 190) {
               dark++;
               qDark[q]++;
             }
@@ -448,13 +454,12 @@ export async function recognizeScan(
           }
         }
       densities.push(dark / total);
-      darkInk.push(deep / total);
       quadrants.push(Math.min(...qDark.map((n, q) => n / qTotal[q])));
       outside.push(outerDark / outerTotal);
     }
     return {
       position: question.position,
-      ...classifyBubble(densities, quadrants, outside, darkInk),
+      ...classifyBubble(densities, quadrants, outside),
     };
   });
   const width = 1191;

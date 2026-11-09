@@ -90,7 +90,7 @@ export async function scanWorkspace(id: string): Promise<ScanWorkspace> {
       db
         .from("paper_scan_pages")
         .select(
-          "id,batch_id,source_page,sheet_id,sheet_page,status,readings,decisions,problem,normalized_path,revision",
+          "id,batch_id,source_page,sheet_id,sheet_page,status,readings,decisions,problem,normalized_path,revision,algorithm",
         )
         .eq("assignment_id", id)
         .order("created_at", { ascending: false })

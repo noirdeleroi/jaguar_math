@@ -468,9 +468,7 @@ try {
   );
   assert.equal(workspace.grades[0].score, 12);
   log("One uploaded paper graded; 49 students still pending");
-  const partial = await filledPdf(sheets.slice(1, 12), correctIndex, {
-    2: "faint",
-  });
+  const partial = await filledPdf(sheets.slice(1, 12), (i,s) => i === 2 ? [correctIndex(i,s), (correctIndex(i,s)+1)%4] : correctIndex(i,s));
   const second = await upload(partial, "partial-classes.pdf");
   // All partial sheets carry one ambiguous answer, preserving partial grading.
   await post({ action: "process", batchId: second.batchId });
@@ -524,7 +522,7 @@ try {
     revision: flagged.revision,
     reviewAction: "accept",
     decisions,
-    note: "Synthetic faint mark confirmed against original",
+    note: "Synthetic competing marks resolved against original",
   });
   assert.equal(
     (

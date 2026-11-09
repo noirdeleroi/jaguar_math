@@ -366,12 +366,18 @@ try {
   console.log(
     "PASS: individual/class packet downloads, matching named question/QR sheets, no student solutions, private keys, download access checks.",
   );
-  const filled = await filledPdf(sheets.map(asSheet), (i, s) => {
-    const q = s.questions[i],
-      source = keyMap.get(q.questionId).correct_answer;
-    const correct = (q.optionOrder ?? ["A", "B", "C", "D"]).indexOf(source);
-    return s.id === first.id && i === 0 ? (correct + 1) % 4 : correct;
-  });
+  const second = sheets[1];
+  const filled = await filledPdf(
+    sheets.map(asSheet),
+    (i, s) => {
+      if (s.id === second.id && i < 3) return null;
+      const q = s.questions[i],
+        source = keyMap.get(q.questionId).correct_answer;
+      const correct = (q.optionOrder ?? ["A", "B", "C", "D"]).indexOf(source);
+      return s.id === first.id && i === 0 ? (correct + 1) % 4 : correct;
+    },
+    { 0: "faint", 1: "faint", 2: "faint" },
+  );
   const registered = await post({
     action: "register",
     name: "five-personalized-answer-sheets.pdf",
@@ -386,6 +392,22 @@ try {
   });
   assert.ok(uploaded.ok);
   await post({ action: "uploaded", batchId: registered.batchId });
+  const firstProcessed = await post({
+    action: "process",
+    batchId: registered.batchId,
+  });
+  assert.equal(firstProcessed.done, false);
+  const partial = await (
+    await request(`/api/assignments/${assignmentId}/scans`)
+  ).json();
+  assert.equal(
+    partial.grades.filter((g) => g.status === "submitted").length,
+    1,
+  );
+  assert.equal(partial.sheets.filter((s) => !s.attempt_id).length, 4);
+  console.log(
+    "PASS: the first pencil scan grades immediately while four unscanned students remain pending.",
+  );
   let processed;
   do {
     processed = await post({ action: "process", batchId: registered.batchId });
@@ -401,7 +423,10 @@ try {
     const grade = workspace.grades.find((g) => g.id === s.attempt_id);
     assert.equal(grade.status, "submitted");
     assert.equal(grade.max_score, 10);
-    assert.equal(grade.score, s.id === first.id ? 9 : 10);
+    assert.equal(
+      grade.score,
+      s.id === first.id ? 9 : s.id === second.id ? 7 : 10,
+    );
     const aq = check(
       await admin
         .from("attempt_questions")
@@ -421,7 +446,12 @@ try {
     );
     for (const response of responses)
       if (!(
-        s.id === first.id && s.questions[0].questionId === response.question_id
+        (s.id === first.id &&
+          s.questions[0].questionId === response.question_id) ||
+        (s.id === second.id &&
+          s.questions
+            .slice(0, 3)
+            .some((q) => q.questionId === response.question_id))
       )) {
         assert.equal(
           response.student_answer,
@@ -435,7 +465,7 @@ try {
   ).text();
   assert.equal(csv.split("\r\n").length, 51);
   console.log(
-    "PASS: five scanned students auto-identified and graded 9/10 or 10/10 against individual keys; canonical answers and option order correct; CSV complete.",
+    "PASS: five pencil-marked papers graded automatically (9/10, 7/10, 10/10); blanks score zero; individual keys, canonical answers and CSV correct.",
   );
   if (process.env.PLAYWRIGHT_MODULE) {
     const pw = await import(
@@ -455,30 +485,120 @@ try {
       );
       const tab = await context.newPage();
       await tab.goto(`${base}/teacher/assignments/${assignmentId}/marking`);
+      await tab
+        .getByRole("heading", {
+          name: "Individual question papers & QR sheets",
+        })
+        .waitFor();
+      assert.equal(await tab.getByRole("table").count(), 0);
+      await tab.getByRole("link", { name: "2 · Grades & confidence" }).click();
       await tab.getByRole("table").waitFor();
       await tab
-        .locator("article")
-        .filter({ has: tab.getByText(first.student_name, { exact: true }) })
-        .getByRole("button", { name: "Page 1 · View", exact: true })
-        .click();
-      await tab
-        .getByRole("cell", { name: "✕ Incorrect", exact: true })
+        .getByRole("link", { name: "View / edit answers", exact: true })
+        .first()
         .waitFor();
       assert.equal(
         await tab
-          .getByRole("cell", { name: "✕ Incorrect", exact: true })
+          .getByRole("link", { name: "View / edit answers", exact: true })
           .count(),
-        1,
-      );
-      assert.equal(
-        await tab.getByRole("cell", { name: "✓ Correct", exact: true }).count(),
-        9,
+        5,
       );
       assert.equal(
         await tab
           .getByRole("link", { name: "Question paper", exact: true })
           .count(),
         5,
+      );
+      await tab
+        .getByRole("searchbox", { name: "Find a student" })
+        .fill(first.student_name);
+      assert.equal(
+        await tab
+          .getByRole("link", { name: "View / edit answers", exact: true })
+          .count(),
+        1,
+      );
+      await tab.getByRole("searchbox", { name: "Find a student" }).fill("");
+      await tab.screenshot({
+        path: join(artifacts, "grading-dashboard.png"),
+        fullPage: true,
+      });
+      await tab
+        .getByRole("row")
+        .filter({ hasText: first.student_name })
+        .getByRole("link", { name: "View / edit answers", exact: true })
+        .click();
+      await tab
+        .getByRole("cell", { name: "✕ Incorrect", exact: true })
+        .waitFor();
+      assert.equal(
+        await tab.getByRole("cell", { name: "✓ Correct", exact: true }).count(),
+        9,
+      );
+      assert.equal(
+        await tab
+          .getByRole("columnheader", {
+            name: "Recognition confidence",
+            exact: true,
+          })
+          .count(),
+        1,
+      );
+      assert.equal(
+        await tab
+          .getByRole("combobox", { name: /Answer for question/ })
+          .count(),
+        10,
+      );
+      const correct = printedScanChoice(
+        first.questions[0],
+        keyMap.get(first.questions[0].questionId).correct_answer,
+      );
+      const saveChange = async () => {
+        const response = tab.waitForResponse(
+          (r) => r.url().endsWith("/scans") && r.request().method() === "POST",
+        );
+        await tab
+          .getByRole("button", { name: "Save changes", exact: true })
+          .click();
+        assert.equal((await response).status(), 200);
+        await tab
+          .getByText("Teacher-reviewed grade saved", { exact: true })
+          .waitFor();
+      };
+      await tab
+        .getByRole("combobox", { name: "Answer for question 1", exact: true })
+        .selectOption(correct);
+      await saveChange();
+      const attemptId = workspace.sheets.find(
+        (s) => s.id === first.id,
+      ).attempt_id;
+      assert.equal(
+        check(
+          await admin
+            .from("attempts")
+            .select("score")
+            .eq("id", attemptId)
+            .single(),
+        ).score,
+        10,
+      );
+      await tab
+        .getByRole("combobox", { name: "Answer for question 1", exact: true })
+        .selectOption("blank");
+      await saveChange();
+      await tab
+        .getByRole("cell", { name: "Blank · 0 pts", exact: true })
+        .waitFor();
+      assert.equal(
+        check(
+          await admin
+            .from("attempts")
+            .select("score")
+            .eq("id", attemptId)
+            .single(),
+        ).score,
+        9,
       );
       await tab.screenshot({
         path: join(artifacts, "desktop.png"),
@@ -494,8 +614,46 @@ try {
         path: join(artifacts, "mobile.png"),
         fullPage: true,
       });
+      const reviewed = check(
+        await admin
+          .from("paper_scan_pages")
+          .select("*")
+          .eq("sheet_id", first.id)
+          .single(),
+      );
+      await post({
+        action: "review",
+        pageId: reviewed.id,
+        revision: reviewed.revision,
+        reviewAction: "reopen",
+        decisions: [],
+        note: "Explicit teacher grade hold",
+      });
+      const held = check(
+        await admin
+          .from("paper_scan_pages")
+          .select("*")
+          .eq("id", reviewed.id)
+          .single(),
+      );
+      const blocked = await request(`/api/assignments/${assignmentId}/scans`, {
+        action: "reprocess",
+        pageId: held.id,
+        revision: held.revision,
+      });
+      assert.equal(blocked.status, 409);
+      assert.equal(
+        check(
+          await admin
+            .from("attempts")
+            .select("score")
+            .eq("id", attemptId)
+            .single(),
+        ).score,
+        null,
+      );
       console.log(
-        "PASS: production marking table, individual download links and mobile layout.",
+        "PASS: separate upload/dashboard/student pages, search, confidence for all answers, optional edits recalculate grades, mobile layout and teacher hold protection.",
       );
     } finally {
       await browser.close();

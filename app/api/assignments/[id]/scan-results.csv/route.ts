@@ -1,5 +1,6 @@
 import { scanWorkspace, ScanError } from "@/lib/paper-scan-server";
 import { printedScanChoice, scanPaperLabel } from "@/lib/paper-scan-layout";
+import { readingConfidence } from "@/lib/paper-scan-confidence";
 function cell(value: unknown) {
   const raw = value === null || value === undefined ? "" : String(value);
   const safe = /^[=+@\-\t\r]/.test(raw) ? `'${raw}` : raw;
@@ -29,6 +30,7 @@ export async function GET(
         "Points",
         "Scan page ID",
         "Decision",
+        "Recognition confidence (estimated %)",
       ],
     ];
     for (const sheet of data.sheets) {
@@ -71,6 +73,9 @@ export async function GET(
           grade ? (correct ? q.points : 0) : null,
           page?.id,
           reading?.status ?? "not scanned",
+          readingConfidence(
+            page?.readings.find((r) => r.position === q.position),
+          ),
         ]);
       }
     }

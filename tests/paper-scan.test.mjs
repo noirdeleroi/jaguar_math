@@ -131,10 +131,10 @@ test("scanner halftoning recovers QR and registration while preserving raw answe
     sheet.questions.map((_, i) => ["A", "B", "C", "D"][i % 4]),
   );
 });
-test("light selections are visible suggestions and remain unresolved until teacher confirmation", () => {
+test("genuinely weak marks remain reviewable and teacher overrides beat suggestions", () => {
   const reading = {
     position: 1,
-    ...classifyBubble([0.32, 0, 0, 0], [0.2, 0, 0, 0], [0, 0, 0, 0]),
+    ...classifyBubble([0.07, 0, 0, 0], [0.03, 0, 0, 0], [0, 0, 0, 0]),
   };
   assert.equal(reading.choice, null);
   assert.equal(reading.candidateChoice, "A");
@@ -185,15 +185,13 @@ test("private source cache isolates owner keys, expires and stays within memory 
   cache.put("too-large", Buffer.alloc(11), 106);
   assert.equal(cache.get("too-large", 107), undefined);
 });
-test("uncertain, blank, erased, crossed and multiple answers never become clear", () => {
+test("single pencil marks and blanks resolve automatically; competing or crossed-out marks wait", () => {
   assert.equal(
     classifyBubble([0.99, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0]).choice,
     "A",
   );
   for (const densities of [
     [0, 0, 0, 0],
-    [0.6, 0, 0, 0],
-    [0.98, 0.12, 0, 0],
     [0.99, 0.8, 0, 0],
     [0.04, 0, 0, 0],
   ])
@@ -202,8 +200,31 @@ test("uncertain, blank, erased, crossed and multiple answers never become clear"
       null,
     );
   assert.equal(
-    classifyBubble([1, 0, 0, 0], [0.3, 0, 0, 0], [0.3, 0, 0, 0]).status,
+    classifyBubble([0.5, 0, 0, 0], [0.3, 0, 0, 0], [0.3, 0, 0, 0]).status,
     "irregular",
+  );
+  for (const density of [0.12, 0.32, 0.62, 0.63, 0.64]) {
+    const result = classifyBubble(
+      [0, 0, 0, density],
+      [0, 0, 0, density],
+      [0, 0, 0, 0],
+    );
+    assert.equal(result.choice, "D");
+    assert.equal(result.status, "clear");
+    assert.equal(result.resolved, true);
+    assert.ok(result.confidence >= 80);
+  }
+  assert.equal(
+    classifyBubble([0.98, 0.12, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]).choice,
+    "A",
+  );
+  const blank = classifyBubble([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]);
+  assert.equal(blank.status, "blank");
+  assert.equal(blank.resolved, true);
+  assert.equal(blank.confidence, 99);
+  assert.equal(
+    classifyBubble([0.6, 0.4, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]).resolved,
+    false,
   );
 });
 test("projective alignment recovers perspective coordinates", () => {
@@ -293,7 +314,7 @@ test("rotation, small skew, blur, JPEG compression and paper scaling preserve cl
   assert.equal(result.problem, null);
   assert.ok(result.readings.every((r) => r.status === "clear"));
 });
-test("faint, blank, crossed-out and multiple marks require visual review", async () => {
+test("pencil and blank scans resolve while genuinely multiple and crossed-out marks require review", async () => {
   const sheet = fixtureSheet(7);
   const pdf = await filledPdf(
     [sheet],
@@ -303,8 +324,15 @@ test("faint, blank, crossed-out and multiple marks require visual review", async
   const image = await renderScanPage(pdf, 1, "application/pdf");
   const result = await recognizeScan(image.bytes, sheet.questions, sheet.token);
   assert.equal(result.problem, null);
-  for (let i = 0; i < 5; i++)
-    assert.notEqual(result.readings[i].status, "clear", `question ${i + 1}`);
+  assert.equal(result.readings[0].status, "blank");
+  assert.equal(result.readings[0].resolved, true);
+  assert.equal(result.readings[1].status, "multiple");
+  assert.equal(result.readings[1].resolved, false);
+  assert.equal(result.readings[2].choice, "C");
+  assert.equal(result.readings[2].resolved, true);
+  assert.equal(result.readings[3].status, "irregular");
+  assert.equal(result.readings[3].resolved, false);
+  assert.equal(result.readings[4].choice, "A");
   assert.equal(result.readings[5].choice, "B");
   assert.equal(result.readings[6].choice, "C");
 });
