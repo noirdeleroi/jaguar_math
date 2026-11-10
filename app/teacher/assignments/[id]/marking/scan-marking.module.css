@@ -137,6 +137,111 @@
   padding: 10px 6px;
   border-bottom: 1px solid #dce3d8;
 }
+.snippetCell {
+  width: 350px;
+  min-width: 310px;
+}
+.answerSnippet {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  background: white;
+}
+.snippetButton {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  border: 1px solid #c4d0c3;
+  border-radius: 7px;
+  background: #fff;
+  text-align: left;
+  cursor: zoom-in;
+  color: #245e4d;
+}
+.snippetButton:hover,
+.snippetButton:focus-visible {
+  outline: 2px solid #2c7259;
+  outline-offset: 2px;
+}
+.snippetButton span {
+  font-size: 11px;
+}
+.snippetDialog {
+  width: min(960px, calc(100vw - 32px));
+  max-width: 960px;
+  max-height: calc(100vh - 40px);
+  border: 1px solid #b9cbb9;
+  border-radius: 12px;
+  padding: 24px;
+  background: #fffdf6;
+  color: #183f35;
+  box-shadow: 0 18px 90px #11282055;
+}
+.snippetDialog::backdrop {
+  background: #10251fd0;
+}
+.snippetDialogBody {
+  display: grid;
+  gap: 20px;
+}
+.snippetDialog h3 {
+  margin: 0;
+}
+.snippetDialog .answerSnippet {
+  border: 1px solid #d9dfd3;
+  border-radius: 5px;
+}
+@media (max-width: 760px) {
+  .reviewTable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .reviewTable tbody {
+    display: grid;
+    gap: 16px;
+  }
+  .reviewTable tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 12px;
+    border: 1px solid #d0dacb;
+    border-radius: 8px;
+  }
+  .reviewTable th[scope="row"],
+  .reviewTable .snippetCell {
+    grid-column: 1 / -1;
+    min-width: 0;
+    width: auto;
+  }
+  .reviewTable th[scope="row"]::before {
+    content: "Question ";
+  }
+  .reviewTable td {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    border: none;
+  }
+  .reviewTable td[data-label]::before {
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 700;
+    color: #5c716a;
+  }
+  .reviewTable select {
+    min-width: 0;
+  }
+  .snippetDialog {
+    padding: 16px;
+  }
+}
 .resultCorrect td:last-child {
   color: #17603a;
   font-weight: 800;

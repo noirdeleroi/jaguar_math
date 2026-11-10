@@ -12,6 +12,8 @@ import { renderScanPage } from "../lib/paper-scan-render.ts";
 import { buildScanSheetsPdf } from "../lib/paper-scan-pdf.ts";
 import { buildAssignmentAnswerKeyPdf } from "../lib/assignment-pdf.ts";
 import jsQR from "jsqr";
+import QRCode from "qrcode";
+import { rgb } from "pdf-lib";
 import { scanPageResults } from "../lib/paper-scan-results.ts";
 import { ScanSourceCache } from "../lib/paper-scan-source-cache.ts";
 import {
@@ -19,6 +21,10 @@ import {
   parseQrPayload,
   qrPayload,
   mixedQuestionError,
+  scanSnippetRect,
+  bubblePosition,
+  QR,
+  SHEET_HEIGHT,
 } from "../lib/paper-scan-layout.ts";
 import {
   fixtureSheet,
@@ -86,6 +92,81 @@ test("sheet identifiers are opaque, versioned, and bounded", () => {
     ),
     true,
   );
+});
+test("review crops include the printed number and every A/B/C/D bubble in both columns", () => {
+  for (let i = 0; i < 60; i++) {
+    const rect = scanSnippetRect(i);
+    assert.ok(
+      rect.x >= 0 &&
+        rect.y >= 0 &&
+        rect.x + rect.width <= 1191 &&
+        rect.y + rect.height <= 1684,
+    );
+    for (let c = 0; c < 4; c++) {
+      const p = bubblePosition(i, c);
+      assert.ok(
+        (p.x - 6.2) * 2 >= rect.x && (p.x + 16) * 2 <= rect.x + rect.width,
+      );
+      assert.ok(
+        (p.y - 6.2) * 2 >= rect.y && (p.y + 6.2) * 2 <= rect.y + rect.height,
+      );
+    }
+    assert.ok((bubblePosition(i, 0).x - 43) * 2 >= rect.x);
+  }
+});
+
+test("alignment disagreement keeps grading blocked while supplying a visual-only review preview", async () => {
+  const sheet = fixtureSheet(10);
+  const doc = await PDFDocument.load(await filledPdf([sheet]));
+  const page = doc.getPage(0);
+  page.drawRectangle({
+    x: QR.x - 2,
+    y: SHEET_HEIGHT - QR.y - QR.size - 2,
+    width: QR.size + 12,
+    height: QR.size + 4,
+    color: rgb(1, 1, 1),
+  });
+  const qr = await doc.embedPng(
+    await QRCode.toBuffer(qrPayload(sheet.token, 1), {
+      version: 4,
+      errorCorrectionLevel: "H",
+      margin: 4,
+      scale: 4,
+    }),
+  );
+  page.drawImage(qr, {
+    x: QR.x + 6,
+    y: SHEET_HEIGHT - QR.y - QR.size,
+    width: QR.size,
+    height: QR.size,
+  });
+  const image = await renderScanPage(
+    Buffer.from(await doc.save()),
+    1,
+    "application/pdf",
+  );
+  const result = await recognizeScan(image.bytes, sheet.questions, sheet.token);
+  assert.match(result.problem, /QR and alignment squares disagree/);
+  assert.equal(result.normalized, null);
+  assert.ok(
+    result.readings.every(
+      (r) => r.choice === null && r.status === "unreadable",
+    ),
+  );
+  assert.ok(result.reviewPreview);
+  const metadata = await sharp(result.reviewPreview).metadata();
+  assert.equal(metadata.width, 1191);
+  assert.equal(metadata.height, 1684);
+  const rect = scanSnippetRect(0);
+  const statistics = await sharp(result.reviewPreview)
+    .extract({
+      left: rect.x,
+      top: rect.y,
+      width: rect.width,
+      height: rect.height,
+    })
+    .stats();
+  assert.ok(statistics.channels[0].min < 100);
 });
 test("scanner halftoning recovers QR and registration while preserving raw answer evidence", async () => {
   const sheet = fixtureSheet(10);

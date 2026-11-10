@@ -18,6 +18,8 @@ export type Recognition = {
   readings: BubbleReading[];
   problem: string | null;
   normalized: Buffer | null;
+  // Human-review evidence only. Never used to classify or finalize answers.
+  reviewPreview?: Buffer;
   algorithm: string;
 };
 export const SCAN_ALGORITHM = "jm-omr-1.2";
@@ -61,6 +63,17 @@ function sample(raster: Raster, p: Point) {
   const y = Math.round(p.y);
   if (x < 0 || y < 0 || x >= raster.width || y >= raster.height) return 0;
   return raster.data[y * raster.width + x];
+}
+async function normalizeReviewRaster(raster: Raster, map: (p: Point) => Point) {
+  const width = 1191,
+    height = 1684;
+  const normalized = Buffer.alloc(width * height);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++)
+      normalized[y * width + x] = sample(raster, map({ x: x / 2, y: y / 2 }));
+  return sharp(normalized, { raw: { width, height, channels: 1 } })
+    .png()
+    .toBuffer();
 }
 
 function refineBubbleRow(
@@ -418,9 +431,10 @@ export async function recognizeScan(
         3,
     )
   )
-    return fail(
-      "QR and alignment squares disagree. Rescan or review manually.",
-    );
+    return {
+      ...fail("QR and alignment squares disagree. Rescan or review manually."),
+      reviewPreview: await normalizeReviewRaster(raster, map),
+    };
   const readings: BubbleReading[] = questions.map((question, i) => {
     const offset = refineBubbleRow(raster, map, i);
     const densities: number[] = [];
@@ -462,12 +476,6 @@ export async function recognizeScan(
       ...classifyBubble(densities, quadrants, outside),
     };
   });
-  const width = 1191;
-  const height = 1684;
-  const normalized = Buffer.alloc(width * height);
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++)
-      normalized[y * width + x] = sample(raster, map({ x: x / 2, y: y / 2 }));
   return {
     identifier: found.identifier,
     readings,
@@ -475,9 +483,7 @@ export async function recognizeScan(
       forcedRotation !== undefined
         ? "Manually identified sheet: confirm every answer before finalization."
         : null,
-    normalized: await sharp(normalized, { raw: { width, height, channels: 1 } })
-      .png()
-      .toBuffer(),
+    normalized: await normalizeReviewRaster(raster, map),
     algorithm: SCAN_ALGORITHM,
   };
 }

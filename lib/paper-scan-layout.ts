@@ -73,6 +73,16 @@ export function bubblePosition(index: number, choice: number) {
     y: 240 + (index % 30) * 17,
   };
 }
+export function scanSnippetRect(index: number) {
+  const point = bubblePosition(index, 0);
+  // Include the printed question number and all four lettered bubbles.
+  return {
+    x: (point.x - 50) * 2,
+    y: (point.y - 9) * 2,
+    width: 400,
+    height: 36,
+  };
+}
 export function qrPayload(token: string, page: number) {
   return `JM1:${token.toUpperCase()}:${page}`;
 }

@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { GradingRoster } from "./grading-roster";
+import { ScanAnswerSnippet } from "./scan-answer-snippet";
 import {
   averageConfidence,
   readingConfidence,
 } from "@/lib/paper-scan-confidence";
 import {
-  bubblePosition,
   CHOICES,
   pageQuestions,
   QUESTIONS_PER_PAGE,
@@ -783,8 +783,16 @@ function PaperReview({
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [images, setImages] = useState({ original: "", aligned: "" });
-  const [showOriginal, setShowOriginal] = useState(false);
+  const [images, setImages] = useState<{
+    original: string;
+    aligned: string;
+    quality: "loading" | "aligned" | "approximate" | "unavailable";
+  }>({ original: "", aligned: "", quality: "loading" });
+  const [showOriginal, setShowOriginal] = useState(Boolean(page.problem));
+  const [inspectionOpen, setInspectionOpen] = useState(Boolean(page.problem));
+  const inspectionRef = useRef<HTMLDetailsElement>(null);
+  const [zoomIndex, setZoomIndex] = useState<number | null>(null);
+  const zoomDialog = useRef<HTMLDialogElement>(null);
   const [showAll, setShowAll] = useState(true);
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
@@ -798,23 +806,56 @@ function PaperReview({
       if (!response.ok) throw new Error("Scan preview could not be loaded.");
       const url = URL.createObjectURL(await response.blob());
       urls.push(url);
-      return url;
+      return {
+        url,
+        quality:
+          response.headers.get("X-Scan-Preview") === "approximate"
+            ? ("approximate" as const)
+            : ("aligned" as const),
+      };
     }
-    Promise.all([
-      image("original"),
-      page.normalized_path ? image("aligned") : Promise.resolve(""),
-    ])
-      .then(([original, aligned]) => {
-        if (!controller.signal.aborted) setImages({ original, aligned });
+    image("original")
+      .then(({ url }) => {
+        if (!controller.signal.aborted)
+          setImages((current) => ({ ...current, original: url }));
       })
       .catch((e: Error) => {
         if (!controller.signal.aborted) setError(e.message);
+      });
+    image("review-preview")
+      .then(({ url, quality }) => {
+        if (!controller.signal.aborted)
+          setImages((current) => ({ ...current, aligned: url, quality }));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setImages((current) => ({ ...current, quality: "unavailable" }));
+          setInspectionOpen(true);
+          setShowOriginal(true);
+        }
       });
     return () => {
       controller.abort();
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [api, page.id, page.normalized_path]);
+  useEffect(() => {
+    const dialog = zoomDialog.current;
+    if (!dialog) return;
+    if (zoomIndex !== null && !dialog.open) dialog.showModal();
+    if (zoomIndex === null && dialog.open) dialog.close();
+  }, [zoomIndex]);
+  const openOriginal = () => {
+    setZoomIndex(null);
+    setInspectionOpen(true);
+    setShowOriginal(true);
+    requestAnimationFrame(() =>
+      inspectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      }),
+    );
+  };
   const reset = (nextSheet: string, nextPage: number) => {
     setDirty(true);
     setSheetId(nextSheet);
@@ -973,16 +1014,49 @@ function PaperReview({
           </div>
           {results.unresolved > 0 && (
             <p>
-              Only these ambiguous answers need attention. Choose an answer
-              below and save to finish grading. Clear marks and blanks are
-              already resolved.
+              {page.problem
+                ? "Automatic recognition could not align this page. Use the scan snippets and original below to choose each answer, then save."
+                : "Only these ambiguous answers need attention. Choose an answer below and save to finish grading. Clear marks and blanks are already resolved."}
+            </p>
+          )}
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className="secondary-inline-button"
+              onClick={openOriginal}
+            >
+              View original scan
+            </button>
+            <small>
+              Click any scanned row to enlarge it. The printed question number
+              is included.
+            </small>
+          </div>
+          {images.quality === "loading" && (
+            <p role="status">Loading scan snippets…</p>
+          )}
+          {images.quality === "approximate" && (
+            <p className={styles.problem}>
+              Approximate crops for visual review only. Check the printed
+              question numbers against the original scan;{" "}
+              {page.status === "accepted"
+                ? "saved grades are unchanged."
+                : "automatic grading is still paused."}
+            </p>
+          )}
+          {images.quality === "unavailable" && (
+            <p className={styles.problem}>
+              Individual snippets cannot be positioned reliably on this page.
+              The original scan is open below so you can check and enter the
+              answers.
             </p>
           )}
           <div className={styles.resultTableScroll}>
-            <table className={styles.resultTable}>
+            <table className={`${styles.resultTable} ${styles.reviewTable}`}>
               <thead>
                 <tr>
                   <th>Question</th>
+                  <th>Scanned mark</th>
                   <th>Student answer</th>
                   <th>Recognition confidence</th>
                   <th>Correct answer</th>
@@ -990,7 +1064,7 @@ function PaperReview({
                 </tr>
               </thead>
               <tbody>
-                {results.rows.map((r) => (
+                {results.rows.map((r, index) => (
                   <tr
                     key={r.position}
                     className={
@@ -1002,7 +1076,30 @@ function PaperReview({
                     }
                   >
                     <th scope="row">{r.position}</th>
-                    <td>
+                    <td
+                      className={styles.snippetCell}
+                      data-label="Scanned mark"
+                    >
+                      {images.aligned ? (
+                        <ScanAnswerSnippet
+                          src={images.aligned}
+                          index={index}
+                          position={r.position}
+                          onEnlarge={() => setZoomIndex(index)}
+                        />
+                      ) : images.quality === "loading" ? (
+                        <span>Loading…</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="secondary-inline-button"
+                          onClick={openOriginal}
+                        >
+                          View original scan
+                        </button>
+                      )}
+                    </td>
+                    <td data-label="Student answer">
                       <select
                         aria-label={`Answer for question ${r.position}`}
                         disabled={disabled || busy}
@@ -1030,15 +1127,15 @@ function PaperReview({
                         <option value="invalid">Invalid</option>
                       </select>
                     </td>
-                    <td>
+                    <td data-label="Recognition confidence">
                       {readingConfidence(
                         page.readings.find((d) => d.position === r.position),
                       ) === null
                         ? "—"
                         : `${readingConfidence(page.readings.find((d) => d.position === r.position))}%`}
                     </td>
-                    <td>{r.answerKey}</td>
-                    <td>
+                    <td data-label="Correct answer">{r.answerKey}</td>
+                    <td data-label="Result">
                       {r.comparison === "correct"
                         ? `${r.resolved ? "✓ Correct" : "Likely correct"}`
                         : r.comparison === "incorrect"
@@ -1152,7 +1249,90 @@ function PaperReview({
           </p>
         </div>
       )}
-      <details className={styles.scanInspection}>
+      <dialog
+        ref={zoomDialog}
+        className={styles.snippetDialog}
+        aria-labelledby={`scan-zoom-title-${page.id}`}
+        onClose={() => setZoomIndex(null)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setZoomIndex(null);
+        }}
+      >
+        {zoomIndex !== null && questions[zoomIndex] && (
+          <div className={styles.snippetDialogBody}>
+            <div className="section-row">
+              <h3 id={`scan-zoom-title-${page.id}`}>
+                Scanned answer · Question {questions[zoomIndex].position}
+              </h3>
+              <button
+                type="button"
+                className="secondary-inline-button"
+                onClick={() => setZoomIndex(null)}
+              >
+                Close
+              </button>
+            </div>
+            {images.quality === "approximate" && (
+              <p>
+                Approximate crop. Verify the question number against the
+                original.
+              </p>
+            )}
+            <ScanAnswerSnippet
+              src={images.aligned}
+              index={zoomIndex}
+              position={questions[zoomIndex].position}
+            />
+            <div className={styles.choiceButtons}>
+              {[...CHOICES, "blank", "invalid"].map((choice) => (
+                <button
+                  type="button"
+                  disabled={disabled || busy}
+                  key={choice}
+                  onClick={() => {
+                    decide(questions[zoomIndex].position, choice);
+                    setZoomIndex(null);
+                  }}
+                >
+                  Set {choice}
+                </button>
+              ))}
+            </div>
+            <small>Answer changes are saved when you press Save changes.</small>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className="secondary-inline-button"
+                disabled={zoomIndex === 0}
+                onClick={() => setZoomIndex(zoomIndex - 1)}
+              >
+                Previous question
+              </button>
+              <button
+                type="button"
+                className="secondary-inline-button"
+                disabled={zoomIndex >= questions.length - 1}
+                onClick={() => setZoomIndex(zoomIndex + 1)}
+              >
+                Next question
+              </button>
+              <button
+                type="button"
+                className="secondary-inline-button"
+                onClick={openOriginal}
+              >
+                View original scan
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
+      <details
+        ref={inspectionRef}
+        open={inspectionOpen}
+        onToggle={(e) => setInspectionOpen(e.currentTarget.open)}
+        className={styles.scanInspection}
+      >
         <summary>Inspect original scan & individual marks</summary>
         <div className={styles.actions}>
           <button
@@ -1212,7 +1392,6 @@ function PaperReview({
                 const index = questions.findIndex(
                   (x) => x.position === q.position,
                 );
-                const point = bubblePosition(index, 0);
                 return (
                   <article
                     className={
@@ -1235,13 +1414,11 @@ function PaperReview({
                           : ""}
                       </small>
                       {images.aligned && !unidentified && (
-                        <div
-                          aria-label={`Scanned bubbles for question ${q.position}`}
-                          className={styles.crop}
-                          style={{
-                            backgroundImage: `url("${images.aligned}")`,
-                            backgroundPosition: `${-(point.x - 16) * 2}px ${-(point.y - 12) * 2}px`,
-                          }}
+                        <ScanAnswerSnippet
+                          src={images.aligned}
+                          index={index}
+                          position={q.position}
+                          onEnlarge={() => setZoomIndex(index)}
                         />
                       )}
                     </div>

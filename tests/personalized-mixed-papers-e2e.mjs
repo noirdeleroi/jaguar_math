@@ -550,6 +550,38 @@ try {
           .count(),
         10,
       );
+      await tab
+        .getByRole("button", {
+          name: "Enlarge scan for question 1",
+          exact: true,
+        })
+        .first()
+        .waitFor();
+      assert.equal(
+        await tab
+          .getByRole("button", { name: /Enlarge scan for question/ })
+          .count(),
+        10,
+      );
+      await tab
+        .getByRole("button", {
+          name: "Enlarge scan for question 1",
+          exact: true,
+        })
+        .click();
+      await tab.getByRole("dialog").waitFor();
+      assert.ok((await tab.getByRole("dialog").boundingBox()).width > 600);
+      await tab
+        .getByRole("button", { name: "Next question", exact: true })
+        .click();
+      await tab
+        .getByRole("heading", {
+          name: "Scanned answer · Question 2",
+          exact: true,
+        })
+        .waitFor();
+      await tab.keyboard.press("Escape");
+      assert.equal(await tab.getByRole("dialog").count(), 0);
       const correct = printedScanChoice(
         first.questions[0],
         keyMap.get(first.questions[0].questionId).correct_answer,
@@ -600,6 +632,19 @@ try {
         ).score,
         9,
       );
+      await tab
+        .getByRole("button", {
+          name: "Enlarge scan for question 1",
+          exact: true,
+        })
+        .first()
+        .waitFor();
+      await tab.evaluate(async () => {
+        const element = document.querySelector("table svg image");
+        const image = new Image();
+        image.src = element.getAttribute("href");
+        await image.decode();
+      });
       await tab.screenshot({
         path: join(artifacts, "desktop.png"),
         fullPage: true,
@@ -651,6 +696,118 @@ try {
             .single(),
         ).score,
         null,
+      );
+      // Simulate the stored alignment-failure state without changing its original raster.
+      objects.push(held.normalized_path);
+      check(
+        await admin
+          .from("paper_scan_pages")
+          .update({
+            normalized_path: null,
+            problem:
+              "QR and alignment squares disagree. Rescan or review manually.",
+            decisions: null,
+            readings: first.questions.map((q) => ({
+              position: q.position,
+              choice: null,
+              status: "unreadable",
+              densities: [],
+            })),
+          })
+          .eq("id", held.id),
+      );
+      const beforePreview = check(
+        await admin
+          .from("paper_scan_pages")
+          .select("revision,status,readings,decisions")
+          .eq("id", held.id)
+          .single(),
+      );
+      const previewResponse = await request(
+        `/api/assignments/${assignmentId}/scans?asset=${held.id}&variant=review-preview`,
+      );
+      assert.equal(previewResponse.status, 200);
+      assert.equal(
+        previewResponse.headers.get("x-scan-preview"),
+        "approximate",
+      );
+      assert.equal(
+        previewResponse.headers.get("cache-control"),
+        "private, no-store",
+      );
+      await tab.reload();
+      await tab.getByText(/Approximate crops for visual review only/).waitFor();
+      await tab
+        .getByRole("button", {
+          name: "Enlarge scan for question 1",
+          exact: true,
+        })
+        .first()
+        .waitFor();
+      await tab
+        .getByRole("img", { name: /Scanned answer sheet for/ })
+        .waitFor();
+      assert.ok(
+        await tab
+          .getByRole("img", {
+            name: "Scanned answer for question 1",
+            exact: true,
+          })
+          .first()
+          .isVisible(),
+      );
+      await tab.screenshot({
+        path: join(artifacts, "alignment-review-snippets.png"),
+        fullPage: true,
+      });
+      assert.deepEqual(
+        check(
+          await admin
+            .from("paper_scan_pages")
+            .select("revision,status,readings,decisions")
+            .eq("id", held.id)
+            .single(),
+        ),
+        beforePreview,
+      );
+      assert.equal(
+        check(
+          await admin
+            .from("attempts")
+            .select("score")
+            .eq("id", attemptId)
+            .single(),
+        ).score,
+        null,
+      );
+      await tab.route(/variant=review-preview/, (route) =>
+        route.fulfill({
+          status: 422,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Cannot place crop" }),
+        }),
+      );
+      await tab.reload();
+      await tab
+        .getByText(/Individual snippets cannot be positioned reliably/)
+        .waitFor();
+      const original = tab.getByRole("img", {
+        name: /Scanned answer sheet for/,
+      });
+      await original.waitFor();
+      await tab.waitForFunction(() =>
+        Array.from(
+          document.querySelectorAll('img[alt^="Scanned answer sheet"]'),
+        ).some((i) => i.complete && i.naturalWidth > 0),
+      );
+      assert.ok(await original.isVisible());
+      assert.ok(
+        await tab.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth + 1,
+        ),
+      );
+      console.log(
+        "PASS: inline scan snippets, zoom/keyboard navigation, read-only alignment previews, and original-scan fallback without changing grades.",
       );
       console.log(
         "PASS: separate upload/dashboard/student pages, search, confidence for all answers, optional edits recalculate grades, mobile layout and teacher hold protection.",

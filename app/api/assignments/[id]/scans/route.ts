@@ -7,6 +7,7 @@ import {
 } from "@/lib/paper-scan-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { recognizeScan } from "@/lib/paper-scan-recognition";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 const headers = {
@@ -60,6 +61,55 @@ export async function GET(
     if (!asset) return Response.json(await scanWorkspace(id), { headers });
     const { db } = await scanAccess(id);
     const variant = url.searchParams.get("variant");
+    if (variant === "review-preview") {
+      const { data: page } = await db
+        .from("paper_scan_pages")
+        .select("image_path,normalized_path,sheet_id,problem")
+        .eq("id", asset)
+        .eq("assignment_id", id)
+        .maybeSingle();
+      if (!page) throw new ScanError("Scan not found.", 404);
+      const bucket = createAdminClient().storage.from(SCAN_BUCKET);
+      const { data: source, error } = await bucket.download(
+        page.normalized_path ?? page.image_path,
+      );
+      if (error || !source)
+        throw new ScanError("Scan preview could not be loaded.", 503);
+      let bytes: Buffer = Buffer.from(await source.arrayBuffer());
+      let quality = page.problem ? "approximate" : "aligned";
+      if (!page.normalized_path) {
+        const { data: sheet } = page.sheet_id
+          ? await db
+              .from("paper_scan_sheets")
+              .select("token")
+              .eq("id", page.sheet_id)
+              .eq("assignment_id", id)
+              .maybeSingle()
+          : { data: null };
+        if (!sheet)
+          throw new ScanError(
+            "Use the original scan to review this page.",
+            422,
+          );
+        const review = await recognizeScan(bytes, [], sheet.token);
+        const preview = review.normalized ?? review.reviewPreview;
+        if (!preview)
+          throw new ScanError(
+            "Individual crops cannot be positioned reliably. Use the original scan.",
+            422,
+          );
+        bytes = preview;
+        quality = page.problem || review.problem ? "approximate" : "aligned";
+      }
+      // Read-only visual evidence: no recognition decisions, grades or database writes.
+      return new Response(new Uint8Array(bytes), {
+        headers: {
+          ...headers,
+          "Content-Type": "image/png",
+          "X-Scan-Preview": quality,
+        },
+      });
+    }
     let path: string | null = null;
     if (variant === "source") {
       const { data } = await db
