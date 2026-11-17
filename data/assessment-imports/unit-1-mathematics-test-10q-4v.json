@@ -1,0 +1,1426 @@
+{
+  "title": "Unit 1 / Mathematics Test",
+  "description": "Four versions (A, B, C, D), in source order, transcribed from Unit_1_4_Versions_Test (3).pdf. 20 minutes; 10 questions; 1 point each; 10 points per version. Original question wording, answer choices, and teacher answer key preserved.",
+  "question_groups": [
+    [
+      {
+        "prompt": "Calculate:\n$-6 + 4(3 - 5)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-2$"
+          },
+          {
+            "id": "B",
+            "text": "$-14$"
+          },
+          {
+            "id": "C",
+            "text": "$2$"
+          },
+          {
+            "id": "D",
+            "text": "$14$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Evaluate:\n$-9 + 2(7 - 10)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-3$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$15$"
+          },
+          {
+            "id": "D",
+            "text": "$-15$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Calculate the value of:\n$-11 + 5(2 - 4)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-21$"
+          },
+          {
+            "id": "B",
+            "text": "$-1$"
+          },
+          {
+            "id": "C",
+            "text": "$21$"
+          },
+          {
+            "id": "D",
+            "text": "$1$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Evaluate the expression:\n$-8 + 5(3 - 6)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-7$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$-23$"
+          },
+          {
+            "id": "D",
+            "text": "$23$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Subtract and express your answer as a decimal.\n$\\frac{3}{4} - \\frac{1}{2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0.5$"
+          },
+          {
+            "id": "B",
+            "text": "$0.125$"
+          },
+          {
+            "id": "C",
+            "text": "$0.25$"
+          },
+          {
+            "id": "D",
+            "text": "$0.75$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Find the difference and write it in decimal form.\n$\\frac{7}{10} - \\frac{2}{5}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0.3$"
+          },
+          {
+            "id": "B",
+            "text": "$0.4$"
+          },
+          {
+            "id": "C",
+            "text": "$0.5$"
+          },
+          {
+            "id": "D",
+            "text": "$0.7$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Perform the subtraction. Give your answer as a decimal.\n$\\frac{7}{8} - \\frac{1}{8}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0.25$"
+          },
+          {
+            "id": "B",
+            "text": "$0.5$"
+          },
+          {
+            "id": "C",
+            "text": "$1.25$"
+          },
+          {
+            "id": "D",
+            "text": "$0.75$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Calculate and convert the result to a decimal.\n$\\frac{11}{12} - \\frac{2}{3}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$0.20$"
+          },
+          {
+            "id": "B",
+            "text": "$0.25$"
+          },
+          {
+            "id": "C",
+            "text": "$0.50$"
+          },
+          {
+            "id": "D",
+            "text": "$0.75$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.FRACTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A pair of headphones costs $90 before a 30% discount. What is the sale price?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$60"
+          },
+          {
+            "id": "B",
+            "text": "$66"
+          },
+          {
+            "id": "C",
+            "text": "$72"
+          },
+          {
+            "id": "D",
+            "text": "$63"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A smartwatch originally sells for $120. During a sale, its price is reduced by 15%. How much does it cost after the discount?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$100"
+          },
+          {
+            "id": "B",
+            "text": "$108"
+          },
+          {
+            "id": "C",
+            "text": "$102"
+          },
+          {
+            "id": "D",
+            "text": "$105"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A pair of sneakers has a regular price of $150. A store offers a 10% discount. What is the discounted price?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$130"
+          },
+          {
+            "id": "B",
+            "text": "$135"
+          },
+          {
+            "id": "C",
+            "text": "$140"
+          },
+          {
+            "id": "D",
+            "text": "$145"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A tablet is advertised for $200. The seller reduces its price by 15%. What is the final price?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$170"
+          },
+          {
+            "id": "B",
+            "text": "$165"
+          },
+          {
+            "id": "C",
+            "text": "$175"
+          },
+          {
+            "id": "D",
+            "text": "$185"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PERCENT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Simplify using positive exponents only. Assume $x \\ne 0$.\n$\\frac{x^7 \\cdot x^{-2}}{x^3}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x^2$"
+          },
+          {
+            "id": "B",
+            "text": "$x^5$"
+          },
+          {
+            "id": "C",
+            "text": "$x$"
+          },
+          {
+            "id": "D",
+            "text": "$\\frac{1}{x^2}$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Write the expression in its simplest form with positive exponents. Assume $x \\ne 0$.\n$\\frac{x^9 \\cdot x^{-2}}{x^4}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x^7$"
+          },
+          {
+            "id": "B",
+            "text": "$x^3$"
+          },
+          {
+            "id": "C",
+            "text": "$\\frac{1}{x^3}$"
+          },
+          {
+            "id": "D",
+            "text": "$x^2$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Simplify the expression using positive exponents only. Assume $x \\ne 0$.\n$\\frac{x^8 \\cdot x^{-2}}{x^3}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x^2$"
+          },
+          {
+            "id": "B",
+            "text": "$x^6$"
+          },
+          {
+            "id": "C",
+            "text": "$x^3$"
+          },
+          {
+            "id": "D",
+            "text": "$\\frac{1}{x^3}$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Express the following using positive exponents only. Assume $x \\ne 0$.\n$\\frac{x^8 \\cdot x^{-4}}{x^2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x$"
+          },
+          {
+            "id": "B",
+            "text": "$x^6$"
+          },
+          {
+            "id": "C",
+            "text": "$\\frac{1}{x^2}$"
+          },
+          {
+            "id": "D",
+            "text": "$x^2$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Find $x$.\n$\\frac{3x + 2}{4} = \\frac{x + 5}{2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$10$"
+          },
+          {
+            "id": "D",
+            "text": "$12$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "What value of $x$ satisfies the equation?\n$\\frac{3x + 4}{4} = \\frac{x + 7}{2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$12$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve for $x$.\n$\\frac{3x + 8}{4} = \\frac{x + 10}{2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$12$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$10$"
+          },
+          {
+            "id": "D",
+            "text": "$14$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Determine the value of $x$.\n$\\frac{3x + 1}{4} = \\frac{x + 6}{2}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$11$"
+          },
+          {
+            "id": "D",
+            "text": "$13$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Which inequality describes the solution?\n$-4(2x - 1) \\le 28$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x \\le -3$"
+          },
+          {
+            "id": "B",
+            "text": "$x \\ge 3$"
+          },
+          {
+            "id": "C",
+            "text": "$x \\le 3$"
+          },
+          {
+            "id": "D",
+            "text": "$x \\ge -3$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve:\n$-3(2x + 1) \\le 21$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x \\le -4$"
+          },
+          {
+            "id": "B",
+            "text": "$x \\ge -4$"
+          },
+          {
+            "id": "C",
+            "text": "$x \\le 4$"
+          },
+          {
+            "id": "D",
+            "text": "$x \\ge 4$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which of the following is the solution?\n$-2(3x + 1) \\le 28$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x \\le -5$"
+          },
+          {
+            "id": "B",
+            "text": "$x \\ge 5$"
+          },
+          {
+            "id": "C",
+            "text": "$x \\le 5$"
+          },
+          {
+            "id": "D",
+            "text": "$x \\ge -5$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Find all values of $x$ satisfying the inequality.\n$-2(3x - 1) \\le 26$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x \\le -4$"
+          },
+          {
+            "id": "B",
+            "text": "$x \\ge -4$"
+          },
+          {
+            "id": "C",
+            "text": "$x \\le 4$"
+          },
+          {
+            "id": "D",
+            "text": "$x \\ge 4$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "The function $f$ is defined as $f(x) = 4x - 1$. If $f(a) = 19$, find $a$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$7$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.CONCEPT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A function is given by $f(x) = 2x - 3$. For what value of $a$ does $f(a) = 13$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.CONCEPT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "Consider the function $f(x) = 4x + 5$. If the output is 33, what is the input $a$, where $f(a) = 33$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.CONCEPT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "The function $f$ is represented by $f(x) = 3x - 4$. What value of $a$ makes $f(a) = 14$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$6$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.CONCEPT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "A sound engineer records 28 minutes of audio. Standard recording uses 2 MB per minute, while high-quality recording uses 5 MB per minute. The total file size is 92 MB. How many minutes were recorded in high quality?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$12$"
+          },
+          {
+            "id": "B",
+            "text": "$10$"
+          },
+          {
+            "id": "C",
+            "text": "$14$"
+          },
+          {
+            "id": "D",
+            "text": "$18$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_CONTEXT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A podcast episode lasts 32 minutes. Audio recorded in low quality requires 3 MB per minute, and audio recorded in high quality requires 6 MB per minute. The complete recording occupies 150 MB. How many minutes are in high quality?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$18$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$15$"
+          },
+          {
+            "id": "D",
+            "text": "$24$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_CONTEXT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A music producer creates a 40-minute recording. Some minutes are stored at 1 MB per minute, while the remaining minutes are stored at 4 MB per minute. The finished recording uses 112 MB. How many minutes were stored at 4 MB per minute?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$18$"
+          },
+          {
+            "id": "B",
+            "text": "$20$"
+          },
+          {
+            "id": "C",
+            "text": "$24$"
+          },
+          {
+            "id": "D",
+            "text": "$28$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_CONTEXT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A video editor works with 36 minutes of footage. Low-resolution footage takes 2 MB per minute, while high-resolution footage takes 4 MB per minute. The combined file size is 110 MB. How many minutes of footage are high resolution?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$19$"
+          },
+          {
+            "id": "B",
+            "text": "$15$"
+          },
+          {
+            "id": "C",
+            "text": "$17$"
+          },
+          {
+            "id": "D",
+            "text": "$21$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_CONTEXT",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A line passes through $(2, 8)$ and $(6, 2)$. Another line is parallel to it and has the equation\n$ax + 4y = 18$.\nFind $a$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-6$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$8$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "GEO.COORDINATE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "The line through $(-1, 5)$ and $(3, -3)$ is parallel to the line\n$ax + 5y = 10$.\nWhat is $a$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-10$"
+          },
+          {
+            "id": "B",
+            "text": "$2$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "GEO.COORDINATE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A line contains the points $(2, 11)$ and $(6, 3)$. A parallel line is represented by\n$ax + 4y = 16$.\nFind the value of $a$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$-8$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$2$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "GEO.COORDINATE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A line passes through $(1, 7)$ and $(4, 1)$. A second line, parallel to the first, has the equation\n$ax + 6y = 30$.\nWhat is the value of $a$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-12$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$12$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "GEO.COORDINATE",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "The equation below is an identity for all real $x$.\n$3(x + 2) + kx = 6x + b$.\nWhat is $k + b$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$9$"
+          },
+          {
+            "id": "B",
+            "text": "$3$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$12$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EQUIVALENT_EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "For all real values of $x$, the following equation is true:\n$4(x - 1) + kx = 7x + b$.\nDetermine $k + b$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$1$"
+          },
+          {
+            "id": "B",
+            "text": "$-1$"
+          },
+          {
+            "id": "C",
+            "text": "$3$"
+          },
+          {
+            "id": "D",
+            "text": "$7$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EQUIVALENT_EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "The following equality is true for every real number $x$:\n$5(x + 1) + kx = 8x + b$.\nFind $k + b$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$3$"
+          },
+          {
+            "id": "D",
+            "text": "$-2$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EQUIVALENT_EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "ARGUMENTACION"
+      },
+      {
+        "prompt": "The equation below holds for every value of $x$:\n$2(x - 3) + kx = 6x + b$.\nCalculate $k + b$.",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-4$"
+          },
+          {
+            "id": "B",
+            "text": "$2$"
+          },
+          {
+            "id": "C",
+            "text": "$4$"
+          },
+          {
+            "id": "D",
+            "text": "$-2$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": null,
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EQUIVALENT_EXPRESSIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "ARGUMENTACION"
+      }
+    ]
+  ]
+}
