@@ -12,7 +12,7 @@ import { renderScanPage } from "../lib/paper-scan-render.ts";
 import { identifyScan } from "../lib/paper-scan-recognition.ts";
 import { printedScanChoice } from "../lib/paper-scan-layout.ts";
 import { personalizedPaperMaterial } from "../lib/paper-scan-papers.ts";
-import { pdfPlainText } from "../lib/assignment-pdf.ts";
+import { splitPdfMath } from "../lib/pdf-math-text.ts";
 
 if (process.env.RUN_PAPER_SCAN_E2E !== "1")
   throw new Error("Set RUN_PAPER_SCAN_E2E=1.");
@@ -37,7 +37,7 @@ const check = (r) => {
 const demo = JSON.parse(
   await readFile(
     new URL(
-      "../data/assessment-imports/unit-1-extremely-easy-mixed-demo-10q-4v.json",
+      "../data/assessment-imports/unit-1-mathematics-test-10q-4v.json",
       import.meta.url,
     ),
     "utf8",
@@ -124,10 +124,19 @@ try {
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
   const post = async (body) => {
-    const r = await request(`/api/assignments/${assignmentId}/scans`, body),
-      value = await r.json();
-    assert.equal(r.status, 200, JSON.stringify(value));
-    return value;
+    for (let retry = 0; ; retry++) {
+      const r = await request(`/api/assignments/${assignmentId}/scans`, body),
+        value = await r.json();
+      // Exercise the same supported resume action as the UI when remote
+      // storage takes longer than the processing lease. Issued papers and
+      // accepted pages must remain unchanged across this retry.
+      if (body.action === "process" && retry < 2 && value.error === "Recognition could not be saved. Retry this page.") {
+        console.log("RETRY: resuming an expired scan-processing lease.");
+        continue;
+      }
+      assert.equal(r.status, 200, JSON.stringify(value));
+      return value;
+    }
   };
   classId = check(
     await teacher
@@ -313,12 +322,21 @@ try {
     assert.ok(combined.includes(first.id.slice(0, 8).toUpperCase()));
     for (const other of sheets.slice(1))
       assert.ok(!combined.includes(other.student_name));
-    for (const q of material.questions)
-      assert.ok(combined.includes(pdfPlainText(q.prompt)));
+    const normalized = combined.replace(/\s+/g, " ");
+    for (const q of material.questions) {
+      // Equations are real typeset glyphs; verify the prose independently of
+      // PDF text extraction, which cannot recover outlined mathematical glyphs.
+      for (const part of splitPdfMath(q.prompt).filter((part) => !part.math)) {
+        const prose = part.text.replace(/\s+/g, " ").trim();
+        if (prose.length > 12) assert.ok(normalized.includes(prose), prose);
+      }
+    }
+    assert.match(combined, /\$(?:90|120|150|200)/);
+    assert.doesNotMatch(combined, /x\^|\(3x \+|!=|<=|>=/);
     if (kind !== "key")
       assert.doesNotMatch(
         combined,
-        /ANSWER KEY|Correct answers and teacher explanations/,
+        /ANSWER KEY|PRIVATE TEACHER KEY|Correct answers and teacher explanations/,
       );
     if (kind === "packet") {
       assert.ok(text.at(-1).includes("Template JM1"));
@@ -331,7 +349,13 @@ try {
       await writeFile(join(artifacts, "question-preview.png"), preview.bytes);
       await writeFile(join(artifacts, "answer-preview.png"), image.bytes);
     }
-    if (kind === "key") assert.match(combined, /ANSWER KEY/);
+    if (kind === "key") {
+      assert.match(combined, /PRIVATE TEACHER KEY/);
+      for (const slot of firstSheet.questions) {
+        const printed = printedScanChoice(slot, keyMap.get(slot.questionId).correct_answer);
+        assert.match(combined, new RegExp(`${slot.position}\\.\\s+${printed}\\.`));
+      }
+    }
   }
   const classPdf = await request(
     `/api/assignments/${assignmentId}/papers.pdf?classId=${classId}`,

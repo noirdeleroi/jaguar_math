@@ -1,8 +1,6 @@
 import { PDFDocument } from "pdf-lib";
-import {
-  buildAssignmentAnswerKeyPdf,
-  type AssignmentPdfMaterial,
-} from "./assignment-pdf.ts";
+import type { AssignmentPdfMaterial } from "./assignment-pdf.ts";
+import { buildMixedTestPaperPdf } from "./mixed-test-pdf.ts";
 import { buildScanSheetsPdf } from "./paper-scan-pdf.ts";
 import {
   CHOICES,
@@ -90,9 +88,7 @@ export async function buildPersonalizedPapersPdf(
       kind === "key" ? keys : undefined,
     );
     await append(
-      await buildAssignmentAnswerKeyPdf(material, {
-        questionsOnly: kind !== "key",
-      }),
+      await buildMixedTestPaperPdf(material, kind === "key"),
     );
     // Keep each student's question pages immediately followed by their QR sheet.
     if (kind === "packet")
