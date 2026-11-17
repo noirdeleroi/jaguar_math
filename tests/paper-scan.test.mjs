@@ -16,6 +16,7 @@ import QRCode from "qrcode";
 import { rgb } from "pdf-lib";
 import { scanPageResults } from "../lib/paper-scan-results.ts";
 import { ScanSourceCache } from "../lib/paper-scan-source-cache.ts";
+import { nextSheetNeedingInspection } from "../lib/paper-scan-navigation.ts";
 import {
   pageQuestions,
   parseQrPayload,
@@ -34,6 +35,29 @@ import {
   rasterizePdf,
   paperFeedScan,
 } from "./paper-scan-fixtures.mjs";
+
+test("inspection navigation skips graded and unscanned students and updates after review saves", () => {
+  const sheets = ["Echo", "Charlie", "Alpha", "Delta", "Bravo"].map((name) => ({ id: name, student_name: name, class_name: "11A" }));
+  const pages = [
+    { sheet_id: "Alpha", status: "accepted" },
+    { sheet_id: "Bravo", status: "rejected" },
+    { sheet_id: "Charlie", status: "accepted" },
+    { sheet_id: "Delta", status: "review" },
+    { sheet_id: "Delta", status: "accepted" },
+    { sheet_id: "Echo", status: "review" },
+    { sheet_id: null, status: "unidentified" },
+  ];
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Alpha").id, "Delta");
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Delta").id, "Echo");
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Echo").id, "Delta", "wrap within pending inspections");
+  pages[3].status = "accepted";
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Alpha").id, "Echo");
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Echo"), undefined, "never navigate back to the current student");
+  pages[5].status = "accepted";
+  assert.equal(nextSheetNeedingInspection(sheets, pages, "Alpha"), undefined);
+  assert.equal(nextSheetNeedingInspection([], [], "Alpha"), undefined);
+  assert.deepEqual(sheets.map((s) => s.id), ["Echo", "Charlie", "Alpha", "Delta", "Bravo"], "do not mutate the roster");
+});
 
 test("student question PDF uses numbered versions and contains no key or explanations", async () => {
   const pdf = await buildAssignmentAnswerKeyPdf(

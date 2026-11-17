@@ -837,6 +837,35 @@ try {
       console.log(
         "PASS: separate upload/dashboard/student pages, search, confidence for all answers, optional edits recalculate grades, mobile layout and teacher hold protection.",
       );
+      await tab.unroute(/variant=review-preview/);
+      await tab.setViewportSize({ width: 1440, height: 1000 });
+      const target = sheets.find((s) => s.student_name === "Demo Student 4");
+      const targetPage = check(await admin.from("paper_scan_pages").select("*").eq("sheet_id", target.id).single());
+      await post({ action: "review", pageId: targetPage.id, revision: targetPage.revision, reviewAction: "reopen", decisions: [], note: "Inspection navigation regression" });
+      await tab.reload();
+      await tab.getByRole("heading", { name: first.student_name, exact: true }).waitFor();
+      // Selecting a page must not carry that student's page into the next route.
+      await tab.getByRole("button", { name: "Page 1 · Needs attention", exact: true }).click();
+      const nextInspection = () => tab.getByRole("link", { name: "Next student needing inspection →", exact: true });
+      assert.ok((await nextInspection().getAttribute("href")).endsWith(`/${target.id}`), "skip the two graded students between these pending papers");
+      await nextInspection().click();
+      await tab.getByRole("heading", { name: target.student_name, exact: true }).waitFor();
+      const targetAnswer = printedScanChoice(target.questions[0], keyMap.get(target.questions[0].questionId).correct_answer);
+      const select = tab.getByRole("combobox", { name: "Answer for question 1", exact: true });
+      await select.selectOption(["A", "B", "C", "D"].find((id) => id !== targetAnswer));
+      await select.selectOption(targetAnswer);
+      await saveChange();
+      assert.ok((await nextInspection().getAttribute("href")).endsWith(`/${first.id}`), "wrap to the remaining pending student after saving");
+      await nextInspection().click();
+      await tab.getByRole("heading", { name: first.student_name, exact: true }).waitFor();
+      for (const slot of first.questions) {
+        const reading = held.readings.find((r) => r.position === slot.position);
+        await tab.getByRole("combobox", { name: `Answer for question ${slot.position}`, exact: true }).selectOption(reading.choice ?? "blank");
+      }
+      await saveChange();
+      await tab.getByText("No students need inspection.", { exact: true }).waitFor();
+      assert.equal(await nextInspection().count(), 0);
+      console.log("PASS: inspection navigation skips graded students, opens the correct student's page, wraps within pending reviews, and finishes the queue after real review saves.");
     } finally {
       await browser.close();
     }

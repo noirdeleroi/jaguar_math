@@ -22,6 +22,7 @@ import type { PageRow, ScanWorkspace, SheetRow } from "@/lib/paper-scan-types";
 import styles from "./scan-marking.module.css";
 import { scanPageResults } from "@/lib/paper-scan-results";
 import { SCAN_ALGORITHM } from "@/lib/paper-scan-version";
+import { nextSheetNeedingInspection } from "@/lib/paper-scan-navigation";
 
 type Decision = BubbleReading & { resolved: boolean };
 type Filter = "all" | "pending" | "graded" | "review";
@@ -229,24 +230,18 @@ export default function ScanMarkingWorkspace({
     (p) => !initialSheetId || p.sheet_id === initialSheetId,
   );
   const selectedId =
-    selected ??
+    availablePages.find((p) => p.id === selected)?.id ??
     availablePages.find((p) => p.status === "review")?.id ??
     availablePages.find((p) => p.status === "accepted")?.id ??
     availablePages[0]?.id;
-  const selectedPage = data.pages.find((p) => p.id === selectedId);
+  const selectedPage = availablePages.find((p) => p.id === selectedId);
   const detailSheet = data.sheets.find((sheet) => sheet.id === initialSheetId);
   const detailPages = availablePages
     .filter((p) => ["accepted", "review"].includes(p.status))
     .sort((a, b) => (a.sheet_page ?? 0) - (b.sheet_page ?? 0));
-  const ordered = [...data.sheets].sort(
-    (a, b) =>
-      a.class_name.localeCompare(b.class_name) ||
-      a.student_name.localeCompare(b.student_name),
-  );
-  const nextSheet =
-    ordered[
-      (ordered.findIndex((s) => s.id === initialSheetId) + 1) % ordered.length
-    ];
+  const nextInspection = initialSheetId
+    ? nextSheetNeedingInspection(data.sheets, data.pages, initialSheetId)
+    : undefined;
   const receivedPages = data.pages.filter((p) => ["accepted", "review", "unidentified"].includes(p.status));
   const alignedPages = receivedPages.filter((p) => !p.problem && p.status !== "unidentified");
   const confidence = averageConfidence(alignedPages.flatMap((p) => p.readings));
@@ -550,14 +545,21 @@ export default function ScanMarkingWorkspace({
           >
             All students
           </Link>
-          {nextSheet && nextSheet.id !== initialSheetId && (
+          {nextInspection ? (
             <Link
-              className="secondary-inline-button"
-              href={`/teacher/assignments/${assignmentId}/grading/${nextSheet.id}`}
+              className="teacher-button"
+              href={`/teacher/assignments/${assignmentId}/grading/${nextInspection.id}`}
+              title={`${nextInspection.student_name} · ${nextInspection.class_name}`}
             >
-              Next student →
+              Next student needing inspection →
             </Link>
-          )}
+          ) : loaded ? (
+            <span role="status">
+              {detailPages.some((p) => p.status === "review")
+                ? "This is the last student needing inspection."
+                : "No students need inspection."}
+            </span>
+          ) : null}
           {detailPages.map((p) => (
             <button
               className="secondary-inline-button"
