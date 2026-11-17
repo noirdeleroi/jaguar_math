@@ -25,11 +25,14 @@ import {
   bubblePosition,
   QR,
   SHEET_HEIGHT,
+  CHOICES,
+  MARKERS,
 } from "../lib/paper-scan-layout.ts";
 import {
   fixtureSheet,
   filledPdf,
   rasterizePdf,
+  paperFeedScan,
 } from "./paper-scan-fixtures.mjs";
 
 test("student question PDF uses numbered versions and contains no key or explanations", async () => {
@@ -167,6 +170,50 @@ test("alignment disagreement keeps grading blocked while supplying a visual-only
     })
     .stats();
   assert.ok(statistics.channels[0].min < 100);
+});
+
+test("scanner feed drift is verified against printed rings before accepting clear answers", async () => {
+  const sheet = fixtureSheet(10);
+  const rendered = await renderScanPage(await filledPdf([sheet]), 1, "application/pdf");
+  const scanned = await paperFeedScan(rendered.bytes);
+  const result = await recognizeScan(scanned, sheet.questions, sheet.token);
+  assert.ok(Math.max(...result.alignment.qrCornerErrors) > 3, "fixture must reproduce the former QR/marker disagreement");
+  assert.equal(result.problem, null);
+  assert.ok(result.alignment.rows.every((row) => row.contrast >= .30 && row.support >= .20));
+  assert.deepEqual(result.readings.map((r) => r.choice), sheet.questions.map((_, i) => CHOICES[i % 4]));
+  // A plausible QR and page frame are insufficient when the answer outlines
+  // are missing; do not label the erased row blank and finalize a false grade.
+  const metadata = await sharp(scanned).metadata();
+  const scale = metadata.height / SHEET_HEIGHT;
+  const covered = await sharp(scanned).composite([{
+    input: Buffer.from(`<svg width="${Math.ceil(190 * scale)}" height="${Math.ceil(16 * scale)}"><rect width="100%" height="100%" fill="white"/></svg>`),
+    left: Math.round(80 * scale), top: Math.round(233 * scale),
+  }]).png().toBuffer();
+  const unverified = await recognizeScan(covered, sheet.questions, sheet.token);
+  assert.match(unverified.problem, /Printed answer rows could not confirm/);
+  assert.ok(unverified.readings.every((r) => r.choice === null && !r.resolved));
+});
+
+test("one missing corner can be recovered from three distant squares, QR identity, and the printed answer grid", async () => {
+  const sheet = fixtureSheet(10);
+  const rendered = await renderScanPage(await filledPdf([sheet]), 1, "application/pdf");
+  const metadata = await sharp(rendered.bytes).metadata();
+  const scale = metadata.height / SHEET_HEIGHT;
+  const cover = (index) => ({
+    input: Buffer.from(`<svg width="${Math.ceil(22 * scale)}" height="${Math.ceil(22 * scale)}"><rect width="100%" height="100%" fill="white"/></svg>`),
+    left: Math.round((MARKERS[index].x - 11) * scale), top: Math.round((MARKERS[index].y - 11) * scale),
+  });
+  for (const missing of [0, 3]) {
+    const scanned = await sharp(rendered.bytes).composite([cover(missing)]).png().toBuffer();
+    const result = await recognizeScan(scanned, sheet.questions, sheet.token);
+    assert.equal(result.alignment.markerCount, 3, `missing corner ${missing}: ${JSON.stringify(result.alignment.markers)}`);
+    assert.equal(result.problem, null);
+    assert.deepEqual(result.readings.map((r) => r.choice), sheet.questions.map((_, i) => CHOICES[i % 4]));
+  }
+  const cropped = await sharp(rendered.bytes).composite([cover(0), cover(3)]).png().toBuffer();
+  const result = await recognizeScan(cropped, sheet.questions, sheet.token);
+  assert.match(result.problem, /alignment squares/);
+  assert.ok(result.readings.every((r) => r.choice === null));
 });
 test("scanner halftoning recovers QR and registration while preserving raw answer evidence", async () => {
   const sheet = fixtureSheet(10);

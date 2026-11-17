@@ -107,3 +107,25 @@ export async function rasterizePdf(bytes) {
   }
   return Buffer.from(await doc.save());
 }
+
+// A scanner can advance the paper unevenly between the four page corners.
+// Move the QR and upper answer rows a few points, tapering back to the unchanged
+// lower registration marks. This contains no real student scan data.
+export async function paperFeedScan(bytes, drift = 3.6) {
+  const { data, info } = await sharp(bytes).grayscale().raw().toBuffer({ resolveWithObject: true });
+  const scale = info.height / SHEET_HEIGHT;
+  const output = Buffer.alloc(data.length, 255);
+  const displacement = (y) => {
+    const points = [[0, 0], [50, 0], [65, drift], [240, drift], [400, 1], [500, 0], [SHEET_HEIGHT, 0]];
+    for (let i = 1; i < points.length; i++) if (y <= points[i][0]) {
+      const [left, a] = points[i - 1], [right, b] = points[i];
+      return a + (b - a) * (y - left) / (right - left);
+    }
+    return 0;
+  };
+  for (let y = 0; y < info.height; y++) {
+    const sourceY = Math.max(0, Math.min(info.height - 1, Math.round(y - displacement(y / scale) * scale)));
+    data.copy(output, y * info.width, sourceY * info.width, (sourceY + 1) * info.width);
+  }
+  return sharp(output, { raw: { width: info.width, height: info.height, channels: 1 } }).png().toBuffer();
+}

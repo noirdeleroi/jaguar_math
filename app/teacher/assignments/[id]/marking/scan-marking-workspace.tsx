@@ -21,6 +21,7 @@ import {
 import type { PageRow, ScanWorkspace, SheetRow } from "@/lib/paper-scan-types";
 import styles from "./scan-marking.module.css";
 import { scanPageResults } from "@/lib/paper-scan-results";
+import { SCAN_ALGORITHM } from "@/lib/paper-scan-version";
 
 type Decision = BubbleReading & { resolved: boolean };
 type Filter = "all" | "pending" | "graded" | "review";
@@ -246,11 +247,9 @@ export default function ScanMarkingWorkspace({
     ordered[
       (ordered.findIndex((s) => s.id === initialSheetId) + 1) % ordered.length
     ];
-  const confidence = averageConfidence(
-    data.pages
-      .filter((p) => ["accepted", "review"].includes(p.status))
-      .flatMap((p) => p.readings),
-  );
+  const receivedPages = data.pages.filter((p) => ["accepted", "review", "unidentified"].includes(p.status));
+  const alignedPages = receivedPages.filter((p) => !p.problem && p.status !== "unidentified");
+  const confidence = averageConfidence(alignedPages.flatMap((p) => p.readings));
   let checked = 0,
     agreed = 0;
   for (const page of data.pages)
@@ -276,10 +275,9 @@ export default function ScanMarkingWorkspace({
       }
   const oldScans = data.pages.filter(
     (p) =>
-      p.status === "review" &&
+      ["review", "unidentified"].includes(p.status) &&
       p.decisions === null &&
-      !p.problem &&
-      p.algorithm !== "jm-omr-1.2" &&
+      p.algorithm !== SCAN_ALGORITHM &&
       !data.audit.some(
         (a) => a.page_id === p.id && a.event.startsWith("manual_"),
       ),
@@ -348,6 +346,7 @@ export default function ScanMarkingWorkspace({
             <div>
               <strong>{confidence === null ? "—" : confidence + "%"}</strong>
               <span>Recognition confidence</span>
+              <small>{alignedPages.length} of {receivedPages.length} received pages aligned</small>
             </div>
             <div>
               <strong>
@@ -1002,7 +1001,9 @@ function PaperReview({
                   : "Provisional marking results"}
             </h3>
             <strong className={styles.resultScore}>
-              {results.score} / {results.maxScore}
+              {results.unresolved === questions.length && !dirty
+                ? "Awaiting grading"
+                : `${results.score} / ${results.maxScore}`}
             </strong>
             <p>
               {results.correct} correct · {results.incorrect} incorrect ·{" "}

@@ -1,6 +1,8 @@
 import jsQR, { type QRCode } from "jsqr";
 import sharp from "sharp";
 import { markConfidence } from "./paper-scan-confidence.ts";
+import { SCAN_ALGORITHM } from "./paper-scan-version.ts";
+export { SCAN_ALGORITHM } from "./paper-scan-version.ts";
 import {
   bubblePosition,
   CHOICES,
@@ -21,8 +23,14 @@ export type Recognition = {
   // Human-review evidence only. Never used to classify or finalize answers.
   reviewPreview?: Buffer;
   algorithm: string;
+  alignment?: {
+    qrCornerErrors: number[];
+    scale: number;
+    markers: (Point | null)[];
+    markerCount: number;
+    rows: { x: number; y: number; contrast: number; support: number }[];
+  };
 };
-export const SCAN_ALGORITHM = "jm-omr-1.2";
 
 // An eight-parameter projective map handles rotation, scale, skew and perspective.
 export function homography(from: Point[], to: Point[]) {
@@ -58,6 +66,21 @@ export function homography(from: Point[], to: Point[]) {
   };
 }
 
+// Three distant registration squares constrain a flatbed scan's affine map.
+// The QR and printed rings must independently verify this fallback below.
+function affineMap(from: Point[], to: Point[]) {
+  const u = { x: from[1].x - from[0].x, y: from[1].y - from[0].y };
+  const v = { x: from[2].x - from[0].x, y: from[2].y - from[0].y };
+  const determinant = u.x * v.y - u.y * v.x;
+  if (Math.abs(determinant) < 1e-9) throw new Error("Alignment is degenerate");
+  return (point: Point): Point => {
+    const x = point.x - from[0].x, y = point.y - from[0].y;
+    const a = (x * v.y - y * v.x) / determinant;
+    const b = (u.x * y - u.y * x) / determinant;
+    return { x: to[0].x + a * (to[1].x - to[0].x) + b * (to[2].x - to[0].x), y: to[0].y + a * (to[1].y - to[0].y) + b * (to[2].y - to[0].y) };
+  };
+}
+
 function sample(raster: Raster, p: Point) {
   const x = Math.round(p.x);
   const y = Math.round(p.y);
@@ -81,35 +104,30 @@ function refineBubbleRow(
   map: (point: Point) => Point,
   index: number,
 ) {
-  let best = { x: 0, y: 0 };
+  let best = { x: 0, y: 0, contrast: 0, support: 0 };
   let bestScore = -Infinity;
-  // Register small paper-feed shifts against printed rings. Exclude the
-  // darkest circle so a shaded answer cannot pull the search into its center.
-  for (let y = -2; y <= 2; y += 0.5)
-    for (let x = -2; x <= 2; x += 0.5) {
+  // Register local feed distortion against the *outline*, not the filled mark.
+  // Four points remain well below half the 17pt row / 39pt choice spacing.
+  // At least two independent empty outlines support a normal single/double mark.
+  for (let y = -4; y <= 4; y += 0.5)
+    for (let x = -4; x <= 4; x += 0.5) {
       const rings = CHOICES.map((_, c) => {
         const center = bubblePosition(index, c);
-        let ink = 0;
+        let ink = 0, inner = 0, outer = 0;
         for (let angle = 0; angle < 24; angle++) {
           const theta = (angle * Math.PI) / 12;
-          ink +=
-            1 -
-            sample(
-              raster,
-              map({
-                x: center.x + x + 6.2 * Math.cos(theta),
-                y: center.y + y + 6.2 * Math.sin(theta),
-              }),
-            ) /
-              255;
+          const darkness = (radius: number) => 1 - sample(raster, map({ x: center.x + x + radius * Math.cos(theta), y: center.y + y + radius * Math.sin(theta) })) / 255;
+          ink += darkness(6.2);
+          inner += darkness(3);
+          outer += darkness(8.5);
         }
-        return ink / 24;
-      }).sort((a, b) => a - b);
-      const score =
-        (rings[0] + rings[1] + rings[2]) / 3 - 0.003 * (x * x + y * y);
+        return (ink - .5 * inner - .5 * outer) / 24;
+      }).sort((a, b) => b - a);
+      const contrast = (rings[0] + rings[1]) / 2;
+      const score = contrast - 0.002 * (x * x + y * y);
       if (score > bestScore) {
         bestScore = score;
-        best = { x, y };
+        best = { x, y, contrast, support: rings[1] };
       }
     }
   return best;
@@ -123,8 +141,8 @@ function findMarker(
   const radius = Math.round(45 * scale);
   const x0 = Math.max(0, Math.round(prediction.x) - radius);
   const y0 = Math.max(0, Math.round(prediction.y) - radius);
-  const x1 = Math.min(raster.width, x0 + 2 * radius);
-  const y1 = Math.min(raster.height, y0 + 2 * radius);
+  const x1 = Math.min(raster.width, Math.round(prediction.x) + radius + 1);
+  const y1 = Math.min(raster.height, Math.round(prediction.y) + radius + 1);
   if (x1 <= x0 || y1 <= y0) return null;
   const w = x1 - x0;
   const h = y1 - y0;
@@ -182,9 +200,11 @@ function findMarker(
       )
         continue;
       const point = { x: x0 + sx / queue.length, y: y0 + sy / queue.length };
+      const distance = Math.hypot(point.x - prediction.x, point.y - prediction.y);
+      if (distance > radius) continue;
       candidates.push({
         point,
-        distance: Math.hypot(point.x - prediction.x, point.y - prediction.y),
+        distance,
       });
     }
   candidates.sort((a, b) => a.distance - b.distance);
@@ -408,11 +428,15 @@ export async function recognizeScan(
       (p, i) => markers[i] ?? findMarker(alignmentRaster, predict(p), scale),
     );
   }
-  if (markers.some((p) => !p))
+  const markerCount = markers.filter(Boolean).length;
+  if (markerCount < 3 || (markerCount < 4 && (!found.identifier || forcedRotation !== undefined)))
     return fail(
       "All four alignment squares must be clear and visible. Rescan or review manually.",
     );
-  const map = homography(MARKERS, markers as Point[]);
+  const present = MARKERS.map((point, i) => ({ source: point, target: markers[i] })).filter((pair): pair is { source: Point; target: Point } => Boolean(pair.target));
+  const map = markerCount === 4
+    ? homography(MARKERS, markers as Point[])
+    : affineMap(present.map((pair) => pair.source), present.map((pair) => pair.target));
   const qrCorners = found.qr
     ? [
         found.qr.location.topLeftCorner,
@@ -421,22 +445,39 @@ export async function recognizeScan(
         found.qr.location.bottomLeftCorner,
       ]
     : [];
+  const alignment = {
+    qrCornerErrors: qrCorners.map((point, i) => Math.hypot(map(qrSource[i]).x - point.x, map(qrSource[i]).y - point.y) / scale),
+    scale,
+    markers,
+    markerCount,
+    rows: [] as { x: number; y: number; contrast: number; support: number }[],
+  };
+  const maximumQrError = Math.max(0, ...alignment.qrCornerErrors);
+  // Decoder corner estimates and paper-feed drift can differ by a QR module.
+  // Beyond the old 3pt gate, require direct evidence from every printed row.
+  // A two-module bound still rejects a displaced QR / wrong page transform.
+  const needsGridVerification = markerCount < 4 || maximumQrError > 3;
+  const maximumDrift = 2 * QR.size / (QR.modules + 2 * QR.quiet);
   if (
     found.qr &&
     found.identifier &&
-    qrSource.some(
-      (p, i) =>
-        Math.hypot(map(p).x - qrCorners[i].x, map(p).y - qrCorners[i].y) /
-          scale >
-        3,
-    )
+    maximumQrError > maximumDrift
   )
     return {
       ...fail("QR and alignment squares disagree. Rescan or review manually."),
+      alignment,
+      reviewPreview: await normalizeReviewRaster(raster, map),
+    };
+  const offsets = questions.map((_, i) => refineBubbleRow(raster, map, i));
+  alignment.rows = offsets;
+  if (needsGridVerification && offsets.some((row) => row.contrast < .30 || row.support < .20))
+    return {
+      ...fail("Printed answer rows could not confirm page alignment. Rescan or review manually."),
+      alignment,
       reviewPreview: await normalizeReviewRaster(raster, map),
     };
   const readings: BubbleReading[] = questions.map((question, i) => {
-    const offset = refineBubbleRow(raster, map, i);
+    const offset = offsets[i];
     const densities: number[] = [];
     const quadrants: number[] = [];
     const outside: number[] = [];
@@ -485,5 +526,6 @@ export async function recognizeScan(
         : null,
     normalized: await normalizeReviewRaster(raster, map),
     algorithm: SCAN_ALGORITHM,
+    alignment,
   };
 }

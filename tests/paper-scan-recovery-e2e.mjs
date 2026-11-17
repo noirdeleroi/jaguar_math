@@ -6,8 +6,9 @@ import { tmpdir } from "node:os";
 import nextEnv from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
-import { filledPdf, fixtureSheet } from "./paper-scan-fixtures.mjs";
+import { filledPdf, fixtureSheet, paperFeedScan } from "./paper-scan-fixtures.mjs";
 import { renderScanPage } from "../lib/paper-scan-render.ts";
+import { SCAN_ALGORITHM } from "../lib/paper-scan-version.ts";
 if (process.env.RUN_PAPER_SCAN_E2E !== "1")
   throw new Error("Set RUN_PAPER_SCAN_E2E=1.");
 nextEnv.loadEnvConfig(process.cwd());
@@ -156,6 +157,7 @@ try {
     return i === 0 ? correct : (correct + 1) % 4;
   });
   const image = await renderScanPage(pdf, 1, "application/pdf");
+  const scanned = await paperFeedScan(image.bytes);
   const batch = randomUUID(),
     root = `${users[0].id}/${assignmentId}/${batch}`,
     source = root + "/source",
@@ -169,7 +171,7 @@ try {
   check(
     await admin.storage
       .from("paper-scans")
-      .upload(original, image.bytes, { contentType: "image/png" }),
+      .upload(original, scanned, { contentType: "image/png" }),
   );
   check(
     await admin.from("paper_scan_batches").insert({
@@ -194,10 +196,12 @@ try {
         batch_id: batch,
         source_page: 1,
         image_path: original,
-        status: "unidentified",
-        readings: [],
-        problem: "QR code unreadable",
-        algorithm: "jm-omr-1.0",
+        status: "review",
+        sheet_id: sheet.id,
+        sheet_page: 1,
+        readings: sheet.questions.map((q) => ({ position: q.position, choice: null, status: "unreadable", densities: [] })),
+        problem: "QR and alignment squares disagree. Rescan or review manually.",
+        algorithm: "jm-omr-1.2",
       })
       .select("*")
       .single(),
@@ -214,6 +218,23 @@ try {
     });
     return { status: r.status, value: await r.json() };
   };
+  const previousReadings = page.readings;
+  if (process.env.PLAYWRIGHT_MODULE) {
+    const pw = await import("file:///" + process.env.PLAYWRIGHT_MODULE.replaceAll("\\", "/"));
+    const { chromium } = pw.default ?? pw;
+    const browser = await chromium.launch({ headless: true, channel: "chrome" });
+    try {
+      const context = await browser.newContext();
+      await context.addCookies([...jar].map(([name, value]) => ({ name, value, url: base })));
+      const tab = await context.newPage();
+      await tab.goto(`${base}/teacher/assignments/${assignmentId}/grading`);
+      await tab.getByRole("button", { name: "Automatically grade saved scans (1)", exact: true }).waitFor();
+      await tab.getByText("0 of 1 received pages aligned", { exact: true }).waitFor();
+      await tab.goto(`${base}/teacher/assignments/${assignmentId}/grading/${s.id}`);
+      await tab.getByText("Awaiting grading", { exact: true }).waitFor();
+      assert.equal(await tab.getByText("0 / 2", { exact: true }).count(), 0);
+    } finally { await browser.close(); }
+  }
   const retried = await request({
     action: "reprocess",
     pageId: page.id,
@@ -222,6 +243,8 @@ try {
   assert.equal(retried.status, 200, JSON.stringify(retried.value));
   page = retried.value.page;
   assert.equal(page.status, "accepted");
+  assert.equal(page.algorithm, SCAN_ALGORITHM);
+  assert.equal(page.problem, null);
   assert.equal(page.sheet_id, s.id);
   assert.equal(page.image_path, original);
   const grade = check(
@@ -239,8 +262,8 @@ try {
       .eq("page_id", page.id)
       .eq("event", "recognition_retried"),
   );
-  assert.equal(audit[0].detail.previousStatus, "unidentified");
-  assert.deepEqual(audit[0].detail.previousReadings, []);
+  assert.equal(audit[0].detail.previousStatus, "review");
+  assert.deepEqual(audit[0].detail.previousReadings, previousReadings);
   assert.equal(
     (await request({ action: "reprocess", pageId: page.id, revision: 1 }))
       .status,
@@ -333,7 +356,7 @@ try {
   assert.equal(held.status, "in_progress");
   assert.equal(held.score, null);
   console.log(
-    "PASS: retry recovers identity, grades once, shows correct/incorrect on desktop/mobile, preserves original evidence/audit, rejects stale and finalized retries, and preserves manual holds.",
+    "PASS: retry recovers identity and scanner-feed drift, grades once, preserves original evidence/audit, rejects stale and finalized retries, and preserves manual holds.",
   );
 } finally {
   if (assignmentId) {
