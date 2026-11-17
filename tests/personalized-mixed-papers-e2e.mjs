@@ -317,6 +317,7 @@ try {
     await writeFile(join(artifacts, `${kind}.pdf`), bytes);
     const text = await pdfText(bytes),
       combined = text.join(" ");
+    assert.equal(text.length, kind === "questions" ? 2 : 3, "two question pages plus the separate QR sheet or private key");
     assert.ok(combined.includes(first.student_name));
     assert.ok(combined.includes(first.class_name));
     assert.ok(combined.includes(first.id.slice(0, 8).toUpperCase()));

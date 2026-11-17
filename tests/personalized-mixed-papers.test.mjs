@@ -190,7 +190,7 @@ test("math delimiters preserve currency, escaped dollars, and inline/display for
   assert.equal(splitPdfMath("\\[x+1\\]")[0].display, true);
 });
 
-test("the real 10x4 Unit 1 import produces four complete typeset single-page student papers", async () => {
+test("the real 10x4 Unit 1 import gives every student two typeset pages, prominent names, and blank working space", async () => {
   const exam = JSON.parse(readFileSync(new URL("../data/assessment-imports/unit-1-mathematics-test-10q-4v.json", import.meta.url)));
   const questions = new Map(), keys = new Map();
   for (const [i, group] of exam.question_groups.entries()) for (const [v, q] of group.entries()) {
@@ -211,27 +211,39 @@ test("the real 10x4 Unit 1 import produces four complete typeset single-page stu
   const task = getDocument({ data: new Uint8Array(bytes), useSystemFonts: true });
   const doc = await task.promise;
   try {
-    assert.equal(doc.numPages, 4, "each student's ten questions fit on one A4 page");
-    for (let i = 1; i <= 4; i++) {
+    assert.equal(doc.numPages, 8, "each student's ten questions use exactly two A4 question pages");
+    for (let i = 1; i <= 8; i++) {
+      const studentIndex = Math.floor((i - 1) / 2);
       const page = await doc.getPage(i);
       const items = (await page.getTextContent()).items.filter((item) => item.str?.trim());
       const content = items.map((item) => item.str).join(" ");
-      assert.match(content, new RegExp(`Layout Student ${i}`));
-      assert.match(content, /10 questions.*10 points/);
-      assert.match(content, /\$(?:90|120|150|200)/, "currency signs survive PDF rendering");
+      assert.match(content, new RegExp(`Layout Student ${studentIndex + 1}`));
+      assert.ok(items.some((item) => /Layout|Student/.test(item.str) && Math.abs(item.transform[0]) >= 22), "the student name is large on both pages");
+      if (i % 2) {
+        assert.match(content, /10 questions.*10 points/);
+        assert.match(content, /\$(?:90|120|150|200)/, "currency signs survive PDF rendering");
+      }
+      assert.match(content, new RegExp(`Paper ${i % 2 ? 1 : 2} / 2`));
       assert.doesNotMatch(content, /PRIVATE_EXPLANATION|PRIVATE TEACHER KEY|ANSWER KEY|x\^|!=|<=|>=|\(3x \+/);
-      assert.equal(items.filter((item) => /^[ABCD]\.$/.test(item.str)).length, 40);
+      assert.equal(items.filter((item) => /^[ABCD]\.$/.test(item.str)).length, 20);
       const numberItems = items.filter((item) => /^(?:[1-9]|10)\.$/.test(item.str));
-      assert.deepEqual(numberItems.map((item) => Number.parseInt(item.str)), [1,2,3,4,5,6,7,8,9,10]);
+      assert.deepEqual(numberItems.map((item) => Number.parseInt(item.str)), i % 2 ? [1,2,3,4,5] : [6,7,8,9,10]);
       assert.ok(numberItems.some((item) => item.transform[4] > 297), "questions use the second column");
+      for (const number of numberItems) {
+        const next = numberItems.find((candidate) => candidate.transform[4] === number.transform[4] && candidate.transform[5] < number.transform[5]);
+        const bottom = next?.transform[5] ?? 54;
+        const body = items.filter((item) => item.transform[4] > number.transform[4] && item.transform[4] < number.transform[4] + 249 && item.transform[5] <= number.transform[5] && item.transform[5] > bottom + (next ? 12 : 0));
+        const blankHeight = Math.min(...body.map((item) => item.transform[5])) - bottom;
+        assert.ok(blankHeight >= 45, `page ${i}, question ${number.str}: ${blankHeight}pt of blank working space`);
+      }
       for (const item of items) {
         assert.ok(item.transform[4] >= 35 && item.transform[4] + item.width <= 561, `text within horizontal margins: ${item.str}`);
         assert.ok(item.transform[5] >= 24 && item.transform[5] <= 810, `text within vertical margins: ${item.str}`);
       }
       const ops = await page.getOperatorList();
-      assert.ok(ops.fnArray.filter((op) => op === OPS.paintImageXObject).length >= 15, "fractions, powers, and inequalities are typeset rather than flattened text");
-      const material = personalizedPaperMaterial("Unit 1", sheets[i - 1], questions, keys);
-      for (const [q, slot] of material.questions.map((q, n) => [q, sheets[i - 1].questions[n]])) {
+      assert.ok(ops.fnArray.filter((op) => op === OPS.paintImageXObject).length >= 6, "fractions, powers, and inequalities are typeset rather than flattened text");
+      const material = personalizedPaperMaterial("Unit 1", sheets[studentIndex], questions, keys);
+      for (const [q, slot] of material.questions.map((q, n) => [q, sheets[studentIndex].questions[n]])) {
         const source = questions.get(slot.questionId);
         assert.equal(q.options.find((o) => o.id === q.correctAnswer).text, source.options.find((o) => o.id === keys.get(source.id).correct_answer).text);
       }

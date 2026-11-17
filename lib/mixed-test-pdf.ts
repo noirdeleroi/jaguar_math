@@ -9,6 +9,7 @@ const MARGIN = 36;
 const GAP = 26;
 const COLUMN = (WIDTH - 2 * MARGIN - GAP) / 2;
 const BOTTOM = 54;
+const WORKING_SPACE = 54;
 const INK = rgb(.08, .15, .13);
 const MUTED = rgb(.35, .41, .39);
 const RULE = rgb(.79, .82, .80);
@@ -37,7 +38,7 @@ async function questionBlock(text: PdfMathText, question: AssignmentPdfQuestion,
       rows.push({ cells: [{ label: option.id, block }], height: block.height + 4 });
     }
   }
-  return { question, prompt, rows, height: prompt.height + 6 + rows.reduce((sum, row) => sum + row.height, 0) + (rows.length ? 15 : 42) };
+  return { question, prompt, rows, height: prompt.height + 6 + rows.reduce((sum, row) => sum + row.height, 0) + 15 + WORKING_SPACE };
 }
 
 function drawQuestion(page: PDFPage, block: QuestionBlock, text: PdfMathText, bold: PDFFont, x: number, top: number, width = COLUMN) {
@@ -52,7 +53,6 @@ function drawQuestion(page: PDFPage, block: QuestionBlock, text: PdfMathText, bo
     });
     y -= row.height;
   }
-  if (!block.rows.length) page.drawLine({ start: { x: x + 17, y: y - 20 }, end: { x: x + width, y: y - 20 }, thickness: .5, color: RULE });
 }
 
 // Choose a contiguous prefix that fits both columns, then balance their height.
@@ -81,6 +81,7 @@ export async function buildMixedTestPaperPdf(material: AssignmentPdfMaterial, in
   const serifBold = await doc.embedFont(StandardFonts.TimesRomanBold);
   const small = await doc.embedFont(StandardFonts.Helvetica);
   const text = new PdfMathText(doc, regular);
+  const nameText = new PdfMathText(doc, bold);
   doc.setTitle(pdfPlainText(material.title));
   doc.setAuthor("Jaguar Math");
   doc.setSubject(includeKey ? "Personalized paper and private teacher key" : "Personalized student question paper");
@@ -116,8 +117,10 @@ export async function buildMixedTestPaperPdf(material: AssignmentPdfMaterial, in
       top -= 8;
     }
     if (identity) {
-      top = await writeWrapped(page, `${identity.name}  |  Class ${identity.className}`, top, first ? 11 : 9);
-      top = await writeWrapped(page, `Student ID: ${identity.code}  |  ${identity.paper}`, top, 9);
+      const name = await nameText.layout(identity.name, WIDTH - 2 * MARGIN, 22);
+      nameText.draw(page, name, MARGIN, top, WIDTH - 2 * MARGIN);
+      top -= name.height + 4;
+      top = await writeWrapped(page, `Class ${identity.className}  |  Student ID: ${identity.code}  |  ${identity.paper}`, top, 9);
       top -= 5;
     } else top = await writeWrapped(page, "Name: _________________________________    Class: __________    Date: __________", top, 9);
     if (first && !key) {
@@ -129,10 +132,13 @@ export async function buildMixedTestPaperPdf(material: AssignmentPdfMaterial, in
   };
 
   let index = 0;
+  // Give ordinary tests two question pages, with the first half followed by the
+  // second half. Oversized assessments can still flow onto additional pages.
+  const questionsPerPage = Math.ceil(blocks.length / 2);
   while (index < blocks.length) {
     const { page, top } = await header(index === 0);
     const available = top - BOTTOM;
-    const fit = columns(blocks.slice(index), available);
+    const fit = columns(blocks.slice(index, index + questionsPerPage), available);
     if (!fit.count) {
       // Exceptionally long items use the full page width. If even that cannot
       // fit, continue at a measured line boundary with a repeated question ID.
@@ -166,7 +172,8 @@ export async function buildMixedTestPaperPdf(material: AssignmentPdfMaterial, in
     [pageBlocks.slice(0, fit.split), pageBlocks.slice(fit.split)].forEach((column, columnIndex) => {
       let y = top;
       const x = MARGIN + columnIndex * (COLUMN + GAP);
-      for (const block of column) { drawQuestion(page, block, text, bold, x, y); y -= block.height; }
+      const extraSpace = column.length ? Math.max(0, available - column.reduce((sum, block) => sum + block.height, 0)) / column.length : 0;
+      for (const block of column) { drawQuestion(page, block, text, bold, x, y); y -= block.height + extraSpace; }
     });
     if (fit.split < fit.count) page.drawLine({ start: { x: WIDTH / 2, y: top }, end: { x: WIDTH / 2, y: BOTTOM }, thickness: .4, color: RULE });
     index += fit.count;
