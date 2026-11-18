@@ -180,6 +180,43 @@
   line-height: 1;
 }
 
+.classworkHomeworkHead.classworkHomeworkHead {
+  background: #ebe2f5 !important;
+  box-shadow: inset 0 3px #8055a4;
+}
+
+.classworkHomeworkHead strong {
+  color: #563573;
+}
+
+.classworkHomeworkHead span,
+.classworkHomeworkHead small {
+  color: #756086;
+}
+
+.classworkHomeworkHead button {
+  border-color: #9b7bb6;
+  color: #563573;
+}
+
+.classworkHomeworkHead .copyColumnButton:not(:disabled) {
+  border-color: #765094;
+  background: #765094;
+  color: #fff;
+}
+
+.classworkHomeworkCell.classworkHomeworkCell {
+  background: #f3edf9 !important;
+}
+
+.classworkHomeworkCell strong {
+  color: #633c81;
+}
+
+.classworkHomeworkCell small {
+  color: #756086;
+}
+
 .finalGradeEditable {
   cursor: pointer;
   outline: none;
