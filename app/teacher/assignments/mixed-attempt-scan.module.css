@@ -1,0 +1,14 @@
+.panel { margin: 18px 0; padding: 18px; border: 1px solid #c4d0c3; border-radius: 10px; background: #f5f9f2; color: #183f35; }
+.heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.heading a { font-size: 13px; }
+.row { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.snippet { flex: 1 1 300px; max-width: 420px; min-width: 0; }
+.answer { display: grid; gap: 6px; min-width: 130px; font-size: 13px; font-weight: 700; }
+.answer select { width: 100%; padding: 10px 14px; border: 1px solid #bfcbbf; border-radius: 7px; background: #fffdf7; color: #183f35; font: inherit; }
+.confidence { display: grid; gap: 6px; font-size: 12px; }
+.confidence strong { font-size: 17px; }
+.panel > small { display: block; margin-top: 12px; color: #526c60; }
+.dialog { width: min(900px, calc(100vw - 32px)); max-width: 900px; max-height: calc(100vh - 40px); padding: 24px; border: 1px solid #b9cbb9; border-radius: 12px; background: #fffdf6; color: #183f35; }
+.dialog::backdrop { background: #10251fd0; }
+.dialog h3 { margin: 0; }
+@media (max-width: 600px) { .panel { padding: 12px; } .snippet { flex-basis: 100%; max-width: none; } .dialog { padding: 14px; } }

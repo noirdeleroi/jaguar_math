@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import BusinessPosterProjectDialog from "./business-poster-project";
 import { BUSINESS_POSTER_TITLE, projectColumnGrades, type BusinessPosterProject } from "@/lib/business-poster-project";
+import { withMissingGrades } from "@/lib/classroom-missing-grade";
 import { useRouter } from "next/navigation";
 import type { AvailableClassroomAssessment, ClassroomCwRecord, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomHomeworkAssignment, ClassroomStarState, ClassroomSyncPayload, ClassroomWeek, ClassroomWorkItem, QueuedSkullEvent, QueuedStarEvent, TeacherClassOption, WorkKind, WorkStatus } from "@/lib/classroom-stars";
 import { calculateHomeworkCompletionPercentage, clampTopicGrade, evaluateTopicFinalGradeFormula, isPassingTopicGrade, topicGradeFormulaUsesVariable } from "@/lib/classroom-topic-grade";
@@ -801,7 +802,15 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
 
   function saveProject(project: BusinessPosterProject) {
     setProjects((current) => current.map((item) => item.workItemId === project.workItemId ? project : item));
-    setGradeColumns((current) => current.map((column) => column.id === project.columnId ? { ...column, ...projectColumnGrades(project, new Set(data.students.map((student) => student.id))) } : column));
+    setGradeColumns((current) => current.map((column) => {
+      if (column.id !== project.columnId) return column;
+      const generated = projectColumnGrades(project, new Set(data.students.map((student) => student.id))).scores;
+      const entries = Object.entries(column.scores).flatMap(([student_id, grade]) => grade.isManual ? [{ student_id, score: grade.score }] : []);
+      const scores = withMissingGrades(generated, entries, column.maxScore);
+      const percentages = Object.values(scores).map((grade) => grade.percent);
+      return { ...column, scores, average: percentages.length ? Math.round(percentages.reduce((sum, grade) => sum + grade, 0) / percentages.length) : null };
+    }));
+    router.refresh();
   }
 
   function addWorkItem() {
@@ -1214,8 +1223,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
     }
     const { column } = sheetColumn;
     const score = column.scores[student.id];
+    if (column.source === "manual" || ((!score || score.isManual) && Number(column.maxScore) > 0)) return <ManualGradeCell classId={data.classroom.id} className={`${topicPaletteClass} ${selectionClass}`} column={column} key={sheetColumn.id} onSaved={(grade) => saveManualGrade(column.id, student.id, grade)} studentId={student.id} studentName={student.fullName} />;
     if (column.source === "project") return <td className={`${gradebookStyles.assessmentCell} ${topicPaletteClass} ${selectionClass}`} key={sheetColumn.id}><button aria-label={`${column.title} grade for ${student.fullName}`} onClick={() => { const project = projects.find((item) => item.columnId === column.id); if (project) setProjectDialogId(project.workItemId); }} type="button"><strong>{score ? `${score.score}/100` : "—"}</strong><span>{score ? `${score.percent}%` : "Ungraded"}</span></button></td>;
-    if (column.source === "manual") return <ManualGradeCell classId={data.classroom.id} className={`${topicPaletteClass} ${selectionClass}`} column={column} key={sheetColumn.id} onSaved={(grade) => saveManualGrade(column.id, student.id, grade)} studentId={student.id} studentName={student.fullName} />;
     return <td className={`${gradebookStyles.assessmentCell} ${topicPaletteClass} ${selectionClass}`} key={sheetColumn.id}>{score && column.assignmentId && score.attemptId ? <a href={`/teacher/assignments/${column.assignmentId}/attempts/${score.attemptId}`}><strong>{score.percent}%</strong><span>{score.score}/{score.maxScore}</span></a> : <strong title="Absent">—</strong>}</td>;
   }
 

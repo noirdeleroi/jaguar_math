@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { gradebookColumnClipboardText, gradebookColumnValues, workStatusGrade } from "../lib/gradebook-column-export.ts";
+import { withMissingGrades } from "../lib/classroom-missing-grade.ts";
 
 const roster = [
   { gradebookCode: "20", gradebookName: "Second Student", sortOrder: 2, studentId: "student-2" },
@@ -24,4 +25,26 @@ test("HW and CW statuses use spreadsheet-ready numeric grades", () => {
   assert.equal(workStatusGrade("late"), 1);
   assert.equal(workStatusGrade("not_ok"), 0);
   assert.equal(workStatusGrade(undefined), 0);
+});
+
+test("missing assessment grades include zero and decimals but never replace submitted scores", () => {
+  const generated = { existing: { attemptId: "attempt", score: 0, maxScore: 10, percent: 0 } };
+  const entries = [
+    { student_id: "existing", score: 10 },
+    { student_id: "missing", score: "8.5" },
+    { student_id: "zero", score: 0 },
+    { student_id: "above", score: 11 },
+    { student_id: "invalid", score: "bad" },
+  ];
+  const scores = withMissingGrades(generated, entries, 10);
+  assert.deepEqual(scores.existing, generated.existing);
+  assert.deepEqual(scores.missing, { attemptId: null, isManual: true, score: 8.5, maxScore: 10, percent: 85 });
+  assert.equal(scores.zero.score, 0);
+  assert.equal(scores.above, undefined);
+  assert.equal(scores.invalid, undefined);
+  assert.equal(generated.missing, undefined);
+  assert.deepEqual(withMissingGrades(generated, entries, null), generated);
+  assert.deepEqual(withMissingGrades(generated, entries, 0), generated);
+  const completed = { ...generated, missing: { attemptId: "new-attempt", score: 9, maxScore: 10, percent: 90 } };
+  assert.equal(withMissingGrades(completed, entries, 10).missing.attemptId, "new-attempt");
 });

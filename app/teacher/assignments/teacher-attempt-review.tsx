@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import QuestionReview from "@/app/components/question-review";
+import type { AttemptScan } from "@/lib/paper-scan-attempt";
+import MixedAttemptScan from "./mixed-attempt-scan";
 
 type Option = { id: string; text: string };
 type Skill = { code: string; name: string; isPrimary: boolean };
@@ -37,7 +39,7 @@ function stateLabel(question: TeacherReviewQuestion) {
   return "Not scored";
 }
 
-export default function TeacherAttemptReview({ questions }: { questions: TeacherReviewQuestion[] }) {
+export default function TeacherAttemptReview({ questions, scan }: { questions: TeacherReviewQuestion[]; scan?: AttemptScan }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const question = questions[currentIndex];
   if (!question) return <p className="form-note">No questions are available for this attempt.</p>;
@@ -56,6 +58,7 @@ export default function TeacherAttemptReview({ questions }: { questions: Teacher
     </nav>
     <div className={`teacher-attempt-question-stage ${state}`}>
       <div className="teacher-attempt-current-heading"><div><span>Question {question.number} of {questions.length}</span><strong>{stateLabel(question)}</strong></div><b>{question.earnedPoints === null ? `Not graded · ${question.points} pts` : `${question.earnedPoints} / ${question.points} points`}</b></div>
+      {scan ? <MixedAttemptScan scan={scan} questionId={question.id} studentAnswer={question.studentAnswer} /> : null}
       <QuestionReview correctAnswer={question.correctAnswer} earnedPoints={question.earnedPoints} explanation={question.explanation} footer={<p className="attempt-skills">Jaguar skills: {question.skills.length ? question.skills.map((skill) => <span key={skill.code}>{skill.isPrimary ? "Primary · " : ""}{skill.code} — {skill.name}</span>) : "No linked skill"}</p>} isCorrect={question.isCorrect} number={question.number} options={question.options} points={question.points} prompt={question.prompt} studentAnswer={question.studentAnswer} type={question.type} />
     </div>
     <footer className="teacher-attempt-review-controls"><button disabled={currentIndex === 0} onClick={() => setCurrentIndex((index) => index - 1)} type="button">← Previous</button><span>Question {currentIndex + 1} of {questions.length}</span><button disabled={currentIndex === questions.length - 1} onClick={() => setCurrentIndex((index) => index + 1)} type="button">Next →</button></footer>

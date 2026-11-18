@@ -67,6 +67,7 @@ export type ClassroomStarState = {
 
 export type ClassroomGrade = {
   attemptId: string | null;
+  isManual?: boolean;
   score: number;
   maxScore: number;
   percent: number;

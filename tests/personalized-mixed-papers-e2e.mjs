@@ -10,7 +10,7 @@ import { createServerClient } from "@supabase/ssr";
 import { filledPdf } from "./paper-scan-fixtures.mjs";
 import { renderScanPage } from "../lib/paper-scan-render.ts";
 import { identifyScan } from "../lib/paper-scan-recognition.ts";
-import { printedScanChoice } from "../lib/paper-scan-layout.ts";
+import { CHOICES, printedScanChoice } from "../lib/paper-scan-layout.ts";
 import { personalizedPaperMaterial } from "../lib/paper-scan-papers.ts";
 import { splitPdfMath } from "../lib/pdf-math-text.ts";
 
@@ -866,6 +866,107 @@ try {
       await tab.getByText("No students need inspection.", { exact: true }).waitFor();
       assert.equal(await nextInspection().count(), 0);
       console.log("PASS: inspection navigation skips graded students, opens the correct student's page, wraps within pending reviews, and finishes the queue after real review saves.");
+
+      // The student result view must show the same paper evidence and confirm corrections.
+      const resultUrl = `${base}/teacher/assignments/${assignmentId}/attempts/${attemptId}`;
+      const scanPage = () => admin.from("paper_scan_pages").select("id,revision,decisions,readings,status").eq("sheet_id", first.id).single().then(check);
+      const attemptScore = () => admin.from("attempts").select("score").eq("id", attemptId).single().then(check);
+      const responseRows = () => admin.from("responses").select("question_id,student_answer,is_correct,points_awarded").eq("attempt_id", attemptId).order("question_id").then(check);
+      const beforeResultPage = await scanPage();
+      const beforeResultScore = await attemptScore();
+      const beforeResultResponses = await responseRows();
+      const firstResponse = beforeResultResponses.find((r) => r.question_id === first.questions[0].questionId);
+      await tab.goto(resultUrl);
+      await tab.getByRole("heading", { name: "Review each response", exact: true }).waitFor();
+      await tab.getByRole("button", { name: "Enlarge scan for question 1", exact: true }).waitFor();
+      const resultAnswer = () => tab.getByRole("combobox", { name: "Scanned answer for question 1", exact: true });
+      const resultSave = () => tab.getByRole("button", { name: "Save answer change", exact: true });
+      const resultCorrect = printedScanChoice(first.questions[0], keyMap.get(first.questions[0].questionId).correct_answer);
+      const resultOriginal = firstResponse.student_answer ? printedScanChoice(first.questions[0], firstResponse.student_answer) : "blank";
+      assert.equal(await resultAnswer().inputValue(), resultOriginal);
+      await tab.getByRole("button", { name: "Enlarge scan for question 1", exact: true }).click();
+      await tab.getByRole("dialog", { name: "Scanned answer · Question 1", exact: true }).waitFor();
+      await tab.keyboard.press("Escape");
+      await tab.getByRole("button", { name: /^Question 2:/ }).click();
+      await tab.getByRole("button", { name: "Enlarge scan for question 2", exact: true }).waitFor();
+      await tab.getByRole("button", { name: /^Question 1:/ }).click();
+      const resultWrong = CHOICES.find((c) => c !== resultCorrect && c !== resultOriginal);
+      await resultAnswer().selectOption(resultWrong);
+      tab.once("dialog", (dialog) => { assert.match(dialog.message(), /recalculate.*grade/); void dialog.dismiss(); });
+      await resultSave().click();
+      assert.deepEqual(await scanPage(), beforeResultPage, "cancelling confirmation never saves a correction");
+      assert.deepEqual(await responseRows(), beforeResultResponses);
+
+      // Another tab changing the paper must not be overwritten by this view.
+      await post({ action: "review", pageId: beforeResultPage.id, revision: beforeResultPage.revision, reviewAction: "accept", decisions: beforeResultPage.decisions, note: "Simulated concurrent teacher review" });
+      const concurrentPage = await scanPage();
+      tab.once("dialog", (dialog) => void dialog.accept());
+      const staleResponse = tab.waitForResponse((r) => r.url().endsWith("/scans") && r.request().method() === "POST");
+      await resultSave().click();
+      assert.equal((await staleResponse).status(), 409);
+      await tab.getByRole("alert").filter({ hasText: "This scan changed" }).waitFor();
+      assert.deepEqual(await scanPage(), concurrentPage);
+      await tab.getByRole("button", { name: "Reload latest answers", exact: true }).click();
+      await tab.waitForLoadState("networkidle");
+
+      const confirmResultChange = async (choice) => {
+        await resultAnswer().selectOption(choice);
+        tab.once("dialog", (dialog) => void dialog.accept());
+        const response = tab.waitForResponse((r) => r.url().endsWith("/scans") && r.request().method() === "POST");
+        await resultSave().click();
+        assert.equal((await response).status(), 200);
+        await tab.getByText("Answer corrected. Grade updated.", { exact: true }).waitFor();
+        await resultSave().waitFor({ state: "visible" });
+        await tab.waitForFunction(() => {
+          const button = [...document.querySelectorAll("button")].find((b) => b.textContent === "Save answer change");
+          return button?.disabled;
+        });
+      };
+      await confirmResultChange(resultWrong);
+      assert.equal((await attemptScore()).score, beforeResultScore.score - firstResponse.points_awarded);
+      const afterWrongResponses = await responseRows();
+      const wrongResponse = afterWrongResponses.find((r) => r.question_id === first.questions[0].questionId);
+      assert.equal(wrongResponse.student_answer, first.questions[0].optionOrder[CHOICES.indexOf(resultWrong)]);
+      assert.deepEqual(afterWrongResponses.filter((r) => r.question_id !== firstResponse.question_id), beforeResultResponses.filter((r) => r.question_id !== firstResponse.question_id));
+      await confirmResultChange(resultCorrect);
+      assert.equal((await attemptScore()).score, beforeResultScore.score - firstResponse.points_awarded + first.questions[0].points);
+      await tab.getByRole("button", { name: "Question 1: Correct", exact: true }).waitFor();
+      await confirmResultChange("blank");
+      assert.equal((await responseRows()).find((r) => r.question_id === firstResponse.question_id).student_answer, null);
+      assert.equal((await attemptScore()).score, beforeResultScore.score - firstResponse.points_awarded);
+      await confirmResultChange(resultOriginal);
+      assert.deepEqual(await responseRows(), beforeResultResponses);
+      assert.deepEqual(await attemptScore(), beforeResultScore);
+      const audit = check(await admin.from("paper_scan_audit").select("detail").eq("page_id", beforeResultPage.id).eq("event", "manual_accept"));
+      assert.ok(audit.some((event) => event.detail.note.includes("student result view")));
+      await tab.screenshot({ path: join(artifacts, "mixed-attempt-scan-desktop.png"), fullPage: true });
+      await tab.setViewportSize({ width: 390, height: 844 });
+      assert.ok(await tab.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+      await tab.screenshot({ path: join(artifacts, "mixed-attempt-scan-mobile.png"), fullPage: true });
+      console.log("PASS: mixed student results show shaded scan evidence and confidence; cancelled/stale corrections cannot change grades; confirmed printed choices and blanks update canonical answers, summary and audit without changing other responses.");
+
+      const mixedColumn = check(await admin.from("classroom_grade_columns").select("id,title,week_id").eq("assignment_id", assignmentId).eq("class_id", classId).single());
+      const targetAttemptId = workspace.sheets.find((s) => s.id === target.id).attempt_id;
+      const pendingMixedPage = check(await admin.from("paper_scan_pages").select("id,revision,decisions,readings").eq("sheet_id", target.id).single());
+      await post({ action: "review", pageId: pendingMixedPage.id, revision: pendingMixedPage.revision, reviewAction: "reopen", decisions: [], note: "Missing mixed grade entry regression" });
+      check(await admin.from("class_members").update({ nickname: "Missing Mixed Student", nickname_is_custom: true }).eq("class_id", classId).eq("student_id", target.student_id));
+      check(await admin.from("classroom_weeks").update({ is_current: true }).eq("id", mixedColumn.week_id));
+      await tab.setViewportSize({ width: 1440, height: 1000 });
+      await tab.goto(`${base}/teacher/classes/${classId}`);
+      const mixedGrade = () => tab.getByRole("spinbutton", { name: `${mixedColumn.title} grade for Missing Mixed Student`, exact: true });
+      await mixedGrade().fill("8.5");
+      const mixedGradeResponse = tab.waitForResponse((r) => r.url().includes(`/grade-columns/${mixedColumn.id}/grades/`) && r.request().method() === "PUT");
+      await mixedGrade().press("Enter");
+      assert.equal((await mixedGradeResponse).status(), 200);
+      assert.equal(check(await admin.from("classroom_manual_grades").select("score").eq("column_id", mixedColumn.id).eq("student_id", target.student_id).single()).score, 8.5);
+      await tab.reload();
+      assert.equal(await mixedGrade().inputValue(), "8.5");
+      assert.equal(check(await admin.from("attempts").select("status,score").eq("id", targetAttemptId).single()).score, null, "manual class-manager entry does not finalize an uninspected scan");
+      await post({ action: "review", pageId: pendingMixedPage.id, revision: pendingMixedPage.revision + 1, reviewAction: "accept", decisions: pendingMixedPage.decisions ?? pendingMixedPage.readings.map((r) => ({ ...r, resolved: true })), note: "Completed mixed scan after manual missing grade" });
+      await tab.reload();
+      assert.equal(await mixedGrade().count(), 0, "the real graded scan takes precedence over the missing-grade entry");
+      assert.ok(await tab.locator(`a[href$='/attempts/${targetAttemptId}']`).count());
+      console.log("PASS: missing mixed-exam grade cells accept teacher entries without marking pending scans; completed scan results automatically take precedence.");
     } finally {
       await browser.close();
     }

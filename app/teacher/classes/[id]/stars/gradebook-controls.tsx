@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CLASSWORK_GRADE_NOTE_LIMIT } from "@/lib/classroom-classwork-note";
 import { FINAL_GRADE_COMMENT_MAX_LENGTH, normalizeFinalGradeOverride } from "@/lib/classroom-final-grade";
 import type { AvailableClassroomAssessment, ClassroomFinalGradeOverride, ClassroomGrade, ClassroomGradeColumn, ClassroomWeek, ClassroomWorkItem, TeacherClassOption } from "@/lib/classroom-stars";
@@ -249,7 +249,7 @@ export function GradeColumnDialog({ classId, weeks, availableAssessments, defaul
     <h2>{column ? column.title : "Add a test column"}</h2>
     <p>Tests are placed inside a learning topic and sorted by date.</p>
     <form className={styles.columnForm} onSubmit={submit}>
-      {!column ? <fieldset><legend>Grade source</legend><label><input checked={source === "assessment"} disabled={!availableAssessments.length} name="grade-source" onChange={() => setSource("assessment")} type="radio" /> Existing assessment</label><label><input checked={source === "manual"} name="grade-source" onChange={() => setSource("manual")} type="radio" /> Fresh manual test</label></fieldset> : <div className={styles.sourceNotice}><strong>{column.source === "assessment" ? "Automatic assessment" : "Manual test"}</strong><span>{column.source === "assessment" ? "Scores come from submitted attempts and stay read-only." : "Every student grade can be edited directly in the table."}</span></div>}
+      {!column ? <fieldset><legend>Grade source</legend><label><input checked={source === "assessment"} disabled={!availableAssessments.length} name="grade-source" onChange={() => setSource("assessment")} type="radio" /> Existing assessment</label><label><input checked={source === "manual"} name="grade-source" onChange={() => setSource("manual")} type="radio" /> Fresh manual test</label></fieldset> : <div className={styles.sourceNotice}><strong>{column.source === "assessment" ? "Automatic assessment" : "Manual test"}</strong><span>{column.source === "assessment" ? "Submitted scores open the attempt for review. Missing grades can be entered directly in the table." : "Every student grade can be edited directly in the table."}</span></div>}
       {!column && source === "assessment" ? <label>Assessment<select required value={assignmentId} onChange={(event) => { const nextId = event.target.value; setAssignmentId(nextId); const dueAt = availableAssessments.find((assessment) => assessment.id === nextId)?.dueAt; if (dueAt) setAssessmentDate(dueAt.slice(0, 10)); }}><option disabled value="">Choose an assessment</option>{availableAssessments.map((assessment) => <option key={assessment.id} value={assessment.id}>{assessment.title} · {assessment.kind}</option>)}</select></label> : null}
       {(column?.source === "manual" || (!column && source === "manual")) ? <div className={styles.formPair}><label>Test name<input maxLength={120} onChange={(event) => setTitle(event.target.value)} placeholder="Arithmetic test" required value={title} /></label><label>Maximum score<input min="0.01" onChange={(event) => setMaxScore(event.target.value)} required step="any" type="number" value={maxScore} /></label></div> : null}
       <div className={styles.formPair}><label>Topic<select onChange={(event) => setWeekLabel(event.target.value)} required value={weekLabel}>{weeks.map((week) => <option key={week.id} value={week.label}>{week.title || week.label}{week.focus ? ` · ${week.focus}` : ""}</option>)}</select></label><label>Test date<input onChange={(event) => setAssessmentDate(event.target.value)} required type="date" value={assessmentDate} /></label></div>
@@ -269,6 +269,7 @@ export function ManualGradeCell({ classId, studentId, studentName, column, class
 }) {
   const grade = column.scores[studentId];
   const [value, setValue] = useState(grade ? String(grade.score) : "");
+  const skipBlur = useRef(false);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -295,8 +296,8 @@ export function ManualGradeCell({ classId, studentId, studentName, column, class
   }
 
   return <td className={`${styles.assessmentCell} ${styles.manualGradeCell} ${className}`}>
-    <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => void save()} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setValue(grade ? String(grade.score) : ""); setDirty(false); event.currentTarget.blur(); } }} placeholder="—" title="Absent" step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
-    <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%` : "—")}</small>
+    <div><input aria-label={`${column.title} grade for ${studentName}`} disabled={saving} max={column.maxScore ?? undefined} min="0" onBlur={() => { if (skipBlur.current) { skipBlur.current = false; return; } void save(); }} onChange={(event) => { setValue(event.target.value); setDirty(true); setError(""); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { skipBlur.current = true; setValue(grade ? String(grade.score) : ""); setDirty(false); setError(""); event.currentTarget.blur(); } }} placeholder="—" title={`Enter a grade out of ${column.maxScore}. Press Enter or leave the cell to save.`} step="any" type="number" value={value} /><span>/ {column.maxScore}</span>{grade ? <button aria-label={`Clear ${column.title} grade for ${studentName}`} disabled={saving} onMouseDown={(event) => event.preventDefault()} onClick={() => { setValue(""); setDirty(true); void save(""); }} type="button">×</button> : null}</div>
+    <small className={error ? styles.gradeError : ""}>{error || (saving ? "Saving…" : dirty ? "Press Enter" : grade ? `${grade.percent}%${column.source === "manual" ? "" : " · Teacher entry"}` : "Enter grade")}</small>
   </td>;
 }
 

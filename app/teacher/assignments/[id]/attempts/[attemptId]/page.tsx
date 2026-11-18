@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CHOICES, printedScanChoice } from "@/lib/paper-scan-layout";
+import type { ScanQuestion } from "@/lib/paper-scan-layout";
+import type { AttemptScan, AttemptScanPage } from "@/lib/paper-scan-attempt";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -28,17 +30,29 @@ export default async function TeacherAttemptDetailPage({ params, searchParams }:
     throw new Error("Teacher attempt data could not be loaded.");
   }
   if (!attempt) notFound();
-  const [{ data: composition }, { data: responses }, { data: examEvents }] = await Promise.all([
+  const [{ data: composition }, { data: responses }, { data: examEvents }, scanSheetResult] = await Promise.all([
     supabase.from("attempt_questions").select("question_id, position, points, option_order").eq("attempt_id", attempt.id).order("position"),
     supabase.from("responses").select("question_id, student_answer, is_correct, points_awarded").eq("attempt_id", attempt.id),
     assignment.exam_mode ? supabase.from("attempt_exam_events").select("event_type, occurred_at, away_duration_seconds").eq("attempt_id", attempt.id).order("occurred_at") : Promise.resolve({ data: [] as { event_type: string; occurred_at: string; away_duration_seconds: number | null }[] }),
+    assignment.paper_scan_enabled ? supabase.from("paper_scan_sheets").select("id, questions").eq("assignment_id", id).eq("attempt_id", attempt.id).maybeSingle() : Promise.resolve({ data: null, error: null }),
   ]);
+  if (scanSheetResult.error) throw new Error("The student's scan could not be loaded.");
+  const scanSheet = scanSheetResult.data;
+  const scanPagesPromise = scanSheet ? supabase.from("paper_scan_pages").select("id, sheet_page, status, readings, decisions, problem, revision").eq("assignment_id", id).eq("sheet_id", scanSheet.id).in("status", ["accepted", "review"]).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null });
   const questionIds = composition?.map((item) => item.question_id) ?? [];
-  const [{ data: questions }, { data: keys }, { data: skillLinks }] = questionIds.length ? await Promise.all([
+  const questionDataPromise = questionIds.length ? Promise.all([
     supabase.from("questions").select("id, prompt, type, options").in("id", questionIds),
     supabase.from("question_keys").select("question_id, correct_answer, explanation").in("question_id", questionIds),
     supabase.from("question_skills").select("question_id, is_primary, skills(code, name)").in("question_id", questionIds),
   ]) : [{ data: [] }, { data: [] }, { data: [] }];
+  const [[{ data: questions }, { data: keys }, { data: skillLinks }], scanPagesResult] = await Promise.all([questionDataPromise, scanPagesPromise]);
+  if (scanPagesResult.error) throw new Error("The student's scanned answers could not be loaded.");
+  const scan: AttemptScan | undefined = assignment.paper_scan_enabled ? {
+    assignmentId: assignment.id,
+    sheetId: scanSheet?.id ?? "",
+    questions: ((scanSheet?.questions ?? []) as ScanQuestion[]).map(({ questionId, position }) => ({ questionId, position })),
+    pages: (scanPagesResult.data ?? []) as AttemptScanPage[],
+  } : undefined;
   const questionById = new Map((questions ?? []).map((question) => [question.id, question])); const responseByQuestion = new Map((responses ?? []).map((response) => [response.question_id, response])); const keyByQuestion = new Map((keys ?? []).map((key) => [key.question_id, key]));
   const skillsByQuestion = new Map<string, { code: string; name: string; is_primary: boolean }[]>();
   for (const link of skillLinks ?? []) { const skill = Array.isArray(link.skills) ? link.skills[0] : link.skills; if (skill) skillsByQuestion.set(link.question_id, [...(skillsByQuestion.get(link.question_id) ?? []), { code: skill.code, name: teacherSkillDisplayName(skill.code), is_primary: link.is_primary }]); }
@@ -55,7 +69,7 @@ export default async function TeacherAttemptDetailPage({ params, searchParams }:
   const isSubmitted = attempt.status === "submitted"; const homeworkFinalized = assignment.kind === "homework" && isSubmitted; const answeredCount = reviewQuestions.filter((question) => question.answered).length; const correctCount = reviewQuestions.filter((question) => question.answered && question.isCorrect === true).length; const incorrectCount = reviewQuestions.filter((question) => question.answered && question.isCorrect === false).length; const unansweredCount = reviewQuestions.filter((question) => !question.answered).length; const maxScore = Number(attempt.max_score ?? 0); const score = Number(attempt.score ?? 0); const scorePercent = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0; const attemptStatus = homeworkFinalized ? "Closed at deadline" : teacherAttemptStatusLabel(attempt.status, attempt.expires_at);
   return <main className="teacher-main assessment-page teacher-attempt-page"><Link className="back-link" href={`/teacher/assignments/${assignment.id}`}>← {assignment.title}</Link><section className="page-heading teacher-attempt-heading"><div><p className="eyebrow">{autoSubmitted ? "Auto-submitted attempt" : attemptStatus}</p><h1>{profile?.full_name || profile?.email || "Student"}</h1><p>Attempt {attempt.attempt_number} · Form {attempt.form_code ?? "—"}{attempt.submitted_at ? ` · ${homeworkFinalized ? "Closed" : "Submitted"} ${new Date(attempt.submitted_at).toLocaleString()}` : " · Answers shown exactly as currently saved"}</p></div><Link className="teacher-attempt-student-link" href={`/teacher/students/${attempt.student_id}`}><span>Student overview</span><strong>View overall progress</strong><b aria-hidden="true">→</b></Link></section>{messages.error && <p className="notice notice-error" role="alert">{messages.error}</p>}{messages.success && <p className="notice notice-success">{messages.success}</p>}
     <section className={`teacher-attempt-overview${isSubmitted ? "" : " is-pending"}`} aria-labelledby="overall-result-heading"><div className="teacher-attempt-score"><p className="eyebrow">{homeworkFinalized ? "Deadline result" : isSubmitted ? "Overall result" : "Saved answer snapshot"}</p><h2 id="overall-result-heading">{isSubmitted ? `${scorePercent}%` : `${answeredCount}/${reviewQuestions.length}`}</h2><p>{isSubmitted ? <><strong>{score}</strong> of <strong>{maxScore}</strong> points</> : assignment.kind === "homework" ? "Answers stay editable and ungraded until the homework deadline." : "This attempt has not been submitted, so answers are not graded yet."}</p>{!isSubmitted && assignment.kind === "test" && <form action={forceSubmitTestAttempt} className="teacher-attempt-score-form"><input name="assignment_id" type="hidden" value={assignment.id} /><input name="attempt_id" type="hidden" value={attempt.id} /><input name="return_to_attempt" type="hidden" value="on" /><button type="submit">Score saved answers now</button><small>This submits the attempt and scores every answer currently saved.</small></form>}</div><div className="teacher-attempt-summary">{isSubmitted ? <><article className="correct"><span>Correct</span><strong>{correctCount}</strong></article><article className="incorrect"><span>Incorrect</span><strong>{incorrectCount}</strong></article></> : <><article><span>Saved answers</span><strong>{answeredCount}</strong></article><article><span>Grading</span><strong>Pending</strong></article></>}<article className="unanswered"><span>Unanswered</span><strong>{unansweredCount}</strong></article><article><span>Total questions</span><strong>{reviewQuestions.length}</strong></article></div></section>
-    <TeacherAttemptReview questions={reviewQuestions} />
+    <TeacherAttemptReview questions={reviewQuestions} scan={scan} />
     {assignment.exam_mode && <details className="teacher-section teacher-attempt-activity"><summary><span><b>Exam Mode activity</b><small>{attempt.exam_focus_violations} focus {attempt.exam_focus_violations === 1 ? "exit" : "exits"} · {autoSubmitted ? "Auto-submitted" : isSubmitted ? "Submitted" : "In progress"}{attempt.offline_recovery_used ? ` · Wi-Fi recovery ${attempt.offline_recovery_seconds}s` : ""}</small></span><strong aria-hidden="true">+</strong></summary><div className="exam-activity"><p>Activity signals and offline recovery show what the browser reported; neither is proof of misconduct.</p>{examEvents?.length ? <div className="exam-activity-list">{examEvents.map((event, index) => <article key={`${event.occurred_at}-${index}`}><strong>{eventLabel[event.event_type] ?? event.event_type}</strong><span>{new Date(event.occurred_at).toLocaleString()}{event.away_duration_seconds !== null ? ` · away ${event.away_duration_seconds} sec` : ""}</span></article>)}</div> : <p className="form-note">No Exam Mode activity was recorded.</p>}</div></details>}
   </main>;
 }

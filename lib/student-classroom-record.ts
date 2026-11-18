@@ -160,11 +160,11 @@ export async function getStudentClassroomRecord(studentId: string): Promise<Stud
         const stars = starsByTopic.get(topic.id) ?? 0;
         const summativeColumn = topic.summative_grade_column_id ? gradeColumnById.get(topic.summative_grade_column_id) : null;
         const summativeScore = summativeColumn?.source === "project"
-          ? projectGradeByColumn.get(summativeColumn.id) ?? null
+          ? projectGradeByColumn.get(summativeColumn.id) ?? manualGradeByColumn.get(summativeColumn.id) ?? null
           : summativeColumn?.source === "manual"
           ? manualGradeByColumn.get(summativeColumn.id) ?? null
           : summativeColumn?.assignment_id && assignmentsById.has(summativeColumn.assignment_id)
-            ? latestAttemptByAssignment.get(summativeColumn.assignment_id)?.score ?? null
+            ? latestAttemptByAssignment.get(summativeColumn.assignment_id)?.score ?? manualGradeByColumn.get(summativeColumn.id) ?? null
             : null;
         const homework = homeworkByTopic.get(topic.id) ?? { assigned: 0, completed: 0 };
         const finalGradeMax = Number(topic.final_grade_max ?? 20);
