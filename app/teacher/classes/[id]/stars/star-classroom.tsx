@@ -1059,7 +1059,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
         skulls: student.skulls[weekLabel]?.total ?? 0,
         HW: topicHomeworkCompletion(weekLabel, studentId),
       });
-      return Math.round(clampTopicGrade(result, topic.finalGradeMax) * 100) / 100;
+      return Math.round(clampTopicGrade(result, topic.finalGradeMax));
     } catch {
       return null;
     }
@@ -1068,7 +1068,8 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   function topicFinalGrade(weekLabel: string, studentId: string) {
     const topic = data.weeks.find((week) => week.label === weekLabel);
     if (!topic?.finalGradeFormula) return null;
-    return data.finalGradeOverrides[weekLabel]?.[studentId]?.score ?? topicCalculatedGrade(weekLabel, studentId);
+    const override = data.finalGradeOverrides[weekLabel]?.[studentId];
+    return override ? Math.round(override.score) : topicCalculatedGrade(weekLabel, studentId);
   }
 
   function topicFinalGradeSummary(weekLabel: string) {
@@ -1170,7 +1171,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
   }
 
   function topicClassworkHomeworkGrade(topic: ClassroomWeek, studentId: string) {
-    return (topic.classworkGrades[studentId] ?? topic.classworkDefaultGrade) / 2;
+    return Math.round((topic.classworkGrades[studentId] ?? topic.classworkDefaultGrade) / 2);
   }
 
   async function copySummaryGradeColumn(weekLabel: string, kind: "final" | "classwork-homework") {
@@ -1299,7 +1300,7 @@ export default function StarClassroom({ initialState, currentWeekLabel, embedded
              const topicStartClass = topicIndex > 0 ? styles.topicStart : "";
              const finalGradeOverride = data.finalGradeOverrides[week.label]?.[student.id] ?? null;
              const calculatedGrade = topicCalculatedGrade(week.label, student.id);
-             const finalGrade = week.finalGradeFormula ? finalGradeOverride?.score ?? calculatedGrade : null;
+             const finalGrade = week.finalGradeFormula && finalGradeOverride ? Math.round(finalGradeOverride.score) : calculatedGrade;
              const passing = finalGrade !== null && isPassingTopicGrade(finalGrade, week.finalGradeMax);
               if (!expandedWeeks.has(week.label)) { const classworkGrade = week.classworkGrades[student.id] ?? week.classworkDefaultGrade; const collapsedGrade = week.gradingMode === "classwork" ? `${classworkGrade}%` : finalGrade === null ? "—" : `${finalGrade}/${week.finalGradeMax}`; return <td aria-label={`${week.title || week.label} grade for ${student.fullName}: ${collapsedGrade}`} className={`${styles.sheetCollapsedCell} ${styles.sheetCollapsedTopic} ${topicPaletteClass} ${topicStartClass} ${week.label === effectiveCurrentWeekLabel ? styles.sheetCurrentCell : ""} ${finalGrade === null ? "" : passing ? gradebookStyles.finalGradePassed : gradebookStyles.finalGradeFailed} ${selectedColumnClass(`${week.label}:summary`)}`} key={week.id} title={`${week.title || week.label} · ${collapsedGrade}`}><strong>{collapsedGrade}{finalGradeOverride && week.gradingMode === "stars" ? <sup title={finalGradeOverride.comment || "Manually changed grade (no comment)"}>*</sup> : null}</strong></td>; }
               return <Fragment key={week.id}>{topicModeCells(week, student, topicPaletteClass, topicStartClass)}{sheetColumnsForWeek(week.label).map((column) => sheetColumnCell(column, student, topicPaletteClass))}<FinalGradeCell calculatedGrade={calculatedGrade} classId={data.classroom.id} className={`${topicPaletteClass} ${finalGrade === null ? "" : passing ? gradebookStyles.finalGradePassed : gradebookStyles.finalGradeFailed} ${selectedColumnClass(`${week.label}:final`)}`} onSaved={(savedOverride) => saveFinalGradeOverride(week.label, student.id, savedOverride)} override={finalGradeOverride} studentId={student.id} studentName={student.fullName} topic={week} />{classworkHomeworkCell(week, student, topicPaletteClass)}</Fragment>;

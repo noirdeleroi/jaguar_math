@@ -221,7 +221,7 @@ export type StudentTopicFinalGradeInput = {
 
 export function calculateStudentTopicFinalGrade(input: StudentTopicFinalGradeInput) {
   if (!input.formula) return null;
-  if (input.override !== null) return input.override;
+  if (input.override !== null) return Math.round(input.override);
   if (topicGradeFormulaUsesVariable(input.formula, "N") && input.summativeScore === null) return null;
 
   try {
@@ -231,7 +231,7 @@ export function calculateStudentTopicFinalGrade(input: StudentTopicFinalGradeInp
       skulls: input.skulls,
       HW: calculateHomeworkCompletionPercentage(input.completedHomework, input.assignedHomework),
     });
-    return Math.round(clampTopicGrade(result, input.maximum) * 100) / 100;
+    return Math.round(clampTopicGrade(result, input.maximum));
   } catch {
     return null;
   }

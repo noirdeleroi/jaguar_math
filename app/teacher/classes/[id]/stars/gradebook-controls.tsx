@@ -132,7 +132,7 @@ export function TopicSettingsDialog({ classId, topic, gradeColumns, onClose, onS
   const [message, setMessage] = useState("");
   let preview = "";
   try {
-    if (formula.trim()) preview = String(Math.round(clampTopicGrade(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2, HW: 75 }), Number(finalGradeMax)) * 100) / 100);
+    if (formula.trim()) preview = String(Math.round(clampTopicGrade(evaluateTopicFinalGradeFormula(formula, { N: 16, stars: 4, skulls: 2, HW: 75 }), Number(finalGradeMax))));
   } catch { /* The submit handler presents the precise validation message. */ }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -312,7 +312,8 @@ export function FinalGradeCell({ classId, topic, studentId, studentName, calcula
   onSaved: (override: ClassroomFinalGradeOverride | null) => void;
 }) {
   const visibleOverride = topic.finalGradeFormula ? override : null;
-  const finalGrade = topic.finalGradeFormula ? visibleOverride?.score ?? calculatedGrade : null;
+  const rawGrade = topic.finalGradeFormula ? visibleOverride?.score ?? calculatedGrade : null;
+  const finalGrade = rawGrade === null ? null : Math.round(rawGrade);
   const [editing, setEditing] = useState(false);
   const [score, setScore] = useState(finalGrade === null ? "" : String(finalGrade));
   const [comment, setComment] = useState(override?.comment ?? "");

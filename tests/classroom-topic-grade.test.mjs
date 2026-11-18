@@ -68,7 +68,10 @@ test("65 percent is the inclusive passing threshold", () => {
 test("student final grades match teacher formulas and prefer manual overrides", () => {
   const input = { formula: DEFAULT_TOPIC_GRADE_FORMULA, maximum: 20, override: null, summativeScore: 15, stars: 4, skulls: 1, completedHomework: 1, assignedHomework: 2 };
   assert.equal(calculateStudentTopicFinalGrade(input), 20);
-  assert.equal(calculateStudentTopicFinalGrade({ ...input, override: 17.5 }), 17.5);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, override: 17.5 }), 18);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, override: 17.49 }), 17);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, formula: "N / 2", summativeScore: 35 }), 18);
+  assert.equal(calculateStudentTopicFinalGrade({ ...input, formula: "N / 2", summativeScore: 34.998 }), 17);
 });
 
 test("student final grades wait for required scores and stay hidden when disabled", () => {
