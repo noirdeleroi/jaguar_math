@@ -794,6 +794,7 @@ function PaperReview({
   const inspectionRef = useRef<HTMLDetailsElement>(null);
   const [zoomIndex, setZoomIndex] = useState<number | null>(null);
   const zoomDialog = useRef<HTMLDialogElement>(null);
+  const pageDialog = useRef<HTMLDialogElement>(null);
   const [showAll, setShowAll] = useState(true);
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
@@ -967,22 +968,95 @@ function PaperReview({
         );
   return (
     <div className={styles.paperReview}>
-      <h2>{sheet?.student_name ?? "Identify this paper"}</h2>
-      <p>
-        {sheet
-          ? `${sheet.class_name} · ${scanPaperLabel(sheet)} · Page ${sheetPage}`
-          : `Source page ${page.source_page}`}{" "}
-        ·{" "}
-        <strong>
-          {page.status === "accepted"
-            ? "Graded"
-            : page.status === "review"
-              ? "Needs attention"
-              : page.status === "unidentified"
-                ? "Identify student"
-                : page.status}
-        </strong>
-      </p>
+      <div className={styles.paperHeading}>
+        <div>
+          <h2>{sheet?.student_name ?? "Identify this paper"}</h2>
+          <p>
+            {sheet
+              ? `${sheet.class_name} · ${scanPaperLabel(sheet)} · Page ${sheetPage}`
+              : `Source page ${page.source_page}`}{" "}
+            ·{" "}
+            <strong>
+              {page.status === "accepted"
+                ? "Graded"
+                : page.status === "review"
+                  ? "Needs attention"
+                  : page.status === "unidentified"
+                    ? "Identify student"
+                    : page.status}
+            </strong>
+          </p>
+        </div>
+        {images.original ? (
+          <button
+            type="button"
+            className={styles.pageThumbnail}
+            aria-label={`View full scanned page ${page.sheet_page ?? page.source_page}`}
+            aria-haspopup="dialog"
+            onClick={() => pageDialog.current?.showModal()}
+          >
+            <Image
+              unoptimized
+              width={1191}
+              height={1684}
+              alt=""
+              src={images.original}
+            />
+            <span>Full page ⤢</span>
+          </button>
+        ) : (
+          <a
+            className={styles.textLink}
+            href={`${api}?asset=${page.id}&variant=original`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            View full page ↗
+          </a>
+        )}
+      </div>
+      <dialog
+        ref={pageDialog}
+        className={styles.pageDialog}
+        aria-labelledby={`scan-page-title-${page.id}`}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) pageDialog.current?.close();
+        }}
+      >
+        <div className={styles.pageDialogBody}>
+          <div className={styles.pageDialogHeading}>
+            <h3 id={`scan-page-title-${page.id}`}>Full scanned page</h3>
+            <button
+              type="button"
+              className="secondary-inline-button"
+              onClick={() => pageDialog.current?.close()}
+            >
+              Close
+            </button>
+          </div>
+          <p>
+            {sheet?.student_name ?? "Unidentified student"} · Page{" "}
+            {page.sheet_page ?? page.source_page}
+          </p>
+          {images.original && (
+            <Image
+              unoptimized
+              width={1191}
+              height={1684}
+              alt={`Complete scanned answer sheet for ${sheet?.student_name ?? "unidentified student"}`}
+              src={images.original}
+            />
+          )}
+          <a
+            className={styles.textLink}
+            href={`${api}?asset=${page.id}&variant=original`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open full resolution ↗
+          </a>
+        </div>
+      </dialog>
       {page.problem && <p className={styles.problem}>{page.problem}</p>}
       {error && (
         <p className="notice notice-error" role="alert">

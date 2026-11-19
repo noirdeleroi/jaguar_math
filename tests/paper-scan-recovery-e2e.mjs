@@ -310,11 +310,63 @@ try {
           .count(),
         1,
       );
+      const thumbnail = tab.getByRole("button", {
+        name: "View full scanned page 1", exact: true,
+      });
+      await thumbnail.waitFor();
+      const thumbnailBounds = await thumbnail.boundingBox();
+      assert.ok(
+        thumbnailBounds.width < 100 && thumbnailBounds.height < 140,
+        "The full-page preview stays compact",
+      );
+      await thumbnail.click();
+      const overview = tab.getByRole("dialog", { name: "Full scanned page", exact: true });
+      await overview.waitFor();
+      const originalImage = overview.getByRole("img", { name: /^Complete scanned answer sheet/ });
+      assert.equal(
+        await originalImage.getAttribute("src"),
+        await thumbnail.locator("img").getAttribute("src"),
+        "Overview shows the complete original, not an answer crop",
+      );
+      const desktopBounds = await overview.boundingBox();
+      assert.ok(
+        Math.abs(desktopBounds.x + desktopBounds.width / 2 - 720) < 2,
+        "Desktop overview is centered",
+      );
+      await tab.screenshot({ path: join(tmpdir(), "scan-page-overview-desktop.png") });
+      await tab.keyboard.press("Escape");
+      await overview.waitFor({ state: "hidden" });
+      assert.equal(
+        await thumbnail.evaluate((node) => node === document.activeElement), true,
+        "Closing restores focus to the preview",
+      );
+      await thumbnail.click();
+      await overview.waitFor();
+      await tab.mouse.click(2, 2);
+      await overview.waitFor({ state: "hidden" });
       await tab.screenshot({
         path: join(tmpdir(), "scan-recovery-desktop.png"),
         fullPage: true,
       });
       await tab.setViewportSize({ width: 390, height: 844 });
+      await thumbnail.click();
+      await overview.waitFor();
+      const overviewBounds = await overview.boundingBox();
+      assert.ok(
+        overviewBounds.x >= 0 && overviewBounds.x + overviewBounds.width <= 390,
+        "Mobile overview fits the screen width",
+      );
+      assert.ok(
+        overviewBounds.y >= 0 && overviewBounds.y + overviewBounds.height <= 844,
+        "Mobile overview fits the screen height",
+      );
+      assert.equal(
+        await originalImage.evaluate((node) => getComputedStyle(node).objectFit), "contain",
+        "Overview preserves every edge of the scanned page",
+      );
+      await tab.screenshot({ path: join(tmpdir(), "scan-page-overview-mobile.png") });
+      await overview.getByRole("button", { name: "Close", exact: true }).click();
+      await overview.waitFor({ state: "hidden" });
       assert.equal(
         await tab.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth + 1,
