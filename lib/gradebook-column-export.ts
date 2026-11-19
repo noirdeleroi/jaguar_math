@@ -18,7 +18,10 @@ export function gradebookColumnValues(
     .map((entry) => {
       if (!entry.studentId || !enrolledStudentIds.has(entry.studentId)) return "-";
       const value = valueForStudent(entry.studentId);
-      return value === null || value === undefined || value === "" ? "0" : String(value);
+      if (value === null || value === undefined || value === "") return "0";
+      // The official gradebook uses a decimal comma. Keep the raw score and
+      // precision (no percent sign or grouping) so each line pastes as one grade.
+      return String(value).replace(/^(\d+)\.(\d+)$/, "$1,$2");
     });
 }
 

@@ -11,8 +11,20 @@ const roster = [
 
 test("gradebook column export follows official order and copies absent grades as zero", () => {
   const values = gradebookColumnValues(roster, new Set(["student-1", "student-2"]), (studentId) => studentId === "student-1" ? 8.5 : null);
-  assert.deepEqual(values, ["8.5", "0", "-"]);
+  assert.deepEqual(values, ["8,5", "0", "-"]);
   assert.equal(gradebookColumnClipboardText(roster, new Set(["student-1", "student-2"]), () => 2), "2\n2\n-");
+});
+
+test("clipboard uses decimal commas without rounding, headers, tabs or extra rows", () => {
+  const entries = [65, 22.5, "77.5", 0, 100, 8.125, "2,8", "—", null].map((value, i) => ({
+    gradebookCode: String(i + 1), gradebookName: `Student ${i + 1}`,
+    sortOrder: i + 1, studentId: String(i), value,
+  }));
+  const enrolled = new Set(entries.map((entry) => entry.studentId));
+  const text = gradebookColumnClipboardText(entries.toReversed(), enrolled, (id) => entries[Number(id)].value);
+  assert.equal(text, "65\n22,5\n77,5\n0\n100\n8,125\n2,8\n—\n0");
+  assert.equal(text.split("\n").length, entries.length);
+  assert.ok(!text.includes("\t"));
 });
 
 test("students linked to profiles but not enrolled export as missing", () => {
