@@ -1,0 +1,10 @@
+.panel { border-top: 3px solid #1c5b4d; }
+.heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.heading p { max-width: 760px; line-height: 1.6; }
+.badge { flex-shrink: 0; border-radius: 999px; padding: .4rem .8rem; background: #edf3ed; color: #1c5b4d; font-size: .85rem; font-weight: 700; }
+.counts { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin: 1rem 0; color: #52695e; font-size: .9rem; }
+.counts strong { color: #17342e; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-top: 1rem; }
+.actions button:disabled { cursor: not-allowed; opacity: .55; }
+.note { color: #52695e; font-size: .88rem; line-height: 1.6; margin: .75rem 0 0; }
+@media (max-width: 600px) { .heading { flex-direction: column; } .actions { align-items: stretch; flex-direction: column; } .actions > * { text-align: center; } }

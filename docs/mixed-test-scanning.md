@@ -16,6 +16,18 @@ A dominant single-choice mark is graded automatically, including ordinary light 
 
 The gradebook uses the established weighted question points and percentage scales. Publishing creates an assessment column in each assigned class. Unscanned students have no grade. A student's grade appears only when every required page is accepted. Reopening or rejecting a graded page withholds the previous grade until all pages are accepted again. Class and question statistics exclude pending papers. Both grades and detailed per-question results can be exported.
 
+## Personal feedback by email
+
+Inside a published or closed Mixed Test assignment, **Email marked test feedback** shows how many students are ready and how many have already been emailed. **Preview a student's feedback PDF** opens one marked student's packet without sending email. **Email feedback to … marked students** sends an individual message from the teacher's connected Gmail account to every eligible student across the assignment's classes. Keep the assignment page open while sending; **Pause after this student** stops after the current request.
+
+Each email includes a score out of 10, the count of correct answers, a question-by-question answer check, and one PDF containing that check, the student's exact personalized question paper and only their own original scanned answer pages. Printed answer letters use the issued option order; teacher-corrected final responses take precedence over original recognition. Pending scans, needs-attention papers, incomplete grades, and students without a valid email are excluded. This feature is available only for Mixed Tests.
+
+Delivery receipts are saved per issued paper. Later clicks skip sent students and can include newly marked students or safely retry confirmed failures. Concurrent clicks are serialized, and a paper changed during PDF preparation must be refreshed before sending. An uncertain Gmail response or an interrupted request after sending starts is held instead of being retried automatically; check Gmail Sent mail before resolving that delivery. A success receipt confirms Gmail accepted the message, not that the recipient opened it.
+
+Apply `20261120150000_mixed_test_feedback_email.sql` before deploying this feature. It uses the existing Google OAuth configuration and `gmail.send` permission; no new secrets are required.
+
+`npm test` covers eligibility, shuffled answer mapping, score consistency, private PDF/MIME content, Gmail failures and delivery state transitions. For opt-in application/database/browser verification with isolated synthetic users and no real emails, run a production build, then start a local server with `FEEDBACK_EMAIL_TEST_MODE=1` and `node --require ./tests/feedback-gmail-mock.cjs node_modules/next/dist/bin/next start -p 3117`. In a separate terminal run `RUN_FEEDBACK_E2E=1 node --experimental-strip-types tests/mixed-feedback.e2e.mjs` (PowerShell users should set these environment variables using `$env:...`). Set `PLAYWRIGHT_MODULE` if Playwright is supplied externally. The suite cleans up its own records and scan images and never sends messages to the school roster.
+
 ## Integrity and permissions
 
 - QR codes contain an opaque random sheet token, page number, and template version; no names, answers or grades.
