@@ -37,6 +37,14 @@ try {
     assert.deepEqual(roster.map((r) => r.gradebook_name), official[classroom.name]);
     assert.deepEqual(roster.map((r) => r.sort_order), roster.map((_, i) => i + 1));
     assert.ok(roster.every((r) => members.some((m) => m.student_id === r.student_id)), "every official row is linked to an enrolled student");
+    const topic = check(await admin.from("classroom_weeks").select("final_grade_max,final_grade_formula").eq("class_id", classroom.id).eq("label", "T2").single());
+    assert.equal(topic.final_grade_max, 20, "T2 final grade is out of 20");
+    assert.equal(topic.final_grade_formula, "2*N+max(stars-skulls,0)");
+    const posters = check(await admin.from("classroom_grade_columns").select("id").eq("class_id", classroom.id).eq("source", "project").eq("title", "Business Poster Project"));
+    assert.equal(posters.length, 1, "one Business Poster column per class");
+    if (classroom.name === "11B Math") {
+      assert.equal(posters[0].id, "72f88549-0719-4c6f-af53-0bbcbe87cdf3");
+    }
     const initialResults = page.waitForResponse((response) => response.url().includes(`/api/classes/${classroom.id}/assignment-results`));
     await page.goto(`${base}/teacher/classes/${classroom.id}`);
     await initialResults;
@@ -44,6 +52,8 @@ try {
     await table.waitFor();
     const expand = table.locator('thead button[aria-expanded="false"]');
     while (await expand.count()) await expand.first().click();
+    const t2Final = table.getByRole("button", { name: "Select T2 final grade column", exact: true });
+    assert.ok((await t2Final.innerText()).includes("Final grade / 20"));
     const copies = table.locator('thead button[class*="copyColumnButton"]');
     let checked = 0, skipped = 0, decimalColumns = 0, ungradedProjects = 0;
     for (const button of await copies.all()) {
@@ -63,13 +73,13 @@ try {
             const input = cell.querySelector('input[type="number"]');
             let value;
             if (work) value = /^(Done|OK)$/.test(strong) ? "2" : strong === "Late" ? "1" : "0";
-            else if (input) value = input.value || (project ? "—" : "0");
+            else if (input) value = input.value || "0";
             else {
               // Summaries/projects put score/max in strong; tests/homework use span.
               const raw = [...cell.querySelectorAll("strong,span")].map((e) => e.textContent).find((t) => /^\d+(?:\.\d+)?\s*\/\s*\d/.test(t));
-              value = raw ? raw.split("/")[0].trim() : project ? "—" : "0";
+              value = raw ? raw.split("/")[0].trim() : "0";
             }
-            return { id, value: value.replace(".", ",") };
+            return { id, value: value.replace(".", ","), ungradedProject: project && (!input || !input.value) && !/\d/.test(strong) };
           }),
         };
       });
@@ -80,7 +90,7 @@ try {
       const copied = (await page.evaluate(() => navigator.clipboard.readText())).replaceAll("\r\n", "\n");
       assert.equal(copied, expected, `${classroom.name}: ${column.label}`);
       assert.equal(copied.split("\n").length, roster.length);
-      assert.ok(!/[\t.]/.test(copied), "no extra columns or decimal dots");
+      assert.ok(copied.split("\n").every((value) => /^\d+(?:,\d+)?$/.test(value)), "only numeric grades, including zero for missing entries");
       // Exercise the browser's native paste event in a scratch textarea.
       await page.evaluate(() => {
         const area = document.createElement("textarea");
@@ -93,11 +103,11 @@ try {
       assert.equal(await page.locator("#gradebook-paste-check").inputValue(), expected);
       await page.locator("#gradebook-paste-check").evaluate((area) => area.remove());
       if (copied.includes(",")) decimalColumns++;
-      ungradedProjects += copied.split("\n").filter((value) => value === "—").length;
+      ungradedProjects += column.rows.filter((row) => row.ungradedProject).length;
       checked++;
     }
     assert.ok(checked > 0);
-    console.log(`PASS ${classroom.name}: ${roster.length} official rows; ${checked} columns copied and natively pasted; ${decimalColumns} decimal columns; ${skipped} unconfigured columns disabled; ${ungradedProjects} ungraded project placeholders.`);
+    console.log(`PASS ${classroom.name}: T2 /20; ${roster.length} official rows; ${checked} columns copied and natively pasted; ${decimalColumns} decimal columns; ${skipped} unconfigured columns disabled; ${ungradedProjects} ungraded project entries copied as zero.`);
   }
   assert.deepEqual(errors, []);
 } finally {

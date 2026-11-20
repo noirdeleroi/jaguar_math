@@ -16,12 +16,14 @@ export function gradebookColumnValues(
   return [...roster]
     .sort((first, second) => first.sortOrder - second.sortOrder)
     .map((entry) => {
-      if (!entry.studentId || !enrolledStudentIds.has(entry.studentId)) return "-";
+      if (!entry.studentId || !enrolledStudentIds.has(entry.studentId)) return "0";
       const value = valueForStudent(entry.studentId);
-      if (value === null || value === undefined || value === "") return "0";
+      if (value === null || value === undefined) return "0";
+      const text = String(value).trim();
+      if (!text || /^[-–—−]$/.test(text)) return "0";
       // The official gradebook uses a decimal comma. Keep the raw score and
       // precision (no percent sign or grouping) so each line pastes as one grade.
-      return String(value).replace(/^(\d+)\.(\d+)$/, "$1,$2");
+      return text.replace(/^(\d+)\.(\d+)$/, "$1,$2");
     });
 }
 

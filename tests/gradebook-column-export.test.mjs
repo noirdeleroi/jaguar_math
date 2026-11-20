@@ -11,8 +11,8 @@ const roster = [
 
 test("gradebook column export follows official order and copies absent grades as zero", () => {
   const values = gradebookColumnValues(roster, new Set(["student-1", "student-2"]), (studentId) => studentId === "student-1" ? 8.5 : null);
-  assert.deepEqual(values, ["8,5", "0", "-"]);
-  assert.equal(gradebookColumnClipboardText(roster, new Set(["student-1", "student-2"]), () => 2), "2\n2\n-");
+  assert.deepEqual(values, ["8,5", "0", "0"]);
+  assert.equal(gradebookColumnClipboardText(roster, new Set(["student-1", "student-2"]), () => 2), "2\n2\n0");
 });
 
 test("clipboard uses decimal commas without rounding, headers, tabs or extra rows", () => {
@@ -22,14 +22,20 @@ test("clipboard uses decimal commas without rounding, headers, tabs or extra row
   }));
   const enrolled = new Set(entries.map((entry) => entry.studentId));
   const text = gradebookColumnClipboardText(entries.toReversed(), enrolled, (id) => entries[Number(id)].value);
-  assert.equal(text, "65\n22,5\n77,5\n0\n100\n8,125\n2,8\n—\n0");
+  assert.equal(text, "65\n22,5\n77,5\n0\n100\n8,125\n2,8\n0\n0");
   assert.equal(text.split("\n").length, entries.length);
   assert.ok(!text.includes("\t"));
 });
 
-test("students linked to profiles but not enrolled export as missing", () => {
+test("students linked to profiles but not enrolled export as zero", () => {
   const linkedRoster = [{ gradebookCode: "10", gradebookName: "Moved Student", sortOrder: 1, studentId: "student-3" }];
-  assert.deepEqual(gradebookColumnValues(linkedRoster, new Set(), () => 100), ["-"]);
+  assert.deepEqual(gradebookColumnValues(linkedRoster, new Set(), () => { throw new Error("Do not read an unenrolled student's score"); }), ["0"]);
+});
+
+test("all missing-grade placeholders copy as zero while decimal scores stay intact", () => {
+  const values = ["-", "—", "–", "−", " - ", " — ", "", "  ", null, undefined, 0, 6.5, "8,5"];
+  const entries = values.map((_, i) => ({ gradebookCode: String(i), gradebookName: `Student ${i}`, sortOrder: i + 1, studentId: String(i) }));
+  assert.equal(gradebookColumnClipboardText(entries, new Set(entries.map((r) => r.studentId)), (id) => values[Number(id)]), [...Array(11).fill("0"), "6,5", "8,5"].join("\n"));
 });
 
 test("HW and CW statuses use spreadsheet-ready numeric grades", () => {
