@@ -1,0 +1,1466 @@
+{
+  "title": "Unit 1 / Mathematics Make-Up Test (Retake)",
+  "description": "20 minutes. 10 multiple-choice questions worth 1 point each (10 points total). Four parallel retake versions in variant order E, F, G, H, with the same topic sequence and comparable difficulty. Choose one correct answer (A-D) for each question.",
+  "question_groups": [
+    [
+      {
+        "prompt": "Evaluate the expression.\n$-4+3(6-9)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-13$"
+          },
+          {
+            "id": "B",
+            "text": "$-5$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$13$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "First calculate $6-9=-3$. Then $-4+3(-3)=-4-9=-13$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Evaluate the expression.\n$-7+4(2-5)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-5$"
+          },
+          {
+            "id": "B",
+            "text": "$19$"
+          },
+          {
+            "id": "C",
+            "text": "$-19$"
+          },
+          {
+            "id": "D",
+            "text": "$-9$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "First calculate $2-5=-3$. Then $-7+4(-3)=-7-12=-19$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Evaluate the expression.\n$-5+2(4-10)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-17$"
+          },
+          {
+            "id": "B",
+            "text": "$-7$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$17$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "First calculate $4-10=-6$. Then $-5+2(-6)=-5-12=-17$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Evaluate the expression.\n$-9+3(5-8)$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$-6$"
+          },
+          {
+            "id": "B",
+            "text": "$18$"
+          },
+          {
+            "id": "C",
+            "text": "$-18$"
+          },
+          {
+            "id": "D",
+            "text": "$-12$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "First calculate $5-8=-3$. Then $-9+3(-3)=-9-9=-18$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.ORDER_OPS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Calculate.\n$\\sqrt{81}+\\sqrt{16}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$11$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$13$"
+          },
+          {
+            "id": "D",
+            "text": "$15$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The principal square roots are $\\sqrt{81}=9$ and $\\sqrt{16}=4$. Their sum is $13$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.RADICALS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Calculate.\n$\\sqrt{49}+\\sqrt{25}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$10$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$14$"
+          },
+          {
+            "id": "D",
+            "text": "$16$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The principal square roots are $7$ and $5$, so the sum is $12$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.RADICALS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Calculate.\n$\\sqrt{100}+\\sqrt{9}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$11$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$14$"
+          },
+          {
+            "id": "D",
+            "text": "$13$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "The principal square roots are $10$ and $3$, so the sum is $13$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.RADICALS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Calculate.\n$\\sqrt{64}+\\sqrt{36}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$12$"
+          },
+          {
+            "id": "B",
+            "text": "$14$"
+          },
+          {
+            "id": "C",
+            "text": "$16$"
+          },
+          {
+            "id": "D",
+            "text": "$18$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The principal square roots are $8$ and $6$, so the sum is $14$.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.RADICALS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A map uses a scale of 1 cm = 4 km. Two towns are 7.5 cm apart on the map. What is the actual distance?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$26$ km"
+          },
+          {
+            "id": "B",
+            "text": "$28$ km"
+          },
+          {
+            "id": "C",
+            "text": "$30$ km"
+          },
+          {
+            "id": "D",
+            "text": "$32$ km"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply the map distance by the scale: $7.5\\times4=30$ km.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PROPORTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A map uses a scale of 1 cm = 3 km. Two villages are 8.5 cm apart on the map. What is the actual distance?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$28.5$ km"
+          },
+          {
+            "id": "B",
+            "text": "$22.5$ km"
+          },
+          {
+            "id": "C",
+            "text": "$24$ km"
+          },
+          {
+            "id": "D",
+            "text": "$25.5$ km"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply the map distance by the scale: $8.5\\times3=25.5$ km.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PROPORTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A map uses a scale of 1 cm = 5 km. Two parks are 6.5 cm apart on the map. What is the actual distance?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$30$ km"
+          },
+          {
+            "id": "B",
+            "text": "$32.5$ km"
+          },
+          {
+            "id": "C",
+            "text": "$35$ km"
+          },
+          {
+            "id": "D",
+            "text": "$37.5$ km"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply the map distance by the scale: $6.5\\times5=32.5$ km.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PROPORTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A map uses a scale of 1 cm = 2.5 km. Two stations are 8 cm apart on the map. What is the actual distance?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$18$ km"
+          },
+          {
+            "id": "B",
+            "text": "$20$ km"
+          },
+          {
+            "id": "C",
+            "text": "$22.5$ km"
+          },
+          {
+            "id": "D",
+            "text": "$25$ km"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Multiply the map distance by the scale: $8\\times2.5=20$ km.",
+        "difficulty": 1,
+        "points": 1,
+        "skills": [
+          {
+            "code": "NUM.PROPORTIONS",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "Simplify.\n$\\frac{2^3\\cdot2^2}{2^4}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$2$"
+          },
+          {
+            "id": "B",
+            "text": "$4$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$16$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "For the same base, add exponents when multiplying and subtract when dividing: $2^{3+2-4}=2^1=2$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Simplify.\n$\\frac{3^4\\cdot3^2}{3^5}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$3$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$27$"
+          },
+          {
+            "id": "D",
+            "text": "$81$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Combine the exponents: $3^{4+2-5}=3^1=3$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Simplify.\n$\\frac{5^2\\cdot5^3}{5^4}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$1$"
+          },
+          {
+            "id": "B",
+            "text": "$25$"
+          },
+          {
+            "id": "C",
+            "text": "$5$"
+          },
+          {
+            "id": "D",
+            "text": "$125$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Combine the exponents: $5^{2+3-4}=5^1=5$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Simplify.\n$\\frac{4^3\\cdot4^2}{4^4}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$16$"
+          },
+          {
+            "id": "D",
+            "text": "$64$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Combine the exponents: $4^{3+2-4}=4^1=4$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.EXPONENT_RULES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Solve for $x$.\n$4(x-2)=2x+10$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$9$"
+          },
+          {
+            "id": "D",
+            "text": "$11$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Expand to get $4x-8=2x+10$. Then $2x=18$, so $x=9$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve for $x$.\n$5(x-1)=3x+11$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$9$"
+          },
+          {
+            "id": "D",
+            "text": "$8$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Expand to get $5x-5=3x+11$. Then $2x=16$, so $x=8$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve for $x$.\n$3(x+2)=x+20$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$9$"
+          },
+          {
+            "id": "B",
+            "text": "$8$"
+          },
+          {
+            "id": "C",
+            "text": "$6$"
+          },
+          {
+            "id": "D",
+            "text": "$7$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Expand to get $3x+6=x+20$. Then $2x=14$, so $x=7$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve for $x$.\n$6(x-2)=4x+8$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$11$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Expand to get $6x-12=4x+8$. Then $2x=20$, so $x=10$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_EQ_1VAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "Which inequality represents the solution?\n$5-2x>13$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x>-4$"
+          },
+          {
+            "id": "B",
+            "text": "$x<-4$"
+          },
+          {
+            "id": "C",
+            "text": "$x>4$"
+          },
+          {
+            "id": "D",
+            "text": "$x<4$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract $5$ to get $-2x>8$. Divide by $-2$ and reverse the inequality: $x<-4$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which inequality represents the solution?\n$7-3x\\geq19$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x\\geq-4$"
+          },
+          {
+            "id": "B",
+            "text": "$x\\leq4$"
+          },
+          {
+            "id": "C",
+            "text": "$x\\leq-4$"
+          },
+          {
+            "id": "D",
+            "text": "$x\\geq4$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract $7$ to get $-3x\\geq12$. Divide by $-3$ and reverse the inequality: $x\\leq-4$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which inequality represents the solution?\n$4-2x\\leq14$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x\\leq-5$"
+          },
+          {
+            "id": "B",
+            "text": "$x\\geq5$"
+          },
+          {
+            "id": "C",
+            "text": "$x\\geq-5$"
+          },
+          {
+            "id": "D",
+            "text": "$x\\leq5$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract $4$ to get $-2x\\leq10$. Divide by $-2$ and reverse the inequality: $x\\geq-5$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Which inequality represents the solution?\n$6-4x<18$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$x>-3$"
+          },
+          {
+            "id": "B",
+            "text": "$x<-3$"
+          },
+          {
+            "id": "C",
+            "text": "$x>3$"
+          },
+          {
+            "id": "D",
+            "text": "$x<3$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Subtract $6$ to get $-4x<12$. Divide by $-4$ and reverse the inequality: $x>-3$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A linear function $f$ passes through the points $(1,5)$ and $(3,11)$. What is $f(5)$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$13$"
+          },
+          {
+            "id": "B",
+            "text": "$15$"
+          },
+          {
+            "id": "C",
+            "text": "$17$"
+          },
+          {
+            "id": "D",
+            "text": "$20$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The slope is $\\frac{11-5}{3-1}=3$, so $f(x)=3x+2$. Therefore $f(5)=17$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A linear function $f$ passes through the points $(2,7)$ and $(4,15)$. What is $f(6)$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$21$"
+          },
+          {
+            "id": "B",
+            "text": "$23$"
+          },
+          {
+            "id": "C",
+            "text": "$25$"
+          },
+          {
+            "id": "D",
+            "text": "$27$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "The slope is $\\frac{15-7}{4-2}=4$, so $f(x)=4x-1$. Therefore $f(6)=23$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A linear function $f$ passes through the points $(1,6)$ and $(4,12)$. What is $f(7)$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$18$"
+          },
+          {
+            "id": "B",
+            "text": "$16$"
+          },
+          {
+            "id": "C",
+            "text": "$20$"
+          },
+          {
+            "id": "D",
+            "text": "$24$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "The slope is $\\frac{12-6}{4-1}=2$, so $f(x)=2x+4$. Therefore $f(7)=18$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      },
+      {
+        "prompt": "A linear function $f$ passes through the points $(2,9)$ and $(5,18)$. What is $f(8)$?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$24$"
+          },
+          {
+            "id": "B",
+            "text": "$25$"
+          },
+          {
+            "id": "C",
+            "text": "$27$"
+          },
+          {
+            "id": "D",
+            "text": "$30$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "The slope is $\\frac{18-9}{5-2}=3$, so $f(x)=3x+3$. Therefore $f(8)=27$.",
+        "difficulty": 2,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "INTERPRETACION_REPRESENTACION"
+      }
+    ],
+    [
+      {
+        "prompt": "Solve the system of equations. What is the value of $y$?\n$\\begin{cases}x+y=13\\\\2x+3y=34\\end{cases}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$6$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Double the first equation to get $2x+2y=26$. Subtract it from $2x+3y=34$ to obtain $y=8$. Then $x=5$, which satisfies both equations.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve the system of equations. What is the value of $y$?\n$\\begin{cases}x+y=11\\\\3x+2y=27\\end{cases}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$"
+          },
+          {
+            "id": "B",
+            "text": "$5$"
+          },
+          {
+            "id": "C",
+            "text": "$7$"
+          },
+          {
+            "id": "D",
+            "text": "$8$"
+          }
+        ],
+        "correct_answer": "A",
+        "numeric_tolerance": 0,
+        "explanation": "Triple the first equation to get $3x+3y=33$. Subtract $3x+2y=27$ to obtain $y=6$. Then $x=5$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve the system of equations. What is the value of $y$?\n$\\begin{cases}x+y=14\\\\2x+3y=37\\end{cases}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$7$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Double the first equation to get $2x+2y=28$. Subtract it from $2x+3y=37$ to obtain $y=9$. Then $x=5$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "Solve the system of equations. What is the value of $y$?\n$\\begin{cases}x+y=12\\\\2x+3y=31\\end{cases}$",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$"
+          },
+          {
+            "id": "B",
+            "text": "$7$"
+          },
+          {
+            "id": "C",
+            "text": "$8$"
+          },
+          {
+            "id": "D",
+            "text": "$9$"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Double the first equation to get $2x+2y=24$. Subtract it from $2x+3y=31$ to obtain $y=7$. Then $x=5$.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.SYSTEMS_LINEAR",
+            "weight": 1,
+            "is_primary": true
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A rectangular garden has an area of $48\\text{ m}^2$. Its length is 2 meters greater than its width. What is the width of the garden?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$ m"
+          },
+          {
+            "id": "B",
+            "text": "$6$ m"
+          },
+          {
+            "id": "C",
+            "text": "$8$ m"
+          },
+          {
+            "id": "D",
+            "text": "$12$ m"
+          }
+        ],
+        "correct_answer": "B",
+        "numeric_tolerance": 0,
+        "explanation": "Let the width be $w$ meters. Then $w(w+2)=48$, so $w^2+2w-48=(w+8)(w-6)=0$. The width must be positive, so it is $6$ m.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.QUADRATIC_MODELING",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "ALG.QUADRATIC_SOLVE",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A rectangular garden has an area of $63\\text{ m}^2$. Its length is 2 meters greater than its width. What is the width of the garden?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$5$ m"
+          },
+          {
+            "id": "B",
+            "text": "$6$ m"
+          },
+          {
+            "id": "C",
+            "text": "$7$ m"
+          },
+          {
+            "id": "D",
+            "text": "$9$ m"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Let the width be $w$ meters. Then $w(w+2)=63$, so $w^2+2w-63=(w+9)(w-7)=0$. The positive width is $7$ m.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.QUADRATIC_MODELING",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "ALG.QUADRATIC_SOLVE",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A rectangular garden has an area of $80\\text{ m}^2$. Its length is 2 meters greater than its width. What is the width of the garden?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$6$ m"
+          },
+          {
+            "id": "B",
+            "text": "$7$ m"
+          },
+          {
+            "id": "C",
+            "text": "$8$ m"
+          },
+          {
+            "id": "D",
+            "text": "$10$ m"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Let the width be $w$ meters. Then $w(w+2)=80$, so $w^2+2w-80=(w+10)(w-8)=0$. The positive width is $8$ m.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.QUADRATIC_MODELING",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "ALG.QUADRATIC_SOLVE",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A rectangular garden has an area of $40\\text{ m}^2$. Its length is 3 meters greater than its width. What is the width of the garden?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$4$ m"
+          },
+          {
+            "id": "B",
+            "text": "$6$ m"
+          },
+          {
+            "id": "C",
+            "text": "$8$ m"
+          },
+          {
+            "id": "D",
+            "text": "$5$ m"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Let the width be $w$ meters. Then $w(w+3)=40$, so $w^2+3w-40=(w+8)(w-5)=0$. The positive width is $5$ m.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "FUNC.QUADRATIC_MODELING",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "ALG.QUADRATIC_SOLVE",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ],
+    [
+      {
+        "prompt": "A school sells adult tickets for 8 dollars and student tickets for 5 dollars.\nThe school must sell at least 20 tickets and collect at least 140 dollars.\nIf exactly 12 student tickets are sold, what is the minimum number of adult tickets needed to satisfy both conditions?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$10$"
+          },
+          {
+            "id": "D",
+            "text": "$12$"
+          }
+        ],
+        "correct_answer": "C",
+        "numeric_tolerance": 0,
+        "explanation": "Let $a$ be the number of adult tickets. Ticket count requires $a+12\\geq20$, so $a\\geq8$. Revenue requires $8a+5(12)\\geq140$, so $a\\geq10$. The minimum satisfying both conditions is $10$ adult tickets.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "FUNC.LINEAR_MODELING",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A museum sells adult tickets for 9 dollars and student tickets for 4 dollars.\nThe museum must sell at least 24 tickets and collect at least 150 dollars.\nIf exactly 15 student tickets are sold, what is the minimum number of adult tickets needed to satisfy both conditions?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$8$"
+          },
+          {
+            "id": "B",
+            "text": "$9$"
+          },
+          {
+            "id": "C",
+            "text": "$11$"
+          },
+          {
+            "id": "D",
+            "text": "$10$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Ticket count requires $a+15\\geq24$, so $a\\geq9$. Revenue requires $9a+4(15)\\geq150$, so $a\\geq10$. The minimum satisfying both conditions is $10$ adult tickets.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "FUNC.LINEAR_MODELING",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A concert sells adult tickets for 7 dollars and student tickets for 4 dollars.\nThe concert must sell at least 25 tickets and collect at least 150 dollars.\nIf exactly 14 student tickets are sold, what is the minimum number of adult tickets needed to satisfy both conditions?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$11$"
+          },
+          {
+            "id": "B",
+            "text": "$12$"
+          },
+          {
+            "id": "C",
+            "text": "$13$"
+          },
+          {
+            "id": "D",
+            "text": "$14$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Ticket count requires $a+14\\geq25$, so $a\\geq11$. Revenue requires $7a+4(14)\\geq150$, so $a\\geq\\frac{94}{7}$. Since tickets are whole numbers, $a\\geq14$. With $13$ adult tickets revenue is only $147$ dollars; $14$ adult tickets satisfy both conditions.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "FUNC.LINEAR_MODELING",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      },
+      {
+        "prompt": "A school sells adult tickets for 10 dollars and student tickets for 6 dollars.\nThe school must sell at least 22 tickets and collect at least 200 dollars.\nIf exactly 13 student tickets are sold, what is the minimum number of adult tickets needed to satisfy both conditions?",
+        "type": "multiple_choice",
+        "options": [
+          {
+            "id": "A",
+            "text": "$9$"
+          },
+          {
+            "id": "B",
+            "text": "$11$"
+          },
+          {
+            "id": "C",
+            "text": "$12$"
+          },
+          {
+            "id": "D",
+            "text": "$13$"
+          }
+        ],
+        "correct_answer": "D",
+        "numeric_tolerance": 0,
+        "explanation": "Ticket count requires $a+13\\geq22$, so $a\\geq9$. Revenue requires $10a+6(13)\\geq200$, so $a\\geq12.2$. Adult ticket counts must be whole numbers, so the minimum satisfying both conditions is $13$. With $12$ adult tickets revenue is only $198$ dollars.",
+        "difficulty": 3,
+        "points": 1,
+        "skills": [
+          {
+            "code": "ALG.LINEAR_INEQUALITIES",
+            "weight": 1,
+            "is_primary": true
+          },
+          {
+            "code": "FUNC.LINEAR_MODELING",
+            "weight": 1,
+            "is_primary": false
+          }
+        ],
+        "icfes_competency": "FORMULACION_EJECUCION"
+      }
+    ]
+  ]
+}
